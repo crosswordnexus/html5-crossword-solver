@@ -1,2 +1,78 @@
-# html5-crossword-solver
-An HTML5 crossword solver that can handle JPZ files
+# Crossword Nexus HTML5 Solver
+An HTML5 crossword solver that can handle JPZ files in a browser.
+
+Dependencies:
+jQuery
+zipjs  - http://gildas-lormeau.github.io/zip.js/
+
+Module currently made as AMD module, but can be easily refactored to self-calling function, that creates object in global scope.
+
+Usage:
+(assuming that CW is object representing crosswords, loaded either by AMD loader, or from global scope)
+
+CW.init(<parent>, <parameters);
+
+<parent> - jquery-wrapped element, that will be parent for crossword
+
+<parameters> - object
+
+available parameters
+
+Name			Default			Description
+
+hover_enabled		false		enables or disables cell hover effect
+settings_enabled	true		enables or disables settings menu 
+color_hover 		#FFFFAA		color for hovered cell
+color_selected	 	#FFA500		color for selected cell
+color_word 		#FFFF00		color for selected word
+color_hilite		#FFFCA5		color for hilited word (when mouse over clue)
+cell_size 		null	 	(int) cell size in px. null or anything, that converts to 0, means 'auto'
+
+puzzle_file		null		puzzle file to preload. If file set - list of puzzles and open button will not be shown
+puzzles			null		array of puzzles, user will be able to load
+
+zipjs_path		'js/zip'	path to zip.js files
+
+each puzzle file must be object:
+{
+  url: <file url>,
+  type: 'jpz',
+  name: <name to be shown in list of puzzles>
+}
+
+for puzzle_file parameter name is optional;
+
+With auto cell_size, crossword will never be bigger than parent.
+
+Example:
+
+Multiple puzzles with settings enabled:
+
+var params = {
+  hover_enabled: true,
+  settings_enabled: true,
+  puzzles: [
+	  {name: 'Spring Fever Meets Spring Training', url: '/puzzles/puzzle1.jpz', type: 'jpz'},
+	  {name: 'American Values Club Crossword', url: '/puzzles/puzzle2.jpz', type: 'jpz'},
+	  {name: 'Crossword', url: '/puzzles/crossword_0415.jpz', 'type': 'jpz'},
+	  {name: 'Mini Crossword', url: '/puzzles/mini_0415.jpz', 'type': 'jpz'},
+	  {name: 'Mystery Crossword', url: '/puzzles/mystery_0415.jpz', 'type': 'jpz'},
+	  {name: 'Quick and Easy Crossword', url: '/puzzles/quick_0415.jpz', 'type': 'jpz'}
+  ],
+};
+
+Single puzzle with settings disabled and some custom colors:
+
+var params = {
+  hover_enabled: false,
+  settings_enabled: false,
+  color_selected: '#FF0000',
+  color_word: '#FFFF00',
+  cell_size: 32,
+  puzzle_file: {url: '/puzzles/puzzle1.jpz', type: 'jpz'}
+};
+
+
+
+
+CW.init($('#crossword'), params);

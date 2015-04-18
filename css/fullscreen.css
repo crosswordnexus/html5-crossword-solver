@@ -1,0 +1,76 @@
+/**
+Copyright (c) 2015, Crossword Nexus
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**/
+// Sample CSS for using the Crossword Nexus HTML5 Crossword Solver in fullscreen mode
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+div.crosswords { width: 100%; height: 100%; text-align: center; }
+
+div.cw-main { margin-right: 302px; box-shadow: 3px 3px 3px 0 #BFBFBF, 0 0 1px 2px gray inset; }
+div.cw-main.fixed { position: relative; display: inline-block; }
+div.cw-main.auto { position: absolute; left: 2px; right: 2px; top: 2px; bottom: 2px;  }
+
+input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; width: 0; height: 0; z-index: -1;}
+
+div.cw-open-holder { position: absolute; top: 0; left: 0; right: -302px; bottom: 0; z-index: 4; }
+div.cw-overflow { position: absolute; top: 0; left: 0; height:100%; width: 100%; background: black; opacity: 0.35; z-index: -1; }
+div.cw-main.loading div.cw-open-holder { display: none; }
+div.cw-main.loaded div.cw-open-holder { display: none; }
+
+div.cw-settings-icon { position: absolute; bottom: 6px; right: 6px; width: 40px; height: 40px; z-index: 2; cursor: pointer; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQODCMR5+B7XgAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAFMUlEQVRYw+1Ya0xTZxh+zjk9l/a0FMWGUS1OdJo46QSnOEmBiSwEg27hJibT6MARM50iA1GyIBinMZl3iM5bcct+oEbxkk35I9E65g+R7MccXhhxokJGEFrKpX33xxoReqB0hD88yZfmnO+8z/e+3/d+z/umwDjGMQ5FMP4S9PT0TF6blaURRTG0ubmZAMBgMDDt7e1N1lOnHHq9/p8xjTAtI+MZJwjdGp2OJFkmSZZJo9ORShS7IyIjm8d0B4kIgUFB7Z2dnQEMM5CK47gup90+lWGYlpGuwY7EyFpRAQC4UVMT2tPTIw7mnId/85YtEgCUlJaOzhEujI7u93zLZmMA4MWLF/MSk5LqBbXarRJFGmzwkuSOtljqr1dXzwOA0xUVzP/qnCfqDyIjz4fNmEHbioouzo+Kmr4uJ2fnpOBgAsd5dc4zwHHuCZMm0dLk5NL8goKI1PT0b+eYzZSYlPQMAL7bvds/J7cXFRW/uaCo0fQKajUN5dggu0kane51QIxKRSWlpdUjviTWigo4nc753xQU/O5wOEYlfdxuN3YUFyeGmky/rl61aviGjY2NAIA5ZnPlcHdIUKtJkmWXJMsuQa0mThCGZRdtsdwFgN9qa33bQSJ6NzAo6LHdblcMpq+7GzFxcU//bmrKjF60yCEIAm7ZbJr3Z8/++cL580aVKCraS5KEp0+eLA/Q6ap8FeATYFnF6OWAAMrNyysDgNy8vNe2R48d8/yW6SdOHOoS0WcpKbU+58eRsrL4YKPROzHLUvqKFYcB4KuNGwfYHzh4EADw/b59ZQC88ugCA+nU6dPFPjnnIf/h+PGE8Llz2wfLpw8XLOgmIk6JxyMhMXFxTW/bc4JAxilTWsrKyzPfFH+fsHHTJgaA9Kq29hs7Skqsw+XJy8/fzEtSP3uW56mqqmqZX6Xu4P79dPbcufVdXV393qs4DleuXj1ZV1c3pHNtbW1oaWm5y/P8gLm7dXUf+12LGxoabCzb/zMC8LKzE7V37gzp4I2aGrzs6AARDZjT6nT+NwvxixfLgiD0e+dyubAwKmrtl9nZQy7w6fLlcLtc5t7e3gFzU0NDq0ek8Dte1eCthYXFRpNpUNENNhq7h8s3NyLCNdglmWAw0Kbc3MMAsGLlSt+c3Llr1y9K8gCWdaekpf1FRIpK/EV29m0AXpsKAPT56tXVPh9xX1/fH/De50HF88zlK1feW5qcfI+IQgb7JjU9/bbVao1SiaJ3Io6D0+l86FOzcODQIXy9YQNmzJpFnrqsEAhmzpyJ6WFhP7a2tlYKPI8QozHj5s2bqc+am3mVICj2gHq9Hq3Pn09jGKbR51xMSUurHG7R97RUb+ud0uAEgT6Kjq58s0EZdrPQ1tYGu90+7ZPExEd/3r+Pt6XGXxARDAYDfjpzZgHHcXfiYmNHRnTi5Ml4rV5PnCCQJMuk1mq7RI2mz9eGVa3Vkkardai12tfP63Jy4odaX7GWXrh4ESszMx8XFhaaRVF0h4eHr7l86dK2e/X1Z/UBAWueNDWxrEqlnKO9vQg3m5GwZMmy6mvXCh4+enTdGBISZrFY7h0tL9/VYbfjts028qNQKuJZ2dnFkiy7FZpYd3xCQhERTVDS21HB2qwsNDx4EKrR6ZzeHJRkuWv3nj1TPDk9Jnhn8uR/WZ73lncdRKTxh9/vq7k+J6ed5/lOlUrlZFnWybKsk+M4J8/zXakpKa0MwzgwVti2fbtHMjR79u41WWJiTJbYWFP+1q0mIjIAQEZm5vhfdOMYx2jiP9Zng236i+S2AAAAAElFTkSuQmCC'); }
+div.cw-settings { display: none; padding: 4px; position: absolute; width: 200px; height: auto; bottom: 46px; right: 6px;  z-index: 2; border-radius: 5px; overflow: hidden; }
+div.cw-settings-background { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: black; opacity: 0.75; z-index: -1;}
+div.cw-settings-overflow { position: fixed; left: 0; right: 0; top: 0; bottom: 0; z-index: -1; cursor: pointer; }
+div.cw-settings.open { display: block; }
+
+div.cw-option { margin: 2px; position: relative; height: 25px; line-height: 25px; color: white; }
+span.cw-option-text {position: relative; float: left; width: 90px; text-align: left; }
+span.cw-color-preview {width: 25px; height: 25px; display: block; float: right; }
+div.cw-settings input[type=text] { display: block; width: 70px; height: 18px; float: left;}
+div.cw-cell-size input[type=text] {width: 20px; }
+
+div.cw-open-puzzle { position: relative; margin: 50px auto; width: 300px; height: auto; border-radius: 5px; box-shadow: 3px 3px 3px 0 #BFBFBF, 0 0 1px 2px gray inset; padding: 5px;}
+div.cw-text { position: relative; margin: 5px auto; width: 200px; line-height: 20px; font-size: 20px; }
+div.cw-puzzles-list { position: relative; margin: 0 auto; width: 200px; min-height: 40px; max-height: 250px; background: white; overflow-y: scroll; border-radius: 5px;}
+div.cw-open-puzzle.empty div.cw-text, div.cw-open-puzzle.empty div.cw-puzzles-list { display: none; }
+div.cw-button { position: relative; width: 200px; height: 40px; margin: 5px auto; border: 1px solid; line-height: 50px; border-radius: 5px; box-shadow: 3px 3px 3px 0 gray, 0 0 10px 1px #007000 inset; background: linear-gradient(#008F00, #55e214); cursor: pointer; }
+div.cw-button::after { content: 'Open JPZ file'; position: relative; top: -6px; font-size: 24px; color: #FFFFFF; font-weight: bold; }
+
+div.cw-open-holder input { visibility: hidden; position: absolute; }
+
+div.cw-canvas { display: inline-block; position: relative; padding: 4px 4px 4px 4px; }
+div.cw-main.loaded canvas { border: 1px solid black; }
+
+div.cw-buttons-holder {position: absolute; top: 0; right: -300px; height: 40px; width: 300px; padding: 2px; box-shadow: 3px 3px 3px 0 #BFBFBF, 0 0 1px 2px gray inset; background: white; z-index: 2;}
+div.cw-solve-button {position: relative; display: inline-block; width: 50px; height: 30px;line-height: 30px; margin: 4px 2px; box-shadow: 0 0 1px 1px gray inset; border-radius: 5px; cursor: pointer;}
+div.cw-solve-button:hover { background: #FFFCA5; left: -1px; top: -1px; box-shadow: 1px 1px 1px 0 gray, 0 0 1px 1px gray inset; }
+div.cw-clues-holder { position: absolute; top: 40px; right: -300px; bottom: 0; width: 300px; box-shadow: 3px 3px 3px 0 #BFBFBF, 0 0 1px 2px gray inset; padding: 2px; background: white; z-index: 3; }
+div.cw-clues:first-child { border-bottom: 2px solid gray;}
+
+div.cw-top-text, div.cw-bottom-text { text-align: left; background: #CFCFCF; padding: 2px; line-height: 20px; }
+div.cw-top-text { position: absolute; top: 0; left: 0; right: 2px; font-size: 20px; height: 40px; margin: 4px; overflow: hidden; text-overflow: ellipsis; }
+div.cw-bottom-text { position: absolute; bottom: 0; left: 0; right: 2px; min-height: 40px; margin: 4px; }
+div.cw-clues-title { position: absolute; top: 2px; left: 2px; right: 2px; height: 20px; line-height: 20px; background: #CFCFCF; }
+
+div.cw-clues{ position: relative; height: 50%; }
+
+div.cw-clues-items { display: block; position: absolute; top: 22px; left: 2px; right: 2px; bottom: 2px; overflow-y: scroll; }
+div.cw-clues-items span, div.cw-puzzles-list span { position: relative; display: block; text-align: left; margin: 3px; padding: 4px; box-shadow: 0 0 1px 1px gray inset; cursor: pointer; }
+div.cw-clues-items span:hover, div.cw-puzzles-list span:hover { left: -1px; top: -1px; box-shadow: 1px 1px 1px 0 gray, 0 0 1px 1px gray inset; }
+div.cw-clues-items span.active { background: #FFFCA5; }
+div.cw-clues-items span.passive { background: #ECECEC; }
