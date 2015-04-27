@@ -10,27 +10,27 @@
 ```javascript
 CrosswordNexus.createCrossword(parent, parameters);
 ```
-|parent    |jquery-wrapped element, that will be parent for crossword|
-|parameters|javascript object|
+| parent    | jquery-wrapped element, that will be parent for crossword |
+| parameters| javascript object |
 
 ###Available parameters
-|Name               |Default    |Description  |
------------------------------------------------
-|hover_enabled      |false      |enables or disables cell hover effect|
-|settings_enabled   |true       |enables or disables settings menu|
-|color_hover        |#FFFFAA    |color for hovered cell|
-|color_selected     |#FFA500    |color for selected cell|
-|color_word         |#FFFF00    |color for selected word|
-|color_hilite       |#FFFCA5    |color for hilited word (when mouse over clue)|
-|cell_size          |null       |(int) cell size in px. null or anything, that converts to 0, means 'auto'|
-|puzzle_file        |null       |puzzle file to preload. If file set - list of puzzles and open button will not be shown|
-|puzzles            |null       |array of puzzle_files, user will be able to load|
-|zipjs_path         |'js/zip'   |path to zip.js files (this option is GLOBAL to all puzzles on same page)|
+| Name              | Default   | Description  |
+| ----------------- | --------- | ------------ |
+| hover_enabled     | false     | enables or disables cell hover effect |
+| settings_enabled  | true      | enables or disables settings menu |
+| color_hover       | #FFFFAA   | color for hovered cell |
+| color_selected    | #FFA500   | color for selected cell |
+| color_word        | #FFFF00   | color for selected word |
+| color_hilite      | #FFFCA5   | color for hilited word (when mouse over clue) |
+| cell_size         | null      | (int) cell size in px. null or anything, that converts to 0, means 'auto' |
+| puzzle_file       | null      | puzzle file to preload. If file set - list of puzzles and open button will not be shown |
+| puzzles           | null      | array of puzzle_files, user will be able to load |
+| zipjs_path        | 'js/zip'  | path to zip.js files (this option is GLOBAL to all puzzles on same page) |
 
 ###Each puzzle file must be object with 3 parameters:
-|url    |Puzzle file url|
-|type   |Type of puzzle file. Currently only .JPZ puzzles supported|
-|name   |Puzzle name. Optional for puzzle_file parameter|
+| url    | Puzzle file url |
+| type   | Type of puzzle file. Currently only .JPZ puzzles supported |
+| name   | Puzzle name. Optional for puzzle_file parameter |
 
 With cell_size == 0, crossword will never be bigger than parent.
 
