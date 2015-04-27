@@ -283,12 +283,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.settings_overflow = this.root.find('div.cw-settings-overflow');
 			this.settings_submit = this.root.find('div.cw-settings button');
 
-			this.settings_icon.on('click', this.openSettings);
-			this.settings_overflow.on('click', this.closeSettings);
-			this.settings_submit.on('click', this.saveSettings);
+			this.settings_icon.on('click', $.proxy(this.openSettings, this));
+			this.settings_overflow.on('click', $.proxy(this.closeSettings, this));
+			this.settings_submit.on('click', $.proxy(this.saveSettings, this));
 
-			this.settings.delegate('div.cw-option input.cw-input-color', 'input', this.settingChanged);
-			this.settings.delegate('div.cw-cell-size input[type=checkbox]', 'change', this.settingSizeAuto);
+			this.settings.delegate('div.cw-option input.cw-input-color', 'input', $.proxy(this.settingChanged, this));
+			this.settings.delegate('div.cw-cell-size input[type=checkbox]', 'change', $.proxy(this.settingSizeAuto, this));
 		} else {
 			this.settings_icon.remove();
 			this.settings.remove();
