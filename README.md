@@ -10,6 +10,7 @@
 ```javascript
 CrosswordNexus.createCrossword(parent, parameters);
 ```
+| --------- | ----------------- |
 | parent    | jquery-wrapped element, that will be parent for crossword |
 | parameters| javascript object |
 
@@ -28,6 +29,7 @@ CrosswordNexus.createCrossword(parent, parameters);
 | zipjs_path        | 'js/zip'  | path to zip.js files (this option is GLOBAL to all puzzles on same page) |
 
 ###Each puzzle file must be object with 3 parameters:
+| ------ | --------------- |
 | url    | Puzzle file url |
 | type   | Type of puzzle file. Currently only .JPZ puzzles supported |
 | name   | Puzzle name. Optional for puzzle_file parameter |
