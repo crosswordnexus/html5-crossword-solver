@@ -47,12 +47,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	var SKIP_DOWN = 'down';
 	var SKIP_LEFT = 'left';
 	var SKIP_RIGHT = 'right';
-	var STORAGE_KEY = 'crossword_savegame';
+	var STORAGE_KEY = 'crossword_nexus_savegame';
 
 	// messages
 	var MSG_SAVED = 'Crossword saved';
 	var MSG_LOADED = 'Crossword loaded';
-	var MSG_SOLVED = 'Crossword solved!';
+	var MSG_SOLVED = 'Crossword solved! Congratulations!';
+
+	var SIZE_BIG = 'big';
+	var SIZE_NORMAL = 'normal';
+	var SIZE_SMALL = 'small';
+	var SIZE_TINY = 'tiny';
+
+	var BIG_THRESHOLD = 700;
+	var NORMAL_THRESHOLD = 600;
+	var SMALL_THRESHOLD = 500;
 
 	var TYPE_UNDEFINED = typeof undefined;
 	var ZIPJS_CONFIG_OPTION = 'zipjs_path';
@@ -72,14 +81,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	var load_error = false;
 
 	var template = '' +
-'<div class="cw-main auto">'+
+'<div class="cw-main auto normal">'+
 	'<div class="cw-open-holder">'+
 		'<div class="cw-overflow"></div>'+
 		'<div class="cw-open-puzzle">'+
 			'<div class="cw-text">Select puzzle</div>'+
 			'<div class="cw-puzzles-list"></div>'+
 			'<div class="cw-text">or</div>'+
-			'<div class="cw-button"></div>'+
+			'<div class="cw-open-button"></div>'+
 		'</div>'+
 		'<input type="file" class="cw-open-jpz" accept="application/jpz">'+
 	'</div>'+
@@ -101,21 +110,27 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		'<canvas></canvas>'+
 	'</div>'+
 	'<div class="cw-bottom-text"></div>'+
-	'<div class="cw-buttons-holder">'+
-		'<div class="cw-solve-button cw-solve-letter">Letter</div>'+
-		'<div class="cw-solve-button cw-solve-word">Word</div>'+
-		'<div class="cw-solve-button cw-solve-puzzle">Puzzle</div>'+
-		'<div class="cw-solve-button cw-save">Save</div>'+
-		'<div class="cw-solve-button cw-load">Load</div>'+
-	'</div>'+
-	'<div class="cw-clues-holder">'+
-		'<div class="cw-clues cw-clues-top">'+
-			'<div class="cw-clues-title"></div>'+
-			'<div class="cw-clues-items"></div>'+
+	'<div class="cw-right">'+
+		'<div class="cw-buttons-holder">'+
+			'<div class="cw-button cw-reveal">Reveal'+
+				'<div class="cw-reveal-buttons">'+
+					'<div class="cw-button cw-reveal-letter">Letter</div>'+
+					'<div class="cw-button cw-reveal-word">Word</div>'+
+					'<div class="cw-button cw-reveal-puzzle">Puzzle</div>'+
+				'</div>'+
+			'</div>'+
+			'<div class="cw-button cw-save">Save</div>'+
+			'<div class="cw-button cw-load">Load</div>'+
 		'</div>'+
-		'<div class="cw-clues cw-clues-bottom">'+
-			'<div class="cw-clues-title"></div>'+
-			'<div class="cw-clues-items"></div>'+
+		'<div class="cw-clues-holder">'+
+			'<div class="cw-clues cw-clues-top">'+
+				'<div class="cw-clues-title"></div>'+
+				'<div class="cw-clues-items"></div>'+
+			'</div>'+
+			'<div class="cw-clues cw-clues-bottom">'+
+				'<div class="cw-clues-title"></div>'+
+				'<div class="cw-clues-items"></div>'+
+			'</div>'+
 		'</div>'+
 	'</div>'+
 '</div>';
@@ -254,6 +269,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.selected_cell = null;
 		this.settings_open = false;
 
+		this.render_cells_callback = $.proxy(this.renderCells, this);
+
 		this.init();
 	};
 
@@ -262,6 +279,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		var error_callback = $.proxy(this.error, this);
 
 		if (this.root) {
+			this.removeListeners();
 			this.root.remove();
 		}
 
@@ -282,19 +300,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		if (this.config.settings_enabled) {
 			this.settings_overflow = this.root.find('div.cw-settings-overflow');
 			this.settings_submit = this.root.find('div.cw-settings button');
-
-			this.settings_icon.on('click', $.proxy(this.openSettings, this));
-			this.settings_overflow.on('click', $.proxy(this.closeSettings, this));
-			this.settings_submit.on('click', $.proxy(this.saveSettings, this));
-
-			this.settings.delegate('div.cw-option input.cw-input-color', 'input', $.proxy(this.settingChanged, this));
-			this.settings.delegate('div.cw-cell-size input[type=checkbox]', 'change', $.proxy(this.settingSizeAuto, this));
 		} else {
 			this.settings_icon.remove();
 			this.settings.remove();
 		}
 
 		this.hidden_input = this.root.find('input.cw-hidden-input');
+
+		this.reveal_letter = this.root.find('div.cw-buttons-holder div.cw-reveal-letter');
+		this.reveal_word = this.root.find('div.cw-buttons-holder div.cw-reveal-word');
+		this.reveal_puzzle = this.root.find('div.cw-buttons-holder div.cw-reveal-puzzle');
+		this.save_btn = this.root.find('div.cw-buttons-holder div.cw-save');
+		this.load_btn = this.root.find('div.cw-buttons-holder div.cw-load');
 
 		// preload one puzzle
 		if (this.config.puzzle_file && this.config.puzzle_file.hasOwnProperty('url') && this.config.puzzle_file.hasOwnProperty('type')) {
@@ -325,7 +342,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			} else {
 				puzzles_holder.delegate('div.cw-puzzles-list span', 'click', openPuzzle);
 			}
-			this.open_button = this.root.find('div.cw-button');
+			this.open_button = this.root.find('div.cw-open-button');
 			this.file_input = this.root.find('input[type="file"]');
 
 			this.open_button.on('click', function(e) {
@@ -372,11 +389,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			}
 			this.bottom_text.html(text);
 		}
-
-		// bottom text can have from 1 to 3 lines, correct padding must be set to exclude intersection canvas with text
-		this.top_text_height = this.top_text.outerHeight(true);
-		this.bottom_text_height = this.bottom_text.outerHeight(true);
-		this.canvas_holder.css({'padding-top': this.top_text_height, 'padding-bottom': this.bottom_text_height});
 
 		this.parseJPZCrossWord(crossword[0]);
 	};
@@ -445,28 +457,63 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.setActiveWord(first_word);
 		this.setActiveCell(first_word.getFirstCell());
 
+		this.adjustPaddings();
 		this.renderCells();
 	};
 
+	CrossWord.prototype.removeListeners = function() {
+		$(window).off('resize', this.render_cells_callback);
+		this.clues_holder.undelegate('div.cw-clues-items span');
+		this.canvas.off('mousemove click');
+
+		this.reveal_letter.off('click');
+		this.reveal_word.off('click');
+		this.reveal_puzzle.off('click');
+		this.save_btn.off('click');
+		this.load_btn.off('click');
+
+		if (this.config.settings_enabled) {
+			this.settings_icon.off('click');
+			this.settings_overflow.off('click');
+			this.settings_submit.off('click');
+
+			this.settings.undelegate('div.cw-option input.cw-input-color');
+			this.settings.undelegate('div.cw-cell-size input[type=checkbox]');
+		}
+
+		this.hidden_input.off('input');
+		this.hidden_input.off('keydown');
+	};
+
 	CrossWord.prototype.addListeners = function() {
+		$(window).on('resize', this.render_cells_callback);
+
 		this.clues_holder.delegate('div.cw-clues-items span', 'mouseenter', $.proxy(this.mouseEnteredClue, this));
 		this.clues_holder.delegate('div.cw-clues-items span', 'mouseleave', $.proxy(this.mouseLeftClue, this));
 		this.clues_holder.delegate('div.cw-clues-items span', 'click', $.proxy(this.clueClicked, this));
 
-		$(window).on('resize', $.proxy(this.renderCells, this));
-		$(document).on('keydown', $.proxy(this.keyPressed, this));
 		if (this.config.hover_enabled) {
 			this.canvas.on('mousemove', $.proxy(this.mouseMoved, this));
 		}
 		this.canvas.on('click', $.proxy(this.mouseClicked, this));
 
-		this.root.find('div.cw-buttons-holder div.cw-solve-letter').on('click', $.proxy(this.solveLetter, this));
-		this.root.find('div.cw-buttons-holder div.cw-solve-word').on('click', $.proxy(this.solveWord, this));
-		this.root.find('div.cw-buttons-holder div.cw-solve-puzzle').on('click', $.proxy(this.solvePuzzle, this));
-		this.root.find('div.cw-buttons-holder div.cw-save').on('click', $.proxy(this.savePuzzle, this));
-		this.root.find('div.cw-buttons-holder div.cw-load').on('click', $.proxy(this.loadPuzzle, this));
+		this.reveal_letter.on('click', $.proxy(this.solveLetter, this));
+		this.reveal_word.on('click', $.proxy(this.solveWord, this));
+		this.reveal_puzzle.on('click', $.proxy(this.solvePuzzle, this));
+		this.save_btn.on('click', $.proxy(this.savePuzzle, this));
+		this.load_btn.on('click', $.proxy(this.loadPuzzle, this));
+
+		if (this.config.settings_enabled) {
+			this.settings_icon.on('click', $.proxy(this.openSettings, this));
+			this.settings_overflow.on('click', $.proxy(this.closeSettings, this));
+			this.settings_submit.on('click', $.proxy(this.saveSettings, this));
+
+			this.settings.delegate('div.cw-option input.cw-input-color', 'input', $.proxy(this.settingChanged, this));
+			this.settings.delegate('div.cw-cell-size input[type=checkbox]', 'change', $.proxy(this.settingSizeAuto, this));
+		}
 
 		this.hidden_input.on('input', $.proxy(this.hiddenInputChanged, this));
+		this.hidden_input.on('keydown', $.proxy(this.keyPressed, this));
 	};
 
 	CrossWord.prototype.changeActiveClues = function() {
@@ -526,7 +573,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	CrossWord.prototype.renderCells = function() {
 		var x, y;
 
-		// determines cell size
+		this.adjustSize();
+
 		if (Number(this.config.cell_size) === 0) {
 			var max_height, max_width;
 			this.root.removeClass('fixed');
@@ -581,6 +629,33 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 				}
 			}
 		}
+	};
+
+	CrossWord.prototype.adjustSize = function() {
+		var size = Math.min(this.root.outerWidth(true), this.root.outerHeight(true));
+		if (size >= BIG_THRESHOLD && !this.root.hasClass(SIZE_BIG)) {
+			this.root.addClass(SIZE_BIG);
+			this.root.removeClass(SIZE_NORMAL+' '+SIZE_SMALL+' '+SIZE_TINY);
+			this.adjustPaddings();
+		} else if (size < BIG_THRESHOLD && size >= NORMAL_THRESHOLD && !this.root.hasClass(SIZE_NORMAL)) {
+			this.root.addClass(SIZE_NORMAL);
+			this.root.removeClass(SIZE_BIG+' '+SIZE_SMALL+' '+SIZE_TINY);
+			this.adjustPaddings();
+		} else if (size < NORMAL_THRESHOLD && size >= SMALL_THRESHOLD && !this.root.hasClass(SIZE_SMALL)) {
+			this.root.addClass(SIZE_SMALL);
+			this.root.removeClass(SIZE_BIG+' '+SIZE_NORMAL+' '+SIZE_TINY);
+			this.adjustPaddings();
+		} else if (size < SMALL_THRESHOLD && size < SMALL_THRESHOLD && !this.root.hasClass(SIZE_TINY)) {
+			this.root.addClass(SIZE_TINY);
+			this.root.removeClass(SIZE_BIG+' '+SIZE_NORMAL+' '+SIZE_SMALL);
+			this.adjustPaddings();
+		}
+	};
+
+	CrossWord.prototype.adjustPaddings = function() {
+		this.top_text_height = this.top_text.outerHeight(true);
+		this.bottom_text_height = this.bottom_text.outerHeight(true);
+		this.canvas_holder.css({'padding-top': this.top_text_height, 'padding-bottom': this.bottom_text_height});
 	};
 
 	CrossWord.prototype.mouseMoved = function(e) {
@@ -699,8 +774,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			next_cell = this.selected_word.getFirstEmptyCell(this.selected_cell.x, this.selected_cell.y) || this.selected_word.getNextCell(this.selected_cell.x, this.selected_cell.y);
 			this.setActiveCell(next_cell);
 			this.renderCells();
+			this.checkIfSolved();
 		}
 		this.hidden_input.val('');
+	};
+
+	CrossWord.prototype.checkIfSolved = function() {
+		var i, j, cell;
+		for(i in this.cells) {
+			for(j in this.cells[i]) {
+				cell = this.cells[i][j];
+				// if found cell without letter or with incorrect letter - return
+				if (!cell.empty && (!cell.letter || cell.letter != cell.solution)) {
+					return;
+				}
+			}
+		}
+		alert(MSG_SOLVED);
 	};
 
 	// callback for shift+arrows
@@ -835,7 +925,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	CrossWord.prototype.clueClicked = function(e) {
 		var target = $(e.currentTarget),
 			word = this.words[target.data('word')],
-			cell = word.getFirstEmptyCell();
+			cell = word.getFirstEmptyCell() || word.getFirstCell();
 		if (cell) {
 			this.setActiveWord(word);
 			if (this.active_clues.id !== target.data('clues')) {
@@ -939,6 +1029,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		if (this.selected_cell) {
 			this.selected_cell.letter = this.selected_cell.solution;
 			this.renderCells();
+			this.checkIfSolved();
 		}
 	};
 
@@ -946,6 +1037,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		if (this.selected_word) {
 			this.selected_word.solve();
 			this.renderCells();
+			this.checkIfSolved();
 		}
 	};
 
@@ -958,6 +1050,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			}
 		}
 		this.renderCells();
+		this.checkIfSolved();
 	};
 
 	CrossWord.prototype.savePuzzle = function() {
@@ -1078,13 +1171,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		var k, clue,
 			title_el = xml_data.getElementsByTagName('title')[0],
 			clues_el = xml_data.getElementsByTagName('clue');
-		this.title = title_el.innerHTML;
+		this.title = title_el.innerHTML.replace(/<[^>]+>/g, '');
 		for(k=0; clue=clues_el[k]; k++) {
 			var word_id = clue.getAttribute('word'), word = this.crossword.words[word_id],
 				new_clue = {
 					word: word_id,
 					number: clue.getAttribute('number'),
-					text: clue.innerHTML
+					text: clue.innerHTML.replace(/<[^>]+>/g, '')
 				};
 			this.clues.push(new_clue);
 			word.clue = new_clue;
