@@ -99,7 +99,7 @@ div.cw-main.normal div.cw-clues-items { top: 19px; }
 div.cw-main.normal div.cw-clues-items div.cw-clue { line-height: 17px; margin: 2px; padding: 3px; }
 
 div.cw-main.small { margin-right: 202px; font-size: 15px; }
-div.cw-main.tiny div.cw-open-holder { right: -202px;  }
+div.cw-main.small div.cw-open-holder { right: -202px;  }
 div.cw-main.small div.cw-buttons-holder { height: 30px; line-height: 30px; }
 div.cw-main.small div.cw-clues-holder { top: 30px; }
 div.cw-main.small div.cw-button { width: 45px; height: 22px; font-size: 13px; line-height: 22px; }
