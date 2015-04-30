@@ -34,7 +34,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		color_block: "#000000",
 		cell_size: null, // null or anything converts to 0 means 'auto'
 		puzzle_file: null,
-		puzzles: null
+		puzzles: null,
+		savegame_name: ''
 	};
 
 	// constants
@@ -64,6 +65,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	var SMALL_THRESHOLD = 500;
 
 	var TYPE_UNDEFINED = typeof undefined;
+	var XMLDOM_ELEMENT = 1;
+	var XMLDOM_TEXT = 3;
 	var ZIPJS_CONFIG_OPTION = 'zipjs_path';
 	var ZIPJS_PATH = 'lib/zip';
 
@@ -217,6 +220,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		deferred.resolve(xmlDoc);
 	}
 
+	function XMLElementToString(element) {
+		var i, node, nodename,
+			nodes = element.childNodes,
+			result = '';
+		for (i=0;node=nodes[i];i++) {
+			if (node.nodeType === XMLDOM_TEXT) {
+				result += node.textContent;
+			}
+			if (node.nodeType === XMLDOM_ELEMENT) {
+				nodename = node.nodeName;
+				result += '<'+nodename+'>'+XMLElementToString(node)+'</'+nodename+'>';
+			}
+
+		}
+		return result;
+	}
+
 	var CrosswordNexus = {
 		createCrossword: function(parent, user_config) {
 			var crossword;
@@ -279,8 +299,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		var error_callback = $.proxy(this.error, this);
 
 		if (this.root) {
-			this.removeListeners();
-			this.root.remove();
+			this.remove();
 		}
 
 		// build structures
@@ -307,6 +326,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 		this.hidden_input = this.root.find('input.cw-hidden-input');
 
+		this.reveal_button = this.root.find('div.cw-buttons-holder div.cw-reveal');
 		this.reveal_letter = this.root.find('div.cw-buttons-holder div.cw-reveal-letter');
 		this.reveal_word = this.root.find('div.cw-buttons-holder div.cw-reveal-word');
 		this.reveal_puzzle = this.root.find('div.cw-buttons-holder div.cw-reveal-puzzle');
@@ -365,7 +385,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	};
 
 	CrossWord.prototype.parseJPZPuzzle = function(xmlDoc) {
-		var crossword, puzzle, title, creator, copyright;
+		var crossword, puzzle, metadata, title, creator, copyright;
 		puzzle = xmlDoc.getElementsByTagName('rectangular-puzzle');
 		crossword = xmlDoc.getElementsByTagName('crossword');
 		if (!puzzle.length) {
@@ -376,16 +396,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.error(ERR_NOT_CROSSWORD);
 			return;
 		}
-		title = puzzle[0].getElementsByTagName('title');
-		creator = puzzle[0].getElementsByTagName('creator');
-		copyright = puzzle[0].getElementsByTagName('copyright');
+		metadata = puzzle[0].getElementsByTagName('metadata');
+		if (!metadata.length) {
+			this.error(ERR_PARSE_JPZ);
+			return;
+		}
+
+		title = metadata[0].getElementsByTagName('title');
+		creator = metadata[0].getElementsByTagName('creator');
+		copyright = metadata[0].getElementsByTagName('copyright');
 		if (title.length) {
-			var text = title[0].innerHTML;
+			var text = XMLElementToString(title[0]);
 			if (creator.length) {
-				text += "<br>"+creator[0].innerHTML;
+				text += "<br>"+XMLElementToString(creator[0]);
 			}
 			if (copyright.length) {
-				text += "<br>"+copyright[0].innerHTML;
+				text += "<br>"+XMLElementToString(copyright[0]);
 			}
 			this.bottom_text.html(text);
 		}
@@ -461,11 +487,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.renderCells();
 	};
 
-	CrossWord.prototype.removeListeners = function() {
+	CrossWord.prototype.remove = function() {
+		this.removeListeners();
+		this.root.remove();
+	};
+
+	CrossWord.prototype.removeGlobalListeners = function() {
 		$(window).off('resize', this.render_cells_callback);
+	};
+
+	CrossWord.prototype.removeListeners = function() {
+		this.removeGlobalListeners();
 		this.clues_holder.undelegate('div.cw-clues-items span');
 		this.canvas.off('mousemove click');
 
+		this.reveal_button.off('click mouseenter mouseleave');
 		this.reveal_letter.off('click');
 		this.reveal_word.off('click');
 		this.reveal_puzzle.off('click');
@@ -497,6 +533,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		}
 		this.canvas.on('click', $.proxy(this.mouseClicked, this));
 
+		this.reveal_button.on('click', $.proxy(this.toggleReveal, this));
+		this.reveal_button.on('mouseenter', $.proxy(this.openReveal, this));
+		this.reveal_button.on('mouseleave', $.proxy(this.closeReveal, this));
 		this.reveal_letter.on('click', $.proxy(this.solveLetter, this));
 		this.reveal_word.on('click', $.proxy(this.solveWord, this));
 		this.reveal_puzzle.on('click', $.proxy(this.solvePuzzle, this));
@@ -1026,23 +1065,41 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		e.stopPropagation();
 	};
 
-	CrossWord.prototype.solveLetter = function() {
+	CrossWord.prototype.openReveal = function() {
+		this.reveal_button.addClass('open');
+	};
+
+	CrossWord.prototype.closeReveal = function() {
+		this.reveal_button.removeClass('open');
+	};
+
+	CrossWord.prototype.toggleReveal = function() {
+		this.reveal_button.toggleClass('open');
+	};
+
+	CrossWord.prototype.solveLetter = function(e) {
 		if (this.selected_cell) {
 			this.selected_cell.letter = this.selected_cell.solution;
 			this.renderCells();
 			this.checkIfSolved();
 		}
+		this.closeReveal();
+		e.preventDefault();
+		e.stopPropagation();
 	};
 
-	CrossWord.prototype.solveWord = function() {
+	CrossWord.prototype.solveWord = function(e) {
 		if (this.selected_word) {
 			this.selected_word.solve();
 			this.renderCells();
 			this.checkIfSolved();
 		}
+		this.closeReveal();
+		e.preventDefault();
+		e.stopPropagation();
 	};
 
-	CrossWord.prototype.solvePuzzle = function() {
+	CrossWord.prototype.solvePuzzle = function(e) {
 		var i, j, cell;
 		for (i in this.cells) {
 			for (j in this.cells[i]) {
@@ -1052,10 +1109,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		}
 		this.renderCells();
 		this.checkIfSolved();
+		this.closeReveal();
+		e.preventDefault();
+		e.stopPropagation();
 	};
 
 	CrossWord.prototype.savePuzzle = function() {
-		var i, savegame = {
+		var i, savegame_name, savegame = {
 			cell_size: this.cell_size,
 			top_text_height: this.top_text_height,
 			bottom_text_height: this.bottom_text_height,
@@ -1088,13 +1148,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 				};
 			}
 		}
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(savegame));
+
+		savegame_name = STORAGE_KEY + (this.config.savegame_name || '');
+		localStorage.setItem(savegame_name, JSON.stringify(savegame));
 		alert(MSG_SAVED);
 	};
 
 	// loads saved puzzle
 	CrossWord.prototype.loadPuzzle = function() {
-		var i, savegame = JSON.parse(localStorage.getItem(STORAGE_KEY)), active_word;
+		var i, savegame_name, savegame, active_word;
+		savegame_name = STORAGE_KEY + (this.config.savegame_name || '');
+		savegame = JSON.parse(localStorage.getItem(savegame_name));
 		if (savegame && savegame.hasOwnProperty('bottom_text') && savegame.hasOwnProperty('top_clues') && savegame.hasOwnProperty('bottom_clues') && savegame.hasOwnProperty('words') && savegame.hasOwnProperty('cells')
 			&& savegame.hasOwnProperty('cell_size') && savegame.hasOwnProperty('top_text_height') && savegame.hasOwnProperty('bottom_text_height') && savegame.hasOwnProperty('grid_width') && savegame.hasOwnProperty('grid_height')) {
 
@@ -1172,13 +1236,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		var k, clue,
 			title_el = xml_data.getElementsByTagName('title')[0],
 			clues_el = xml_data.getElementsByTagName('clue');
-		this.title = title_el.innerHTML;
+		this.title = XMLElementToString(title_el);
 		for(k=0; clue=clues_el[k]; k++) {
 			var word_id = clue.getAttribute('word'), word = this.crossword.words[word_id],
 				new_clue = {
 					word: word_id,
 					number: clue.getAttribute('number'),
-					text: clue.innerHTML
+					text: XMLElementToString(clue)
 				};
 			this.clues.push(new_clue);
 			word.clue = new_clue;

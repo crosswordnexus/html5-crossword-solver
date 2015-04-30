@@ -7,15 +7,27 @@
 
 ## Usage:
 ###Basic usage example
+
 ```javascript
-CrosswordNexus.createCrossword(parent, parameters);
+var CrossWord = CrosswordNexus.createCrossword(parent, parameters);
 ```
+
+###Warning
+CrossWord object adds listener to window. If you want to remove crossword from DOM - call remove function, that will remove all event listeners, then remove crossword;
+
+```javascript
+CrossWord.remove();
+```
+
+###Parameters
+
 | Param     | Description |
 | --------- | ----------------- |
 | parent    | jquery-wrapped element, that will be parent for crossword |
 | parameters| javascript object |
 
 ###Available parameters
+
 | Name              | Default   | Description  |
 | ----------------- | --------- | ------------ |
 | hover_enabled     | false     | enables or disables cell hover effect |
@@ -27,6 +39,7 @@ CrosswordNexus.createCrossword(parent, parameters);
 | cell_size         | null      | (int) cell size in px. null or anything, that converts to 0, means 'auto' |
 | puzzle_file       | null      | puzzle file to preload. If file set - list of puzzles and open button will not be shown |
 | puzzles           | null      | array of puzzle_files, user will be able to load |
+| savegame_name     | ''        | name of saved game, blank name is global to whole site |
 | zipjs_path        | 'js/zip'  | path to zip.js files (this option is GLOBAL to all puzzles on same page) |
 
 ###Each puzzle file must be object with 3 parameters:
@@ -41,6 +54,7 @@ With cell_size == 0, crossword will never be bigger than parent.
 ##Example:
 
 ###Multiple puzzles with settings enabled:
+
 ```javascript
 var params = {
   hover_enabled: true,
@@ -57,6 +71,7 @@ var params = {
 CrosswordNexus.createCrossword($('#crossword'), params);
 ```
 ###Single puzzle with settings disabled and some custom colors:
+
 ```javascript
 var params = {
   hover_enabled: false,

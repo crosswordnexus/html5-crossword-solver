@@ -23,15 +23,24 @@
 
 <script>
 	(function(){
-	    var params = {
+	    var params1 = {
 	      hover_enabled: false,
 	      settings_enabled: false,
 	      color_selected: '#FF0000',
-	      color_word: '#FFFF00'
+	      color_word: '#FFFF00',
+		  savegame_name: 'puzzle1'
 	      //cell_size: 32,
 	    };
-	    CrosswordNexus.createCrossword($('div.crossword-1'), params);
-	    CrosswordNexus.createCrossword($('div.crossword-2'), params);
+	    var params2 = {
+	      hover_enabled: true,
+	      settings_enabled: false,
+	      color_selected: '#00FF00',
+	      color_word: '#FFFF00',
+		  savegame_name: 'puzzle2'
+	      //cell_size: 32,
+	    };
+	    CrosswordNexus.createCrossword($('div.crossword-1'), params1);
+	    CrosswordNexus.createCrossword($('div.crossword-2'), params2);
 	})();
 </script>
 

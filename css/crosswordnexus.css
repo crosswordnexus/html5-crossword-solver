@@ -57,14 +57,14 @@ div.cw-right { position: absolute; top: 0; bottom: 0; box-shadow: 3px 3px 3px 0 
 div.cw-buttons-holder { position: absolute; top: 0; left: 0; width: 100%; }
 div.cw-button { position: relative; display: inline-block; margin: 1px 2px; box-shadow: 0 0 1px 1px gray inset; border-radius: 5px; cursor: pointer;}
 div.cw-reveal-buttons { position: absolute; display: none; z-index: 2; top: 100%; left: -3px; padding: 3px 2px; background: white; border-radius: 5px; box-shadow: 0 0 1px 1px gray inset; }
-div.cw-button.cw-reveal:hover div.cw-reveal-buttons { display: block; }
+div.cw-button.cw-reveal.open div.cw-reveal-buttons { display: block; }
 div.cw-button:hover { background: #FFFCA5; left: -1px; top: -1px; box-shadow: 1px 1px 1px 0 gray, 0 0 1px 1px gray inset; }
 
 div.cw-clues-holder { position: absolute; left: 0; bottom: 2px; width: 100%; }
 
 div.cw-clues-top { position: absolute; top: 0; bottom: 50%; left: 0; right: 0; }
 div.cw-clues-bottom { position: absolute; top: 50%; bottom: 0; left: 0; right: 0; }
-div.cw-clues-title { position: absolute; top: 0; left: 2px; right: 2px; background: #CFCFCF; font-weight: bold; border-top: 2px solid gray; }
+div.cw-clues-title { position: absolute; top: 0; left: 2px; right: 2px; background: #CFCFCF; border-top: 2px solid gray; }
 div.cw-clues-items { display: block; position: absolute; left: 2px; right: 2px; bottom: 0; overflow-y: scroll; }
 div.cw-clues-items div.cw-clue, div.cw-puzzles-list span { position: relative; display: block; text-align: left; box-shadow: 0 0 1px 1px gray inset; cursor: pointer; }
 div.cw-clues-items div.cw-clue:hover, div.cw-puzzles-list span:hover { left: -1px; top: -1px; box-shadow: 1px 1px 1px 0 gray, 0 0 1px 1px gray inset; }
