@@ -582,7 +582,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.root.addClass('auto');
 			max_height = this.root.height() - (this.top_text_height+this.bottom_text_height);
 			max_width = this.root.width();
-			this.cell_size = Math.min(Math.floor(max_height/this.grid_height), Math.floor(max_width/this.grid_width));
+			this.cell_size = Math.min(Math.floor(max_height/this.grid_height) - 1, Math.floor(max_width/this.grid_width) - 1);
 		} else {
 			this.root.removeClass('auto');
 			this.root.addClass('fixed');
