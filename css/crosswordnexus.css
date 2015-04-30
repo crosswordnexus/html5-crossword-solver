@@ -66,10 +66,10 @@ div.cw-clues-top { position: absolute; top: 0; bottom: 50%; left: 0; right: 0; }
 div.cw-clues-bottom { position: absolute; top: 50%; bottom: 0; left: 0; right: 0; }
 div.cw-clues-title { position: absolute; top: 0; left: 2px; right: 2px; background: #CFCFCF; font-weight: bold; border-top: 2px solid gray; }
 div.cw-clues-items { display: block; position: absolute; left: 2px; right: 2px; bottom: 0; overflow-y: scroll; }
-div.cw-clues-items span, div.cw-puzzles-list span { position: relative; display: block; text-align: left; box-shadow: 0 0 1px 1px gray inset; cursor: pointer; }
-div.cw-clues-items span:hover, div.cw-puzzles-list span:hover { left: -1px; top: -1px; box-shadow: 1px 1px 1px 0 gray, 0 0 1px 1px gray inset; }
-div.cw-clues-items span.active { background: #FFFCA5; }
-div.cw-clues-items span.passive { background: #ECECEC; }
+div.cw-clues-items div.cw-clue, div.cw-puzzles-list span { position: relative; display: block; text-align: left; box-shadow: 0 0 1px 1px gray inset; cursor: pointer; }
+div.cw-clues-items div.cw-clue:hover, div.cw-puzzles-list span:hover { left: -1px; top: -1px; box-shadow: 1px 1px 1px 0 gray, 0 0 1px 1px gray inset; }
+div.cw-clues-items div.cw-clue.active { background: #FFFCA5; }
+div.cw-clues-items div.cw-clue.passive { background: #ECECEC; }
 
 /* size-dependent styles */
 div.cw-main.big { margin-right: 302px; font-size: 20px; }
@@ -83,7 +83,7 @@ div.cw-main.big div.cw-top-text { line-height: 20px; height: 40px; margin: 4px; 
 div.cw-main.big div.cw-bottom-text { line-height: 20px; min-height: 40px; margin: 4px; }
 div.cw-main.big div.cw-clues-title { height: 20px; line-height: 20px; }
 div.cw-main.big div.cw-clues-items { top: 22px; }
-div.cw-main.big div.cw-clues-items span { line-height: 20px; margin: 3px; padding: 4px; }
+div.cw-main.big div.cw-clues-items div.cw-clue { line-height: 20px; margin: 3px; padding: 4px; }
 
 div.cw-main.normal { margin-right: 252px; font-size: 17px; }
 div.cw-main.normal div.cw-open-holder { right: -252px;  }
@@ -96,7 +96,7 @@ div.cw-main.normal div.cw-top-text { line-height: 17px; height: 34px; margin: 4p
 div.cw-main.normal div.cw-bottom-text { line-height: 17px; min-height: 34px; margin: 4px; }
 div.cw-main.normal div.cw-clues-title { height: 17px; line-height: 17px; }
 div.cw-main.normal div.cw-clues-items { top: 19px; }
-div.cw-main.normal div.cw-clues-items span { line-height: 17px; margin: 2px; padding: 3px; }
+div.cw-main.normal div.cw-clues-items div.cw-clue { line-height: 17px; margin: 2px; padding: 3px; }
 
 div.cw-main.small { margin-right: 202px; font-size: 15px; }
 div.cw-main.tiny div.cw-open-holder { right: -202px;  }
@@ -109,7 +109,7 @@ div.cw-main.small div.cw-top-text { line-height: 15px; height: 30px; margin: 3px
 div.cw-main.small div.cw-bottom-text { line-height: 15px; min-height: 30px; margin: 3px; }
 div.cw-main.small div.cw-clues-title { height: 15px; line-height: 15px; }
 div.cw-main.small div.cw-clues-items { top: 17px; }
-div.cw-main.small div.cw-clues-items span { line-height: 15px; margin: 2px; padding: 3px; }
+div.cw-main.small div.cw-clues-items div.cw-clue { line-height: 15px; margin: 2px; padding: 3px; }
 
 div.cw-main.tiny { margin-right: 152px; font-size: 12px; }
 div.cw-main.tiny div.cw-open-holder { right: -152px;  }
@@ -122,5 +122,5 @@ div.cw-main.tiny div.cw-top-text { line-height: 12px; height: 24px; margin: 2px;
 div.cw-main.tiny div.cw-bottom-text { line-height: 12px; min-height: 24px; margin: 2px; }
 div.cw-main.tiny div.cw-clues-title { height: 12px; line-height: 12px; }
 div.cw-main.tiny div.cw-clues-items { top: 14px; }
-div.cw-main.tiny div.cw-clues-items span { font-size: 13px;line-height: 13px; margin: 1px; padding: 2px; }
+div.cw-main.tiny div.cw-clues-items div.cw-clue { font-size: 13px;line-height: 13px; margin: 1px; padding: 2px; }
 

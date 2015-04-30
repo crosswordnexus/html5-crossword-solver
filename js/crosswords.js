@@ -488,9 +488,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	CrossWord.prototype.addListeners = function() {
 		$(window).on('resize', this.render_cells_callback);
 
-		this.clues_holder.delegate('div.cw-clues-items span', 'mouseenter', $.proxy(this.mouseEnteredClue, this));
-		this.clues_holder.delegate('div.cw-clues-items span', 'mouseleave', $.proxy(this.mouseLeftClue, this));
-		this.clues_holder.delegate('div.cw-clues-items span', 'click', $.proxy(this.clueClicked, this));
+		this.clues_holder.delegate('div.cw-clues-items div.cw-clue', 'mouseenter', $.proxy(this.mouseEnteredClue, this));
+		this.clues_holder.delegate('div.cw-clues-items div.cw-clue', 'mouseleave', $.proxy(this.mouseLeftClue, this));
+		this.clues_holder.delegate('div.cw-clues-items div.cw-clue', 'click', $.proxy(this.clueClicked, this));
 
 		if (this.config.hover_enabled) {
 			this.canvas.on('mousemove', $.proxy(this.mouseMoved, this));
@@ -556,12 +556,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		var i, clue, clue_el,
 			title = clues_container.find('div.cw-clues-title'),
 			items = clues_container.find('div.cw-clues-items');
-		items.find('span').remove();
+		items.find('div.cw-clue').remove();
 		for (i=0; clue = clues_group.clues[i]; i++) {
-			clue_el = $('<span>'+clue.number+'. '+clue.text+'</span>');
+			clue_el = $('<div>'+clue.number+'. '+clue.text+'</div>');
 			clue_el.data('word', clue.word);
 			clue_el.data('number', clue.number);
 			clue_el.data('clues', clues_group.id);
+			clue_el.addClass('cw-clue');
 			clue_el.addClass('word-'+clue.word);
 			items.append(clue_el);
 		}
@@ -1171,13 +1172,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		var k, clue,
 			title_el = xml_data.getElementsByTagName('title')[0],
 			clues_el = xml_data.getElementsByTagName('clue');
-		this.title = title_el.innerHTML.replace(/<[^>]+>/g, '');
+		this.title = title_el.innerHTML;
 		for(k=0; clue=clues_el[k]; k++) {
 			var word_id = clue.getAttribute('word'), word = this.crossword.words[word_id],
 				new_clue = {
 					word: word_id,
 					number: clue.getAttribute('number'),
-					text: clue.innerHTML.replace(/<[^>]+>/g, '')
+					text: clue.innerHTML
 				};
 			this.clues.push(new_clue);
 			word.clue = new_clue;
@@ -1209,10 +1210,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		var classname = is_passive ? 'passive' : 'active',
 			word = this.getMatchingWord(x, y),
 			clue_el, clue_position, clue_height;
-		this.clues_container.find('span.active').removeClass('active');
-		this.clues_container.find('span.passive').removeClass('passive');
+		this.clues_container.find('div.cw-clue.active').removeClass('active');
+		this.clues_container.find('div.cw-clue.passive').removeClass('passive');
 		if (word) {
-			clue_el = this.clues_container.find('span.word-'+word.id);
+			clue_el = this.clues_container.find('div.cw-clue.word-'+word.id);
 			clue_el.addClass(classname);
 			clue_position = clue_el.position().top;
 			clue_height = clue_el.outerHeight(true);
