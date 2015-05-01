@@ -35,6 +35,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		cell_size: null, // null or anything converts to 0 means 'auto'
 		puzzle_file: null,
 		puzzles: null,
+		skip_filled_letters: true,
 		savegame_name: ''
 	};
 
@@ -104,6 +105,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		'<div class="cw-option cw-color-word"><span class="cw-option-text">Word</span><input class="cw-input-color" type="text"><span class="cw-color-preview"></span></div>'+
 		'<div class="cw-option cw-color-hilite"><span class="cw-option-text">Hilite</span><input class="cw-input-color" type="text"><span class="cw-color-preview"></span></div>'+
 		'<div class="cw-option cw-cell-size"><span class="cw-option-text">Size</span><input class="cw-input-size" type="text"><label><input type="checkbox">Auto</label></div>'+
+		'<div class="cw-option cw-skip-filled"><label><input type="checkbox">Skip filled letters</label></div>'+
 		'<button>Ok</button>'+
 	'</div>'+
 	'<div class="cw-top-text"></div>'+
@@ -811,7 +813,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		if (this.selected_word && this.selected_cell && char) {
 			this.selected_cell.letter = char;
 			// find empty cell, then next cell
-			next_cell = this.selected_word.getFirstEmptyCell(this.selected_cell.x, this.selected_cell.y) || this.selected_word.getNextCell(this.selected_cell.x, this.selected_cell.y);
+			// Change this depending on config
+			if (this.config.skip_filled_letters) {
+			    next_cell = this.selected_word.getFirstEmptyCell(this.selected_cell.x, this.selected_cell.y) || this.selected_word.getNextCell(this.selected_cell.x, this.selected_cell.y);
+			}
+			else {
+			    next_cell = this.selected_word.getNextCell(this.selected_cell.x, this.selected_cell.y);
+			}
+			
 			this.setActiveCell(next_cell);
 			this.renderCells();
 			this.checkIfSolved();
@@ -999,6 +1008,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.settings.find('div.cw-cell-size input[type=text]').val(this.config.cell_size);
 			this.settings.find('div.cw-cell-size input[type=checkbox]').prop('checked', false);
 		}
+		
+		this.settings.find('div.cw-skip-filled input[type=checkbox]').prop('checked',this.config.skip_filled_letters);
 
 		this.settings_open = true;
 	};
@@ -1057,6 +1068,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			value = this.settings.find('div.cw-cell-size input.cw-input-size').val();
 			this.config.cell_size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, Number(value)));
 		}
+		
+		this.config.skip_filled_letters = this.settings.find('div.cw-skip-filled input[type=checkbox]').prop('checked');
 
 		this.closeSettings();
 		this.renderCells();
