@@ -1097,6 +1097,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.checkIfSolved();
 		}
 		this.closeReveal();
+		this.hidden_input.focus();
 		e.preventDefault();
 		e.stopPropagation();
 	};
@@ -1108,6 +1109,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.checkIfSolved();
 		}
 		this.closeReveal();
+		this.hidden_input.focus();
 		e.preventDefault();
 		e.stopPropagation();
 	};
@@ -1123,6 +1125,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.renderCells();
 		this.checkIfSolved();
 		this.closeReveal();
+		this.hidden_input.focus();
 		e.preventDefault();
 		e.stopPropagation();
 	};
