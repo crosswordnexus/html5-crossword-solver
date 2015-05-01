@@ -41,6 +41,7 @@ CrossWord.remove();
 | puzzles           | null      | array of puzzle_files, user will be able to load |
 | savegame_name     | ''        | name of saved game, blank name is global to whole site |
 | zipjs_path        | 'js/zip'  | path to zip.js files (this option is GLOBAL to all puzzles on same page) |
+| skip_filled_letters | true    | enables or disables skipping filled-in letters when filling grid |
 
 ###Each puzzle file must be object with 3 parameters:
 | Param  | Description     |
