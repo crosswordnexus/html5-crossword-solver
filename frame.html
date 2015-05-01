@@ -14,7 +14,7 @@
 			height: 100%;
 			margin: 0;
 		}
-		div.crossword { position: relative; margin: 20px auto; width: 500px; height: 400px; text-align: center; }
+		div.crossword { position: relative; margin: 20px auto; width: 100%; max-width: 500px; min-width: 300px; height: 400px; text-align: center; }
 	</style>
 </head>
 <body>
@@ -28,16 +28,16 @@
 	      settings_enabled: false,
 	      color_selected: '#FF0000',
 	      color_word: '#FFFF00',
-		  savegame_name: 'puzzle1'
-	      //cell_size: 32,
+		  savegame_name: 'puzzle1',
+		  puzzle_file: {url: 'puzzles/puzzle1.jpz', type: 'jpz'}
 	    };
 	    var params2 = {
 	      hover_enabled: true,
 	      settings_enabled: false,
 	      color_selected: '#00FF00',
 	      color_word: '#FFFF00',
-		  savegame_name: 'puzzle2'
-	      //cell_size: 32,
+		  savegame_name: 'puzzle2',
+		  puzzle_file: {url: 'puzzles/puzzle2.jpz', type: 'jpz'}
 	    };
 	    CrosswordNexus.createCrossword($('div.crossword-1'), params1);
 	    CrosswordNexus.createCrossword($('div.crossword-2'), params2);

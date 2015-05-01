@@ -61,8 +61,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	var SIZE_TINY = 'tiny';
 
 	var BIG_THRESHOLD = 700;
-	var NORMAL_THRESHOLD = 600;
-	var SMALL_THRESHOLD = 500;
+	var NORMAL_THRESHOLD = 580;
+	var SMALL_THRESHOLD = 450;
 
 	var TYPE_UNDEFINED = typeof undefined;
 	var XMLDOM_ELEMENT = 1;
@@ -672,7 +672,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	};
 
 	CrossWord.prototype.adjustSize = function() {
-		var size = Math.min(this.root.outerWidth(true), this.root.outerHeight(true));
+		var size = Math.min(this.root.outerWidth(true), 1.5 * this.root.outerHeight(true));
 		if (size >= BIG_THRESHOLD && !this.root.hasClass(SIZE_BIG)) {
 			this.root.addClass(SIZE_BIG);
 			this.root.removeClass(SIZE_NORMAL+' '+SIZE_SMALL+' '+SIZE_TINY);
