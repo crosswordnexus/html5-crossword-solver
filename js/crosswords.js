@@ -799,6 +799,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 					this.moveToNextWord(false);
 				}
 				break;
+			case 13: // enter key -- same as tab
+				if (e.shiftKey) {
+					this.moveToNextWord(true);
+				} else {
+					this.moveToNextWord(false);
+				}
+				break;
 		}
 		if (prevent) {
 			e.preventDefault();
