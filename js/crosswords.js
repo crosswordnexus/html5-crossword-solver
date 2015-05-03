@@ -205,6 +205,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	// parses XML string and creates DOMParser object
 	function parseJPZString(xml_string, deferred) {
 		var parser, xmlDoc;
+		// Some CS JPZs have &nbsp; in them.  Replace with a space.
+		xml_string = xml_string.replace('&nbsp;', ' ');
 		if (window.DOMParser) {
 			parser=new DOMParser();
 			xmlDoc=parser.parseFromString(xml_string,"text/xml");
