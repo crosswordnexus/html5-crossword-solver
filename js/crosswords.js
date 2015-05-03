@@ -443,6 +443,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 				solution: cell.getAttribute('solution'),
 				number: cell.getAttribute('number'),
 				color: cell.getAttribute('background-color'),
+				shape: cell.getAttribute('background-shape'),
 				empty: cell.getAttribute('type') === 'block',
 				letter: ""
 			};
@@ -656,6 +657,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 					this.context.fillStyle = this.config.color_block;
 				} else {
 					this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
+				}
+				
+				if (cell.shape === 'circle') {
+					var centerX = cell_x + this.cell_size/2;
+					var centerY = cell_y + this.cell_size/2;
+					var radius = this.cell_size/2;
+					this.context.beginPath();
+					this.context.arc(centerX,centerY,radius,0,2 * Math.PI,false);
+					this.context.stroke();
 				}
 
 				if (cell.number) {
