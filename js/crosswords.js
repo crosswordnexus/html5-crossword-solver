@@ -447,6 +447,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 				empty: cell.getAttribute('type') === 'block',
 				letter: ""
 			};
+			
+			// for barred puzzles
+			if (cell.getAttribute('top-bar') || cell.getAttribute('bottom-bar') || cell.getAttribute('left-bar') || cell.getAttribute('right-bar')) {
+				new_cell.bar = {
+					top: cell.getAttribute('top-bar') === 'true',
+					bottom : cell.getAttribute('bottom-bar') === 'true',
+					left: cell.getAttribute('left-bar') === 'true',
+					right : cell.getAttribute('right-bar') === 'true'
+				}
+			}
+			
 			if (!this.cells[new_cell.x]) {this.cells[new_cell.x] = {};}
 			this.cells[new_cell.x][new_cell.y] = new_cell;
 		}
@@ -667,6 +678,35 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 					this.context.arc(centerX,centerY,radius,0,2 * Math.PI,false);
 					this.context.stroke();
 				}
+				
+				if (cell.bar) {
+					var bar_start = {
+						top : [cell_x, cell_y]
+					,	left : [cell_x, cell_y]
+					,	right : [cell_x + this.cell_size, cell_y + this.cell_size]
+					,	bottom : [cell_x + this.cell_size, cell_y + this.cell_size]
+					};
+					var bar_end = {
+						top : [cell_x + this.cell_size, cell_y]
+					,	left : [cell_x, cell_y + this.cell_size]
+					,	right : [cell_x + this.cell_size, cell_y]
+					,	bottom : [cell_x, cell_y + this.cell_size]
+					};
+					for (var key in cell.bar) {
+						if (cell.bar.hasOwnProperty(key)) {
+							// key is top, bottom, etc.
+							// cell.bar[key] is true or false
+							if (cell.bar[key]) {
+								this.context.beginPath();
+								this.context.moveTo(bar_start[key][0],bar_start[key][1]);
+								this.context.lineTo(bar_end[key][0],bar_end[key][1]);
+								this.context.lineWidth = 5;
+								this.context.stroke();
+							}
+						}
+					}
+				}
+					
 
 				if (cell.number) {
 					this.context.font = this.cell_size/4+"px sans-serif";
@@ -1092,6 +1132,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 		this.closeSettings();
 		this.renderCells();
+		this.hidden_input.focus();
 
 		e.preventDefault();
 		e.stopPropagation();
