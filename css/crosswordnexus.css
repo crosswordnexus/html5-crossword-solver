@@ -69,7 +69,7 @@ div.cw-clues-items { display: block; position: absolute; left: 2px; right: 2px; 
 div.cw-clues-items div.cw-clue, div.cw-puzzles-list span { position: relative; display: block; text-align: left; box-shadow: 0 0 1px 1px gray inset; cursor: pointer; }
 div.cw-clues-items div.cw-clue:hover, div.cw-puzzles-list span:hover { left: -1px; top: -1px; box-shadow: 1px 1px 1px 0 gray, 0 0 1px 1px gray inset; }
 div.cw-clues-items div.cw-clue.active { background: #FFFCA5; }
-div.cw-clues-items div.cw-clue.passive { background: #ECECEC; }
+div.cw-clues-items div.cw-clue.passive { background: #FFFFD2; }
 
 /* size-dependent styles */
 div.cw-main.big { margin-right: 302px; font-size: 20px; }
