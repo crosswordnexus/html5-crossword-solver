@@ -59,6 +59,9 @@ div.cw-button { position: relative; display: inline-block; margin: 1px 2px; box-
 div.cw-reveal-buttons { position: absolute; display: none; z-index: 2; top: 100%; left: -3px; padding: 3px 2px; background: white; border-radius: 5px; box-shadow: 0 0 1px 1px gray inset; }
 div.cw-button.cw-reveal.open div.cw-reveal-buttons { display: block; }
 
+div.cw-check-buttons { position: absolute; display: none; z-index: 2; top: 100%; left: -3px; padding: 3px 2px; background: white; border-radius: 5px; box-shadow: 0 0 1px 1px gray inset; }
+div.cw-button.cw-check.open div.cw-check-buttons { display: block; }
+
 div.cw-file-buttons { position: absolute; display: none; z-index: 2; top: 100%; left: -3px; padding: 3px 2px; background: white; border-radius: 5px; box-shadow: 0 0 1px 1px gray inset; }
 div.cw-button.cw-file.open div.cw-file-buttons { display: block; }
 

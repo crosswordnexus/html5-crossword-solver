@@ -123,6 +123,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 					'<div class="cw-button cw-load">Load</div>'+
 				'</div>'+
 			'</div>'+
+			'<div class="cw-button cw-check">Check'+
+				'<div class="cw-check-buttons">'+
+					'<div class="cw-button cw-check-letter">Letter</div>'+
+					'<div class="cw-button cw-check-word">Word</div>'+
+					'<div class="cw-button cw-check-puzzle">Puzzle</div>'+
+				'</div>'+
+			'</div>'+
 			'<div class="cw-button cw-reveal">Reveal'+
 				'<div class="cw-reveal-buttons">'+
 					'<div class="cw-button cw-reveal-letter">Letter</div>'+
@@ -130,8 +137,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 					'<div class="cw-button cw-reveal-puzzle">Puzzle</div>'+
 				'</div>'+
 			'</div>'+
-			
-			
 		'</div>'+
 		'<div class="cw-clues-holder">'+
 			'<div class="cw-clues cw-clues-top">'+
@@ -340,6 +345,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.reveal_letter = this.root.find('div.cw-buttons-holder div.cw-reveal-letter');
 		this.reveal_word = this.root.find('div.cw-buttons-holder div.cw-reveal-word');
 		this.reveal_puzzle = this.root.find('div.cw-buttons-holder div.cw-reveal-puzzle');
+		
+		this.check_button = this.root.find('div.cw-buttons-holder div.cw-check');
+		this.check_letter = this.root.find('div.cw-buttons-holder div.cw-check-letter');
+		this.check_word = this.root.find('div.cw-buttons-holder div.cw-check-word');
+		this.check_puzzle = this.root.find('div.cw-buttons-holder div.cw-check-puzzle');
+		
 		this.file_button = this.root.find('div.cw-buttons-holder div.cw-file');
 		this.save_btn = this.root.find('div.cw-buttons-holder div.cw-save');
 		this.load_btn = this.root.find('div.cw-buttons-holder div.cw-load');
@@ -529,6 +540,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.reveal_word.off('click');
 		this.reveal_puzzle.off('click');
 		
+		this.check_button.off('click mouseenter mouseleave');
+		this.check_letter.off('click');
+		this.check_word.off('click');
+		this.check_puzzle.off('click');
+		
 		this.file_button.off('click mouseenter mouseleave');
 		this.save_btn.off('click');
 		this.load_btn.off('click');
@@ -565,6 +581,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.reveal_letter.on('click', $.proxy(this.check_reveal, this, 'letter', 'reveal'));
 		this.reveal_word.on('click', $.proxy(this.check_reveal, this, 'word', 'reveal'));
 		this.reveal_puzzle.on('click', $.proxy(this.check_reveal, this, 'puzzle', 'reveal'));
+		
+		// CHECK
+		this.check_button.on('click', $.proxy(this.toggleCheck, this));
+		this.check_button.on('mouseenter', $.proxy(this.openCheck, this));
+		this.check_button.on('mouseleave', $.proxy(this.closeCheck, this));
+		this.check_letter.on('click', $.proxy(this.check_reveal, this, 'letter', 'check'));
+		this.check_word.on('click', $.proxy(this.check_reveal, this, 'word', 'check'));
+		this.check_puzzle.on('click', $.proxy(this.check_reveal, this, 'puzzle', 'check'));
 		
 		// FILE
 		this.file_button.on('click', $.proxy(this.toggleFile, this));
@@ -851,6 +875,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			case 32: //space
 				if (this.selected_cell && this.selected_word) {
 					this.selected_cell.letter = "";
+					this.selected_cell.checked = false;
 					var next_cell = this.selected_word.getNextCell(this.selected_cell.x, this.selected_cell.y);
 					this.setActiveCell(next_cell);
 				}
@@ -859,12 +884,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			case 46: // delete
 				if (this.selected_cell) {
 					this.selected_cell.letter = "";
+					this.selected_cell.checked = false;
 				}
 				this.renderCells();
 				break;
 			case 8:  // backspace
 				if (this.selected_cell && this.selected_word) {
 					this.selected_cell.letter = "";
+					this.selected_cell.checked = false;
 					var prev_cell = this.selected_word.getPreviousCell(this.selected_cell.x, this.selected_cell.y);
 					this.setActiveCell(prev_cell);
 				}
@@ -897,6 +924,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			next_cell;
 		if (this.selected_word && this.selected_cell && char) {
 			this.selected_cell.letter = char;
+			this.selected_cell.checked = false;
 			// find empty cell, then next cell
 			// Change this depending on config
 			if (this.config.skip_filled_letters) {
@@ -1176,6 +1204,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.reveal_button.toggleClass('open');
 	};
 	
+	CrossWord.prototype.openCheck = function() {
+		this.check_button.addClass('open');
+	};
+
+	CrossWord.prototype.closeCheck = function() {
+		this.check_button.removeClass('open');
+	};
+
+	CrossWord.prototype.toggleCheck = function() {
+		this.check_button.toggleClass('open');
+	};
+	
 	CrossWord.prototype.openFile = function() {
 		this.file_button.addClass('open');
 	};
@@ -1222,35 +1262,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 				if (reveal_or_check == 'reveal') {
 					my_cells[i].letter = my_cells[i].solution;
 					my_cells[i].revealed = true;
+					this.selected_cell.checked = false;
 				}
 				else if (reveal_or_check == 'check') {
-						my_cells[i].checked = true;
+					my_cells[i].checked = true;
 				}
 			}
 		}
 		this.renderCells();
-		this.checkIfSolved();
-		this.closeReveal();
+		if (reveal_or_check == 'reveal') {
+			this.checkIfSolved();
+			this.closeReveal();
+		}
+		else {this.closeCheck();}
 		this.hidden_input.focus();
 		e.preventDefault();
 		e.stopPropagation();
 	}
-
-	CrossWord.prototype.solvePuzzle = function(e) {
-		var i, j, cell;
-		for (i in this.cells) {
-			for (j in this.cells[i]) {
-				cell = this.cells[i][j];
-				cell.letter = cell.solution;
-			}
-		}
-		this.renderCells();
-		this.checkIfSolved();
-		this.closeReveal();
-		this.hidden_input.focus();
-		e.preventDefault();
-		e.stopPropagation();
-	};
 
 	CrossWord.prototype.savePuzzle = function(e) {
 		var i, savegame_name, savegame = {
