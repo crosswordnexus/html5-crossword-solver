@@ -1428,11 +1428,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			clearTimeout(xw_timer);
 			timer_btn.removeClass('running');
 			this.timer_running = false;
+			this.hidden_input.focus();
 		}
 		else {
 			// Start the timer
 			this.timer_running = true;
 			timer_btn.addClass('running');
+			this.hidden_input.focus();
 			timer();
 		}
 	
