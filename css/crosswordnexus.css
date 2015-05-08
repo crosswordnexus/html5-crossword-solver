@@ -67,6 +67,8 @@ div.cw-button.cw-file.open div.cw-file-buttons { display: block; }
 
 div.cw-button:hover { background: #FFFCA5; left: -1px; top: -1px; box-shadow: 1px 1px 1px 0 gray, 0 0 1px 1px gray inset; }
 
+div.cw-timer.running {background: #00CC00; }
+
 div.cw-clues-holder { position: absolute; left: 0; bottom: 2px; width: 100%; }
 
 div.cw-clues-top { position: absolute; top: 0; bottom: 50%; left: 0; right: 0; }

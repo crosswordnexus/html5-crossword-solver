@@ -83,6 +83,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	var ERR_NO_SAVEGAME   = 'No saved game found';
 
 	var load_error = false;
+	
+	var xw_timer, xw_timer_seconds = 0;
 
 	var template = '' +
 '<div class="cw-main auto normal">'+
@@ -137,6 +139,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 					'<div class="cw-button cw-reveal-puzzle">Puzzle</div>'+
 				'</div>'+
 			'</div>'+
+			'<div class="cw-button cw-timer">00:00</div>'+
 		'</div>'+
 		'<div class="cw-clues-holder">'+
 			'<div class="cw-clues cw-clues-top">'+
@@ -303,7 +306,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.hilited_word = null;
 		this.selected_cell = null;
 		this.settings_open = false;
-
+		// TIMER
+		this.timer_running = false;
+		
 		this.render_cells_callback = $.proxy(this.renderCells, this);
 
 		this.init();
@@ -354,6 +359,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.file_button = this.root.find('div.cw-buttons-holder div.cw-file');
 		this.save_btn = this.root.find('div.cw-buttons-holder div.cw-save');
 		this.load_btn = this.root.find('div.cw-buttons-holder div.cw-load');
+		
+		this.timer_button = this.root.find('div.cw-buttons-holder div.cw-timer');
 
 		// preload one puzzle
 		if (this.config.puzzle_file && this.config.puzzle_file.hasOwnProperty('url') && this.config.puzzle_file.hasOwnProperty('type')) {
@@ -548,6 +555,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.file_button.off('click mouseenter mouseleave');
 		this.save_btn.off('click');
 		this.load_btn.off('click');
+		
+		this.timer_button.off('click');
 
 		if (this.config.settings_enabled) {
 			this.settings_icon.off('click');
@@ -596,6 +605,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.file_button.on('mouseleave', $.proxy(this.closeFile, this));
 		this.save_btn.on('click', $.proxy(this.savePuzzle, this));
 		this.load_btn.on('click', $.proxy(this.loadPuzzle, this));
+		
+		// TIMER
+		this.timer_button.on('click', $.proxy(this.toggleTimer, this));
 
 		if (this.config.settings_enabled) {
 			this.settings_icon.on('click', $.proxy(this.openSettings, this));
@@ -952,7 +964,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 				}
 			}
 		}
+		// Puzzle is solved!  Stop the timer and show a message.
+		if (this.timer_running) {
+			clearTimeout(xw_timer);
+			this.timer_button.removeClass('running');
+			this.timer_running = false;
+		}
 		alert(MSG_SOLVED);
+		
 	};
 
 	// callback for shift+arrows
@@ -1383,6 +1402,41 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		e.preventDefault();
 		e.stopPropagation();
 	};
+	
+	CrossWord.prototype.toggleTimer = function() {
+		var display_seconds, display_minutes;
+		var timer_btn = this.timer_button;
+		
+		function add() {
+			xw_timer_seconds = xw_timer_seconds + 1;
+			display_seconds = xw_timer_seconds % 60;
+			display_minutes = (xw_timer_seconds - display_seconds) / 60;
+			
+			var display = (display_minutes ? (display_minutes > 9 ? display_minutes : "0" + display_minutes) : "00") + ":" + (display_seconds > 9 ? display_seconds : "0" + display_seconds);
+			
+			timer_btn.html(display);
+			
+			timer();
+		}
+		
+		function timer() {
+			xw_timer = setTimeout(add, 1000);
+		}
+		
+		if (this.timer_running) {
+			// Stop the timer
+			clearTimeout(xw_timer);
+			timer_btn.removeClass('running');
+			this.timer_running = false;
+		}
+		else {
+			// Start the timer
+			this.timer_running = true;
+			timer_btn.addClass('running');
+			timer();
+		}
+	
+	}
 
 	// CluesGroup stores clues and map of words
 	var CluesGroup = function(crossword, data) {
