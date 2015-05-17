@@ -27,7 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		hover_enabled: false,
 		settings_enabled: true,
 		color_hover: "#FFFFAA",
-		color_selected: "#FFA500",
+		color_selected: "#FF0000",
 		color_word: "#FFFF00",
 		color_hilite: "#FFFCA5",
 		color_none: "#FFFFFF",
@@ -50,6 +50,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	var SKIP_LEFT = 'left';
 	var SKIP_RIGHT = 'right';
 	var STORAGE_KEY = 'crossword_nexus_savegame';
+    var SETTINGS_STORAGE_KEY = 'crossword_nexus_settings';
 
 	// messages
 	var MSG_SAVED = 'Crossword saved';
@@ -279,10 +280,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	var CrossWord = function(parent, user_config) {
 		this.parent = parent;
 		this.config = {};
+        // Load solver config
+        var solver_config_name = SETTINGS_STORAGE_KEY;
+		var saved_settings = JSON.parse(localStorage.getItem(solver_config_name));
 		var i;
 		for (i in default_config) {
 			if (default_config.hasOwnProperty(i)) {
-				if (user_config && user_config.hasOwnProperty(i)) {
+                // Check saved settings before "user" settings
+                if (saved_settings && saved_settings.hasOwnProperty(i)) {
+					this.config[i] = saved_settings[i];
+				} else if (user_config && user_config.hasOwnProperty(i)) {
 					this.config[i] = user_config[i];
 				} else {
 					this.config[i] = default_config[i];
@@ -618,7 +625,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.settings.delegate('div.cw-cell-size input[type=checkbox]', 'change', $.proxy(this.settingSizeAuto, this));
 		}
 
-		this.hidden_input.on('input', $.proxy(this.hiddenInputChanged, this));
+		this.hidden_input.on('input', $.proxy(this.hiddenInputChanged, this, null));
 		this.hidden_input.on('keydown', $.proxy(this.keyPressed, this));
 	};
 
@@ -931,11 +938,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	};
 
 	// Detects user inputs to hidden input element
-	CrossWord.prototype.hiddenInputChanged = function() {
-		var char = this.hidden_input.val().slice(0, 1).toUpperCase(),
+	CrossWord.prototype.hiddenInputChanged = function(rebus_string) {
+		var mychar = this.hidden_input.val().slice(0, 1).toUpperCase(),
 			next_cell;
-		if (this.selected_word && this.selected_cell && char) {
-			this.selected_cell.letter = char;
+        if (this.selected_word && this.selected_cell) {
+            if (mychar) {
+                this.selected_cell.letter = mychar;
+            }
+            else if (rebus_string) {
+                this.selected_cell.letter = rebus_string.toUpperCase();
+            }
 			this.selected_cell.checked = false;
 			// find empty cell, then next cell
 			// Change this depending on config
@@ -1147,8 +1159,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	};
 
 	CrossWord.prototype.closeSettings = function() {
+        // Save the settings
+        var saveconfig_name = SETTINGS_STORAGE_KEY;
+		localStorage.setItem(saveconfig_name, JSON.stringify(this.config));
 		this.settings.removeClass('open');
 		this.settings_open = false;
+        this.hidden_input.focus();
 	};
 
 	CrossWord.prototype.settingChanged = function(e) {
@@ -1298,7 +1314,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		e.preventDefault();
 		e.stopPropagation();
 	}
-
+    
 	CrossWord.prototype.savePuzzle = function(e) {
 		var i, savegame_name, savegame = {
 			cell_size: this.cell_size,
