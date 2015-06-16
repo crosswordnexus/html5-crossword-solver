@@ -1071,6 +1071,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			new_cell = this.getCell(x, y);
 
 			if (!new_cell) {
+				this.changeActiveClues();
 				return;
 			}
 
