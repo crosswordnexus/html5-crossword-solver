@@ -155,13 +155,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	'</div>'+
 '</div>';
 
-
-	function openPuzzle(e) {
-		var target = $(e.currentTarget);
-		return loadFileFromServer(target.data('url'), target.data('type'));
-	}
-
-
 	// returns deferred object
 	function loadFileFromServer(path, type) {
 		var xhr = new XMLHttpRequest(),
@@ -396,7 +389,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			if (!puzzles_count) {
 				puzzles_holder.addClass('empty');
 			} else {
-				puzzles_holder.delegate('div.cw-puzzles-list span', 'click', openPuzzle);
+				puzzles_holder.delegate('div.cw-puzzles-list span', 'click', function(e) {
+					var target = $(e.currentTarget),
+						url = target.data('url'),
+						type = target.data('type'),
+						callback;
+					if (type === FILE_JPZ) {
+						callback = parseJPZ_callback;
+					}
+
+					if (callback) {
+						loadFileFromServer(url, type).then(callback, error_callback);
+					}
+				});
 			}
 			this.open_button = this.root.find('div.cw-open-button');
 			this.file_input = this.root.find('input[type="file"]');
