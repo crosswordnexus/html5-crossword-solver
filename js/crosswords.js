@@ -1303,7 +1303,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 				if (reveal_or_check == 'reveal') {
 					my_cells[i].letter = my_cells[i].solution;
 					my_cells[i].revealed = true;
-					this.selected_cell.checked = false;
+					my_cells[i].checked = false;
 				}
 				else if (reveal_or_check == 'check') {
 					my_cells[i].checked = true;
