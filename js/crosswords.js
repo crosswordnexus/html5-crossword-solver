@@ -273,14 +273,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	var CrossWord = function(parent, user_config) {
 		this.parent = parent;
 		this.config = {};
-        // Load solver config
-        var solver_config_name = SETTINGS_STORAGE_KEY;
+        	// Load solver config
+        	var solver_config_name = SETTINGS_STORAGE_KEY;
 		var saved_settings = JSON.parse(localStorage.getItem(solver_config_name));
 		var i;
 		for (i in default_config) {
 			if (default_config.hasOwnProperty(i)) {
-                // Check saved settings before "user" settings
-                if (saved_settings && saved_settings.hasOwnProperty(i)) {
+                		// Check saved settings before "user" settings
+                		if (saved_settings && saved_settings.hasOwnProperty(i)) {
 					this.config[i] = saved_settings[i];
 				} else if (user_config && user_config.hasOwnProperty(i)) {
 					this.config[i] = user_config[i];
@@ -1165,12 +1165,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	};
 
 	CrossWord.prototype.closeSettings = function() {
-        // Save the settings
-        var saveconfig_name = SETTINGS_STORAGE_KEY;
-		localStorage.setItem(saveconfig_name, JSON.stringify(this.config));
+        	// Save the settings
+        	// We don't do this for now: it was causing problems
+        	// Instead just save an empty element
+        	var saveconfig_name = SETTINGS_STORAGE_KEY;
+		localStorage.setItem(saveconfig_name, '{}');
 		this.settings.removeClass('open');
 		this.settings_open = false;
-        this.hidden_input.focus();
+        	this.hidden_input.focus();
 	};
 
 	CrossWord.prototype.settingChanged = function(e) {
