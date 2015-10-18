@@ -442,6 +442,38 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.error(ERR_PARSE_JPZ);
 			return;
 		}
+		
+		
+		// Check for applet settings
+		var applet_settings = xmlDoc.getElementsByTagName('applet-settings');
+		
+		if (applet_settings.length) {
+			var hidden_reveal_count = 0;
+			// If we have applet settings, we try to respect them
+			var all_settings = [
+				["reveal-word", "div.cw-reveal-word"],
+				["reveal-letter", "div.cw-reveal-letter"],
+				["solution", "div.cw-reveal-puzzle"]
+			];
+			
+			var i; var items = $();
+			for (i = 0; i < all_settings.length; i++)
+			{
+				var elt = applet_settings[0].getElementsByTagName(all_settings[i][0]);
+				if (!elt.length)
+				{
+					hidden_reveal_count = hidden_reveal_count + 1;
+					var mydiv = all_settings[i][1]
+					items = items.add(mydiv);
+				}
+			}
+			items.css({'display':'none'});
+			// Hide the reveal itself if we're hiding all its subelements
+			if (hidden_reveal_count == 3)
+			{
+				$('div.cw-reveal').css({'display':'none'});
+			}
+		}
 
 		title = metadata[0].getElementsByTagName('title');
 		creator = metadata[0].getElementsByTagName('creator');
