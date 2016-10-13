@@ -666,10 +666,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.hidden_input.on('keydown', $.proxy(this.keyPressed, this));
 	};
 
+	// Function to switch the clues, generally from "ACROSS" to "DOWN"
 	CrossWord.prototype.changeActiveClues = function() {
 		if (this.active_clues && this.active_clues.id === CLUES_TOP) {
-			this.active_clues = this.clues_bottom;
-			this.inactive_clues = this.clues_top;
+			// check that there are inactive clues to switch to
+			if (this.inactive_clues !== null)
+			{
+				this.active_clues = this.clues_bottom;
+				this.inactive_clues = this.clues_top;
+			}
 		} else {
 			this.active_clues = this.clues_top;
 			this.inactive_clues = this.clues_bottom;
@@ -1100,7 +1105,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 	// callback for arrow keys - moves selection by one cell
 	// can change direction
-	CrossWord.prototype.moveSelectionBy = function(delta_x, delta_y, keep_active_clues) {
+	CrossWord.prototype.moveSelectionBy = function(delta_x, delta_y, jumping_over_black) {
 		var x, y, new_cell;
 		if (this.selected_cell) {
 			x = this.selected_cell.x+delta_x;
@@ -1108,7 +1113,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			new_cell = this.getCell(x, y);
 
 			if (!new_cell) {
-				this.changeActiveClues();
+				/* If we can't find a new cell, we do nothing. */
+				//this.changeActiveClues();
 				return;
 			}
 
@@ -1127,14 +1133,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 				return;
 			}
 
+			// If the new cell is not in the current word
 			if (!this.selected_word.hasCell(x, y)) {
-				if (!keep_active_clues) {
+				// If the selected cell and the new cell are in the same word, we switch directions
+				// We make sure that there is such a word as well (i.e. both are not null)
+				if (this.inactive_clues.getMatchingWord(new_cell.x, new_cell.y) == this.inactive_clues.getMatchingWord(this.selected_cell.x, this.selected_cell.y) && this.inactive_clues.getMatchingWord(new_cell.x, new_cell.y) !== null) {
 					this.changeActiveClues();
 					// if cell empty - keep current cell selected
 					if (!this.selected_cell.letter) {
 						new_cell = this.selected_cell;
 					}
 				}
+				// In any case we change the active word
 				this.setActiveWord(this.active_clues.getMatchingWord(new_cell.x, new_cell.y));
 			}
 			this.setActiveCell(new_cell);
