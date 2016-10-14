@@ -85,6 +85,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 	var load_error = false;
 	
+	var crossword_type = 'crossword'
+	var crossword_types = ['crossword','coded'];
+	
 	var xw_timer, xw_timer_seconds = 0;
 
 	var template = '' +
@@ -428,15 +431,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	CrossWord.prototype.parseJPZPuzzle = function(xmlDoc) {
 		var crossword, puzzle, metadata, title, creator, copyright;
 		puzzle = xmlDoc.getElementsByTagName('rectangular-puzzle');
-		crossword = xmlDoc.getElementsByTagName('crossword');
 		if (!puzzle.length) {
 			this.error(ERR_PARSE_JPZ);
 			return;
 		}
+		
+		for (var _i=0; _i<crossword_types.length; _i++) {
+			crossword_type = crossword_types[_i];
+			crossword = xmlDoc.getElementsByTagName(crossword_type);
+			if (crossword.length > 0) {
+				break;
+			}
+		}	
 		if (!crossword.length) {
 			this.error(ERR_NOT_CROSSWORD);
 			return;
 		}
+		
 		metadata = puzzle[0].getElementsByTagName('metadata');
 		if (!metadata.length) {
 			this.error(ERR_PARSE_JPZ);
@@ -500,6 +511,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			xml_cells = grid.getElementsByTagName('cell'),
 			xml_words = crossword.getElementsByTagName('word'),
 			xml_clues = crossword.getElementsByTagName('clues');
+		
 		this.grid_width = Number(grid.getAttribute('width'));
 		this.grid_height = Number(grid.getAttribute('height'));
 		this.cell_size = grid_look.getAttribute('cell-size-in-pixels');
@@ -538,19 +550,47 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.words[new_word.id] = new_word;
 		}
 
-		if (xml_clues.length !== 2) {
-			this.error(ERR_CLUES_GROUPS);
-			return;
+		// parse clues
+		// We handle them differently for coded crosswords
+		if (crossword_type == 'coded') {
+			var across_group = new CluesGroup(this, {id: CLUES_TOP, title: 'ACROSS', clues: [], words_ids: []});
+			var down_group = new CluesGroup(this, {id: CLUES_BOTTOM, title: 'DOWN', clues: [], words_ids: []});
+			for (i=0; word=xml_words[i]; i++) {
+				var id = word.getAttribute('id'),
+				x = word.getAttribute('x'),
+				y = word.getAttribute('y');
+				if (y.indexOf('-') == -1) {
+					// Across clue
+					// We need words_ids and clues
+					across_group.clues.push({word: id, number: id, text: '--'});
+					across_group.words_ids.push(id);
+				}
+				else {
+					// Down clue
+					down_group.clues.push({word: id, number: id, text: '--'});
+					down_group.words_ids.push(id);
+				}
+			}
+			this.clues_top = across_group; this.clues_bottom = down_group;
+			// Also, in a coded crossword, there's no reason to show the clues
+			$('div.cw-right').css({'display':'none'});
+			$('div.cw-main').css({'margin-right':'0px'});
 		}
-		for (i=0; clues_block=xml_clues[i]; i++) {
-			var group = new CluesGroup(this);
-			group.fromJPZ(clues_block);
-			if (!this.clues_top) {
-				group.id = CLUES_TOP;
-				this.clues_top = group;
-			} else {
-				group.id = CLUES_BOTTOM;
-				this.clues_bottom = group;
+		else { // not a coded crossword
+			if (xml_clues.length !== 2) {
+				this.error(ERR_CLUES_GROUPS);
+				return;
+			}
+			for (i=0; clues_block=xml_clues[i]; i++) {
+				var group = new CluesGroup(this);
+				group.fromJPZ(clues_block);
+				if (!this.clues_top) {
+					group.id = CLUES_TOP;
+					this.clues_top = group;
+				} else {
+					group.id = CLUES_BOTTOM;
+					this.clues_bottom = group;
+				}
 			}
 		}
 
@@ -890,7 +930,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.changeActiveClues();
 		}
 
-		this.setActiveWord(this.active_clues.getMatchingWord(index_x, index_y));
+		if (this.active_clues.getMatchingWord(index_x, index_y)) {
+			this.setActiveWord(this.active_clues.getMatchingWord(index_x, index_y));
+		}
+		else {
+			this.setActiveWord(this.inactive_clues.getMatchingWord(index_x, index_y));
+		}
 		this.setActiveCell(this.getCell(index_x, index_y));
 		this.renderCells();
 	};
