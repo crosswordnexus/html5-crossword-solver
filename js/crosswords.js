@@ -102,6 +102,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		'</div>'+
 		'<input type="file" class="cw-open-jpz" accept="application/jpz">'+
 	'</div>'+
+    '<div class="cw-notepad-icon"></div>'+
 	'<div class="cw-settings-icon"></div>'+
 	'<div class="cw-settings">'+
 		'<div class="cw-settings-overflow"></div>'+
@@ -346,6 +347,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.settings_icon.remove();
 			this.settings.remove();
 		}
+        
+        this.notepad_icon = this.root.find('div.cw-notepad-icon');
 
 		this.hidden_input = this.root.find('input.cw-hidden-input');
 
@@ -489,6 +492,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		title = metadata[0].getElementsByTagName('title');
 		creator = metadata[0].getElementsByTagName('creator');
 		copyright = metadata[0].getElementsByTagName('copyright');
+        
 		if (title.length) {
 			var text = XMLElementToString(title[0]);
 			if (creator.length) {
@@ -500,11 +504,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.bottom_text.html(text);
 		}
 
-		this.parseJPZCrossWord(crossword[0]);
+        var description = metadata[0].getElementsByTagName('description');
+        description = XMLElementToString(description[0]);
+        
+		this.parseJPZCrossWord(crossword[0],description);
 	};
 
 	// parses crossword element from JPZ file and creates needed objects
-	CrossWord.prototype.parseJPZCrossWord = function(crossword) {
+	CrossWord.prototype.parseJPZCrossWord = function(crossword,description) {
 		var i, cell, word, clues_block, first_word,
 			grid = crossword.getElementsByTagName('grid')[0],
 			grid_look = grid.getElementsByTagName('grid-look')[0],
@@ -515,6 +522,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.grid_width = Number(grid.getAttribute('width'));
 		this.grid_height = Number(grid.getAttribute('height'));
 		this.cell_size = grid_look.getAttribute('cell-size-in-pixels');
+        
+        // Handle the notepad
+        this.notepad = description;
+        if (!this.notepad)
+        {
+            this.notepad_icon.remove();
+        }
 
 		// parse cells
 		for (i=0; cell=xml_cells[i]; i++) {
@@ -650,6 +664,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.settings.undelegate('div.cw-option input.cw-input-color');
 			this.settings.undelegate('div.cw-cell-size input[type=checkbox]');
 		}
+        
+        this.notepad_icon.off('click');
 
 		this.hidden_input.off('input');
 		this.hidden_input.off('keydown');
@@ -701,6 +717,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.settings.delegate('div.cw-option input.cw-input-color', 'input', $.proxy(this.settingChanged, this));
 			this.settings.delegate('div.cw-cell-size input[type=checkbox]', 'change', $.proxy(this.settingSizeAuto, this));
 		}
+        
+        // NOTEPAD
+        if (this.notepad) {
+            this.notepad_icon.on('click',$.proxy(this.showNotepad,this));
+        }
 
 		this.hidden_input.on('input', $.proxy(this.hiddenInputChanged, this, null));
 		this.hidden_input.on('keydown', $.proxy(this.keyPressed, this));
@@ -1221,6 +1242,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			this.renderCells();
 		}
 	};
+    
+    CrossWord.prototype.showNotepad = function() {
+        alert(this.notepad);
+    }
 
 	CrossWord.prototype.openSettings = function() {
 		this.settings.addClass('open');
