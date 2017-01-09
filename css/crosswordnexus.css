@@ -24,6 +24,28 @@ div.cw-open-holder { position: absolute; top: 0; left: 0; bottom: 0; z-index: 4;
 div.cw-overflow { position: absolute; top: 0; left: 0; height:100%; width: 100%; background: white; opacity: 0.9; z-index: -1; }
 div.cw-main.loading div.cw-open-holder, div.cw-main.loaded div.cw-open-holder { display: none; }
 
+
+div.cw-notepad-icon:hover .cwtooltip {
+    display: block;
+}
+
+div.cw-settings-icon:hover .cwtooltip {
+    display: block;
+}
+
+.cwtooltip {
+    display: none;
+    background: gray;
+    color: black;
+    text-align: center;
+    padding: 10px;
+    position: absolute;
+    z-index: 1000;
+    max-width: 90px;
+    opacity: 0.9;
+    bottom: 105%;
+}
+
 div.cw-notepad-icon {
     position: absolute;
     z-index: 4;
