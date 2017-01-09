@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="maximum-scale=1.2, minimum-scale=0.5, user-scalable=yes"/>
+	<meta name="HandheldFriendly" content="True">
+	<title>Crossword Nexus Solver</title>
+	<link href="css/crosswordnexus.css" rel="stylesheet">
+	<script src="js/crosswords.js"></script>
+	<script src="lib/jquery.js"></script>
+	<script src="lib/zip/zip.js"></script>
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		div.crossword { position: absolute; left: 0; top: 0; width: 100%; height: 100%; text-align: center; }
+	</style>
+</head>
+<body>
+	<div class="crossword"></div>
+
+<script>
+	(function(){
+		CrosswordNexus.createCrossword($('div.crossword'));
+	})();
+</script>
+
+</body>
+</html>
