@@ -24,6 +24,14 @@ div.cw-open-holder { position: absolute; top: 0; left: 0; bottom: 0; z-index: 4;
 div.cw-overflow { position: absolute; top: 0; left: 0; height:100%; width: 100%; background: white; opacity: 0.9; z-index: -1; }
 div.cw-main.loading div.cw-open-holder, div.cw-main.loaded div.cw-open-holder { display: none; }
 
+div.cw-notepad-icon {
+    position: absolute;
+    z-index: 4;
+    cursor: pointer;
+    background-size: contain;
+    background-image: url('data:image/png;base64,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');
+}
+
 div.cw-settings-icon { position: absolute; z-index: 2; cursor: pointer; background-size: contain; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wQODCMR5+B7XgAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAFMUlEQVRYw+1Ya0xTZxh+zjk9l/a0FMWGUS1OdJo46QSnOEmBiSwEg27hJibT6MARM50iA1GyIBinMZl3iM5bcct+oEbxkk35I9E65g+R7MccXhhxokJGEFrKpX33xxoReqB0hD88yZfmnO+8z/e+3/d+z/umwDjGMQ5FMP4S9PT0TF6blaURRTG0ubmZAMBgMDDt7e1N1lOnHHq9/p8xjTAtI+MZJwjdGp2OJFkmSZZJo9ORShS7IyIjm8d0B4kIgUFB7Z2dnQEMM5CK47gup90+lWGYlpGuwY7EyFpRAQC4UVMT2tPTIw7mnId/85YtEgCUlJaOzhEujI7u93zLZmMA4MWLF/MSk5LqBbXarRJFGmzwkuSOtljqr1dXzwOA0xUVzP/qnCfqDyIjz4fNmEHbioouzo+Kmr4uJ2fnpOBgAsd5dc4zwHHuCZMm0dLk5NL8goKI1PT0b+eYzZSYlPQMAL7bvds/J7cXFRW/uaCo0fQKajUN5dggu0kane51QIxKRSWlpdUjviTWigo4nc753xQU/O5wOEYlfdxuN3YUFyeGmky/rl61aviGjY2NAIA5ZnPlcHdIUKtJkmWXJMsuQa0mThCGZRdtsdwFgN9qa33bQSJ6NzAo6LHdblcMpq+7GzFxcU//bmrKjF60yCEIAm7ZbJr3Z8/++cL580aVKCraS5KEp0+eLA/Q6ap8FeATYFnF6OWAAMrNyysDgNy8vNe2R48d8/yW6SdOHOoS0WcpKbU+58eRsrL4YKPROzHLUvqKFYcB4KuNGwfYHzh4EADw/b59ZQC88ugCA+nU6dPFPjnnIf/h+PGE8Llz2wfLpw8XLOgmIk6JxyMhMXFxTW/bc4JAxilTWsrKyzPfFH+fsHHTJgaA9Kq29hs7Skqsw+XJy8/fzEtSP3uW56mqqmqZX6Xu4P79dPbcufVdXV393qs4DleuXj1ZV1c3pHNtbW1oaWm5y/P8gLm7dXUf+12LGxoabCzb/zMC8LKzE7V37gzp4I2aGrzs6AARDZjT6nT+NwvxixfLgiD0e+dyubAwKmrtl9nZQy7w6fLlcLtc5t7e3gFzU0NDq0ek8Dte1eCthYXFRpNpUNENNhq7h8s3NyLCNdglmWAw0Kbc3MMAsGLlSt+c3Llr1y9K8gCWdaekpf1FRIpK/EV29m0AXpsKAPT56tXVPh9xX1/fH/De50HF88zlK1feW5qcfI+IQgb7JjU9/bbVao1SiaJ3Io6D0+l86FOzcODQIXy9YQNmzJpFnrqsEAhmzpyJ6WFhP7a2tlYKPI8QozHj5s2bqc+am3mVICj2gHq9Hq3Pn09jGKbR51xMSUurHG7R97RUb+ud0uAEgT6Kjq58s0EZdrPQ1tYGu90+7ZPExEd/3r+Pt6XGXxARDAYDfjpzZgHHcXfiYmNHRnTi5Ml4rV5PnCCQJMuk1mq7RI2mz9eGVa3Vkkardai12tfP63Jy4odaX7GWXrh4ESszMx8XFhaaRVF0h4eHr7l86dK2e/X1Z/UBAWueNDWxrEqlnKO9vQg3m5GwZMmy6mvXCh4+enTdGBISZrFY7h0tL9/VYbfjts028qNQKuJZ2dnFkiy7FZpYd3xCQhERTVDS21HB2qwsNDx4EKrR6ZzeHJRkuWv3nj1TPDk9Jnhn8uR/WZ73lncdRKTxh9/vq7k+J6ed5/lOlUrlZFnWybKsk+M4J8/zXakpKa0MwzgwVti2fbtHMjR79u41WWJiTJbYWFP+1q0mIjIAQEZm5vhfdOMYx2jiP9Zng236i+S2AAAAAElFTkSuQmCC'); }
 div.cw-settings { display: none; padding: 4px; position: absolute; width: 200px; height: auto; bottom: 46px; right: 6px;  z-index: 2; border-radius: 5px; overflow: hidden; }
 div.cw-settings-background { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: black; opacity: 0.75; z-index: -1;}
@@ -86,6 +94,7 @@ div.cw-main.big div.cw-open-holder { right: -302px;  }
 div.cw-main.big div.cw-buttons-holder { height: 40px; line-height: 40px; }
 div.cw-main.big div.cw-clues-holder { top: 40px; }
 div.cw-main.big div.cw-button { width: 65px; height: 30px; font-size: 17px; line-height: 32px; }
+div.cw-main.big div.cw-notepad-icon { bottom: 6px; right: 46px; width: 40px; height: 40px; }
 div.cw-main.big div.cw-settings-icon { bottom: 6px; right: 6px; width: 40px; height: 40px; }
 div.cw-main.big div.cw-right  { width: 302px; right: -300px; }
 div.cw-main.big div.cw-top-text { line-height: 20px; height: 40px; margin: 4px; }
@@ -99,6 +108,7 @@ div.cw-main.normal div.cw-open-holder { right: -252px;  }
 div.cw-main.normal div.cw-buttons-holder { height: 34px; line-height: 34px; }
 div.cw-main.normal div.cw-clues-holder { top: 34px; }
 div.cw-main.normal div.cw-button { width: 55px; height: 28px; font-size: 15px; line-height: 26px; }
+div.cw-main.normal div.cw-notepad-icon { bottom: 5px; right: 39px; width: 34px; height: 34px; }
 div.cw-main.normal div.cw-settings-icon { bottom: 5px; right: 5px; width: 34px; height: 34px; }
 div.cw-main.normal div.cw-right  { width: 252px; right: -250px; }
 div.cw-main.normal div.cw-top-text { line-height: 17px; height: 34px; margin: 4px; }
@@ -112,6 +122,7 @@ div.cw-main.small div.cw-open-holder { right: -202px;  }
 div.cw-main.small div.cw-buttons-holder { height: 30px; line-height: 30px; }
 div.cw-main.small div.cw-clues-holder { top: 30px; }
 div.cw-main.small div.cw-button { width: 45px; height: 22px; font-size: 13px; line-height: 22px; }
+div.cw-main.small div.cw-notepad-icon { bottom: 4px; right: 34px; width: 30px; height: 30px; }
 div.cw-main.small div.cw-settings-icon { bottom: 4px; right: 4px; width: 30px; height: 30px; }
 div.cw-main.small div.cw-right  { width: 202px; right: -200px; }
 div.cw-main.small div.cw-top-text { line-height: 15px; height: 30px; margin: 3px; }
@@ -125,7 +136,8 @@ div.cw-main.tiny div.cw-open-holder { display: none;  }
 div.cw-main.tiny div.cw-buttons-holder { height: 24px; line-height: 24px; }
 div.cw-main.tiny div.cw-clues-holder { top: 24px; }
 div.cw-main.tiny div.cw-button { width: 40px; height: 20px; font-size: 12px; line-height: 18px; }
-div.cw-main.tiny div.cw-settings-icon { display: none; }
+div.cw-main.tiny div.cw-notepad-icon { bottom: 2px; right: 26px; width: 24px; height: 24px; }
+div.cw-main.tiny div.cw-settings-icon { bottom: 2px; right: 2px; width: 24px; height: 24px; }
 div.cw-main.tiny div.cw-right  { display: none; }
 div.cw-main.tiny div.cw-top-text { line-height: 12px; height: 24px; margin: 2px; }
 div.cw-main.tiny div.cw-bottom-text { line-height: 12px; min-height: 24px; margin: 2px; font-size: 10px; }
