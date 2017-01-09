@@ -1244,7 +1244,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	};
     
     CrossWord.prototype.showNotepad = function() {
-        alert(this.notepad);
+        $("<div title='Notepad'>" + this.notepad + "</div>").dialog();
     }
 
 	CrossWord.prototype.openSettings = function() {
