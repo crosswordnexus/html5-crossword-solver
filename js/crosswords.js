@@ -540,6 +540,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 				color: cell.getAttribute('background-color'),
 				shape: cell.getAttribute('background-shape'),
 				empty: cell.getAttribute('type') === 'block',
+				letter: cell.getAttribute('solve-state')
 			};
 			
 			// for barred puzzles
