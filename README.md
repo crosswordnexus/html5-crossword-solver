@@ -2,31 +2,32 @@
 ###An HTML5 crossword solver that can handle JPZ files in a browser.
 
 ## Dependencies:
-####jQuery
-####zipjs - http://gildas-lormeau.github.io/zip.js/
+#### jQuery
+#### zipjs - http://gildas-lormeau.github.io/zip.js/
+#### jsPDF (optional) - https://github.com/MrRio/jsPDF
 
 ## Usage:
-###Basic usage example
+### Basic usage example
 
 ```javascript
 var CrossWord = CrosswordNexus.createCrossword(parent, parameters);
 ```
 
-###Warning
+### Warning
 CrossWord object adds listener to window. If you want to remove crossword from DOM - call remove function, that will remove all event listeners, then remove crossword;
 
 ```javascript
 CrossWord.remove();
 ```
 
-###Parameters
+### Parameters
 
 | Param     | Description |
 | --------- | ----------------- |
 | parent    | jquery-wrapped element, that will be parent for crossword |
 | parameters| javascript object |
 
-###Available parameters
+### Available parameters
 
 | Name              | Default   | Description  |
 | ----------------- | --------- | ------------ |
@@ -43,7 +44,7 @@ CrossWord.remove();
 | zipjs_path        | 'js/zip'  | path to zip.js files (this option is GLOBAL to all puzzles on same page) |
 | skip_filled_letters | true    | enables or disables skipping filled-in letters when filling grid |
 
-###Each puzzle file must be object with 3 parameters:
+### Each puzzle file must be object with 3 parameters:
 | Param  | Description     |
 | ------ | --------------- |
 | url    | Puzzle file url |
@@ -52,9 +53,9 @@ CrossWord.remove();
 
 With cell_size == 0, crossword will never be bigger than parent.
 
-##Example:
+## Example:
 
-###Multiple puzzles with settings enabled:
+### Multiple puzzles with settings enabled:
 
 ```javascript
 var params = {
@@ -71,7 +72,7 @@ var params = {
 };
 CrosswordNexus.createCrossword($('#crossword'), params);
 ```
-###Single puzzle with settings disabled and some custom colors:
+### Single puzzle with settings disabled and some custom colors:
 
 ```javascript
 var params = {
