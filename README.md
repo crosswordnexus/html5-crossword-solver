@@ -1,5 +1,5 @@
 # Crossword Nexus HTML5 Solver
-###An HTML5 crossword solver that can handle JPZ files in a browser.
+### An HTML5 crossword solver that can handle JPZ files in a browser.
 
 ## Dependencies:
 #### jQuery
