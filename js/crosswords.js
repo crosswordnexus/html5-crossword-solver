@@ -1,5 +1,5 @@
 /**
-Copyright (c) 2015, Crossword Nexus
+Copyright (c) 2015-2017, Crossword Nexus
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -128,6 +128,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 				'<div class="cw-file-buttons">'+
 					'<div class="cw-button cw-save">Save</div>'+
 					'<div class="cw-button cw-load">Load</div>'+
+					'<div class="cw-button cw-print">Print</div>'+
 				'</div>'+
 			'</div>'+
 			'<div class="cw-button cw-check">Check'+
@@ -365,6 +366,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.file_button = this.root.find('div.cw-buttons-holder div.cw-file');
 		this.save_btn = this.root.find('div.cw-buttons-holder div.cw-save');
 		this.load_btn = this.root.find('div.cw-buttons-holder div.cw-load');
+		this.print_btn = this.root.find('div.cw-buttons-holder div.cw-print');
 		
 		this.timer_button = this.root.find('div.cw-buttons-holder div.cw-timer');
 
@@ -492,14 +494,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		title = metadata[0].getElementsByTagName('title');
 		creator = metadata[0].getElementsByTagName('creator');
 		copyright = metadata[0].getElementsByTagName('copyright');
+		
+		this.title = ''; this.author = ''; this.copyright = '';
         
 		if (title.length) {
-			var text = XMLElementToString(title[0]);
+			this.title = XMLElementToString(title[0]);
+			var text = this.title;
 			if (creator.length) {
-				text += "<br>"+XMLElementToString(creator[0]);
+				this.author = XMLElementToString(creator[0]);
+				text += "<br>" + this.author;
 			}
 			if (copyright.length) {
-				text += "<br>"+XMLElementToString(copyright[0]);
+				this.copyright = XMLElementToString(copyright[0]);
+				text += "<br>" + this.copyright;
 			}
 			this.bottom_text.html(text);
 		}
@@ -653,6 +660,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.file_button.off('click mouseenter mouseleave');
 		this.save_btn.off('click');
 		this.load_btn.off('click');
+		this.print_btn.off('click');
 		
 		this.timer_button.off('click');
 
@@ -705,6 +713,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.file_button.on('mouseleave', $.proxy(this.closeFile, this));
 		this.save_btn.on('click', $.proxy(this.savePuzzle, this));
 		this.load_btn.on('click', $.proxy(this.loadPuzzle, this));
+		this.print_btn.on('click', $.proxy(this.printPuzzle, this));
 		
 		// TIMER
 		this.timer_button.on('click', $.proxy(this.toggleTimer, this));
@@ -1537,6 +1546,297 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		this.closeFile();
 		e.preventDefault();
 		e.stopPropagation();
+	};
+	
+	CrossWord.prototype.printPuzzle = function(e) {
+	    if (typeof jsPDF === 'undefined') {
+	        alert('Printing is disabled.  jsPDF is not defined.  Contact the webmaster.');
+	        return;
+	    }
+	    // else
+        var filename = 'puzzle.pdf';
+        if (this.title) {
+            filename = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf';
+        }
+        var options = {
+            margin: 20
+        ,   title_pt: null
+        ,   author_pt: null
+        ,   copyright_pt: 8
+        ,   num_columns : null
+        ,   column_padding: 10
+        ,   gray: 0.4
+        ,   under_title_spacing : 20
+        ,   max_clue_pt : 14
+        ,   min_clue_pt : 5
+        ,   grid_padding : 5
+        ,   outfile : filename
+        };
+        
+        if (!options.num_columns)
+        {
+            options.num_columns = (this.grid_width >= 17 ? 4 : 3);
+        }
+        
+        // The maximum font size of title and author
+        var max_title_author_pt = Math.max(options.title_pt,options.author_pt);
+        
+        var PTS_PER_IN = 72;
+        var DOC_WIDTH = 8.5 * PTS_PER_IN;
+        var DOC_HEIGHT = 11 * PTS_PER_IN;
+
+        var margin = options.margin;
+
+        var doc;
+        
+        // create the clue strings and clue arrays
+        var across_clues = [];
+        for (var i in this.clues_top.clues) {
+            if (this.clues_top.clues.hasOwnProperty(i)) {
+                var num = this.clues_top.clues[i].number.toString();
+                var clue = this.clues_top.clues[i].text;
+                var this_clue_string = num + '. ' + clue;
+                if (i==0) {
+                    var clues_top_title = this.clues_top.title.replace(/(<([^>]+)>)/ig,"").trim();
+                    across_clues.push(clues_top_title + '\n' + this_clue_string);
+                }
+                else {
+                    across_clues.push(this_clue_string);
+                }
+            }
+        }            
+        // For space between clue lists
+        across_clues.push('');
+        
+        var down_clues = [];
+        for (var i in this.clues_bottom.clues) {
+            if (this.clues_bottom.clues.hasOwnProperty(i)) {
+                var num = this.clues_bottom.clues[i].number.toString();
+                var clue = this.clues_bottom.clues[i].text;
+                var this_clue_string = num + '. ' + clue;
+                if (i==0) {
+                    var clues_bottom_title = this.clues_bottom.title.replace(/(<([^>]+)>)/ig,"").trim();
+                    down_clues.push(clues_bottom_title + '\n' + this_clue_string);
+                }
+                else {
+                    down_clues.push(this_clue_string);
+                }
+            }
+        }
+        
+        // size of columns
+        var col_width = (DOC_WIDTH - 2 * margin - (options.num_columns -1 ) * options.column_padding) / options.num_columns;
+    
+        // The grid is under all but the first column
+        var grid_size = DOC_WIDTH - 2 * margin - col_width - options.column_padding;
+        // x and y position of grid
+        var grid_xpos = DOC_WIDTH - margin - grid_size;
+        var grid_ypos = DOC_HEIGHT - margin - grid_size - options.copyright_pt;
+    
+        // Loop through and write to PDF if we find a good fit
+        // Find an appropriate font size
+        var clue_pt = options.max_clue_pt;
+        var finding_font = true;
+        while (finding_font)
+        {
+            doc = new jsPDF('portrait','pt','letter');
+            var clue_padding = clue_pt / 3;
+            doc.setFontSize(clue_pt);
+        
+            // Print the clues
+            var line_xpos = margin;
+            var line_ypos = margin + max_title_author_pt + options.under_title_spacing + clue_pt + clue_padding;
+            var my_column = 0;
+            var clue_arrays = [across_clues, down_clues];
+            for (var k=0; k<clue_arrays.length; k++) {
+                var clues = clue_arrays[k];
+                for (var i=0; i<clues.length; i++) {
+                    var clue = clues[i];
+                    // check to see if we need to wrap
+                    var max_line_ypos = (my_column == 0 ? DOC_HEIGHT - margin - options.copyright_pt : grid_ypos - options.grid_padding);
+                
+                    // Split our clue
+                    var lines = doc.splitTextToSize(clue,col_width);
+                
+                    if (line_ypos + (lines.length - 1) * (clue_pt + clue_padding) > max_line_ypos) {
+                        // move to new column
+                        my_column += 1;
+                        line_xpos = margin + my_column * (col_width + options.column_padding);
+                        line_ypos = margin + max_title_author_pt + options.under_title_spacing + clue_pt + clue_padding;
+                    }
+                
+                    for (var j=0; j<lines.length; j++)
+                    {
+                        // Set the font to bold for the title
+                        if (i==0 && j==0) {
+                            doc.setFontType('bold');
+                        } else {
+                            doc.setFontType('normal');
+                        }
+                        var line = lines[j];
+                        // print the text
+                        doc.text(line_xpos,line_ypos,line);
+                    
+                        // set the y position for the next line
+                        line_ypos += clue_pt + clue_padding;
+                    }
+                }
+            }
+        
+            // let's not let the font get ridiculously tiny
+            if (clue_pt == options.min_clue_pt)
+            {
+                finding_font = false;
+            }
+            else if (my_column > options.num_columns - 1)
+            {
+                clue_pt -= 0.2;
+            }
+            else
+            {
+                finding_font = false;
+            }
+        }
+        /***********************/
+    
+        // If title_pt or author_pt are null, we determine them
+        var DEFAULT_TITLE_PT = 12;
+        var total_width = DOC_WIDTH - 2 * margin;
+        if (!options.author_pt) options.author_pt = options.title_pt;
+        if (!options.title_pt) {
+            options.title_pt = DEFAULT_TITLE_PT;
+            var finding_title_pt = true;
+            while (finding_title_pt)
+            {
+                var title_author = this.title + 'asdfasdf' + this.author;
+                doc.setFontSize(options.title_pt)
+                    .setFontType('bold');
+                var lines = doc.splitTextToSize(title_author,DOC_WIDTH);
+                if (lines.length == 1) {
+                    finding_title_pt = false;
+                }
+                else {
+                    options.title_pt -= 1;
+                }
+            }
+            options.author_pt = options.title_pt;
+        }
+        
+        /* Render title and author */
+    
+        var title_xpos = margin;
+        var author_xpos = DOC_WIDTH - margin;
+        var title_author_ypos = margin + max_title_author_pt;
+        //title
+        doc.setFontSize(options.title_pt);
+        doc.setFontType('bold');
+        doc.text(title_xpos,title_author_ypos,this.title);
+    
+        //author
+        doc.setFontSize(options.author_pt);
+        doc.text(author_xpos,title_author_ypos,this.author,null,null,'right');
+        doc.setFontType('normal');
+    
+        /* Render copyright */
+        var copyright_xpos = DOC_WIDTH - margin;
+        var copyright_ypos = DOC_HEIGHT - margin;
+        doc.setFontSize(options.copyright_pt);
+        doc.text(copyright_xpos,copyright_ypos,this.copyright,null,null,'right');
+    
+        /* Draw grid */
+    
+        var grid_options = {
+            grid_letters : true
+        ,   grid_numbers : true
+        ,   x0: grid_xpos
+        ,   y0: grid_ypos
+        ,   grid_size: grid_size
+        ,   gray : options.gray
+        };
+        
+        var PTS_TO_IN = 72;
+        var max_dimension = Math.max(this.grid_width,this.grid_height);
+        var cell_size = grid_options.grid_size / max_dimension;
+    
+        /** Function to draw a square **/
+        function draw_square(doc,x1,y1,cell_size,number,letter,filled,circle,color) {
+            
+            // thank you https://stackoverflow.com/a/5624139
+            function hexToRgb(hex) {
+                // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+                var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+                hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+                    return r + r + g + g + b + b;
+                });
+
+                var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : null;
+            }
+            
+            var filled_string = (filled ? 'F' : '');
+            var number_offset = 1;
+            var number_size = cell_size/4;
+            var letter_size = cell_size/1.5;
+            var letter_pct_down = 4/5;
+            if (color) {
+                var filled_string = 'F';
+                var rgb = hexToRgb(color);
+                doc.setFillColor(rgb.r,rgb.g,rgb.b);
+                // Draw one filled square and then one unfilled
+                doc.rect(x1,y1,cell_size,cell_size,filled_string);
+                doc.rect(x1,y1,cell_size,cell_size,'');
+            }
+            else {
+                doc.setFillColor(grid_options.gray.toString());
+                doc.rect(x1,y1,cell_size,cell_size,filled_string);
+            }
+            
+            //numbers
+            if (!number) {number = '';}
+            doc.setFontSize(number_size);
+            doc.text(x1+number_offset,y1+number_offset+number_size,number);
+            // letters
+            if (!letter) {letter = '';}
+            doc.setFontSize(letter_size);
+            doc.text(x1+cell_size/2,y1+cell_size * letter_pct_down,letter,null,null,'center');
+            // circles
+            if (circle) {
+                doc.circle(x1+cell_size/2,y1+cell_size/2,cell_size/2);
+            }
+        }
+        
+        for (var x in this.cells) {
+			for (var y in this.cells[x]) {
+				var cell = this.cells[x][y];
+				var i = y-1; 
+				var j = x-1;
+				var x_pos = grid_options.x0 + j * cell_size;
+                var y_pos = grid_options.y0 + i * cell_size;
+                var grid_index = j + i * this.grid_width;
+                var filled = false;
+                // Letters
+                var letter = cell.letter;
+                if (cell.empty) {
+                    filled = true;
+                    letter = '';
+                }
+                if (!grid_options.grid_letters) {letter = '';}
+                // Numbers
+                var number = cell.number;
+                if (!grid_options.grid_numbers) {number = '';}
+                // Circle
+                var circle = cell.shape;
+                // Color
+                var color = cell.color;
+                draw_square(doc,x_pos,y_pos,cell_size,number,letter,filled,circle,color);
+			}
+		}
+         
+        doc.save(options.outfile);
 	};
 	
 	CrossWord.prototype.toggleTimer = function() {
