@@ -253,6 +253,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
         return result;
     }
+    
+    // Return the first element of a string -- if it's null return null
+    function firstChar(str) {
+        if (str == null) {return null;}
+        else {return str.charAt(0);}
+    }
 
     var CrosswordNexus = {
         createCrossword: function(parent, user_config) {
@@ -872,6 +878,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                                 this.context.lineTo(bar_end[key][0],bar_end[key][1]);
                                 this.context.lineWidth = 5;
                                 this.context.stroke();
+                                this.context.lineWidth = 1;
                             }
                         }
                     }
@@ -887,7 +894,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 
 
                 if (cell.letter) {
-                    this.context.font = this.cell_size/2+"px sans-serif";
+                    var cell_letter_length = cell.letter.length;
+                    this.context.font = this.cell_size/(1.5 + 0.5 * cell_letter_length) +"px sans-serif";
                     if (cell.revealed) {
                         this.context.font = 'bold italic ' + this.context.font;
                     }
@@ -1017,6 +1025,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 }
                 this.renderCells();
                 break;
+            case 27: // escape -- pulls up a rebus entry
+                if (this.selected_cell && this.selected_word) {
+                    var rebus_entry = prompt("Rebus entry", "");
+                    this.hiddenInputChanged(rebus_entry);
+                }
+                break;
+            case 45: // insert -- same as escape
+                if (this.selected_cell && this.selected_word) {
+                    var rebus_entry = prompt("Rebus entry", "");
+                    this.hiddenInputChanged(rebus_entry);
+                }
+                break; 
             case 46: // delete
                 if (this.selected_cell) {
                     this.selected_cell.letter = "";
@@ -1088,7 +1108,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             for(j in this.cells[i]) {
                 cell = this.cells[i][j];
                 // if found cell without letter or with incorrect letter - return
-                if (!cell.empty && (!cell.letter || cell.letter != cell.solution)) {
+                if (!cell.empty && (!cell.letter || firstChar(cell.letter) != firstChar(cell.solution))) {
                     return;
                 }
             }
@@ -1422,7 +1442,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 break;
         }
         for (var i = 0; i < my_cells.length; i++) {
-            if (my_cells[i].letter != my_cells[i].solution) {
+            if (firstChar(my_cells[i].letter) != firstChar(my_cells[i].solution)) {
                 if (reveal_or_check == 'reveal') {
                     my_cells[i].letter = my_cells[i].solution;
                     my_cells[i].revealed = true;
@@ -1784,7 +1804,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             var filled_string = (filled ? 'F' : '');
             var number_offset = 1;
             var number_size = cell_size/4;
-            var letter_size = cell_size/1.5;
+            //var letter_size = cell_size/1.5;
             var letter_pct_down = 4/5;
             if (color) {
                 var filled_string = 'F';
@@ -1805,7 +1825,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             doc.text(x1+number_offset+1,y1+number_offset+number_size,number);
             // letters
             if (!letter) {letter = '';}
-            doc.setFontSize(letter_size);
+            var letter_length = letter.length;
+            //doc.setFontSize(letter_size);
+            doc.setFontSize(cell_size/(1.5 + 0.5 * letter_length));
             doc.text(x1+cell_size/2,y1+cell_size * letter_pct_down,letter,null,null,'center');
             // circles
             if (circle) {
