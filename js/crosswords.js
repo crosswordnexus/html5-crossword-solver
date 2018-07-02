@@ -1685,6 +1685,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     if (line_ypos + (lines.length - 1) * (clue_pt + clue_padding) > max_line_ypos) {
                         // move to new column
                         my_column += 1;
+                        max_line_ypos = grid_ypos - options.grid_padding;
                         line_xpos = margin + my_column * (col_width + options.column_padding);
                         line_ypos = margin + max_title_author_pt + options.under_title_spacing + clue_pt + clue_padding;
                     }
@@ -1703,6 +1704,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     
                         // set the y position for the next line
                         line_ypos += clue_pt + clue_padding;
+                        
+                        // In extreme cases a clue can overflow here
+                        // Move to the next column if this is the case
+                        if (line_ypos > max_line_ypos) {
+                            my_column += 1;
+                            line_xpos = margin + my_column * (col_width + options.column_padding);
+                            line_ypos = margin + max_title_author_pt + options.under_title_spacing + clue_pt + clue_padding;
+                        }
                     }
                 }
             }
@@ -1850,7 +1859,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 for (var key in bar) {
                     if (bar.hasOwnProperty(key)) {
                         if (bar[key]) {
-                            console.log(x1,y1,key);
                             doc.setLineWidth(options.bar_width);
                             doc.line(bar_start[key][0], bar_start[key][1], bar_end[key][0], bar_end[key][1]);
                             doc.setLineWidth(options.line_width);
