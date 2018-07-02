@@ -1681,7 +1681,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 
                     // Split our clue
                     var lines = doc.splitTextToSize(clue,col_width);
-                
+                    
+                    // Don't print an empty clue on the top line
+                    if (clue == '' && line_ypos == margin + max_title_author_pt + options.under_title_spacing + clue_pt + clue_padding) {
+                        continue;
+                    }                
+                    
                     if (line_ypos + (lines.length - 1) * (clue_pt + clue_padding) > max_line_ypos) {
                         // move to new column
                         my_column += 1;
