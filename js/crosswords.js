@@ -1816,8 +1816,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
             
             var filled_string = (filled ? 'F' : '');
-            var number_offset = 1;
-            var number_size = cell_size/4;
+            var number_offset = cell_size/20;
+            var number_size = cell_size/3.5;
             //var letter_size = cell_size/1.5;
             var letter_pct_down = 4/5;
             if (color) {
@@ -1836,7 +1836,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             //numbers
             if (!number) {number = '';}
             doc.setFontSize(number_size);
-            doc.text(x1+number_offset+1,y1+number_offset+number_size,number);
+            doc.text(x1+number_offset+1,y1+number_size,number);
             // letters
             if (!letter) {letter = '';}
             var letter_length = letter.length;
