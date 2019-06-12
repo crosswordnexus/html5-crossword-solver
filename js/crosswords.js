@@ -518,7 +518,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
 
         var description = metadata[0].getElementsByTagName('description');
-        description = XMLElementToString(description[0]);
+        if (description.length) {
+            description = XMLElementToString(description[0]);
+        } else {
+            description = '';
+        }
         
         this.parseJPZCrossWord(crossword[0],description);
     };
