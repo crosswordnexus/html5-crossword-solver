@@ -975,8 +975,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.root.addClass('fixed');
             this.cell_size = Number(this.config.cell_size);
         }
-        this.canvas[0].width = this.grid_width * this.cell_size;
-        this.canvas[0].height = this.grid_height * this.cell_size;
+
+        // Scale the grid so it is crisp on high-density screens.
+        var widthDps = this.grid_width * this.cell_size - 1 + 6;
+        var heightDps = this.grid_height * this.cell_size - 1 + 6;
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        this.canvas[0].width = devicePixelRatio * widthDps;
+        this.canvas[0].height = devicePixelRatio * heightDps;
+        this.canvas[0].style.width = widthDps + "px";
+        this.canvas[0].style.height = heightDps + "px";
+        this.context.scale(devicePixelRatio, devicePixelRatio);
 
         this.context.clearRect(0, 0, this.canvas[0].width, this.canvas[0].height);
         this.context.fillStyle = this.config.color_block;
