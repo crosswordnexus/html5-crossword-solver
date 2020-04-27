@@ -557,7 +557,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 color: cell.getAttribute('background-color'),
                 shape: cell.getAttribute('background-shape'),
                 empty: cell.getAttribute('type') === 'block',
-                letter: cell.getAttribute('solve-state')
+                letter: cell.getAttribute('solve-state'),
+                top_right_number: cell.getAttribute('top-right-number')
             };
             
             // for barred puzzles
@@ -612,6 +613,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             if (crossword_type == 'acrostic') {
                 // hide the bottom clues
                 $('div.cw-clues-bottom').css({'display':'none'});
+                // Make the top clues take up the whole pane
+                $('div.cw-clues-top').css({'bottom': '0%'});
                 clues_length = 1;
             }
             
@@ -781,7 +784,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     CrossWord.prototype.setActiveWord = function(word) {
         if (word) {
             this.selected_word = word;
-            this.top_text.html(word.clue.text);
+            this.top_text.html(word.clue.number + '. ' + word.clue.text);
         }
     };
 
@@ -907,6 +910,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     this.context.textAlign = "left";
                     this.context.textBaseline = "top";
                     this.context.fillText(cell.number, cell_x+this.cell_size*0.1, cell_y+this.cell_size*0.1);
+                }
+                
+                if (cell.top_right_number) {
+                    this.context.font = this.cell_size/4+"px sans-serif";
+                    this.context.textAlign = "right";
+                    this.context.textBaseline = "top";
+                    this.context.fillText(cell.top_right_number, cell_x+this.cell_size*0.9, cell_y+this.cell_size*0.1);
                 }
                 
 
