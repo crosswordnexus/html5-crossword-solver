@@ -86,7 +86,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     var load_error = false;
     
     var crossword_type = 'crossword'
-    var crossword_types = ['crossword','coded'];
+    var crossword_types = ['crossword', 'coded', 'acrostic'];
     
     var xw_timer, xw_timer_seconds = 0;
 
@@ -608,7 +608,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             $('div.cw-main').css({'margin-right':'0px'});
         }
         else { // not a coded crossword
-            if (xml_clues.length !== 2) {
+            var clues_length = 2;
+            if (crossword_type == 'acrostic') {
+                // hide the bottom clues
+                $('div.cw-clues-bottom').css({'display':'none'});
+                clues_length = 1;
+            }
+            
+            if (xml_clues.length !== clues_length) {
                 this.error(ERR_CLUES_GROUPS);
                 return;
             }
@@ -628,7 +635,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.changeActiveClues();
 
         this.renderClues(this.clues_top, this.clues_top_container);
-        this.renderClues(this.clues_bottom, this.clues_bottom_container);
+        if (crossword_type != 'acrostic') {
+            this.renderClues(this.clues_bottom, this.clues_bottom_container);
+        }
 
         this.addListeners();
 
@@ -748,7 +757,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
     // Function to switch the clues, generally from "ACROSS" to "DOWN"
     CrossWord.prototype.changeActiveClues = function() {
-        if (this.active_clues && this.active_clues.id === CLUES_TOP) {
+        if (crossword_type == 'acrostic') {
+            this.active_clues = this.clues_top;
+            this.inactive_clues = this.clues_top;
+        }
+        else if (this.active_clues && this.active_clues.id === CLUES_TOP) {
             // check that there are inactive clues to switch to
             if (this.inactive_clues !== null)
             {
@@ -1090,6 +1103,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 this.selected_cell.letter = rebus_string.toUpperCase();
             }
             this.selected_cell.checked = false;
+            
+            // If this is a coded or acrostic
+            // find all cells with this number 
+            // and fill them with the same letter
+            if (crossword_type == 'coded' || crossword_type == 'acrostic') {
+                var i, j, cell;
+                for (i in this.cells) {
+                    for (j in this.cells[i]) {
+                        cell = this.cells[i][j];
+                        if (cell.number == this.selected_cell.number) {
+                            cell.letter = this.selected_cell.letter;
+                        }
+                    }
+                }
+            }
+            
             // find empty cell, then next cell
             // Change this depending on config
             if (this.config.skip_filled_letters) {
@@ -1552,7 +1581,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
 
             this.renderClues(this.clues_top, this.clues_top_container);
-            this.renderClues(this.clues_bottom, this.clues_bottom_container);
+            if (crossword_type != 'acrostic') {
+                this.renderClues(this.clues_bottom, this.clues_bottom_container);
+            }
 
             this.active_clues = null;
             this.inactive_clues = null;
