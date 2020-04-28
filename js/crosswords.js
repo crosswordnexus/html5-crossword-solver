@@ -868,6 +868,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     if (this.config.hover_enabled && x == this.hovered_x && y == this.hovered_y) {color = this.config.color_hover;}
                     if (this.selected_cell && x == this.selected_cell.x && y == this.selected_cell.y) {color = this.config.color_selected;}
                     this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
+                    
+                    // In an acrostic, highlight all other cells 
+                    // with the same number as the selected cell
+                    if (crossword_type == 'acrostic' && cell.number == this.selected_cell.number && cell != this.selected_cell) {
+                        color = this.config.color_hilite;
+                    }
+                    
                     this.context.fillStyle = color;
                     this.context.fillRect(cell_x+1, cell_y+1, this.cell_size-2, this.cell_size-2);
                     this.context.fillStyle = this.config.color_block;
