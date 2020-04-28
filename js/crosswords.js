@@ -565,9 +565,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 number: cell.getAttribute('number'),
                 color: cell.getAttribute('background-color'),
                 shape: cell.getAttribute('background-shape'),
-                empty: cell.getAttribute('type') === 'block',
+                empty: (cell.getAttribute('type') === 'block' || cell.getAttribute('type') === 'void'),
                 letter: cell.getAttribute('solve-state'),
-                top_right_number: cell.getAttribute('top-right-number')
+                top_right_number: cell.getAttribute('top-right-number'),
+                is_void: cell.getAttribute('type') === 'void'
             };
             
             // for barred puzzles
@@ -879,7 +880,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     this.context.fillRect(cell_x+1, cell_y+1, this.cell_size-2, this.cell_size-2);
                     this.context.fillStyle = this.config.color_block;
                 } else {
+                    if (cell.is_void) {
+                        this.context.fillStyle = this.config.color_none;
+                    }
                     this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
+                    this.context.fillStyle = this.config.color_block;
                 }
                 
                 if (cell.shape === 'circle') {
