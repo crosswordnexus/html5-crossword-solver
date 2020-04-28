@@ -951,7 +951,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     }
                     this.context.textAlign = "center";
                     this.context.textBaseline = "middle";
-                    this.context.fillText(cell.letter, cell_x+this.cell_size/2, cell_y+this.cell_size/2);
+                    this.context.fillText(cell.letter, cell_x+this.cell_size/2, cell_y+ 2 * this.cell_size/3);
                 }
             }
         }
