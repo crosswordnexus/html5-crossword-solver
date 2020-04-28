@@ -320,6 +320,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // TIMER
         this.timer_running = false;
         
+        // Solution message
+        this.msg_solved = MSG_SOLVED;
+        
         this.render_cells_callback = $.proxy(this.renderCells, this);
 
         this.init();
@@ -522,6 +525,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             description = XMLElementToString(description[0]);
         } else {
             description = '';
+        }
+        
+        // solved message
+        var completion = xmlDoc.getElementsByTagName('completion');
+        if (completion.length) {
+            this.msg_solved = XMLElementToString(completion[0]);
         }
         
         this.parseJPZCrossWord(crossword[0],description);
@@ -1162,7 +1171,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.timer_button.removeClass('running');
             this.timer_running = false;
         }
-        alert(MSG_SOLVED);
+        alert(this.msg_solved);
         
     };
 
