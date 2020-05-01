@@ -1,5 +1,5 @@
 # Crossword Nexus HTML5 Solver
-### An HTML5 crossword solver that can handle JPZ files in a browser.
+### An HTML5 crossword solver that can handle JPZ/PUZ files in a browser.
 
 ## Dependencies:
 #### jQuery
@@ -48,7 +48,7 @@ CrossWord.remove();
 | Param  | Description     |
 | ------ | --------------- |
 | url    | Puzzle file url |
-| type   | Type of puzzle file. Currently only .JPZ puzzles supported |
+| type   | Type of puzzle file. Currently only .JPZ/.PUZ puzzles supported |
 | name   | Puzzle name. Optional for puzzle_file parameter |
 
 With cell_size == 0, crossword will never be bigger than parent.
@@ -85,5 +85,3 @@ var params = {
 };
 CrosswordNexus.createCrossword($('#crossword'), params);
 ```
-
-
