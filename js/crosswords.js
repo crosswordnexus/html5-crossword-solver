@@ -455,6 +455,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 }
             }.bind(this));
         }
+        
+        // mapping of number to cells
+        this.number_to_cells = {};
+        // the crossword type
+        this.crossword_type = 'crossword';
+        // whether the puzzle is autofill
+        this.is_autofill = false;
 
         this.root.appendTo(this.parent);
     };
@@ -599,7 +606,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.error(ERR_PARSE_JPZ);
             return;
         }
-
+        // determine the type of the crossword
         for (var _i=0; _i<CROSSWORD_TYPES.length; _i++) {
             this.crossword_type = CROSSWORD_TYPES[_i];
             crossword = xmlDoc.getElementsByTagName(this.crossword_type);
@@ -607,6 +614,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 break;
             }
         }
+        // determine whether we should autofill
+        if (this.crossword_type == 'acrostic' || this.crossword_type == 'coded') {
+            this.is_autofill = true;
+        }
+        
         if (!crossword.length) {
             this.error(ERR_NOT_CROSSWORD);
             return;
@@ -715,11 +727,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 number: cell.getAttribute('number'),
                 color: cell.getAttribute('background-color'),
                 shape: cell.getAttribute('background-shape'),
-                empty: (cell.getAttribute('type') === 'block' || cell.getAttribute('type') === 'void'),
+                empty: (cell.getAttribute('type') === 'block' || cell.getAttribute('type') === 'void' || cell.getAttribute('type') === 'clue'),
                 letter: cell.getAttribute('solve-state'),
                 top_right_number: cell.getAttribute('top-right-number'),
-                is_void: cell.getAttribute('type') === 'void'
+                is_void: cell.getAttribute('type') === 'void',
+                clue: cell.getAttribute('type') === 'clue',
+                value: cell.textContent
             };
+            
+            // maintain the mapping of number -> cells
+            if (!this.number_to_cells[new_cell.number]) {
+                this.number_to_cells[new_cell.number] = [new_cell];
+            }
+            else {
+                this.number_to_cells[new_cell.number].push(new_cell);
+            }
+            
 
             // for barred puzzles
             if (cell.getAttribute('top-bar') || cell.getAttribute('bottom-bar') || cell.getAttribute('left-bar') || cell.getAttribute('right-bar')) {
@@ -1043,8 +1066,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     this.context.fillRect(cell_x+1, cell_y+1, this.cell_size-2, this.cell_size-2);
                     this.context.fillStyle = this.config.color_block;
                 } else {
-                    if (cell.is_void) {
+                    if (cell.is_void || cell.clue) {
                         this.context.fillStyle = this.config.color_none;
+                    }
+                    else {
+                        // respect cell coloring, even for blocks
+                        this.context.fillStyle = cell.color || this.config.color_block;
                     }
                     this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
                     this.context.fillStyle = this.config.color_block;
@@ -1289,15 +1316,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     };
     
     CrossWord.prototype.autofill = function() {
-        if (this.crossword_type == 'coded' || this.crossword_type == 'acrostic') {
-            var i, j, cell;
-            for (i in this.cells) {
-                for (j in this.cells[i]) {
-                    cell = this.cells[i][j];
-                    if (cell.number == this.selected_cell.number) {
-                        cell.letter = this.selected_cell.letter;
-                    }
-                }
+        if (this.is_autofill) {
+            var my_number = this.selected_cell.number;
+            var same_number_cells = this.number_to_cells[my_number] || [];
+            for (var my_cell of same_number_cells) {
+                var cell = this.cells[my_cell.x][my_cell.y];
+                cell.letter = this.selected_cell.letter;
+                cell.checked = this.selected_cell.checked;
             }
         }
     }
@@ -1675,6 +1700,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 }
                 break;
         }
+        
+        // check and reveal also other numbers if autofill is on
+        if (this.is_autofill) {
+            var my_cells_length = my_cells.length;
+            for (var i=0; i<my_cells_length; i++) {
+                var my_number = my_cells[i].number;
+                console.log(my_number);
+                if (my_number === null) {continue;}
+                var other_cells = this.number_to_cells[my_number] || [];
+                for (var other_cell of other_cells) {
+                    my_cells.push(this.cells[other_cell.x][other_cell.y]);
+                }
+            }
+        }
+        
         for (var i = 0; i < my_cells.length; i++) {
             if (firstChar(my_cells[i].letter) != firstChar(my_cells[i].solution)) {
                 if (reveal_or_check == 'reveal') {
@@ -2129,8 +2169,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 var grid_index = j + i * this.grid_width;
                 var filled = false;
                 // Letters
-                var letter = cell.letter;
-                if (cell.empty) {
+                var letter = cell.letter || cell.value;
+                if (cell.empty && !cell.clue) {
                     filled = true;
                     letter = '';
                 }
