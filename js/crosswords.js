@@ -179,6 +179,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         xhr.send();
         return deferred;
     }
+    
+    // Check if we can drag and drop files
+    var isAdvancedUpload = function() {
+      var div = document.createElement('div');
+      return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
+    }();
 
     function loadFromFile(file, type, deferred) {
         var reader = new FileReader();
@@ -408,6 +414,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 puzzles_holder = this.root.find('div.cw-open-puzzle'),
                 puzzles_list = this.root.find('div.cw-puzzles-list'),
                 puzzles_count = 0;
+                
             // render list of puzzle files
             if (this.config.puzzles && this.config.puzzles.length) {
                 for(i=0; puzzle_file = this.config.puzzles[i]; i++) {
@@ -443,17 +450,46 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.open_button.on('click', function(e) {
                 this.file_input.click();
             }.bind(this));
+            
+            // function to process uploaded files
+            function processFiles(files) {
+                if (files[0].name.endsWith(".puz")) {
+                    loadFromFile(files[0], FILE_PUZ).then(parsePUZ_callback, error_callback);
+                } else {
+                    loadFromFile(files[0], FILE_JPZ).then(parseJPZ_callback, error_callback);
+                }
+            }
 
             this.file_input.on('change', function() {
                 var files = this.file_input[0].files.length ? this.file_input[0].files: null;
                 if (files) {
-                    if (files[0].name.endsWith(".puz")) {
-                        loadFromFile(files[0], FILE_PUZ).then(parsePUZ_callback, error_callback);
-                    } else {
-                        loadFromFile(files[0], FILE_JPZ).then(parseJPZ_callback, error_callback);
-                    }
+                    processFiles(files);
                 }
             }.bind(this));
+            
+            // drag-and-drop
+            if (isAdvancedUpload) {
+                var div_overflow = this.root.find('div.cw-overflow');
+                div_overflow.addClass('has-advanced-upload');
+                
+                var droppedFiles = false;
+
+                div_overflow.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                })
+                .on('dragover dragenter', function() {
+                    div_overflow.addClass('is-dragover');
+                })
+                .on('dragleave dragend drop', function() {
+                    div_overflow.removeClass('is-dragover');
+                })
+                .on('drop', function(e) {
+                    droppedFiles = e.originalEvent.dataTransfer.files;
+                    processFiles(droppedFiles);
+                }); 
+            }
+            
         }
         
         // mapping of number to cells

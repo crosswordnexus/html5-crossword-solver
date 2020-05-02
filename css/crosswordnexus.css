@@ -60,6 +60,16 @@ div.cw-settings-background { position: absolute; left: 0; right: 0; top: 0; bott
 div.cw-settings-overflow { position: fixed; left: 0; right: 0; top: 0; bottom: 0; z-index: -1; cursor: pointer; }
 div.cw-settings.open { display: block; }
 
+/* drag-and-drop style */
+div.has-advanced-upload {
+  outline: 2px dashed gray;
+  outline-offset: -10px;
+}
+
+div.is-dragover {
+  background-color: grey;
+}
+
 div.cw-option { margin: 2px; position: relative; height: 25px; line-height: 25px; color: white; }
 span.cw-option-text {position: relative; float: left; width: 90px; text-align: left; }
 span.cw-color-preview {width: 25px; height: 25px; display: block; float: right; }
