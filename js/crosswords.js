@@ -89,8 +89,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
     var load_error = false;
 
-    var crossword_type = 'crossword'
-    var crossword_types = ['crossword', 'coded', 'acrostic'];
+    var CROSSWORD_TYPES = ['crossword', 'coded', 'acrostic'];
     
     var xw_timer, xw_timer_seconds = 0;
 
@@ -467,6 +466,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     CrossWord.prototype.parsePUZPuzzle = function(string) {
         var puzzle = PUZAPP.parsepuz(string);
         this.title = ''; this.author = ''; this.copyright = '';
+        this.crossword_type = 'crossword';
 
         if (puzzle.title.length) {
             this.title = puzzle.title;
@@ -600,9 +600,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             return;
         }
 
-        for (var _i=0; _i<crossword_types.length; _i++) {
-            crossword_type = crossword_types[_i];
-            crossword = xmlDoc.getElementsByTagName(crossword_type);
+        for (var _i=0; _i<CROSSWORD_TYPES.length; _i++) {
+            this.crossword_type = CROSSWORD_TYPES[_i];
+            crossword = xmlDoc.getElementsByTagName(this.crossword_type);
             if (crossword.length > 0) {
                 break;
             }
@@ -744,7 +744,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         // parse clues
         // We handle them differently for coded crosswords
-        if (crossword_type == 'coded') {
+        if (this.crossword_type == 'coded') {
             var across_group = new CluesGroup(this, {id: CLUES_TOP, title: 'ACROSS', clues: [], words_ids: []});
             var down_group = new CluesGroup(this, {id: CLUES_BOTTOM, title: 'DOWN', clues: [], words_ids: []});
             for (i=0; word=xml_words[i]; i++) {
@@ -1035,7 +1035,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     
                     // In an acrostic, highlight all other cells 
                     // with the same number as the selected cell
-                    if (crossword_type == 'acrostic' && cell.number == this.selected_cell.number && cell != this.selected_cell) {
+                    if (this.crossword_type == 'acrostic' && cell.number == this.selected_cell.number && cell != this.selected_cell) {
                         color = this.config.color_hilite;
                     }
                     
@@ -1289,7 +1289,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     };
     
     CrossWord.prototype.autofill = function() {
-        if (crossword_type == 'coded' || crossword_type == 'acrostic') {
+        if (this.crossword_type == 'coded' || this.crossword_type == 'acrostic') {
             var i, j, cell;
             for (i in this.cells) {
                 for (j in this.cells[i]) {
