@@ -1,5 +1,5 @@
 /**
-Copyright (c) 2015-2018, Crossword Nexus
+Copyright (c) 2015-2020, Crossword Nexus
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -540,14 +540,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 if (!this.cells[x + 1]) {
                     this.cells[x + 1] = {};
                 }
-                var solutionLetter = puzzle.solution.charAt(y * puzzle.width + x);
+                var thisIndex = y * puzzle.width + x;
+                var solutionLetter = puzzle.solution.charAt(thisIndex);
+                var myShape = puzzle.circles[thisIndex] ? 'circle' : null;
                 this.cells[x + 1][y + 1] = {
                     x: x + 1,
                     y: y + 1,
                     solution: solutionLetter != '.' ? solutionLetter : null,
-                    number: puzzle.sqNbrs[y * puzzle.width + x],
+                    number: puzzle.sqNbrs[thisIndex],
                     color: null,
-                    shape: null,
+                    shape: myShape,
                     empty: solutionLetter == '.',
                     letter: null,
                 };
