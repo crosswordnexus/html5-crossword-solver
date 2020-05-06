@@ -397,6 +397,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.print_btn = this.root.find('div.cw-buttons-holder div.cw-print');
 
         this.timer_button = this.root.find('div.cw-buttons-holder div.cw-timer');
+        
+        // function to process uploaded files
+        function processFiles(files) {
+            if (files[0].name.endsWith(".puz")) {
+                loadFromFile(files[0], FILE_PUZ).then(parsePUZ_callback, error_callback);
+            } else {
+                loadFromFile(files[0], FILE_JPZ).then(parseJPZ_callback, error_callback);
+            }
+        }
 
         // preload one puzzle
         if (this.config.puzzle_file && this.config.puzzle_file.hasOwnProperty('url') && this.config.puzzle_file.hasOwnProperty('type')) {
@@ -450,15 +459,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.open_button.on('click', function(e) {
                 this.file_input.click();
             }.bind(this));
-            
-            // function to process uploaded files
-            function processFiles(files) {
-                if (files[0].name.endsWith(".puz")) {
-                    loadFromFile(files[0], FILE_PUZ).then(parsePUZ_callback, error_callback);
-                } else {
-                    loadFromFile(files[0], FILE_JPZ).then(parseJPZ_callback, error_callback);
-                }
-            }
 
             this.file_input.on('change', function() {
                 var files = this.file_input[0].files.length ? this.file_input[0].files: null;
@@ -989,6 +989,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         if (!this.clues_bottom) {
             this.active_clues = this.clues_top;
             this.inactive_clues = this.clues_top;
+            if (this.selected_cell) {
+                var new_word = this.active_clues.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true);
+                this.setActiveWord(new_word);
+            }
         }
         else if (this.active_clues && this.active_clues.id === CLUES_TOP) {
             // check that there are inactive clues to switch to
@@ -1529,7 +1533,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             if (!this.selected_word.hasCell(x, y)) {
                 // If the selected cell and the new cell are in the same word, we switch directions
                 // We make sure that there is such a word as well (i.e. both are not null)
-                if (this.inactive_clues.getMatchingWord(new_cell.x, new_cell.y) == this.inactive_clues.getMatchingWord(this.selected_cell.x, this.selected_cell.y) && this.inactive_clues.getMatchingWord(new_cell.x, new_cell.y) !== null) {
+                if (this.inactive_clues.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true).hasCell(new_cell.x, new_cell.y) && this.inactive_clues.getMatchingWord(new_cell.x, new_cell.y, true) !== null) {
                     this.changeActiveClues();
                     // if cell empty - keep current cell selected
                     if (!this.selected_cell.letter) {
@@ -1744,7 +1748,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             var my_cells_length = my_cells.length;
             for (var i=0; i<my_cells_length; i++) {
                 var my_number = my_cells[i].number;
-                console.log(my_number);
                 if (my_number === null) {continue;}
                 var other_cells = this.number_to_cells[my_number] || [];
                 for (var other_cell of other_cells) {
@@ -2314,13 +2317,39 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     };
 
     // gets word which has cell with specified coordinates
-    CluesGroup.prototype.getMatchingWord = function(x, y) {
-        var i, word_id, word;
+    CluesGroup.prototype.getMatchingWord = function(x, y, change_word=false) {
+        var i, word_id, word, words = [];
         for (i=0; word_id=this.words_ids[i];i++) {
             word = this.crossword.words.hasOwnProperty(word_id) ? this.crossword.words[word_id] : null;
             if (word && word.cells.indexOf(x+'-'+y) >= 0) {
-                return word;
+                words.push(word);
             }
+        }
+        if (words.length == 1) {
+            return words[0];
+        }
+        else if (words.length == 0) {
+            return null;
+        }
+        else {
+            // with more than one word we look for one
+            // that's either current or not
+            for (i=0; i<words.length; i++) {
+                word = words[i];
+                if (change_word) {
+                    if (word.id != this.crossword.selected_word.id) {
+                        return word;
+                    }
+                }
+                else {
+                    if (word.id == this.crossword.selected_word.id) {
+                        return word;
+                    }
+                }
+            }
+            // if we didn't match a word in the above
+            // just return the first one
+            return words[0];
         }
         return null;
     };
