@@ -459,6 +459,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.open_button.on('click', function(e) {
                 this.file_input.click();
             }.bind(this));
+            
+            // function to process uploaded files
+            function processFiles(files) {
+                if (files[0].name.endsWith(".puz")) {
+                    loadFromFile(files[0], FILE_PUZ).then(parsePUZ_callback, error_callback);
+                } else {
+                    loadFromFile(files[0], FILE_JPZ).then(parseJPZ_callback, error_callback);
+                }
+            }
 
             this.file_input.on('change', function() {
                 var files = this.file_input[0].files.length ? this.file_input[0].files: null;
