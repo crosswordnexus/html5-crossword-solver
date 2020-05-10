@@ -1061,8 +1061,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             var max_height, max_width;
             this.root.removeClass('fixed');
             this.root.addClass('auto');
-            max_height = this.root.height() - (this.top_text_height+this.bottom_text_height);
-            max_width = this.root.width();
+            max_height = this.root.height() - (this.top_text_height+this.bottom_text_height) - 6;
+            max_width = this.root.width() - 16;
             this.cell_size = Math.min(
               Math.floor(max_height/this.grid_height),
               Math.floor(max_width/this.grid_width)
@@ -1207,7 +1207,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     };
 
     CrossWord.prototype.adjustSize = function() {
-        var size = Math.min(this.root.outerWidth(true), 1.5 * this.root.outerHeight(true));
+        //var size = Math.min(this.root.outerWidth(true), 1.5 * this.root.outerHeight(true));
+        var size = this.root.outerWidth(true);
         if (size >= BIG_THRESHOLD && !this.root.hasClass(SIZE_BIG)) {
             this.root.addClass(SIZE_BIG);
             this.root.removeClass(SIZE_NORMAL+' '+SIZE_SMALL+' '+SIZE_TINY);
