@@ -1061,9 +1061,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             var max_height, max_width;
             this.root.removeClass('fixed');
             this.root.addClass('auto');
-            max_height = this.root.height() - (this.top_text_height+this.bottom_text_height);
-            max_width = this.root.width();
-            this.cell_size = Math.min(Math.floor(max_height/this.grid_height) - 1, Math.floor(max_width/this.grid_width) - 1);
+            max_height = this.root.height() - (this.top_text_height+this.bottom_text_height) - 6;
+            max_width = this.root.width() - 16;
+            this.cell_size = Math.min(
+              Math.floor(max_height/this.grid_height),
+              Math.floor(max_width/this.grid_width)
+            );
         } else {
             this.root.removeClass('auto');
             this.root.addClass('fixed');
@@ -1080,14 +1083,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.canvas[0].style.height = heightDps + "px";
         this.context.scale(devicePixelRatio, devicePixelRatio);
 
-        this.context.clearRect(0, 0, this.canvas[0].width, this.canvas[0].height);
+        //this.context.clearRect(0, 0, this.canvas[0].width, this.canvas[0].height);
+        this.context.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height);
         this.context.fillStyle = this.config.color_block;
 
         for(x in this.cells) {
             for (y in this.cells[x]) {
                 var cell = this.cells[x][y],
-                    cell_x = (x-1)*this.cell_size,
-                    cell_y = (y-1)*this.cell_size;
+                    cell_x = (x-1)*this.cell_size +3,
+                    cell_y = (y-1)*this.cell_size +3;
 
                 if (!cell.empty) {
                     // detect cell color
@@ -1105,7 +1109,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     }
                     
                     this.context.fillStyle = color;
-                    this.context.fillRect(cell_x+1, cell_y+1, this.cell_size-2, this.cell_size-2);
+                    this.context.fillRect(cell_x, cell_y, this.cell_size-1, this.cell_size-1);
                     this.context.fillStyle = this.config.color_block;
                 } else {
                     if (cell.is_void || cell.clue) {
@@ -1120,9 +1124,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 }
 
                 if (cell.shape === 'circle') {
-                    var centerX = cell_x + this.cell_size/2;
-                    var centerY = cell_y + this.cell_size/2;
-                    var radius = this.cell_size/2;
+                    var centerX = cell_x + (this.cell_size - 1)/2;
+                    var centerY = cell_y + (this.cell_size - 1)/2;
+                    var radius = (this.cell_size - 1)/2;
                     this.context.beginPath();
                     this.context.arc(centerX,centerY,radius,0,2 * Math.PI,false);
                     this.context.stroke();
@@ -1159,17 +1163,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 
                 if (cell.number) {
-                    this.context.font = this.cell_size/4+"px sans-serif";
+                    this.context.font = Math.ceil(this.cell_size/4)+"px sans-serif";
                     this.context.textAlign = "left";
                     this.context.textBaseline = "top";
-                    this.context.fillText(cell.number, cell_x+this.cell_size*0.1, cell_y+this.cell_size*0.1);
+                    this.context.fillText(
+                      cell.number,
+                      Math.floor(cell_x+this.cell_size*0.1),
+                      Math.floor(cell_y+this.cell_size*0.1)
+                    );
                 }
                 
                 if (cell.top_right_number) {
-                    this.context.font = this.cell_size/4+"px sans-serif";
+                    this.context.font = Math.ceil(this.cell_size/4)+"px sans-serif";
                     this.context.textAlign = "right";
                     this.context.textBaseline = "top";
-                    this.context.fillText(cell.top_right_number, cell_x+this.cell_size*0.9, cell_y+this.cell_size*0.1);
+                    this.context.fillText(
+                      cell.top_right_number,
+                      Math.floor(cell_x+this.cell_size*0.9),
+                      Math.floor(cell_y+this.cell_size*0.1)
+                    );
                 }
                
 
@@ -1195,7 +1207,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     };
 
     CrossWord.prototype.adjustSize = function() {
-        var size = Math.min(this.root.outerWidth(true), 1.5 * this.root.outerHeight(true));
+        //var size = Math.min(this.root.outerWidth(true), 1.5 * this.root.outerHeight(true));
+        var size = this.root.outerWidth(true);
         if (size >= BIG_THRESHOLD && !this.root.hasClass(SIZE_BIG)) {
             this.root.addClass(SIZE_BIG);
             this.root.removeClass(SIZE_NORMAL+' '+SIZE_SMALL+' '+SIZE_TINY);
