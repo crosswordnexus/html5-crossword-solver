@@ -1111,6 +1111,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     this.context.fillStyle = color;
                     this.context.fillRect(cell_x, cell_y, this.cell_size-1, this.cell_size-1);
                     this.context.fillStyle = this.config.color_block;
+                    
+                    // Draw a line on the left and top
+                    if (x > 0 && y > 0) {
+                        this.context.beginPath();
+                        this.context.lineWidth = 1;
+                        this.context.moveTo(cell_x, cell_y);
+                        this.context.lineTo(cell_x, cell_y + this.cell_size);
+                        this.context.stroke();
+                        this.context.beginPath();
+                        this.context.moveTo(cell_x, cell_y);
+                        this.context.lineTo(cell_x + this.cell_size, cell_y);
+                        this.context.stroke();
+                    }
+                    
                 } else {
                     if (cell.is_void || cell.clue) {
                         this.context.fillStyle = this.config.color_none;

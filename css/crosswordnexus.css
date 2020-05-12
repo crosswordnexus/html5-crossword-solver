@@ -80,11 +80,11 @@ span.cw-color-preview {width: 25px; height: 25px; display: block; float: right; 
 div.cw-settings input[type=text] { display: block; width: 70px; height: 18px; float: left;}
 div.cw-cell-size input[type=text] {width: 20px; }
 
-div.cw-open-puzzle { position: relative; margin: 50px auto; width: 400px; height: auto; border-radius: 5px; box-shadow: 3px 3px 3px 0 #BFBFBF, 0 0 1px 2px gray inset; padding: 5px;}
+div.cw-open-puzzle { position: relative; margin: 50px auto; width: 300px; height: auto; border-radius: 5px; box-shadow: 3px 3px 3px 0 #BFBFBF, 0 0 1px 2px gray inset; padding: 5px;}
 div.cw-text { position: relative; margin: 5px auto; width: 200px; line-height: 20px; font-size: 20px; }
 div.cw-puzzles-list { position: relative; margin: 0 auto; width: 200px; min-height: 40px; max-height: 250px; background: white; overflow-y: scroll; border-radius: 5px;}
 div.cw-open-puzzle.empty div.cw-text, div.cw-open-puzzle.empty div.cw-puzzles-list { display: none; }
-div.cw-open-button { position: relative; width: 300px; height: 40px; margin: 5px auto; border: 1px solid; line-height: 50px; border-radius: 5px; box-shadow: 3px 3px 3px 0 gray, 0 0 10px 1px #007000 inset; background: linear-gradient(#008F00, #55e214); cursor: pointer; }
+div.cw-open-button { position: relative; width: 260px; height: 40px; margin: 5px auto; border: 1px solid; line-height: 50px; border-radius: 5px; box-shadow: 3px 3px 3px 0 gray, 0 0 10px 1px #007000 inset; background: linear-gradient(#008F00, #55e214); cursor: pointer; }
 div.cw-open-button::after { content: 'Open JPZ or PUZ file'; position: relative; top: -6px; font-size: 24px; color: #FFFFFF; font-weight: bold; }
 
 div.cw-open-holder input { visibility: hidden; position: absolute; }
@@ -123,6 +123,8 @@ div.cw-clues-items div.cw-clue, div.cw-puzzles-list span { position: relative; d
 div.cw-clues-items div.cw-clue:hover, div.cw-puzzles-list span:hover { left: -1px; top: -1px; box-shadow: 1px 1px 1px 0 gray, 0 0 1px 1px gray inset; }
 div.cw-clues-items div.cw-clue.active { background: #FFFCA5; }
 div.cw-clues-items div.cw-clue.passive { background: #FFFFDF; }
+
+input.cw-open-jpz {width: 0px; background: #FF0000;}
 
 /* size-dependent styles */
 div.cw-main.big { margin-right: 302px; font-size: 20px; }
