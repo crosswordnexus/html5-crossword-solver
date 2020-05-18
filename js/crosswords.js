@@ -2361,10 +2361,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         else {
             // with more than one word we look for one
             // that's either current or not
+            var finding_word = false;
             for (i=0; i<words.length; i++) {
                 word = words[i];
                 if (change_word) {
-                    if (word.id != this.crossword.selected_word.id) {
+                    if (word.id == this.crossword.selected_word.id) {
+                        finding_word = true;
+                    }
+                    else if (finding_word) {
                         return word;
                     }
                 }
