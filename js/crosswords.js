@@ -414,8 +414,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             switch (this.config.puzzle_file.type) {
                 case FILE_JPZ:
                     loaded_callback = parseJPZ_callback;
+                    break;
                 case FILE_PUZ:
                     loaded_callback = parsePUZ_callback;
+                    break;
             }
             loadFileFromServer(this.config.puzzle_file.url, this.config.puzzle_file.type).then(loaded_callback, error_callback);
         } else { // shows open button and, optionally, list of available puzzles
