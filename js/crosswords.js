@@ -1823,15 +1823,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 clues: this.clues_top.clues,
                 words_ids: this.clues_top.words_ids
             },
-            bottom_clues: {
-                id: this.clues_bottom.id,
-                title: this.clues_bottom.title,
-                clues: this.clues_bottom.clues,
-                words_ids: this.clues_bottom.words_ids
-            },
             words: {},
             cells: this.cells
         };
+        if (this.clues_bottom) {
+          savegame.bottom_clues = {
+              id: this.clues_bottom.id,
+              title: this.clues_bottom.title,
+              clues: this.clues_bottom.clues,
+              words_ids: this.clues_bottom.words_ids
+          };
+        }
         for(i in this.words) {
             if (this.words.hasOwnProperty(i)) {
                 savegame.words[i] = {
@@ -1857,7 +1859,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var i, savegame_name, savegame, active_word;
         savegame_name = STORAGE_KEY + (this.config.savegame_name || '');
         savegame = JSON.parse(localStorage.getItem(savegame_name));
-        if (savegame && savegame.hasOwnProperty('bottom_text') && savegame.hasOwnProperty('top_clues') && savegame.hasOwnProperty('bottom_clues') && savegame.hasOwnProperty('words') && savegame.hasOwnProperty('cells')
+        if (savegame && savegame.hasOwnProperty('bottom_text') && savegame.hasOwnProperty('top_clues') && savegame.hasOwnProperty('words') && savegame.hasOwnProperty('cells')
             && savegame.hasOwnProperty('cell_size') && savegame.hasOwnProperty('top_text_height') && savegame.hasOwnProperty('bottom_text_height') && savegame.hasOwnProperty('grid_width') && savegame.hasOwnProperty('grid_height')) {
 
             this.cell_size = savegame.cell_size;
