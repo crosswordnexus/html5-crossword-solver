@@ -66,7 +66,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     var BIG_THRESHOLD = 700;
     var NORMAL_THRESHOLD = 580;
     var SMALL_THRESHOLD = 450;
-    
+
     var MAX_CLUES_LENGTH = 2;
 
     var TYPE_UNDEFINED = typeof undefined;
@@ -90,7 +90,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     var load_error = false;
 
     var CROSSWORD_TYPES = ['crossword', 'coded', 'acrostic'];
-    
+
     var xw_timer, xw_timer_seconds = 0;
 
     var template = '' +
@@ -103,7 +103,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             '<div class="cw-text">or</div>'+
             '<div class="cw-open-button"></div>'+
         '</div>'+
-        '<input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz">'+
+        '<input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz,.xpz">'+
     '</div>'+
     '<div class="cw-notepad-icon"><span class="cwtooltip">Notepad</span></div>'+
     '<div class="cw-settings-icon"><span class="cwtooltip">Settings</span></div>'+
@@ -179,7 +179,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         xhr.send();
         return deferred;
     }
-    
+
     // Check if we can drag and drop files
     var isAdvancedUpload = function() {
       var div = document.createElement('div');
@@ -337,10 +337,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.settings_open = false;
         // TIMER
         this.timer_running = false;
-        
+
         // Solution message
         this.msg_solved = MSG_SOLVED;
-        
+
         this.render_cells_callback = $.proxy(this.renderCells, this);
 
         this.init();
@@ -397,7 +397,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.print_btn = this.root.find('div.cw-buttons-holder div.cw-print');
 
         this.timer_button = this.root.find('div.cw-buttons-holder div.cw-timer');
-        
+
         // function to process uploaded files
         function processFiles(files) {
             if (files[0].name.endsWith(".puz")) {
@@ -414,8 +414,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             switch (this.config.puzzle_file.type) {
                 case FILE_JPZ:
                     loaded_callback = parseJPZ_callback;
+                    break;
                 case FILE_PUZ:
                     loaded_callback = parsePUZ_callback;
+                    break;
             }
             loadFileFromServer(this.config.puzzle_file.url, this.config.puzzle_file.type).then(loaded_callback, error_callback);
         } else { // shows open button and, optionally, list of available puzzles
@@ -423,7 +425,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 puzzles_holder = this.root.find('div.cw-open-puzzle'),
                 puzzles_list = this.root.find('div.cw-puzzles-list'),
                 puzzles_count = 0;
-                
+
             // render list of puzzle files
             if (this.config.puzzles && this.config.puzzles.length) {
                 for(i=0; puzzle_file = this.config.puzzles[i]; i++) {
@@ -459,15 +461,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.open_button.on('click', function(e) {
                 this.file_input.click();
             }.bind(this));
-            
-            // function to process uploaded files
-            function processFiles(files) {
-                if (files[0].name.endsWith(".puz")) {
-                    loadFromFile(files[0], FILE_PUZ).then(parsePUZ_callback, error_callback);
-                } else {
-                    loadFromFile(files[0], FILE_JPZ).then(parseJPZ_callback, error_callback);
-                }
-            }
 
             this.file_input.on('change', function() {
                 var files = this.file_input[0].files.length ? this.file_input[0].files: null;
@@ -475,12 +468,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     processFiles(files);
                 }
             }.bind(this));
-            
+
             // drag-and-drop
             if (isAdvancedUpload) {
                 var div_overflow = this.root.find('div.cw-overflow');
                 div_overflow.addClass('has-advanced-upload');
-                
+
                 var droppedFiles = false;
 
                 div_overflow.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
@@ -496,11 +489,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 .on('drop', function(e) {
                     droppedFiles = e.originalEvent.dataTransfer.files;
                     processFiles(droppedFiles);
-                }); 
+                });
             }
-            
+
         }
-        
+
         // mapping of number to cells
         this.number_to_cells = {};
         // the crossword type
@@ -665,7 +658,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         if (this.crossword_type == 'acrostic' || this.crossword_type == 'coded') {
             this.is_autofill = true;
         }
-        
+
         if (!crossword.length) {
             this.error(ERR_NOT_CROSSWORD);
             return;
@@ -735,13 +728,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         } else {
             description = '';
         }
-        
+
         // solved message
         var completion = xmlDoc.getElementsByTagName('completion');
         if (completion.length) {
             this.msg_solved = XMLElementToString(completion[0]);
         }
-        
+
         this.parseJPZCrossWord(crossword[0],description);
     };
 
@@ -781,7 +774,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 clue: cell.getAttribute('type') === 'clue',
                 value: cell.textContent
             };
-            
+
             // maintain the mapping of number -> cells
             if (!this.number_to_cells[new_cell.number]) {
                 this.number_to_cells[new_cell.number] = [new_cell];
@@ -789,7 +782,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             else {
                 this.number_to_cells[new_cell.number].push(new_cell);
             }
-            
+
 
             // for barred puzzles
             if (cell.getAttribute('top-bar') || cell.getAttribute('bottom-bar') || cell.getAttribute('left-bar') || cell.getAttribute('right-bar')) {
@@ -846,7 +839,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 // Make the top clues take up the whole pane
                 $('div.cw-clues-top').css({'bottom': '0%'});
             }
-            
+
             if (xml_clues.length > MAX_CLUES_LENGTH) {
                 this.error(ERR_CLUES_GROUPS);
                 return;
@@ -1110,16 +1103,30 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     if (this.config.hover_enabled && x == this.hovered_x && y == this.hovered_y) {color = this.config.color_hover;}
                     if (this.selected_cell && x == this.selected_cell.x && y == this.selected_cell.y) {color = this.config.color_selected;}
                     this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
-                    
-                    // In an acrostic, highlight all other cells 
+
+                    // In an acrostic, highlight all other cells
                     // with the same number as the selected cell
                     if (this.crossword_type == 'acrostic' && cell.number == this.selected_cell.number && cell != this.selected_cell) {
                         color = this.config.color_hilite;
                     }
-                    
+
                     this.context.fillStyle = color;
                     this.context.fillRect(cell_x, cell_y, this.cell_size-1, this.cell_size-1);
                     this.context.fillStyle = this.config.color_block;
+
+                    // Draw a line on the left and top
+                    if (x > 0 && y > 0) {
+                        this.context.beginPath();
+                        this.context.lineWidth = 1;
+                        this.context.moveTo(cell_x, cell_y);
+                        this.context.lineTo(cell_x, cell_y + this.cell_size);
+                        this.context.stroke();
+                        this.context.beginPath();
+                        this.context.moveTo(cell_x, cell_y);
+                        this.context.lineTo(cell_x + this.cell_size, cell_y);
+                        this.context.stroke();
+                    }
+
                 } else {
                     if (cell.is_void || cell.clue) {
                         this.context.fillStyle = this.config.color_none;
@@ -1181,7 +1188,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                       Math.floor(cell_y+this.cell_size*0.1)
                     );
                 }
-                
+
                 if (cell.top_right_number) {
                     this.context.font = Math.ceil(this.cell_size/4)+"px sans-serif";
                     this.context.textAlign = "right";
@@ -1192,7 +1199,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                       Math.floor(cell_y+this.cell_size*0.1)
                     );
                 }
-               
+
 
                 if (cell.letter) {
                     var cell_letter_length = cell.letter.length;
@@ -1378,7 +1385,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             e.stopPropagation();
         }
     };
-    
+
     CrossWord.prototype.autofill = function() {
         if (this.is_autofill) {
             var my_number = this.selected_cell.number;
@@ -1403,12 +1410,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 this.selected_cell.letter = rebus_string.toUpperCase();
             }
             this.selected_cell.checked = false;
-            
+
             // If this is a coded or acrostic
-            // find all cells with this number 
+            // find all cells with this number
             // and fill them with the same letter
             this.autofill();
-            
+
             // find empty cell, then next cell
             // Change this depending on config
             if (this.config.skip_filled_letters) {
@@ -1443,7 +1450,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.timer_running = false;
         }
         alert(this.msg_solved);
-        
+
     };
 
     // callback for shift+arrows
@@ -1764,7 +1771,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 }
                 break;
         }
-        
+
         // check and reveal also other numbers if autofill is on
         if (this.is_autofill) {
             var my_cells_length = my_cells.length;
@@ -1777,7 +1784,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 }
             }
         }
-        
+
         for (var i = 0; i < my_cells.length; i++) {
             if (firstChar(my_cells[i].letter) != firstChar(my_cells[i].solution)) {
                 if (reveal_or_check == 'reveal') {
@@ -1816,15 +1823,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 clues: this.clues_top.clues,
                 words_ids: this.clues_top.words_ids
             },
-            bottom_clues: {
-                id: this.clues_bottom.id,
-                title: this.clues_bottom.title,
-                clues: this.clues_bottom.clues,
-                words_ids: this.clues_bottom.words_ids
-            },
             words: {},
             cells: this.cells
         };
+        if (this.clues_bottom) {
+          savegame.bottom_clues = {
+              id: this.clues_bottom.id,
+              title: this.clues_bottom.title,
+              clues: this.clues_bottom.clues,
+              words_ids: this.clues_bottom.words_ids
+          };
+        }
         for(i in this.words) {
             if (this.words.hasOwnProperty(i)) {
                 savegame.words[i] = {
@@ -1850,7 +1859,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var i, savegame_name, savegame, active_word;
         savegame_name = STORAGE_KEY + (this.config.savegame_name || '');
         savegame = JSON.parse(localStorage.getItem(savegame_name));
-        if (savegame && savegame.hasOwnProperty('bottom_text') && savegame.hasOwnProperty('top_clues') && savegame.hasOwnProperty('bottom_clues') && savegame.hasOwnProperty('words') && savegame.hasOwnProperty('cells')
+        if (savegame && savegame.hasOwnProperty('bottom_text') && savegame.hasOwnProperty('top_clues') && savegame.hasOwnProperty('words') && savegame.hasOwnProperty('cells')
             && savegame.hasOwnProperty('cell_size') && savegame.hasOwnProperty('top_text_height') && savegame.hasOwnProperty('bottom_text_height') && savegame.hasOwnProperty('grid_width') && savegame.hasOwnProperty('grid_height')) {
 
             this.cell_size = savegame.cell_size;
@@ -2184,7 +2193,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             if (!top_right_number) {top_right_number = '';}
             doc.setFontSize(number_size);
             doc.text(x1+cell_size-number_size, y1+number_size, top_right_number);
-            
+
             // letters
             if (!letter) {letter = '';}
             var letter_length = letter.length;
@@ -2356,10 +2365,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         else {
             // with more than one word we look for one
             // that's either current or not
+            var finding_word = false;
             for (i=0; i<words.length; i++) {
                 word = words[i];
                 if (change_word) {
-                    if (word.id != this.crossword.selected_word.id) {
+                    if (word.id == this.crossword.selected_word.id) {
+                        finding_word = true;
+                    }
+                    else if (finding_word) {
                         return word;
                     }
                 }
