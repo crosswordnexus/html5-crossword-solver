@@ -1350,7 +1350,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
                 if (cell.letter) {
                     var cell_letter_length = cell.letter.length;
-                    this.context.font = this.cell_size / (1.5 + 0.5 * cell_letter_length) + "px sans-serif";
+                    this.context.font =
+                      this.cell_size / (1.5 + 0.5 * cell_letter_length) + 'px sans-serif';
                     if (cell.revealed) {
                         this.context.font = 'bold italic ' + this.context.font;
                     }
