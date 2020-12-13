@@ -124,6 +124,23 @@ div.cw-clues-items div.cw-clue:hover, div.cw-puzzles-list span:hover { left: -1p
 div.cw-clues-items div.cw-clue.active { background: #FFFCA5; }
 div.cw-clues-items div.cw-clue.passive { background: #FFFFDF; }
 
+/* imported from ctfyc */
+.cw-clue-number {
+    flex-shrink: 0;
+    font-weight: 600;
+    margin-right: 10px;
+    text-align: right;
+    width: 30px;
+}
+
+.cw-clue-text {
+    flex: 1 1 auto;
+    min-width: 1px;
+    word-wrap: break-word;
+}
+
+
+
 input.cw-open-jpz {width: 0px; background: #FF0000;}
 
 /* size-dependent styles */
