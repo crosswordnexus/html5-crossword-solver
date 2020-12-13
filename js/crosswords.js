@@ -1745,13 +1745,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 }
                 this.moveSelectionBy(delta_x, delta_y, true);
                 return;
-
-
-
-
             }
-
-
 
             // If the new cell is not in the current word
             if (!this.selected_word.hasCell(x, y)) {
@@ -1770,37 +1764,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.setActiveCell(new_cell);
             this.renderCells();
         }
-
-
-
-
     };
 
     CrossWord.prototype.mouseEnteredClue = function(e) {
         var target = $(e.currentTarget);
         this.hilited_word = this.words[target.data('word')];
-
-
-
-
         this.renderCells();
-
-
     };
-
-
 
     CrossWord.prototype.mouseLeftClue = function() {
         this.hilited_word = null;
-
-
-
-
         this.renderCells();
-
-
-
-
     };
 
     CrossWord.prototype.clueClicked = function(e) {
@@ -1817,19 +1791,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
     };
 
-    CrossWord.prototype.showNotepad = function() {
+    CrossWord.prototype.showNotepad = function () {
         alert(this.notepad);
+    };
 
 
-
-
-    }
-
-
-    CrossWord.prototype.openSettings = function() {
+    CrossWord.prototype.openSettings = function () {
         this.settings.addClass('open');
-
-
 
         this.settings.find('div.cw-color-hover input').val(this.config.color_hover);
         this.settings.find('div.cw-color-hover span.cw-color-preview').css({
@@ -1837,15 +1805,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         });
 
 
-
-
         this.settings.find('div.cw-color-selected input').val(this.config.color_selected);
         this.settings.find('div.cw-color-selected span.cw-color-preview').css({
             background: this.config.color_selected
         });
-
-
-
 
         this.settings.find('div.cw-color-word input').val(this.config.color_word);
         this.settings.find('div.cw-color-word span.cw-color-preview').css({
@@ -1859,10 +1822,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.settings.find('div.cw-color-hilite span.cw-color-preview').css({
             background: this.config.color_hilite
         });
-
-
-
-
         if (!this.config.cell_size) {
             this.settings.find('div.cw-cell-size input[type=text]').prop('disabled', true);
             this.settings.find('div.cw-cell-size input[type=checkbox]').prop('checked', true);
@@ -1874,13 +1833,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         this.settings.find('div.cw-skip-filled input[type=checkbox]').prop('checked', this.config.skip_filled_letters);
 
-
-
-
         this.settings_open = true;
-
-
-
 
     };
 
@@ -2567,16 +2520,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             if (!letter) {
                 letter = '';
             }
-
-
             var letter_length = letter.length;
             //doc.setFontSize(letter_size);
             doc.setFontSize(cell_size / (1.5 + 0.5 * letter_length));
-
-
             doc.text(x1 + cell_size / 2, y1 + cell_size * letter_pct_down, letter, null, null, 'center');
-
-
 
 
             // circles
@@ -2604,8 +2551,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                             doc.line(bar_start[key][0], bar_start[key][1], bar_end[key][0], bar_end[key][1]);
 
 
-
-
                             doc.setLineWidth(options.line_width);
                         }
                     }
@@ -2613,8 +2558,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
 
         }
-
-
 
         for (var x in this.cells) {
             for (var y in this.cells[x]) {
@@ -2654,8 +2597,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
 
 
-
-
         doc.save(options.outfile);
     };
 
@@ -2676,32 +2617,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
             var display = (display_minutes ? (display_minutes > 9 ? display_minutes : "0" + display_minutes) : "00") + ":" + (display_seconds > 9 ? display_seconds : "0" + display_seconds);
 
-
-
             timer_btn.html(display);
-
-
 
 
             timer();
 
 
-
-
         }
-
-
 
 
         function timer() {
             xw_timer = setTimeout(add, 1000);
 
 
-
-
         }
-
-
 
         if (this.timer_running) {
             // Stop the timer
