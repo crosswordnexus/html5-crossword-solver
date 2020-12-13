@@ -18,9 +18,25 @@ html, body {
     margin: 0;
 }
 
-div.cw-main { box-shadow: 3px 3px 3px 0 #BFBFBF, 0 0 1px 2px gray inset; }
+div.crossword { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+
+/* div.cw-main { box-shadow: 3px 3px 3px 0 #BFBFBF, 0 0 1px 2px gray inset; } */
+.cw-main { font-size: 20px; }
 div.cw-main.fixed { position: relative; display: inline-block; }
-div.cw-main.auto { position: absolute; left: 2px; right: 2px; top: 2px; bottom: 2px;  }
+/* div.cw-main.auto { position: absolute; left: 2px; right: 2px; top: 2px; bottom: 2px;  } */
+div.cw-main.auto {
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.cw-main.loading {
+    visibility: hidden;
+}
 
 input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; width: 0; height: 0; z-index: -1;}
 
@@ -28,7 +44,7 @@ div.cw-open-holder { position: absolute; top: 0; left: 0; bottom: 0; z-index: 4;
 div.cw-overflow { position: absolute; top: 0; left: 0; height:100%; width: 100%; background: white; opacity: 0.9; z-index: -1; }
 div.cw-main.loading div.cw-open-holder, div.cw-main.loaded div.cw-open-holder { display: none; }
 
-
+/** Settings and Notepad **/
 div.cw-notepad-icon:hover .cwtooltip {
     display: block;
 }
@@ -64,7 +80,7 @@ div.cw-settings-background { position: absolute; left: 0; right: 0; top: 0; bott
 div.cw-settings-overflow { position: fixed; left: 0; right: 0; top: 0; bottom: 0; z-index: -1; cursor: pointer; }
 div.cw-settings.open { display: block; }
 
-/* drag-and-drop style */
+/** drag-and-drop style **/
 div.has-advanced-upload {
   outline: 2px dashed gray;
   outline-offset: -10px;
@@ -98,6 +114,7 @@ div.cw-bottom-text { position: absolute; bottom: 0; left: 0; right: 0; }
 
 div.cw-right { position: absolute; top: 0; bottom: 0; box-shadow: 3px 3px 3px 0 #BFBFBF, 0 0 1px 2px gray inset; padding: 2px; background: white; }
 
+/** Buttons **/
 div.cw-buttons-holder { position: absolute; top: 0; left: 0; width: 100%; }
 div.cw-button { position: relative; display: inline-block; margin: 1px 2px; box-shadow: 0 0 1px 1px gray inset; border-radius: 5px; cursor: pointer;}
 div.cw-reveal-buttons { position: absolute; display: none; z-index: 2; top: 100%; left: -3px; padding: 3px 2px; background: white; border-radius: 5px; box-shadow: 0 0 1px 1px gray inset; }
@@ -113,18 +130,28 @@ div.cw-button:hover { background: #FFFCA5; left: -1px; top: -1px; box-shadow: 1p
 
 div.cw-timer.running {background: #00CC00; }
 
+/** Clues **/
 div.cw-clues-holder { position: absolute; left: 0; bottom: 2px; width: 100%; }
-
 div.cw-clues-top { position: absolute; top: 0; bottom: 50%; left: 0; right: 0; }
 div.cw-clues-bottom { position: absolute; top: 50%; bottom: 0; left: 0; right: 0; }
 div.cw-clues-title { position: absolute; top: 0; left: 2px; right: 2px; background: #CFCFCF; border-top: 2px solid gray; }
 div.cw-clues-items { display: block; position: absolute; left: 2px; right: 2px; bottom: 0; overflow-y: scroll; }
-div.cw-clues-items div.cw-clue, div.cw-puzzles-list span { position: relative; display: block; text-align: left; box-shadow: 0 0 1px 1px gray inset; cursor: pointer; }
-div.cw-clues-items div.cw-clue:hover, div.cw-puzzles-list span:hover { left: -1px; top: -1px; box-shadow: 1px 1px 1px 0 gray, 0 0 1px 1px gray inset; }
+div.cw-clues-items div.cw-clue, div.cw-puzzles-list span {
+	position: relative;
+	display: block;
+	text-align: left;
+	/* box-shadow: 0 0 1px 1px gray inset; */
+	cursor: pointer;
+}
+div.cw-clues-items div.cw-clue:hover, div.cw-puzzles-list span:hover {
+	left: -1px;
+	top: -1px;
+	/* box-shadow: 1px 1px 1px 0 gray, 0 0 1px 1px gray inset; */
+	background: #eee;
+}
 div.cw-clues-items div.cw-clue.active { background: #FFFCA5; }
-div.cw-clues-items div.cw-clue.passive { background: #FFFFDF; }
+div.cw-clues-items div.cw-clue.passive { background: #eee; }
 
-/* imported from ctfyc */
 .cw-clue-number {
     flex-shrink: 0;
     font-weight: 600;
@@ -186,7 +213,7 @@ div.cw-main.small div.cw-clues-title { height: 15px; line-height: 15px; }
 div.cw-main.small div.cw-clues-items { top: 17px; }
 div.cw-main.small div.cw-clues-items div.cw-clue { line-height: 15px; margin: 2px; padding: 3px; }
 
-div.cw-main.tiny { font-size: 12px; }
+div.cw-main.tiny { font-size: 15px; }
 div.cw-main.tiny div.cw-open-holder { display: none;  }
 div.cw-main.tiny div.cw-buttons-holder { height: 24px; line-height: 24px; }
 div.cw-main.tiny div.cw-clues-holder { top: 24px; }
