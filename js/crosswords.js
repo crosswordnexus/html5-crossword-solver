@@ -1134,59 +1134,62 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
     CrossWord.prototype.setActiveCell = function (cell) {
         var offset = this.canvas.offset(),
-            input_top, input_left;
+            input_top,
+            input_left;
         if (cell && !cell.empty) {
             this.selected_cell = cell;
             this.active_clues.markActive(cell.x, cell.y, false);
             this.inactive_clues.markActive(cell.x, cell.y, true);
 
-            input_top = offset.top + ((cell.y - 1) * this.cell_size);
-            input_left = offset.left + ((cell.x - 1) * this.cell_size);
+            input_top = offset.top + (cell.y - 1) * this.cell_size;
+            input_left = offset.left + (cell.x - 1) * this.cell_size;
 
-            this.hidden_input.css({
-                left: input_left,
-                top: input_top
-            });
-
-
+            this.hidden_input.css({left: input_left, top: input_top});
             this.hidden_input.focus();
         }
     };
 
-    CrossWord.prototype.renderClues = function(clues_group, clues_container) {
-        var i, clue, clue_el,
+    CrossWord.prototype.renderClues = function (clues_group, clues_container) {
+        var i,
+            clue,
+            clue_el,
             title = clues_container.find('div.cw-clues-title'),
             items = clues_container.find('div.cw-clues-items');
         items.find('div.cw-clue').remove();
-        for (i = 0; clue = clues_group.clues[i]; i++) {
-            clue_el = $('<div>' + clue.number + '. ' + clue.text + '</div>');
+        for (i = 0; (clue = clues_group.clues[i]); i++) {
+            clue_el = $(
+              '<div>' +
+                '<span class="cw-clue-number">' +
+                clue.number +
+                '</span>' +
+                '<span class="cw-clue-text">' +
+                clue.text +
+                '</span>' +
+                '</div>'
+            );
             clue_el.data('word', clue.word);
             clue_el.data('number', clue.number);
             clue_el.data('clues', clues_group.id);
             clue_el.addClass('cw-clue');
             clue_el.addClass('word-' + clue.word);
             items.append(clue_el);
-
-
-
-
         }
         title.html(clues_group.title);
         clues_group.clues_container = items;
     };
 
     // Clears canvas and re-renders all cells
-    CrossWord.prototype.renderCells = function() {
+    CrossWord.prototype.renderCells = function () {
         var x, y;
 
         this.adjustSize();
 
         if (Number(this.config.cell_size) === 0) {
-            var max_height, max_width;
             this.root.removeClass('fixed');
             this.root.addClass('auto');
-            max_height = this.root.height() - (this.top_text_height + this.bottom_text_height) - 6;
-            max_width = this.root.width() - 16;
+            const canvasRect = $('.cw-canvas').get(0).getBoundingClientRect();
+            const max_height = this.root.height() - (this.top_text_height + this.bottom_text_height) - 6;
+            const max_width = this.root.width() - 16;
             this.cell_size = Math.min(
                 Math.floor(max_height / this.grid_height),
                 Math.floor(max_width / this.grid_width)
@@ -1203,13 +1206,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var devicePixelRatio = window.devicePixelRatio || 1;
         this.canvas[0].width = devicePixelRatio * widthDps;
         this.canvas[0].height = devicePixelRatio * heightDps;
-        this.canvas[0].style.width = widthDps + "px";
-        this.canvas[0].style.height = heightDps + "px";
+        this.canvas[0].style.width = widthDps + 'px';
+        this.canvas[0].style.height = heightDps + 'px';
         this.context.scale(devicePixelRatio, devicePixelRatio);
 
         //this.context.clearRect(0, 0, this.canvas[0].width, this.canvas[0].height);
-        this.context.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height);
         this.context.fillStyle = this.config.color_block;
+        this.context.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height);
 
         for (x in this.cells) {
             for (y in this.cells[x]) {
@@ -1223,15 +1226,27 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     if (this.hilited_word && this.hilited_word.hasCell(cell.x, cell.y)) {
                         color = this.config.color_hilite;
                     }
-                    if (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)) {
-                        color = this.config.color_word;
+                    if (
+                      this.selected_word &&
+                      this.selected_word.hasCell(cell.x, cell.y)
+                    ) {
+                      color = this.config.color_word;
                     }
-                    if (this.config.hover_enabled && x == this.hovered_x && y == this.hovered_y) {
-                        color = this.config.color_hover;
+                    if (
+                      this.config.hover_enabled &&
+                      x == this.hovered_x &&
+                      y == this.hovered_y
+                    ) {
+                      color = this.config.color_hover;
                     }
-                    if (this.selected_cell && x == this.selected_cell.x && y == this.selected_cell.y) {
-                        color = this.config.color_selected;
+                    if (
+                      this.selected_cell &&
+                      x == this.selected_cell.x &&
+                      y == this.selected_cell.y
+                    ) {
+                      color = this.config.color_selected;
                     }
+                    this.context.fillStyle = this.config.color_block;
                     this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
 
                     // In an acrostic, highlight all other cells
@@ -1277,22 +1292,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     this.context.beginPath();
                     this.context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
                     this.context.stroke();
-
                 }
-
 
                 if (cell.bar) {
                     var bar_start = {
                         top: [cell_x, cell_y],
                         left: [cell_x, cell_y],
                         right: [cell_x + this.cell_size, cell_y + this.cell_size],
-                        bottom: [cell_x + this.cell_size, cell_y + this.cell_size]
+                        bottom: [cell_x + this.cell_size, cell_y + this.cell_size],
                     };
                     var bar_end = {
                         top: [cell_x + this.cell_size, cell_y],
                         left: [cell_x, cell_y + this.cell_size],
                         right: [cell_x + this.cell_size, cell_y],
-                        bottom: [cell_x, cell_y + this.cell_size]
+                        bottom: [cell_x, cell_y + this.cell_size],
                     };
                     for (var key in cell.bar) {
                         if (cell.bar.hasOwnProperty(key)) {
@@ -1310,13 +1323,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     }
                 }
 
-
-
-
                 if (cell.number) {
-                    this.context.font = Math.ceil(this.cell_size / 4) + "px sans-serif";
-                    this.context.textAlign = "left";
-                    this.context.textBaseline = "top";
+                    this.context.font = Math.ceil(this.cell_size / 4) + 'px sans-serif';
+                    this.context.textAlign = 'left';
+                    this.context.textBaseline = 'top';
                     this.context.fillText(
                         cell.number,
                         Math.floor(cell_x + this.cell_size * 0.1),
