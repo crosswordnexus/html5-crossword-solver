@@ -221,7 +221,7 @@ div.cw-main.tiny div.cw-button { width: 40px; height: 20px; font-size: 12px; lin
 div.cw-main.tiny div.cw-notepad-icon { bottom: 2px; right: 26px; width: 24px; height: 24px; }
 div.cw-main.tiny div.cw-settings-icon { bottom: 2px; right: 2px; width: 24px; height: 24px; }
 div.cw-main.tiny div.cw-right  { display: none; }
-div.cw-main.tiny div.cw-top-text { line-height: 12px; height: 24px; margin: 2px; }
+div.cw-main.tiny div.cw-top-text { line-height: 12px; height: 36px; margin: 2px; }
 div.cw-main.tiny div.cw-bottom-text { line-height: 12px; min-height: 24px; margin: 2px; font-size: 10px; }
 div.cw-main.tiny div.cw-clues-title { height: 12px; line-height: 12px; }
 div.cw-main.tiny div.cw-clues-items { top: 14px; }
