@@ -70,8 +70,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     var SMALL_THRESHOLD = 450;
 
 
-
-
     var MAX_CLUES_LENGTH = 2;
 
     var TYPE_UNDEFINED = typeof undefined;
@@ -93,8 +91,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     var ERR_NO_SAVEGAME = 'No saved game found';
 
     var load_error = false;
-
-
 
 
     var CROSSWORD_TYPES = ['crossword', 'coded', 'acrostic'];
@@ -187,8 +183,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         xhr.send();
         return deferred;
     }
-
-
     // Check if we can drag and drop files
     var isAdvancedUpload = function() {
         var div = document.createElement('div');
@@ -411,8 +405,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.hidden_input = this.root.find('input.cw-hidden-input');
 
 
-
-
         this.reveal_button = this.root.find('div.cw-buttons-holder div.cw-reveal');
         this.reveal_letter = this.root.find('div.cw-buttons-holder div.cw-reveal-letter');
         this.reveal_word = this.root.find('div.cw-buttons-holder div.cw-reveal-word');
@@ -429,8 +421,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.print_btn = this.root.find('div.cw-buttons-holder div.cw-print');
 
         this.timer_button = this.root.find('div.cw-buttons-holder div.cw-timer');
-
-
 
         // function to process uploaded files
         function processFiles(files) {
@@ -519,8 +509,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 var droppedFiles = false;
 
 
-
-
                 div_overflow.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
@@ -538,8 +526,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
 
         }
-
-
 
         // mapping of number to cells
 
@@ -730,8 +716,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               ['reveal-letter', 'div.cw-reveal-letter'],
               ['solution', 'div.cw-reveal-puzzle'],
             ];
-
-
             var i;
             var items = $();
             for (i = 0; i < all_settings.length; i++) {
@@ -827,16 +811,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             };
 
 
-
-
             // maintain the mapping of number -> cells
             if (!this.number_to_cells[new_cell.number]) {
                 this.number_to_cells[new_cell.number] = [new_cell];
             } else {
                 this.number_to_cells[new_cell.number].push(new_cell);
             }
-
-
 
 
             // for barred puzzles
@@ -940,19 +920,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         /** need to add header stuff here **/
         this.changeActiveClues();
 
-
-
         if (this.clues_top) {
             this.renderClues(this.clues_top, this.clues_top_container);
         }
         if (this.clues_bottom) {
             this.renderClues(this.clues_bottom, this.clues_bottom_container);
         }
-
-
         this.addListeners();
-
-
 
         this.root.removeClass('loading');
         this.root.addClass('loaded');
@@ -960,8 +934,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var first_word = this.active_clues.getFirstWord();
         this.setActiveWord(first_word);
         this.setActiveCell(first_word.getFirstCell());
-
-
         this.adjustPaddings();
         this.renderCells();
     }
@@ -1011,12 +983,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.hidden_input.off('input');
         this.hidden_input.off('keydown');
     };
-
-
     CrossWord.prototype.addListeners = function () {
         $(window).on('resize', this.render_cells_callback);
-
-
         this.clues_holder.delegate(
           'div.cw-clues-items div.cw-clue',
           'mouseenter',
@@ -1053,8 +1021,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.check_letter.on('click', $.proxy(this.check_reveal, this, 'letter', 'check'));
         this.check_word.on('click', $.proxy(this.check_reveal, this, 'word', 'check'));
         this.check_puzzle.on('click', $.proxy(this.check_reveal, this, 'puzzle', 'check'));
-
-
         // FILE
         this.file_button.on('click', $.proxy(this.toggleFile, this));
         this.file_button.on('mouseenter', $.proxy(this.openFile, this));
@@ -1346,8 +1312,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 }
 
 
-
-
                 if (cell.letter) {
                     var cell_letter_length = cell.letter.length;
                     this.context.font =
@@ -1565,8 +1529,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
         }
     };
-
-
     // Detects user inputs to hidden input element
     CrossWord.prototype.hiddenInputChanged = function (rebus_string) {
         var mychar = this.hidden_input.val().slice(0, 1).toUpperCase(),
@@ -1730,8 +1692,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
 
 
-
-
             // try to jump over empty cell
             if (new_cell.empty) {
                 if (delta_x < 0) {
@@ -1794,8 +1754,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     CrossWord.prototype.showNotepad = function () {
         alert(this.notepad);
     };
-
-
     CrossWord.prototype.openSettings = function () {
         this.settings.addClass('open');
 
@@ -1803,8 +1761,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.settings.find('div.cw-color-hover span.cw-color-preview').css({
             background: this.config.color_hover
         });
-
-
         this.settings.find('div.cw-color-selected input').val(this.config.color_selected);
         this.settings.find('div.cw-color-selected span.cw-color-preview').css({
             background: this.config.color_selected
@@ -1814,8 +1770,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.settings.find('div.cw-color-word span.cw-color-preview').css({
             background: this.config.color_word
         });
-
-
 
 
         this.settings.find('div.cw-color-hilite input').val(this.config.color_hilite);
@@ -1873,34 +1827,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var value;
 
 
-
-
         value = this.settings.find('div.cw-color-hover input').val();
         if (value.match(/#[0-9a-fA-F]{6}/)) {
 
             this.config.color_hover = value;
         }
-
-
         value = this.settings.find('div.cw-color-selected input').val();
         if (value.match(/#[0-9a-fA-F]{6}/)) {
-
-
             this.config.color_selected = value;
         }
-
-
 
 
         value = this.settings.find('div.cw-color-word input').val();
         if (value.match(/#[0-9a-fA-F]{6}/)) {
 
 
-
-
             this.config.color_word = value;
-
-
 
         }
 
@@ -1920,19 +1862,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.config.skip_filled_letters = this.settings.find('div.cw-skip-filled input[type=checkbox]').prop('checked');
 
 
-
-
         this.closeSettings();
         this.renderCells();
         this.hidden_input.focus();
 
 
-
-
         e.preventDefault();
         e.stopPropagation();
-
-
 
 
     };
@@ -1944,28 +1880,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     CrossWord.prototype.closeReveal = function() {
         this.reveal_button.removeClass('open');
     };
-
-
     CrossWord.prototype.toggleReveal = function() {
         this.reveal_button.toggleClass('open');
     };
-
-
     CrossWord.prototype.openCheck = function() {
         this.check_button.addClass('open');
     };
-
-
     CrossWord.prototype.closeCheck = function() {
         this.check_button.removeClass('open');
     };
-
-
     CrossWord.prototype.toggleCheck = function() {
         this.check_button.toggleClass('open');
     };
-
-
 
 
     CrossWord.prototype.openFile = function() {
@@ -2037,21 +1963,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 }
 
 
-
-
             }
 
         }
         this.renderCells();
 
 
-
-
         if (reveal_or_check == 'reveal') {
             this.checkIfSolved();
             this.closeReveal();
-
-
 
         } else {
             this.closeCheck();
@@ -2060,8 +1980,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         e.preventDefault();
         e.stopPropagation();
     }
-
-
     CrossWord.prototype.savePuzzle = function(e) {
         var i, savegame_name, savegame = {
             cell_size: this.cell_size,
@@ -2100,13 +2018,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
 
 
-
-
         savegame_name = STORAGE_KEY + (this.config.savegame_name || '');
         localStorage.setItem(savegame_name, JSON.stringify(savegame));
         alert(MSG_SAVED);
-
-
 
 
         this.closeFile();
@@ -2114,11 +2028,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         e.stopPropagation();
 
 
-
-
     };
-
-
 
     // loads saved puzzle
     CrossWord.prototype.loadPuzzle = function(e) {
@@ -2135,8 +2045,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.grid_height = savegame.grid_height;
 
             this.bottom_text.html(savegame.bottom_text);
-
-
 
 
             this.selected_cell = null;
@@ -2237,21 +2145,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             if (this.clues_top.clues.hasOwnProperty(i)) {
                 var num = this.clues_top.clues[i].number.toString();
                 var clue = this.clues_top.clues[i].text.replace(/(<([^>]+)>)/ig, "").trim();
-
-
                 var this_clue_string = num + '. ' + clue;
                 if (i == 0) {
                     var clues_top_title = this.clues_top.title.replace(/(<([^>]+)>)/ig, "").trim();
-
-
                     across_clues.push(clues_top_title + '\n' + this_clue_string);
                 } else {
                     across_clues.push(this_clue_string);
                 }
             }
         }
-
-
         // For space between clue lists
         across_clues.push('');
 
@@ -2261,13 +2163,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 if (this.clues_bottom.clues.hasOwnProperty(i)) {
                     var num = this.clues_bottom.clues[i].number.toString();
                     var clue = this.clues_bottom.clues[i].text.replace(/(<([^>]+)>)/ig, "").trim();
-
-
                     var this_clue_string = num + '. ' + clue;
                     if (i == 0) {
                         var clues_bottom_title = this.clues_bottom.title.replace(/(<([^>]+)>)/ig, "").trim();
-
-
                         down_clues.push(clues_bottom_title + '\n' + this_clue_string);
                     } else {
                         down_clues.push(this_clue_string);
@@ -2297,8 +2195,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             doc.setLineWidth(options.line_width);
 
 
-
-
             // Print the clues
             var line_xpos = margin;
             var line_ypos = margin + max_title_author_pt + options.under_title_spacing + clue_pt + clue_padding;
@@ -2320,8 +2216,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     }
 
 
-
-
                     if (line_ypos + (lines.length - 1) * (clue_pt + clue_padding) > max_line_ypos) {
                         // move to new column
                         my_column += 1;
@@ -2340,16 +2234,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                         var line = lines[j];
                         // print the text
                         doc.text(line_xpos, line_ypos, line);
-
-
                         // set the y position for the next line
 
 
-
-
                         line_ypos += clue_pt + clue_padding;
-
-
                         // In extreme cases a clue can overflow here
                         // Move to the next column if this is the case
                         if (line_ypos > max_line_ypos) {
@@ -2360,8 +2248,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     }
                 }
             }
-
-
 
 
             // let's not let the font get ridiculously tiny
@@ -2395,11 +2281,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
             options.author_pt = options.title_pt;
         }
-
-
         /* Render title and author */
-
-
 
 
         var title_xpos = margin;
@@ -2408,14 +2290,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var title_author_ypos = margin + max_title_author_pt;
 
 
-
-
         //title
         doc.setFontSize(options.title_pt);
         doc.setFontType('bold');
         doc.text(title_xpos, title_author_ypos, this.title);
-
-
 
 
         //author
@@ -2429,26 +2307,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         doc.setFontSize(options.copyright_pt);
         doc.text(copyright_xpos, copyright_ypos, this.copyright, null, null, 'right');
-
-
         /* Draw grid */
-
-
 
 
         var grid_options = {
             grid_letters: true,
             grid_numbers: true,
             x0: grid_xpos
-
-
                 ,
             y0: grid_ypos,
             grid_size: grid_size,
             gray: options.gray
         };
-
-
 
         var PTS_TO_IN = 72;
         var max_dimension = Math.max(this.grid_width, this.grid_height);
@@ -2456,8 +2326,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         /** Function to draw a square **/
         function draw_square(doc, x1, y1, cell_size, number, letter, filled, circle, color, bar, top_right_number) {
-
-
 
 
             // thank you https://stackoverflow.com/a/5624139
@@ -2469,8 +2337,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 });
 
 
-
-
                 var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
                 return result ? {
                     r: parseInt(result[1], 16),
@@ -2478,8 +2344,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     b: parseInt(result[3], 16)
                 } : null;
             }
-
-
 
             var filled_string = (filled ? 'F' : '');
             var number_offset = cell_size / 20;
@@ -2498,8 +2362,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 doc.rect(x1, y1, cell_size, cell_size, filled_string);
             }
 
-
-
             //numbers
             if (!number) {
                 number = '';
@@ -2514,8 +2376,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             doc.text(x1 + cell_size - number_size, y1 + number_size, top_right_number);
 
 
-
-
             // letters
             if (!letter) {
                 letter = '';
@@ -2524,8 +2384,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             //doc.setFontSize(letter_size);
             doc.setFontSize(cell_size / (1.5 + 0.5 * letter_length));
             doc.text(x1 + cell_size / 2, y1 + cell_size * letter_pct_down, letter, null, null, 'center');
-
-
             // circles
             if (circle) {
                 doc.circle(x1 + cell_size / 2, y1 + cell_size / 2, cell_size / 2);
@@ -2549,8 +2407,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                         if (bar[key]) {
                             doc.setLineWidth(options.bar_width);
                             doc.line(bar_start[key][0], bar_start[key][1], bar_end[key][0], bar_end[key][1]);
-
-
                             doc.setLineWidth(options.line_width);
                         }
                     }
@@ -2595,8 +2451,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 draw_square(doc, x_pos, y_pos, cell_size, number, letter, filled, circle, color, bar, top_right_number);
             }
         }
-
-
         doc.save(options.outfile);
     };
 
@@ -2605,31 +2459,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var timer_btn = this.timer_button;
 
 
-
-
         function add() {
             xw_timer_seconds = xw_timer_seconds + 1;
             display_seconds = xw_timer_seconds % 60;
             display_minutes = (xw_timer_seconds - display_seconds) / 60;
 
 
-
-
             var display = (display_minutes ? (display_minutes > 9 ? display_minutes : "0" + display_minutes) : "00") + ":" + (display_seconds > 9 ? display_seconds : "0" + display_seconds);
 
             timer_btn.html(display);
-
-
             timer();
-
-
         }
-
-
         function timer() {
             xw_timer = setTimeout(add, 1000);
-
-
         }
 
         if (this.timer_running) {
@@ -2647,8 +2489,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
 
     }
-
-
 
 
     // CluesGroup stores clues and map of words
@@ -2694,8 +2534,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     CluesGroup.prototype.getFirstWord = function() {
         if (this.words_ids.length) {
             return this.crossword.words[this.words_ids[0]];
-
-
 
         }
         return null;
@@ -2764,19 +2602,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     CluesGroup.prototype.getNextWord = function(word) {
         var next_word = null,
 
-
-
             index = this.words_ids.indexOf(word.id);
         if (index < this.words_ids.length - 1) {
             next_word = this.crossword.words[this.words_ids[index + 1]];
 
 
-
-
         }
         return next_word;
-
-
     };
 
     // returns word previous to given
@@ -2786,13 +2618,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         if (index > 0) {
 
 
-
-
             prev_word = this.crossword.words[this.words_ids[index - 1]];
         }
         return prev_word;
-
-
 
 
     };
@@ -2825,8 +2653,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 y = xml_data.getAttribute('y');
 
             this.id = id;
-
-
 
 
             if (x && y) {
@@ -2866,8 +2692,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 for (k = x_from;
                     (x_from < x_to ? k <= x_to : k >= x_to);
                     (x_from < x_to ? k++ : k--)) {
-
-
                     this.cells.push(k + '-' + y);
                 }
             } else if (split_y.length > 1) {
@@ -2886,13 +2710,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
         }
     };
-
-
     Word.prototype.hasCell = function(x, y) {
 
         return this.cells.indexOf(x + '-' + y) >= 0;
-
-
 
 
     };
@@ -2922,8 +2742,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 cell = this.getCellByCoordinates(this.cells[i]);
 
 
-
-
                 if (cell && !cell.letter) {
                     return cell;
                 }
@@ -2931,12 +2749,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         }
 
-
-
         return null;
     };
-
-
 
 
     Word.prototype.getFirstCell = function() {
@@ -2953,15 +2767,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             cell = this.getCellByCoordinates(this.cells[this.cells.length - 1]);
 
 
-
-
         }
         return cell;
-
-
     };
-
-
     Word.prototype.getNextCell = function(x, y) {
         var index = this.cells.indexOf(x + '-' + y),
             cell = null;
@@ -2972,8 +2780,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     };
 
 
-
-
     Word.prototype.getPreviousCell = function(x, y) {
         var index = this.cells.indexOf(x + '-' + y),
             cell = null;
@@ -2981,17 +2787,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             cell = this.getCellByCoordinates(this.cells[index - 1]);
 
 
-
-
         }
-
-
 
 
         return cell;
     };
-
-
     Word.prototype.getCellByCoordinates = function(txt_coordinates) {
         var split, x, y, cell;
         split = txt_coordinates.split('-');
@@ -3022,19 +2822,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         });
 
 
-
-
     }
-
-
 
     if (registerGlobal) {
         window.CrosswordNexus = CrosswordNexus;
-
-
     }
-
-
 
     return CrosswordNexus;
 });
