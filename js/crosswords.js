@@ -1362,14 +1362,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                         //this.context.lineWidth = 5;
                         this.context.stroke();
                     }
-                    this.context.textAlign = "center";
-                    this.context.textBaseline = "middle";
-                    this.context.fillText(cell.letter, cell_x + this.cell_size / 2, cell_y + 2 * this.cell_size / 3);
-                }
+                    this.context.textAlign = 'center';
+                    this.context.textBaseline = 'middle';
+                    this.context.fillText(
+                      cell.letter,
+                      cell_x + this.cell_size / 2,
+                      cell_y + 2 * this.cell_size / 3
+                    );
+                  }
             }
         }
     };
 
+    /** all of this disappears when we move to a more modern approach to resizing **/
     CrossWord.prototype.adjustSize = function() {
         //var size = Math.min(this.root.outerWidth(true), 1.5 * this.root.outerHeight(true));
         var size = this.root.outerWidth(true);
@@ -1401,7 +1406,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         });
     };
 
-    CrossWord.prototype.mouseMoved = function(e) {
+    CrossWord.prototype.mouseMoved = function (e) {
         if (this.config.hover_enabled) {
             var offset = this.canvas.offset(),
                 mouse_x = e.pageX - offset.left,
@@ -1417,43 +1422,36 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
     };
 
-    CrossWord.prototype.mouseClicked = function(e) {
+    CrossWord.prototype.mouseClicked = function (e) {
         var offset = this.canvas.offset(),
             mouse_x = e.pageX - offset.left,
             mouse_y = e.pageY - offset.top,
             index_x = Math.ceil(mouse_x / this.cell_size),
             index_y = Math.ceil(mouse_y / this.cell_size);
 
-        if (this.selected_cell && this.selected_cell.x == index_x && this.selected_cell.y == index_y) {
-            this.changeActiveClues();
+        if (
+              this.selected_cell &&
+              this.selected_cell.x == index_x &&
+              this.selected_cell.y == index_y
+            ) {
+              this.changeActiveClues();
         }
 
         if (this.active_clues.getMatchingWord(index_x, index_y)) {
             this.setActiveWord(this.active_clues.getMatchingWord(index_x, index_y));
-
-
-
-
         } else {
             this.setActiveWord(this.inactive_clues.getMatchingWord(index_x, index_y));
-
-
-
-
         }
         this.setActiveCell(this.getCell(index_x, index_y));
-
-
-
-
         this.renderCells();
     };
 
-    CrossWord.prototype.keyPressed = function(e) {
+    CrossWord.prototype.keyPressed = function (e) {
         if (this.settings_open) {
             return;
         }
-        var prevent = [35, 36, 37, 38, 39, 40, 32, 46, 8, 9, 13].indexOf(e.keyCode) >= 0; // to prevent event propagation for specified keys
+        var prevent =
+          [35, 36, 37, 38, 39, 40, 32, 46, 8, 9, 13].indexOf(e.keyCode) >= 0; // to prevent event propagation for specified keys
         switch (e.keyCode) {
             case 35: // end
                 this.moveToFirstCell(true);
@@ -1491,29 +1489,32 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 break;
             case 32: //space
                 if (this.selected_cell && this.selected_word) {
-                    this.selected_cell.letter = "";
+                    this.selected_cell.letter = '';
                     this.selected_cell.checked = false;
                     this.autofill();
-                    var next_cell = this.selected_word.getNextCell(this.selected_cell.x, this.selected_cell.y);
+                    var next_cell = this.selected_word.getNextCell(
+                       this.selected_cell.x,
+                       this.selected_cell.y
+                    );
                     this.setActiveCell(next_cell);
                 }
                 this.renderCells();
                 break;
             case 27: // escape -- pulls up a rebus entry
                 if (this.selected_cell && this.selected_word) {
-                    var rebus_entry = prompt("Rebus entry", "");
+                    var rebus_entry = prompt('Rebus entry', '');
                     this.hiddenInputChanged(rebus_entry);
                 }
                 break;
             case 45: // insert -- same as escape
                 if (this.selected_cell && this.selected_word) {
-                    var rebus_entry = prompt("Rebus entry", "");
+                    var rebus_entry = prompt('Rebus entry', '');
                     this.hiddenInputChanged(rebus_entry);
                 }
                 break;
             case 46: // delete
                 if (this.selected_cell) {
-                    this.selected_cell.letter = "";
+                    this.selected_cell.letter = '';
                     this.selected_cell.checked = false;
                     this.autofill();
                 }
@@ -1521,15 +1522,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 break;
             case 8: // backspace
                 if (this.selected_cell && this.selected_word) {
-                    this.selected_cell.letter = "";
+                    this.selected_cell.letter = '';
                     this.selected_cell.checked = false;
                     this.autofill();
-                    var prev_cell = this.selected_word.getPreviousCell(this.selected_cell.x, this.selected_cell.y);
-
-
-
+                    var prev_cell = this.selected_word.getPreviousCell(
+                      this.selected_cell.x,
+                      this.selected_cell.y
+                    );
                     this.setActiveCell(prev_cell);
-                }
+                  }
                 this.renderCells();
                 break;
             case 9: // tab
@@ -1547,13 +1548,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 }
                 break;
         }
-
-
-
         if (prevent) {
             e.preventDefault();
             e.stopPropagation();
-
         }
     };
 
@@ -1567,15 +1564,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 cell.checked = this.selected_cell.checked;
             }
         }
-
-
-
-
-    }
+    };
 
 
     // Detects user inputs to hidden input element
-    CrossWord.prototype.hiddenInputChanged = function(rebus_string) {
+    CrossWord.prototype.hiddenInputChanged = function (rebus_string) {
         var mychar = this.hidden_input.val().slice(0, 1).toUpperCase(),
             next_cell;
         if (this.selected_word && this.selected_cell) {
@@ -1586,27 +1579,29 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
             this.selected_cell.checked = false;
 
-
-
-
             // If this is a coded or acrostic
             // find all cells with this number
             // and fill them with the same letter
             this.autofill();
 
-
-
-
             // find empty cell, then next cell
             // Change this depending on config
             if (this.config.skip_filled_letters) {
-                next_cell = this.selected_word.getFirstEmptyCell(this.selected_cell.x, this.selected_cell.y) || this.selected_word.getNextCell(this.selected_cell.x, this.selected_cell.y);
+              next_cell =
+                this.selected_word.getFirstEmptyCell(
+                  this.selected_cell.x,
+                  this.selected_cell.y
+                ) ||
+                this.selected_word.getNextCell(
+                  this.selected_cell.x,
+                  this.selected_cell.y
+                );
             } else {
-                next_cell = this.selected_word.getNextCell(this.selected_cell.x, this.selected_cell.y);
+              next_cell = this.selected_word.getNextCell(
+                this.selected_cell.x,
+                this.selected_cell.y
+              );
             }
-
-
-
 
             this.setActiveCell(next_cell);
             this.renderCells();
@@ -1638,8 +1633,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
     // callback for shift+arrows
     // finds next cell in specified direction that does not belongs to current word
-    // then selects that word and selects it's first empty || first cell
-    CrossWord.prototype.skipToWord = function(direction) {
+    // then selects that word and selects its first empty || first cell
+    CrossWord.prototype.skipToWord = function (direction) {
         if (this.selected_cell && this.selected_word) {
             var i, cell, word, word_cell,
                 x = this.selected_cell.x,
