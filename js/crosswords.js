@@ -327,7 +327,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.config = {};
         // Load solver config
         var solver_config_name = SETTINGS_STORAGE_KEY;
-        var saved_settings = JSON.parse(localStorage.getItem(solver_config_name));
+        var saved_settings = {};
+		try {
+			JSON.parse(localStorage.getItem(solver_config_name));
+		} catch(error) {
+			console.log(error);
+		}
         var i;
         for (i in default_config) {
             if (default_config.hasOwnProperty(i)) {
