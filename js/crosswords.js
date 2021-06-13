@@ -2113,24 +2113,55 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             filename = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf';
         }
         var options = {
-            margin: 20,
-            title_pt: null,
-            author_pt: null,
-            copyright_pt: 8,
+            margin: 40,
+            title_pt: 12,
+            author_pt: 12,
+            copyright_pt: 12,
             num_columns: null,
+            num_full_columns: null,
             column_padding: 10,
             gray: 0.4,
             under_title_spacing: 20,
-            max_clue_pt: 14,
+            max_clue_pt: 16,
             min_clue_pt: 5,
             grid_padding: 5,
             outfile: filename,
             line_width: 0.3,
-            bar_width: 2
+            bar_width: 2,
+            vertical_separator: 10
         };
 
-        if (!options.num_columns) {
-            options.num_columns = (this.grid_width >= 17 ? 4 : 3);
+        console.log(this);
+
+        // If options.num_columns is null, we determine it ourselves
+        if (options.num_columns === null || options.num_full_columns === null)
+        {
+            var word_count = Object.keys(this.words).length;
+            if (this.grid_height > 2 * this.grid_width) {
+                options.num_columns = 5;
+                options.num_full_columns = 3;
+            }
+            // handle puzzles with very few words as well
+            else if (word_count <= 30) {
+                options.num_columns = Math.ceil(word_count/10);
+                options.num_full_columns = 0;
+            }
+            else if (this.grid_height > 17) {
+                options.num_columns = 5;
+                options.num_full_columns = 2;
+            }
+            else if (this.grid_width >= 17) {
+                options.num_columns = 4;
+                options.num_full_columns = 1;
+            }
+            else if (this.grid_height <= 11) {
+                options.num_columns = 3;
+                options.num_full_columns = 0;
+            }
+            else {
+                options.num_columns = 3;
+                options.num_full_columns = 1;
+            }
         }
 
         // The maximum font size of title and author
@@ -2182,11 +2213,31 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // size of columns
         var col_width = (DOC_WIDTH - 2 * margin - (options.num_columns - 1) * options.column_padding) / options.num_columns;
 
-        // The grid is under all but the first column
-        var grid_size = DOC_WIDTH - 2 * margin - col_width - options.column_padding;
+        // The grid is under all but the first few columns
+        var grid_width = DOC_WIDTH - 2 * margin - options.num_full_columns * (col_width + options.column_padding);
+        var grid_height = (grid_width / this.grid_width) * this.grid_height;
+
+        // We change the grid width and height if num_full_columns == 0
+        // This is because we don't want it to take up too much space
+        if (options.num_full_columns === 0) {
+            // set the height to be (about) half of the available area
+            grid_height = DOC_HEIGHT * 4/9;
+            grid_width = (grid_height / this.grid_height) * this.grid_width;
+            // however! if this is bigger than allowable, re-calibrate
+            if (grid_width > 0.9 * (DOC_WIDTH - 2 * margin)) {
+                grid_width = 0.9 * (DOC_WIDTH - 2 * margin);
+                grid_height = (grid_width / this.grid_width) * this.grid_height;
+            }
+        }
         // x and y position of grid
-        var grid_xpos = DOC_WIDTH - margin - grid_size;
-        var grid_ypos = DOC_HEIGHT - margin - grid_size - options.copyright_pt;
+        var grid_xpos = DOC_WIDTH - margin - grid_width;
+        var grid_ypos = DOC_HEIGHT - margin - options.copyright_pt - options.vertical_separator * 2 - grid_height;
+
+        // we change the x position of the grid if there are no full columns
+        // specifically, we want to center it.
+        if (options.num_full_columns == 0) {
+            grid_xpos = (DOC_WIDTH - grid_width)/2;
+        }
 
         // Loop through and write to PDF if we find a good fit
         // Find an appropriate font size
@@ -2199,10 +2250,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
             doc.setLineWidth(options.line_width);
 
-
             // Print the clues
             var line_xpos = margin;
-            var line_ypos = margin + max_title_author_pt + options.under_title_spacing + clue_pt + clue_padding;
+            var top_line_ypos = margin + // top margin
+              max_title_author_pt + // title
+              options.vertical_separator * 2 + // padding
+              clue_pt + clue_padding; // first clue
+            var line_ypos = top_line_ypos;
             var my_column = 0;
             var clue_arrays = [across_clues, down_clues];
             for (var k = 0; k < clue_arrays.length; k++) {
@@ -2210,23 +2264,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 for (var i = 0; i < clues.length; i++) {
                     var clue = clues[i];
                     // check to see if we need to wrap
-                    var max_line_ypos = (my_column == 0 ? DOC_HEIGHT - margin - options.copyright_pt : grid_ypos - options.grid_padding);
+                    var max_line_ypos;
+                    if (my_column < options.num_full_columns) {
+                        max_line_ypos = DOC_HEIGHT - margin - options.copyright_pt - 2 * options.vertical_separator;
+                    } else {
+                        max_line_ypos = grid_ypos - options.grid_padding;
+                    }
 
                     // Split our clue
                     var lines = doc.splitTextToSize(clue, col_width);
 
-                    // Don't print an empty clue on the top line
-                    if (clue == '' && line_ypos == margin + max_title_author_pt + options.under_title_spacing + clue_pt + clue_padding) {
-                        continue;
-                    }
-
-
                     if (line_ypos + (lines.length - 1) * (clue_pt + clue_padding) > max_line_ypos) {
                         // move to new column
                         my_column += 1;
-                        max_line_ypos = grid_ypos - options.grid_padding;
                         line_xpos = margin + my_column * (col_width + options.column_padding);
-                        line_ypos = margin + max_title_author_pt + options.under_title_spacing + clue_pt + clue_padding;
+                        line_ypos = top_line_ypos;
+                        // if we're at the top of a line we don't print a blank clue
+                        if (clue == '') {
+                            continue;
+                        }
                     }
 
                     for (var j = 0; j < lines.length; j++) {
@@ -2240,16 +2296,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                         // print the text
                         doc.text(line_xpos, line_ypos, line);
                         // set the y position for the next line
-
-
                         line_ypos += clue_pt + clue_padding;
-                        // In extreme cases a clue can overflow here
-                        // Move to the next column if this is the case
-                        if (line_ypos > max_line_ypos) {
-                            my_column += 1;
-                            line_xpos = margin + my_column * (col_width + options.column_padding);
-                            line_ypos = margin + max_title_author_pt + options.under_title_spacing + clue_pt + clue_padding;
-                        }
                     }
                 }
             }
@@ -2259,7 +2306,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             if (clue_pt == options.min_clue_pt) {
                 finding_font = false;
             } else if (my_column > options.num_columns - 1) {
-                clue_pt -= 0.2;
+                clue_pt -= 0.1;
             } else {
                 finding_font = false;
             }
@@ -2274,7 +2321,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             options.title_pt = DEFAULT_TITLE_PT;
             var finding_title_pt = true;
             while (finding_title_pt) {
-                var title_author = this.title + 'asdfasdf' + this.author;
+                var title_author = this.title;
                 doc.setFontSize(options.title_pt)
                     .setFontType('bold');
                 var lines = doc.splitTextToSize(title_author, DOC_WIDTH);
@@ -2286,53 +2333,60 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
             options.author_pt = options.title_pt;
         }
+
         /* Render title and author */
-
-
         var title_xpos = margin;
-
         var author_xpos = DOC_WIDTH - margin;
         var title_author_ypos = margin + max_title_author_pt;
-
 
         //title
         doc.setFontSize(options.title_pt);
         doc.setFontType('bold');
         doc.text(title_xpos, title_author_ypos, this.title);
 
-
-        //author
-        doc.setFontSize(options.author_pt);
-        doc.text(author_xpos, title_author_ypos, this.author, null, null, 'right');
-        doc.setFontType('normal');
+        // Draw a line under the headers
+        var line_x1 = margin;
+        var line_x2 = DOC_WIDTH - margin;
+        var line_y = title_author_ypos + options.vertical_separator;
+        doc.line(line_x1, line_y, line_x2, line_y);
 
         /* Render copyright */
         var copyright_xpos = DOC_WIDTH - margin;
         var copyright_ypos = DOC_HEIGHT - margin;
-
         doc.setFontSize(options.copyright_pt);
-        doc.text(copyright_xpos, copyright_ypos, this.copyright, null, null, 'right');
-        /* Draw grid */
+        doc.setFontType('normal');
+        doc.text(copyright_xpos,copyright_ypos,this.copyright,null,null,'right');
 
+        /* Render author */
+        var author_xpos = margin;
+        var author_ypos = copyright_ypos;
+        doc.setFontSize(options.copyright_pt);
+        doc.setFontType('normal');
+        doc.text(author_xpos,author_ypos,this.author);
+
+        /* Draw a line above the copyright */
+        var line2_x1 = line_x1;
+        var line2_x2 = line_x2;
+        var line2_y = copyright_ypos - options.copyright_pt - options.vertical_separator;
+        doc.line(line2_x1, line2_y, line2_x2, line2_y);
+
+        /* Draw grid */
 
         var grid_options = {
             grid_letters: true,
             grid_numbers: true,
-            x0: grid_xpos
-                ,
+            x0: grid_xpos,
             y0: grid_ypos,
-            grid_size: grid_size,
+            cell_size: grid_width / this.grid_width,
             gray: options.gray
         };
 
         var PTS_TO_IN = 72;
         var max_dimension = Math.max(this.grid_width, this.grid_height);
-        var cell_size = grid_options.grid_size / max_dimension;
+        var cell_size = grid_options.cell_size;
 
         /** Function to draw a square **/
         function draw_square(doc, x1, y1, cell_size, number, letter, filled, circle, color, bar, top_right_number) {
-
-
             // thank you https://stackoverflow.com/a/5624139
             function hexToRgb(hex) {
                 // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -2350,20 +2404,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 } : null;
             }
 
+            var MIN_NUMBER_SIZE = 5.5;
+
             var filled_string = (filled ? 'F' : '');
             var number_offset = cell_size / 20;
-            var number_size = cell_size / 3.5;
+            var number_size = cell_size/3.5 < MIN_NUMBER_SIZE ? MIN_NUMBER_SIZE : cell_size/3.5;
             //var letter_size = cell_size/1.5;
             var letter_pct_down = 4 / 5;
             if (color) {
                 var filled_string = 'F';
                 var rgb = hexToRgb(color);
                 doc.setFillColor(rgb.r, rgb.g, rgb.b);
+                doc.setDrawColor(options.gray.toString());
                 // Draw one filled square and then one unfilled
                 doc.rect(x1, y1, cell_size, cell_size, filled_string);
                 doc.rect(x1, y1, cell_size, cell_size, '');
             } else {
                 doc.setFillColor(grid_options.gray.toString());
+                doc.setDrawColor(options.gray.toString());
+                doc.rect(x1,y1,cell_size,cell_size,'');
                 doc.rect(x1, y1, cell_size, cell_size, filled_string);
             }
 
@@ -2423,7 +2482,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         for (var x in this.cells) {
             for (var y in this.cells[x]) {
                 var cell = this.cells[x][y];
-                if (cell.is_void) {
+                // don't draw a square if we have a void
+                if (cell.is_void || (cell.empty && cell.color == '#FFFFFF')) {
                     continue;
                 }
                 var i = y - 1;
