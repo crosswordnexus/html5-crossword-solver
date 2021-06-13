@@ -90,7 +90,7 @@ div.cw-open-button::after { content: 'Open JPZ or PUZ file'; position: relative;
 div.cw-open-holder input { visibility: hidden; position: absolute; }
 
 div.cw-canvas { display: inline-block; position: relative; padding: 4px 4px 4px 4px; }
-div.cw-main.loaded canvas { border: 1px solid black; }
+/* div.cw-main.loaded canvas { border: 1px solid black; } */
 
 div.cw-top-text, div.cw-bottom-text { text-align: left; background: #CFCFCF; padding: 2px; }
 div.cw-top-text { position: absolute; top: 0; left: 0; right: 0; overflow: hidden; text-overflow: ellipsis; }
