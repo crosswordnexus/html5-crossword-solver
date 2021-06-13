@@ -1182,8 +1182,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.context.scale(devicePixelRatio, devicePixelRatio);
 
         //this.context.clearRect(0, 0, this.canvas[0].width, this.canvas[0].height);
+        //this.context.fillStyle = this.config.color_none;
+        //this.context.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height);
         this.context.fillStyle = this.config.color_block;
-        this.context.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height);
 
         for (x in this.cells) {
             for (y in this.cells[x]) {
