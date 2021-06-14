@@ -2421,7 +2421,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             var letter_pct_down = 4 / 5;
             if (cell.color) {
                 var filled_string = 'F';
-                var rgb = hexToRgb(color);
+                var rgb = hexToRgb(cell.color);
                 doc.setFillColor(rgb.r, rgb.g, rgb.b);
                 doc.setDrawColor(options.gray.toString());
                 // Draw one filled square and then one unfilled
