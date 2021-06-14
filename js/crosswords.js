@@ -2394,7 +2394,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var cell_size = grid_options.cell_size;
 
         /** Function to draw a square **/
-        function draw_square(doc, x1, y1, cell_size, number, letter, filled, circle, color, bar, top_right_number) {
+        function draw_square(doc, x1, y1, cell_size, number, letter, filled, cell) {
             // thank you https://stackoverflow.com/a/5624139
             function hexToRgb(hex) {
                 // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -2419,7 +2419,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             var number_size = cell_size/3.5 < MIN_NUMBER_SIZE ? MIN_NUMBER_SIZE : cell_size/3.5;
             //var letter_size = cell_size/1.5;
             var letter_pct_down = 4 / 5;
-            if (color) {
+            if (cell.color) {
                 var filled_string = 'F';
                 var rgb = hexToRgb(color);
                 doc.setFillColor(rgb.r, rgb.g, rgb.b);
@@ -2430,8 +2430,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             } else {
                 doc.setFillColor(grid_options.gray.toString());
                 doc.setDrawColor(options.gray.toString());
-                doc.rect(x1,y1,cell_size,cell_size,'');
-                doc.rect(x1, y1, cell_size, cell_size, filled_string);
+                // We draw the bounding box for all squares except "clue" squares
+                if (!cell.clue) {
+                    doc.rect(x1,y1,cell_size,cell_size,'');
+                    doc.rect(x1, y1, cell_size, cell_size, filled_string);
+                }
             }
 
             //numbers
@@ -2441,9 +2444,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             doc.setFontSize(number_size);
             doc.text(x1 + number_offset, y1 + number_size, number);
             //top right numbers
-            if (!top_right_number) {
-                top_right_number = '';
-            }
+            var top_right_number = cell.top_right_number ? cell.top_right_number : '';
             doc.setFontSize(number_size);
             doc.text(x1 + cell_size - number_size, y1 + number_size, top_right_number);
 
@@ -2457,11 +2458,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             doc.setFontSize(cell_size / (1.5 + 0.5 * letter_length));
             doc.text(x1 + cell_size / 2, y1 + cell_size * letter_pct_down, letter, null, null, 'center');
             // circles
-            if (circle) {
+            if (cell.shape) {
                 doc.circle(x1 + cell_size / 2, y1 + cell_size / 2, cell_size / 2);
             }
             // bars
-            if (bar) {
+            if (cell.bar) {
+                var bar = cell.bar;
                 var bar_start = {
                     top: [x1, y1],
                     left: [x1, y1],
@@ -2514,14 +2516,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 if (!grid_options.grid_numbers) {
                     number = '';
                 }
-                var top_right_number = cell.top_right_number;
-                // Circle
-                var circle = cell.shape;
-                // Color
-                var color = cell.color;
-                // Bars
-                var bar = cell.bar;
-                draw_square(doc, x_pos, y_pos, cell_size, number, letter, filled, circle, color, bar, top_right_number);
+                draw_square(doc, x_pos, y_pos, cell_size, number, letter, filled, cell);
             }
         }
         doc.save(options.outfile);
