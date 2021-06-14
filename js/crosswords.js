@@ -1186,6 +1186,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         //this.context.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height);
         this.context.fillStyle = this.config.color_block;
 
+        function drawTopLeftLine(x, y, cell_x, cell_y, cell_size, context) {
+            // draw a line on the top and left of a box
+            if (x > 0 && y > 0) {
+                context.beginPath();
+                context.lineWidth = 1;
+                context.moveTo(cell_x, cell_y);
+                context.lineTo(cell_x, cell_y + cell_size);
+                context.stroke();
+
+                context.beginPath();
+                context.moveTo(cell_x, cell_y);
+                context.lineTo(cell_x + cell_size, cell_y);
+                context.stroke();
+            }
+        }
+
         for (x in this.cells) {
             for (y in this.cells[x]) {
                 var cell = this.cells[x][y],
@@ -1231,27 +1247,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     this.context.fillRect(cell_x, cell_y, this.cell_size - 1, this.cell_size - 1);
                     this.context.fillStyle = this.config.color_block;
 
-                    // Draw a line on the left and top
-                    if (x > 0 && y > 0) {
-                        this.context.beginPath();
-                        this.context.lineWidth = 1;
-                        this.context.moveTo(cell_x, cell_y);
-                        this.context.lineTo(cell_x, cell_y + this.cell_size);
-                        this.context.stroke();
+                    // draw line on left and top
+                    drawTopLeftLine(x, y, cell_x, cell_y, this.cell_size, this.context);
 
-                        this.context.beginPath();
-                        this.context.moveTo(cell_x, cell_y);
-                        this.context.lineTo(cell_x + this.cell_size, cell_y);
-                        this.context.stroke();
-                    }
-
-                } else {
+                } else { // cell is empty
                     if (cell.is_void || cell.clue) {
                         this.context.fillStyle = this.config.color_none;
 
-                    } else {
+                    } else { // empty + not (void or clue) == block
                         // respect cell coloring, even for blocks
                         this.context.fillStyle = cell.color || this.config.color_block;
+                        // we want a bounding box for blocks
+                        if (cell.color != this.config.color_none) {
+                            drawTopLeftLine(x, y, cell_x, cell_y, this.cell_size, this.context);
+                        }
                     }
                     this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
                     this.context.fillStyle = this.config.color_block;
@@ -2131,8 +2140,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             bar_width: 2,
             vertical_separator: 10
         };
-
-        console.log(this);
 
         // If options.num_columns is null, we determine it ourselves
         if (options.num_columns === null || options.num_full_columns === null)
