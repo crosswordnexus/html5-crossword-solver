@@ -2220,8 +2220,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             grid_height = DOC_HEIGHT * 4/9;
             grid_width = (grid_height / this.grid_height) * this.grid_width;
             // however! if this is bigger than allowable, re-calibrate
-            if (grid_width > 0.9 * (DOC_WIDTH - 2 * margin)) {
-                grid_width = 0.9 * (DOC_WIDTH - 2 * margin);
+            if (grid_width > (DOC_WIDTH - 2 * margin)) {
+                grid_width = (DOC_WIDTH - 2 * margin);
                 grid_height = (grid_width / this.grid_width) * this.grid_height;
             }
         }
