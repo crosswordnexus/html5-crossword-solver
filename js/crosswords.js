@@ -1172,8 +1172,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
 
         // Scale the grid so it is crisp on high-density screens.
-        var widthDps = this.grid_width * this.cell_size - 1 + 6;
-        var heightDps = this.grid_height * this.cell_size - 1 + 6;
+        var widthDps = this.grid_width * this.cell_size;
+        var heightDps = this.grid_height * this.cell_size;
         var devicePixelRatio = window.devicePixelRatio || 1;
         this.canvas[0].width = devicePixelRatio * widthDps;
         this.canvas[0].height = devicePixelRatio * heightDps;
@@ -1181,32 +1181,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.canvas[0].style.height = heightDps + 'px';
         this.context.scale(devicePixelRatio, devicePixelRatio);
 
-        //this.context.clearRect(0, 0, this.canvas[0].width, this.canvas[0].height);
-        //this.context.fillStyle = this.config.color_none;
-        //this.context.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height);
+        /* color in the entire canvas with the blank color */
+        this.context.clearRect(0, 0, this.canvas[0].width, this.canvas[0].height);
+        this.context.fillStyle = this.config.color_none;
+        this.context.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height);
+        // set the fill style
         this.context.fillStyle = this.config.color_block;
-
-        function drawTopLeftLine(x, y, cell_x, cell_y, cell_size, context) {
-            // draw a line on the top and left of a box
-            if (x > 0 && y > 0) {
-                context.beginPath();
-                context.lineWidth = 1;
-                context.moveTo(cell_x, cell_y);
-                context.lineTo(cell_x, cell_y + cell_size);
-                context.stroke();
-
-                context.beginPath();
-                context.moveTo(cell_x, cell_y);
-                context.lineTo(cell_x + cell_size, cell_y);
-                context.stroke();
-            }
-        }
 
         for (x in this.cells) {
             for (y in this.cells[x]) {
                 var cell = this.cells[x][y],
-                    cell_x = (x - 1) * this.cell_size + 3,
-                    cell_y = (y - 1) * this.cell_size + 3;
+                    cell_x = (x - 1) * this.cell_size,
+                    cell_y = (y - 1) * this.cell_size;
 
                 if (!cell.empty) {
                     // detect cell color
@@ -1234,8 +1220,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     ) {
                       color = this.config.color_selected;
                     }
-                    this.context.fillStyle = this.config.color_block;
-                    this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
+                    //this.context.fillStyle = this.config.color_block;
+                    //this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
 
                     // In an acrostic, highlight all other cells
                     // with the same number as the selected cell
@@ -1244,32 +1230,34 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     }
 
                     this.context.fillStyle = color;
-                    this.context.fillRect(cell_x, cell_y, this.cell_size - 1, this.cell_size - 1);
+                    this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
                     this.context.fillStyle = this.config.color_block;
 
-                    // draw line on left and top
-                    drawTopLeftLine(x, y, cell_x, cell_y, this.cell_size, this.context);
+                    // draw bounding box
+                    this.context.strokeRect(cell_x, cell_y, this.cell_size, this.cell_size, this.config.color_block);
 
                 } else { // cell is empty
                     if (cell.is_void || cell.clue) {
-                        this.context.fillStyle = this.config.color_none;
+                        /* don't bother filling */
+                        //this.context.fillStyle = this.config.color_none;
+                        //this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
 
                     } else { // empty + not (void or clue) == block
                         // respect cell coloring, even for blocks
                         this.context.fillStyle = cell.color || this.config.color_block;
+                        this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
                         // we want a bounding box for blocks
                         if (cell.color != this.config.color_none) {
-                            drawTopLeftLine(x, y, cell_x, cell_y, this.cell_size, this.context);
+                            this.context.strokeRect(cell_x, cell_y, this.cell_size, this.cell_size, this.config.color_block);
                         }
                     }
-                    this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
                     this.context.fillStyle = this.config.color_block;
                 }
 
                 if (cell.shape === 'circle') {
-                    var centerX = cell_x + (this.cell_size - 1) / 2;
-                    var centerY = cell_y + (this.cell_size - 1) / 2;
-                    var radius = (this.cell_size - 1) / 2;
+                    var centerX = cell_x + (this.cell_size) / 2;
+                    var centerY = cell_y + (this.cell_size) / 2;
+                    var radius = (this.cell_size) / 2;
                     this.context.beginPath();
                     this.context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
                     this.context.stroke();
