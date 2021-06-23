@@ -2176,7 +2176,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         for (var i in this.clues_top.clues) {
             if (this.clues_top.clues.hasOwnProperty(i)) {
                 var num = this.clues_top.clues[i].number.toString();
-                var clue = this.clues_top.clues[i].text.replace(/(<([^>]+)>)/ig, "").trim();
+                var clue = this.clues_top.clues[i].text.trim();
                 var this_clue_string = num + '. ' + clue;
                 if (i == 0) {
                     var clues_top_title = this.clues_top.title.replace(/(<([^>]+)>)/ig, "").trim();
@@ -2194,7 +2194,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             for (var i in this.clues_bottom.clues) {
                 if (this.clues_bottom.clues.hasOwnProperty(i)) {
                     var num = this.clues_bottom.clues[i].number.toString();
-                    var clue = this.clues_bottom.clues[i].text.replace(/(<([^>]+)>)/ig, "").trim();
+                    var clue = this.clues_bottom.clues[i].text.trim();
                     var this_clue_string = num + '. ' + clue;
                     if (i == 0) {
                         var clues_bottom_title = this.clues_bottom.title.replace(/(<([^>]+)>)/ig, "").trim();
@@ -2235,6 +2235,99 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             grid_xpos = (DOC_WIDTH - grid_width)/2;
         }
 
+        // Functions to help with bold/italicized clues
+
+        // function to traverse DOM tree
+        function traverseTree(htmlDoc, agg=[]) {
+            if (htmlDoc.nodeName == '#text') {
+                // if we have a text element we can add it
+                var thisTag = htmlDoc.parentNode.tagName;
+                var is_bold = (thisTag == 'B');
+                var is_italic = (thisTag == 'I');
+                htmlDoc.textContent.split('').forEach(char => {
+                    agg.push({'char': char, 'is_bold': is_bold, 'is_italic': is_italic});
+                });
+            }
+            for (var i=0; i<htmlDoc.childNodes.length; i++) {
+                agg = traverseTree(htmlDoc.childNodes[i], agg=agg);
+            }
+            return agg;
+        }
+
+        // helper function for bold and italic clues
+        function split_text_to_size_bi(clue, col_width, doc) {
+            // get the clue with HTML stripped out
+            var el = document.createElement( 'html' );
+            el.innerHTML = clue;
+            var clean_clue = el.innerText;
+            // split the clue
+            var lines1 = doc.splitTextToSize(clean_clue, col_width);
+
+            // if there's no <B> or <I> in the clue just return lines1
+            if (clue.toUpperCase().indexOf('<B>') == -1 && clue.toUpperCase().indexOf('<I>') == -1) {
+                return lines1;
+            }
+
+            // parse the clue into a tree
+            var myClueArr = [];
+            var parser = new DOMParser();
+            var htmlDoc = parser.parseFromString(clue, 'text/html');
+            var split_clue = traverseTree(htmlDoc);
+
+            // Make a new "lines1" with all bold splits
+            doc.setFontType('bold');
+            lines1 = doc.splitTextToSize(clean_clue, col_width);
+            doc.setFontType('normal');
+
+            // split this like we did the "lines1"
+            var lines = [];
+            var ctr = 0;
+            lines1.forEach(line => {
+                var thisLine = [];
+                var myLen = line.length;
+                for (var i=0; i < myLen; i++) {
+                    thisLine.push(split_clue[ctr++]);
+                }
+                // skip the next char if it's a space
+                if (split_clue[ctr]) {
+                    if (split_clue[ctr].char == ' ' || split_clue[ctr].char == '\n') {
+                        ctr = ctr + 1;
+                    }
+                }
+                lines.push(thisLine);
+            });
+            return lines;
+        }
+
+        // Print a line of text that may be bolded or italicized
+        const printCharacters = (doc, textObject, startY, startX, fontSize) => {
+            if (!textObject.length) {
+                return;
+            }
+
+            //console.log(textObject);
+            if (typeof(textObject) == 'string') {
+                doc.text(startX, startY, line);
+            }
+            else {
+                textObject.map(row => {
+                    if (row.is_bold) {
+                        doc.setFontType('bold');
+                    }
+                    else if (row.is_italic) {
+                        doc.setFontType('italic');
+                    }
+                    else {
+                        doc.setFontType('normal');
+                    }
+
+                    doc.text(row.char, startX, startY);
+                    startX = startX + doc.getStringUnitWidth(row.char) * fontSize;
+                    doc.setFontType('normal');
+                });
+            }
+        };
+
         // Loop through and write to PDF if we find a good fit
         // Find an appropriate font size
         var clue_pt = options.max_clue_pt;
@@ -2268,7 +2361,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     }
 
                     // Split our clue
-                    var lines = doc.splitTextToSize(clue, col_width);
+                    var lines = split_text_to_size_bi(clue, col_width, doc);
 
                     if (line_ypos + (lines.length - 1) * (clue_pt + clue_padding) > max_line_ypos) {
                         // move to new column
@@ -2290,7 +2383,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                         }
                         var line = lines[j];
                         // print the text
-                        doc.text(line_xpos, line_ypos, line);
+                        //doc.text(line_xpos,line_ypos,line);
+                        printCharacters(doc, line, line_ypos, line_xpos, clue_pt);
+
                         // set the y position for the next line
                         line_ypos += clue_pt + clue_padding;
                     }
