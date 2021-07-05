@@ -5,13 +5,14 @@
 // Licensed under ISC license (see LICENSE file)
 // https://github.com/astangl/xroz/blob/master/LICENSE
 
-// Remainder of this code (c) 2016 Alex Boisvert
+// Remainder of this code (c) 2016-2021 Alex Boisvert
 // licensed under MIT license
 // https://opensource.org/licenses/MIT
 
 //
 /*jslint browser: true, bitwise: true, plusplus: true */
 var ActiveXObject, parsedPuz, filecontents, PUZAPP = {};
+
 (function () {
     "use strict";
 
@@ -24,8 +25,27 @@ var ActiveXObject, parsedPuz, filecontents, PUZAPP = {};
         }
     }
 
+    // function to create a function to convert string to iso-8859-1 or utf-8
+    function StringConverter(version) {
+        if (version.startsWith('1.')) { // iso-8859-1
+            return function(x) {return x;}
+        }
+        else {
+            return function(x) { // utf-8
+                // convert to bytes array
+                var bytes = [];
+                for (var i = 0; i < x.length; ++i) {
+                  var code = x.charCodeAt(i);
+                  bytes = bytes.concat([code]);
+                }
+                var bytes1 = new Uint8Array(bytes);
+                return new TextDecoder("utf-8").decode(bytes1);
+            }
+        }
+    }
+
     // return new child element of specified type, appended to parent
-    function appendChild(parentElement, elementType) { 
+    function appendChild(parentElement, elementType) {
         return parentElement.appendChild(document.createElement(elementType));
     }
 
@@ -224,12 +244,16 @@ var ActiveXObject, parsedPuz, filecontents, PUZAPP = {};
             };
         }
         retval.version = bytes.substring(24, 27);
+
+        var string_convert = StringConverter(retval.version);
+        console.log(retval.version);
+
         retval.width = w;
         retval.height = h;
         retval.nbrClues = nbrClues;
-        retval.solution = bytes.substring(52, 52 + wh);
-        retval.strings = bytes.substring(strings_offset).split('\u0000', nbrClues + 4);
-        retval.grid = bytes.substring(grid_offset, grid_offset + wh);
+        retval.solution = string_convert(bytes.substring(52, 52 + wh));
+        retval.strings = string_convert(bytes.substring(strings_offset)).split('\u0000', nbrClues + 4);
+        retval.grid = string_convert(bytes.substring(grid_offset, grid_offset + wh));
         // Replace "solution" with "grid" if the puzzle is filled
         if (retval.grid.indexOf('-') == -1)
 		{
@@ -335,7 +359,7 @@ var ActiveXObject, parsedPuz, filecontents, PUZAPP = {};
         if (additional_clues[0])
         {
             retval.notes = additional_clues[0];
-        }   
+        }
         retval.circles = [];
         // Down entries.  Also circles
         for (x = 0; x < w; x++) {
@@ -360,9 +384,9 @@ var ActiveXObject, parsedPuz, filecontents, PUZAPP = {};
         retval.across_clues = across_clues;
         retval.down_clues = down_clues;
         retval.down_entries = down_entries;
-		
+
 		PUZAPP.puzdata = retval;
-        
+
         return retval;
     }
 
@@ -370,16 +394,14 @@ var ActiveXObject, parsedPuz, filecontents, PUZAPP = {};
     {
         return (arr.indexOf(obj) != -1);
     }
-	
+
 	function puzdata(filecontents)
 	{
 		var parsedPuz = parsePuz(filecontents);
 		// Add in any additional data we may want
 		return parsedPuz;
 	}
-    
+
     PUZAPP.parsepuz = parsePuz;
 
 }());
-
-
