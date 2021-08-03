@@ -60,16 +60,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     var MSG_LOADED = 'Crossword loaded';
     var MSG_SOLVED = 'Crossword solved! Congratulations!';
 
-    var SIZE_BIG = 'big';
-    var SIZE_NORMAL = 'normal';
-    var SIZE_SMALL = 'small';
-    var SIZE_TINY = 'tiny';
-
-    var BIG_THRESHOLD = 700;
-    var NORMAL_THRESHOLD = 580;
-    var SMALL_THRESHOLD = 450;
-
-
     var MAX_CLUES_LENGTH = 2;
 
     var TYPE_UNDEFINED = typeof undefined;
@@ -97,62 +87,33 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     var xw_timer, xw_timer_seconds = 0;
 
     /** Template will have to change along with CSS **/
-    var template = '' +
+    var template =
+        '' +
         '<div class="cw-main auto normal">' +
-        '<div class="cw-open-holder">' +
-        '<div class="cw-overflow"></div>' +
-        '<div class="cw-open-puzzle">' +
-        '<div class="cw-text">Select puzzle</div>' +
-        '<div class="cw-puzzles-list"></div>' +
-        '<div class="cw-text">or</div>' +
-        '<div class="cw-open-button"></div>' +
+        '<header class="cw-header"></header>' +
+        '<div class="cw-content">' +
+        '<div class="cw-left">' +
+        '<div class="cw-buttons-holder">' +
+        //  '<div class="cw-button cw-print">Print</div>'+
+        '<button class="cw-button cw-check">Check Solution</button>' +
+        '<div class="cw-timer">00:00</div>' +
+        '<button class="cw-button cw-submit">' +
+        "I'm done!" +
+        '</button>' +
         '</div>' +
-        '<input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz,.xpz">' +
+        '<div class="cw-results">' +
+        '<button class="cw-button cw-exit">Back to Puzzles</button>' +
+        '<div class="cw-stat">⏰ <span class="cw-time-taken">?:??/?:??</span></div>' +
+        '<div class="cw-stat correctness">❌ <span class="cw-incorrect">?</span></div>' +
         '</div>' +
-        '<div class="cw-notepad-icon"><span class="cwtooltip">Notepad</span></div>' +
-        '<div class="cw-settings-icon"><span class="cwtooltip">Settings</span></div>' +
-        '<div class="cw-settings">' +
-        '<div class="cw-settings-overflow"></div>' +
-        '<div class="cw-settings-background"></div>' +
-        '<div class="cw-option cw-color-hover"><span class="cw-option-text">Hovered</span><input class="cw-input-color" type="text"><span class="cw-color-preview"></span></div>' +
-        '<div class="cw-option cw-color-selected"><span class="cw-option-text">Selected</span><input class="cw-input-color" type="text"><span class="cw-color-preview"></span></div>' +
-        '<div class="cw-option cw-color-word"><span class="cw-option-text">Word</span><input class="cw-input-color" type="text"><span class="cw-color-preview"></span></div>' +
-        '<div class="cw-option cw-color-hilite"><span class="cw-option-text">Hilite</span><input class="cw-input-color" type="text"><span class="cw-color-preview"></span></div>' +
-        '<div class="cw-option cw-cell-size"><span class="cw-option-text">Size</span><input class="cw-input-size" type="text"><label><input type="checkbox">Auto</label></div>' +
-        '<div class="cw-option cw-skip-filled"><label><input type="checkbox">Skip filled letters</label></div>' +
-        '<button>Ok</button>' +
+        '<div class="cw-top-text">' +
+        '<span class="cw-clue-number">1.</span>' +
+        '<span class="cw-clue-text">Clue</span>' +
         '</div>' +
-        '<div class="cw-top-text"></div>' +
-        '<div class="cw-full-height"></div>' +
         '<input type="text" class="cw-hidden-input">' +
         '<div class="cw-canvas">' +
         '<canvas></canvas>' +
         '</div>' +
-        '<div class="cw-bottom-text"></div>' +
-        '<div class="cw-right">' +
-        '<div class="cw-buttons-holder">' +
-        '<div class="cw-button cw-file">File' +
-        '<div class="cw-file-buttons">' +
-        '<div class="cw-button cw-save">Save</div>' +
-        '<div class="cw-button cw-load">Load</div>' +
-        '<div class="cw-button cw-print">Print</div>' +
-        '</div>' +
-        '</div>' +
-        '<div class="cw-button cw-check">Check' +
-        '<div class="cw-check-buttons">' +
-        '<div class="cw-button cw-check-letter">Letter</div>' +
-        '<div class="cw-button cw-check-word">Word</div>' +
-        '<div class="cw-button cw-check-puzzle">Puzzle</div>' +
-        '</div>' +
-        '</div>' +
-        '<div class="cw-button cw-reveal">Reveal' +
-        '<div class="cw-reveal-buttons">' +
-        '<div class="cw-button cw-reveal-letter">Letter</div>' +
-        '<div class="cw-button cw-reveal-word">Word</div>' +
-        '<div class="cw-button cw-reveal-puzzle">Puzzle</div>' +
-        '</div>' +
-        '</div>' +
-        '<div class="cw-button cw-timer">00:00</div>' +
         '</div>' +
         '<div class="cw-clues-holder">' +
         '<div class="cw-clues cw-clues-top">' +
@@ -347,8 +308,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
         }
         this.cell_size = 40;
-        this.top_text_height = 0;
-        this.bottom_text_height = 0;
+        //this.top_text_height = 0;
+        //this.bottom_text_height = 0;
         this.grid_width = 0;
         this.grid_height = 0;
         this.cells = {};
@@ -386,7 +347,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // build structures
         this.root = $(template);
         this.top_text = this.root.find('div.cw-top-text');
-        this.bottom_text = this.root.find('div.cw-bottom-text');
+        //this.bottom_text = this.root.find('div.cw-bottom-text');
 
         this.clues_holder = this.root.find('div.cw-clues-holder');
         this.clues_top_container = this.root.find('div.cw-clues-top');
@@ -409,7 +370,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         this.hidden_input = this.root.find('input.cw-hidden-input');
 
-
+        /*
         this.reveal_button = this.root.find('div.cw-buttons-holder div.cw-reveal');
         this.reveal_letter = this.root.find('div.cw-buttons-holder div.cw-reveal-letter');
         this.reveal_word = this.root.find('div.cw-buttons-holder div.cw-reveal-word');
@@ -426,6 +387,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.print_btn = this.root.find('div.cw-buttons-holder div.cw-print');
 
         this.timer_button = this.root.find('div.cw-buttons-holder div.cw-timer');
+        */
+
+        this.check_button = this.root.find('div.cw-buttons-holder .cw-check');
+        this.print_btn = this.root.find('div.cw-buttons-holder .cw-print');
+
+        this.submit_button = this.root.find('div.cw-buttons-holder .cw-submit');
+        this.timer_button = this.root.find('div.cw-buttons-holder .cw-timer');
+        this.xw_timer_seconds = 0;
 
         // function to process uploaded files
         function processFiles(files) {
@@ -556,16 +525,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         if (puzzle.title.length) {
             this.title = puzzle.title;
-            var text = this.title;
+            //var text = this.title;
             if (puzzle.author.length) {
                 this.author = puzzle.author;
-                text += "<br>" + this.author;
+                //text += "<br>" + this.author;
             }
             if (puzzle.copyright.length) {
                 this.copyright = puzzle.copyright;
-                text += "<br>" + this.copyright;
+                //text += "<br>" + this.copyright;
             }
-            this.bottom_text.html(text);
+            //this.bottom_text.html(text);
         }
 
         this.notepad = puzzle.notes;
@@ -721,6 +690,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               ['reveal-letter', 'div.cw-reveal-letter'],
               ['solution', 'div.cw-reveal-puzzle'],
             ];
+
             var i;
             var items = $();
             for (i = 0; i < all_settings.length; i++) {
@@ -748,16 +718,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         if (title.length) {
             this.title = XMLElementToString(title[0]);
-            var text = this.title;
+            //var text = this.title;
             if (creator.length) {
                 this.author = XMLElementToString(creator[0]);
-                text += "<br>" + this.author;
+                //text += "<br>" + this.author;
             }
             if (copyright.length) {
                 this.copyright = XMLElementToString(copyright[0]);
-                text += "<br>" + this.copyright;
+                //text += "<br>" + this.copyright;
             }
-            this.bottom_text.html(text);
+            //this.bottom_text.html(text);
         }
 
         var description = metadata[0].getElementsByTagName('description');
@@ -922,7 +892,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     };
 
     CrossWord.prototype.completeLoad = function () {
-        /** need to add header stuff here **/
+        $('.cw-header').html(
+          '<h1 class="cw-title">' +
+            this.title +
+            '</h1>' +
+            '<span class="cw-author">' +
+            this.author +
+            '</span>'
+        );
         this.changeActiveClues();
 
         if (this.clues_top) {
@@ -939,7 +916,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var first_word = this.active_clues.getFirstWord();
         this.setActiveWord(first_word);
         this.setActiveCell(first_word.getFirstCell());
-        this.adjustPaddings();
+        //this.adjustPaddings();
         this.renderCells();
     }
 
@@ -957,6 +934,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.clues_holder.undelegate('div.cw-clues-items span');
         this.canvas.off('mousemove click');
 
+        /*
         this.reveal_button.off('click mouseenter mouseleave');
         this.reveal_letter.off('click');
         this.reveal_word.off('click');
@@ -973,6 +951,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.print_btn.off('click');
 
         this.timer_button.off('click');
+        */
 
         if (this.config.settings_enabled) {
             this.settings_icon.off('click');
@@ -1011,6 +990,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
         this.canvas.on('click', $.proxy(this.mouseClicked, this));
 
+        /*
         // REVEAL
         this.reveal_button.on('click', $.proxy(this.toggleReveal, this));
         this.reveal_button.on('mouseenter', $.proxy(this.openReveal, this));
@@ -1036,6 +1016,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         // TIMER
         this.timer_button.on('click', $.proxy(this.toggleTimer, this));
+        */
 
         if (this.config.settings_enabled) {
             this.settings_icon.on('click', $.proxy(this.openSettings, this));
@@ -1153,7 +1134,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     CrossWord.prototype.renderCells = function () {
         var x, y;
 
-        this.adjustSize();
+        //this.adjustSize();
 
         if (Number(this.config.cell_size) === 0) {
             this.root.removeClass('fixed');
@@ -1161,6 +1142,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             const canvasRect = $('.cw-canvas').get(0).getBoundingClientRect();
             const max_height = this.root.height() - (this.top_text_height + this.bottom_text_height) - 6;
             const max_width = this.root.width() - 16;
+            /* CTFYC max height and width below */
+            //const max_height = canvasRect.bottom - canvasRect.top - 6;
+            //const max_width = canvasRect.right - canvasRect.left - 6;
             this.cell_size = Math.min(
                 Math.floor(max_height / this.grid_height),
                 Math.floor(max_width / this.grid_width)
@@ -1174,6 +1158,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // Scale the grid so it is crisp on high-density screens.
         var widthDps = this.grid_width * this.cell_size;
         var heightDps = this.grid_height * this.cell_size;
+        /* CTFYC dps below */
+        //var widthDps = this.grid_width * this.cell_size - 1 + 6;
+        //var heightDps = this.grid_height * this.cell_size - 1 + 6;
         var devicePixelRatio = window.devicePixelRatio || 1;
         this.canvas[0].width = devicePixelRatio * widthDps;
         this.canvas[0].height = devicePixelRatio * heightDps;
@@ -1193,6 +1180,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 var cell = this.cells[x][y],
                     cell_x = (x - 1) * this.cell_size,
                     cell_y = (y - 1) * this.cell_size;
+                    /* CTFYC cell_x and cell_y */
+                    //cell_x = (x - 1) * this.cell_size + 3,
+                    //cell_y = (y - 1) * this.cell_size + 3;
 
                 if (!cell.empty) {
                     // detect cell color
@@ -1339,38 +1329,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                   }
             }
         }
-    };
-
-    /** all of this disappears when we move to a more modern approach to resizing **/
-    CrossWord.prototype.adjustSize = function() {
-        //var size = Math.min(this.root.outerWidth(true), 1.5 * this.root.outerHeight(true));
-        var size = this.root.outerWidth(true);
-        if (size >= BIG_THRESHOLD && !this.root.hasClass(SIZE_BIG)) {
-            this.root.addClass(SIZE_BIG);
-            this.root.removeClass(SIZE_NORMAL + ' ' + SIZE_SMALL + ' ' + SIZE_TINY);
-            this.adjustPaddings();
-        } else if (size < BIG_THRESHOLD && size >= NORMAL_THRESHOLD && !this.root.hasClass(SIZE_NORMAL)) {
-            this.root.addClass(SIZE_NORMAL);
-            this.root.removeClass(SIZE_BIG + ' ' + SIZE_SMALL + ' ' + SIZE_TINY);
-            this.adjustPaddings();
-        } else if (size < NORMAL_THRESHOLD && size >= SMALL_THRESHOLD && !this.root.hasClass(SIZE_SMALL)) {
-            this.root.addClass(SIZE_SMALL);
-            this.root.removeClass(SIZE_BIG + ' ' + SIZE_NORMAL + ' ' + SIZE_TINY);
-            this.adjustPaddings();
-        } else if (size < SMALL_THRESHOLD && size < SMALL_THRESHOLD && !this.root.hasClass(SIZE_TINY)) {
-            this.root.addClass(SIZE_TINY);
-            this.root.removeClass(SIZE_BIG + ' ' + SIZE_NORMAL + ' ' + SIZE_SMALL);
-            this.adjustPaddings();
-        }
-    };
-
-    CrossWord.prototype.adjustPaddings = function() {
-        this.top_text_height = this.top_text.outerHeight(true);
-        this.bottom_text_height = this.bottom_text.outerHeight(true);
-        this.canvas_holder.css({
-            'padding-top': this.top_text_height,
-            'padding-bottom': this.bottom_text_height
-        });
     };
 
     CrossWord.prototype.mouseMoved = function (e) {
