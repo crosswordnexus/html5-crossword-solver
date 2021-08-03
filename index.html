@@ -26,7 +26,15 @@
 
 <script>
 	(function(){
-		CrosswordNexus.createCrossword($('div.crossword'));
+        var params = {
+          hover_enabled: false,
+          settings_enabled: false,
+          color_selected: '#FF0000',
+          color_word: '#FFFF00',
+          cell_size: 32,
+          puzzle_file: {url: 'FM.jpz', type: 'jpz'}
+        };
+		CrosswordNexus.createCrossword($('div.crossword'), params);
 	})();
 </script>
 
