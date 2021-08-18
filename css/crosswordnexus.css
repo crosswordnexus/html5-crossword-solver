@@ -40,13 +40,27 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 
 .cw-header {
     border-bottom: 1px solid #ccc;
-    line-height: 3em;
-    margin: 15px 0 0;
-    padding: 0 15px;
+    line-height: 2em;
+    margin: 5px 0 0;
+    padding: 0 5px;
+    font-size: 15px;
 }
 .cw-title {
-    display: inline;
-    margin-right: 15px;
+    display: block;
+    float: left;
+    font-weight: bold;
+}
+.cw-title::after {
+    content: "\a0•\a0";
+}
+.cw-author {
+    display: block;
+    float: left;
+}
+.cw-copyright {
+    display: block;
+    float: left;
+    clear: left;
 }
 
 .cw-content {
@@ -143,6 +157,7 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
     display: flex;
     flex-shrink: 0;
     max-height: 100%;
+    /* width: 700px; */
 }
 
 .cw-clues {
@@ -250,6 +265,7 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 @media (max-width: 1200px) {
     .cw-main { font-size: 15px; }
     .cw-clues  { width: 300px; }
+    .cw-clues-holder { width: auto; }
 }
 
 @media (max-width: 960px) {
@@ -257,15 +273,17 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
     .cw-main { font-size: 13px; }
     .cw-clues { width: 220px; }
     .cw-clue-number { width: 20px; }
+    .cw-header { font-size: 14px; }
 }
 
-@media (max-width: 800px) {
+@media (max-width: 850px) {
     .cw-clues-holder {
         flex-direction: column;
     }
 }
 
-@media (max-width: 450px) {
-    .cw-main { font-size: 12px; }
+@media (max-width: 550px) {
+    .cw-main { font-size: 13px; }
     .cw-clues-holder  { display: none; }
+    .cw-header { display: none; }
 }
