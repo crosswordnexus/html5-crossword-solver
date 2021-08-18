@@ -1,5 +1,5 @@
 /**
-Copyright (c) 2015-2021, Crossword Nexus
+Copyright (c) 2015-2020, Crossword Nexus
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -892,13 +892,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     };
 
     CrossWord.prototype.completeLoad = function () {
-        $('.cw-header').html(
-          '<h1 class="cw-title">' +
-            this.title +
-            '</h1>' +
-            '<span class="cw-author">' +
-            this.author +
-            '</span>'
+        $('.cw-header').html(`<span class="cw-title">
+          ${this.title}
+          </span>
+          <span class="cw-author">
+          ${this.author}
+          </span>
+          <span class="cw-copyright">
+          ${this.copyright}
+          </span>`
         );
         this.changeActiveClues();
 
@@ -1090,8 +1092,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             input_left;
         if (cell && !cell.empty) {
             this.selected_cell = cell;
-            this.active_clues.markActive(cell.x, cell.y, false);
             this.inactive_clues.markActive(cell.x, cell.y, true);
+            this.active_clues.markActive(cell.x, cell.y, false);
 
             input_top = offset.top + (cell.y - 1) * this.cell_size;
             input_left = offset.left + (cell.x - 1) * this.cell_size;
@@ -1283,9 +1285,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                         }
                     }
                 }
-
+                const NUMBER_SIZE_DIV = 3.75;
                 if (cell.number) {
-                    this.context.font = Math.ceil(this.cell_size / 4) + 'px sans-serif';
+                    this.context.font = Math.ceil(this.cell_size / NUMBER_SIZE_DIV) + 'px sans-serif';
                     this.context.textAlign = 'left';
                     this.context.textBaseline = 'top';
                     this.context.fillText(
@@ -1296,7 +1298,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 }
 
                 if (cell.top_right_number) {
-                    this.context.font = Math.ceil(this.cell_size / 4) + "px sans-serif";
+                    this.context.font = Math.ceil(this.cell_size / NUMBER_SIZE_DIV) + "px sans-serif";
                     this.context.textAlign = "right";
                     this.context.textBaseline = "top";
                     this.context.fillText(
@@ -2456,10 +2458,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
 
             var MIN_NUMBER_SIZE = 5.5;
+            const NUMBER_SIZE_DIV = 3.5;
 
             var filled_string = (filled ? 'F' : '');
             var number_offset = cell_size / 20;
-            var number_size = cell_size/3.5 < MIN_NUMBER_SIZE ? MIN_NUMBER_SIZE : cell_size/3.5;
+            var number_size = cell_size/NUMBER_SIZE_DIV < MIN_NUMBER_SIZE ? MIN_NUMBER_SIZE : cell_size/NUMBER_SIZE_DIV;
             //var letter_size = cell_size/1.5;
             var letter_pct_down = 4 / 5;
             if (cell.color) {
