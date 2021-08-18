@@ -1,5 +1,5 @@
 /**
-Copyright (c) 2015-2020, Crossword Nexus
+Copyright (c) 2015-2021, Crossword Nexus
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -1135,13 +1135,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var x, y;
 
         //this.adjustSize();
-
+        console.log(this.config.cell_size);
         if (Number(this.config.cell_size) === 0) {
             this.root.removeClass('fixed');
             this.root.addClass('auto');
             const canvasRect = $('.cw-canvas').get(0).getBoundingClientRect();
-            const max_height = this.root.height() - (this.top_text_height + this.bottom_text_height) - 6;
-            const max_width = this.root.width() - 16;
+            //const max_height = this.root.height() - (this.top_text_height + this.bottom_text_height) - 6;
+            //const max_width = this.root.width() - 16;
+            const max_height = canvasRect.bottom - canvasRect.top - 6;
+            const max_width = canvasRect.right - canvasRect.left - 6;
             /* CTFYC max height and width below */
             //const max_height = canvasRect.bottom - canvasRect.top - 6;
             //const max_width = canvasRect.right - canvasRect.left - 6;
