@@ -1,5 +1,5 @@
 /**
-Copyright (c) 2015-2020, Crossword Nexus
+Copyright (c) 2015-2021, Crossword Nexus
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -96,7 +96,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         '<div class="cw-buttons-holder">' +
         //  '<div class="cw-button cw-print">Print</div>'+
         '<button class="cw-button cw-check">Check Solution</button>' +
-        '<div class="cw-timer">00:00</div>' +
+        '<div class="cw-button cw-timer">00:00</div>' +
         '<button class="cw-button cw-submit">' +
         "I'm done!" +
         '</button>' +
@@ -387,9 +387,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.save_btn = this.root.find('div.cw-buttons-holder div.cw-save');
         this.load_btn = this.root.find('div.cw-buttons-holder div.cw-load');
         this.print_btn = this.root.find('div.cw-buttons-holder div.cw-print');
-
-        this.timer_button = this.root.find('div.cw-buttons-holder div.cw-timer');
         */
+        this.timer_button = this.root.find('div.cw-buttons-holder div.cw-timer');
+
 
         this.check_button = this.root.find('div.cw-buttons-holder .cw-check');
         this.print_btn = this.root.find('div.cw-buttons-holder .cw-print');
@@ -953,9 +953,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.save_btn.off('click');
         this.load_btn.off('click');
         this.print_btn.off('click');
-
-        this.timer_button.off('click');
         */
+        this.timer_button.off('click');
+
 
         if (this.config.settings_enabled) {
             this.settings_icon.off('click');
@@ -1017,10 +1017,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.save_btn.on('click', $.proxy(this.savePuzzle, this));
         this.load_btn.on('click', $.proxy(this.loadPuzzle, this));
         this.print_btn.on('click', $.proxy(this.printPuzzle, this));
-
+        */
         // TIMER
         this.timer_button.on('click', $.proxy(this.toggleTimer, this));
-        */
+
 
         if (this.config.settings_enabled) {
             this.settings_icon.on('click', $.proxy(this.openSettings, this));
@@ -2574,12 +2574,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var display_seconds, display_minutes;
         var timer_btn = this.timer_button;
 
-
         function add() {
             xw_timer_seconds = xw_timer_seconds + 1;
             display_seconds = xw_timer_seconds % 60;
             display_minutes = (xw_timer_seconds - display_seconds) / 60;
-
 
             var display = (display_minutes ? (display_minutes > 9 ? display_minutes : "0" + display_minutes) : "00") + ":" + (display_seconds > 9 ? display_seconds : "0" + display_seconds);
 
