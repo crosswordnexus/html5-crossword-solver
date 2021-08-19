@@ -29,9 +29,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         hover_enabled: false,
         settings_enabled: true,
         color_hover: "#FFFFAA",
-        color_selected: "#FF0000",
-        color_word: "#FFFF00",
-        color_hilite: "#FFFCA5",
+        color_selected: "#FF4136",
+        color_word: "#FEE300",
+        color_hilite: "#fff5d7",
         color_none: "#FFFFFF",
         color_block: "#000000",
         cell_size: null, // null or anything converts to 0 means 'auto'
