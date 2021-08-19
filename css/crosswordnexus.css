@@ -1,5 +1,5 @@
 /**
-Copyright (c) 2015, Crossword Nexus
+Copyright (c) 2015-2021, Crossword Nexus
 CTFYC version
 
 All rights reserved.
@@ -170,10 +170,14 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
     min-width: 1px;
 }
 
+/**
+* Buttons
+**/
+
 .cw-button {
     background: #f7be16;
     border: none;
-    border-radius: 2px;
+    border-radius: 5px;
     cursor: pointer;
     display: inline-block;
     font-size: 1em;
@@ -189,13 +193,21 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
     display: none;
 }
 
+/**
+* Timer
+**/
+
 .cw-timer {
     display: inline-block;
     font-size: 1.3em;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    box-shadow: 0 0 1px 1px gray inset;
 }
+
+.cw-timer.running {background: #00AA00; }
+/* div.cw-timer {outline: 1px solid #fff; } */
 
 .cw-clues-items {
     flex: 1 1 auto;
