@@ -149,8 +149,9 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 }
 
 .cw-top-text {
-    background: #beeef7;
+    background: #fff5d7;
     flex-shrink: 0;
+    /* font-size: 20px; */
 }
 
 .cw-clues-holder {
@@ -206,7 +207,7 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
     cursor: pointer;
     display: flex;
 }
-.cw-clue.active { background: #6fc2d0; }
+.cw-clue.active { background: #FEE300; }
 .cw-clue.passive { background: #eee; }
 .cw-clue-number {
     flex-shrink: 0;
