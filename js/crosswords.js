@@ -106,9 +106,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         '<div class="cw-stat">⏰ <span class="cw-time-taken">?:??/?:??</span></div>' +
         '<div class="cw-stat correctness">❌ <span class="cw-incorrect">?</span></div>' +
         '</div>' +
-        '<div class="cw-top-text">' +
-        '<span class="cw-clue-number">1.</span>' +
-        '<span class="cw-clue-text">Clue</span>' +
+        '<div class="cw-top-text-wrapper">' +
+          '<div class="cw-top-text">' +
+            '<span class="cw-clue-number">1.</span>' +
+            '<span class="cw-clue-text">Clue</span>' +
+          '</div>' +
         '</div>' +
         '<input type="text" class="cw-hidden-input">' +
         '<div class="cw-canvas">' +
