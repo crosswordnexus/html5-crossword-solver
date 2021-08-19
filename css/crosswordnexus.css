@@ -148,7 +148,7 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
     text-align: center;
 }
 
-.cw-top-text {
+.cw-top-text-wrapper {
     background: #fff5d7;
     flex-shrink: 0;
     /* font-size: 20px; */
@@ -212,9 +212,9 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 .cw-clue-number {
     flex-shrink: 0;
     font-weight: 600;
-    margin-right: 10px;
+    margin-right: 6px;
     text-align: right;
-    width: 30px;
+    min-width: 24px;
 }
 .pregame .cw-clue-text {
     background: #ccc;
@@ -239,11 +239,16 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
     display: none;
 }
 .cw-clues { width: 350px; }
-.cw-top-text {
+.cw-top-text-wrapper {
     align-items: center;
     display: flex;
-    height: 60px;
-    padding: 0 15px;
+    min-height: 70px;
+}
+.cw-top-text {
+    align-items: flex-start;
+    display: flex;
+    padding: 6px 15px 6px 15px;
+    line-height: 1.2;
 }
 .cw-clues-title {
     align-items: flex-end;
@@ -264,13 +269,14 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 }
 
 @media (max-width: 1200px) {
+    .cw-top-text-wrapper { min-height: 55px; }
     .cw-main { font-size: 15px; }
     .cw-clues  { width: 300px; }
     .cw-clues-holder { width: auto; }
 }
 
 @media (max-width: 960px) {
-    .cw-top-text { height: 45px; }
+    .cw-top-text-wrapper { min-height: 45px; }
     .cw-main { font-size: 13px; }
     .cw-clues { width: 220px; }
     .cw-clue-number { width: 20px; }
