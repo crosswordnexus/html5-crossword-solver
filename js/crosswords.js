@@ -2692,7 +2692,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         return null;
     };
 
-    // in clues list, marks clue for word that has cell with given coordinates
     CluesGroup.prototype.markActive = function(x, y, is_passive) {
         var classname = is_passive ? 'passive' : 'active',
             word = this.getMatchingWord(x, y),
@@ -2700,16 +2699,32 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.clues_container.find('div.cw-clue.active').removeClass('active');
         this.clues_container.find('div.cw-clue.passive').removeClass('passive');
         if (word) {
-            clue_el = this.clues_container.find('div.cw-clue.word-' + word.id);
-            clue_el.addClass(classname);
-            clue_position = clue_el.position().top;
-            clue_height = clue_el.outerHeight(true);
-            if (clue_position < 0 || clue_position + clue_height > this.clues_container.height()) {
-                this.clues_container.animate({
-                    scrollTop: this.clues_container.scrollTop() + clue_position
-                }, 150);
-            }
-        }
+          const clue_el = this.clues_container.find('div.cw-clue.word-' + word.id);
+          clue_el.addClass(classname);
+          const clueRect = clue_el.get(0).getBoundingClientRect();
+
+          const scrollContainer = clue_el.closest('.cw-clues-items');
+          const scrollRect = scrollContainer.get(0).getBoundingClientRect();
+
+          if (clueRect.top < scrollRect.top) {
+            scrollContainer.stop().animate(
+              {
+                scrollTop:
+                  scrollContainer.scrollTop() - (scrollRect.top - clueRect.top),
+              },
+              150
+            );
+          } else if (clueRect.bottom > scrollRect.bottom) {
+            scrollContainer.stop().animate(
+              {
+                scrollTop:
+                  scrollContainer.scrollTop() +
+                  (clueRect.bottom - scrollRect.bottom),
+              },
+              150
+            );
+          }
+      }
     };
 
     // returns word next to given
