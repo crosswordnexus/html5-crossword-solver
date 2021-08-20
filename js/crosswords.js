@@ -870,10 +870,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             clues: [],
             words_ids: [],
           });
+
           for (i = 0; (word = xml_words[i]); i++) {
-            var id = word.getAttribute('id'),
-              x = word.getAttribute('x'),
-              y = word.getAttribute('y');
+            let id = word.getAttribute('id');
+            let y = word.getAttribute('y');
             if (y.indexOf('-') == -1) {
               // Across clue
               // We need words_ids and clues
@@ -893,6 +893,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               down_group.words_ids.push(id);
             }
           }
+
           this.clues_top = across_group;
           this.clues_bottom = down_group;
           // Also, in a coded crossword, there's no reason to show the clues
@@ -2532,7 +2533,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         /***********************/
         // If title_pt or author_pt are null, we determine them
         var DEFAULT_TITLE_PT = 12;
-        var total_width = DOC_WIDTH - 2 * margin;
         if (!options.author_pt) options.author_pt = options.title_pt;
         if (!options.title_pt) {
           options.title_pt = DEFAULT_TITLE_PT;
