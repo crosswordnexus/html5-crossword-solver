@@ -87,48 +87,51 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     var xw_timer, xw_timer_seconds = 0;
 
     /** Template will have to change along with CSS **/
-    var template =
-        '' +
-        '<div class="cw-main auto normal">' +
-        '<header class="cw-header"></header>' +
-        '<div class="cw-content">' +
-        '<div class="cw-left">' +
-        '<div class="cw-buttons-holder">' +
-        //  '<div class="cw-button cw-print">Print</div>'+
-        '<button class="cw-button cw-check">Check Solution</button>' +
-        '<div class="cw-button cw-timer">00:00</div>' +
-        '<button class="cw-button cw-submit">' +
-        "I'm done!" +
-        '</button>' +
-        '</div>' +
-        '<div class="cw-results">' +
-        '<button class="cw-button cw-exit">Back to Puzzles</button>' +
-        '<div class="cw-stat">⏰ <span class="cw-time-taken">?:??/?:??</span></div>' +
-        '<div class="cw-stat correctness">❌ <span class="cw-incorrect">?</span></div>' +
-        '</div>' +
-        '<div class="cw-top-text-wrapper">' +
-          '<div class="cw-top-text">' +
-            '<span class="cw-clue-number">1.</span>' +
-            '<span class="cw-clue-text">Clue</span>' +
-          '</div>' +
-        '</div>' +
-        '<input type="text" class="cw-hidden-input">' +
-        '<div class="cw-canvas">' +
-        '<canvas></canvas>' +
-        '</div>' +
-        '</div>' +
-        '<div class="cw-clues-holder">' +
-        '<div class="cw-clues cw-clues-top">' +
-        '<div class="cw-clues-title"></div>' +
-        '<div class="cw-clues-items"></div>' +
-        '</div>' +
-        '<div class="cw-clues cw-clues-bottom">' +
-        '<div class="cw-clues-title"></div>' +
-        '<div class="cw-clues-items"></div>' +
-        '</div>' +
-        '</div>' +
-        '</div>' +
-        '</div>';
+    var template = `
+        <div class="cw-main auto normal">
+          <!-- Overlay for opening puzzles -->
+          <div class="cw-open-holder">
+            <div class="cw-overflow"></div>
+            <div class="cw-open-puzzle">
+              <div class="cw-text"></div>
+              <div class="cw-puzzles-list"></div>
+              <div class="cw-text">or</div>
+              <div class="cw-open-button"></div>
+            </div>
+            <input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz,.xpz"> +
+          </div>
+          <!-- End overlay -->
+          <header class="cw-header"></header>
+          <div class="cw-content">
+            <div class="cw-left">
+              <div class="cw-buttons-holder">
+                <div class="cw-button cw-print">Print</div>
+                <div class="cw-button cw-check">Check</div>
+                <div class="cw-button cw-timer">00:00</div>
+              </div>
+              <div class="cw-top-text-wrapper">
+                <div class="cw-top-text">
+                  <span class="cw-clue-number">1</span>
+                  <span class="cw-clue-text">Clue</span>
+                </div>
+              </div>
+              <input type="text" class="cw-hidden-input">
+              <div class="cw-canvas">
+                <canvas></canvas>
+              </div>
+            </div>
+            <div class="cw-clues-holder">
+              <div class="cw-clues cw-clues-top">
+                <div class="cw-clues-title"></div>
+                <div class="cw-clues-items"></div>
+              </div>
+            <div class="cw-clues cw-clues-bottom">
+              <div class="cw-clues-title"></div>
+              <div class="cw-clues-items"></div>
+            </div>
+          </div>
+        </div>
+      </div>`;
 
     // returns deferred object
     function loadFileFromServer(path, type) {
@@ -1079,7 +1082,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.top_text.html(
               '<span class="cw-clue-number">' +
                 word.clue.number +
-                '.' +
+                //'.' +
                 '</span>' +
                 '<span class="cw-clue-text">' +
                 word.clue.text +
@@ -1104,6 +1107,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.hidden_input.focus();
         }
     };
+
 
     CrossWord.prototype.renderClues = function (clues_group, clues_container) {
         var i,
@@ -2692,6 +2696,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         return null;
     };
 
+    // in clues list, marks clue for word that has cell with given coordinates
     CluesGroup.prototype.markActive = function(x, y, is_passive) {
         var classname = is_passive ? 'passive' : 'active',
             word = this.getMatchingWord(x, y),
