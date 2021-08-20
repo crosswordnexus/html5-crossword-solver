@@ -16,7 +16,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 **/
 /* CSS for using the Crossword Nexus HTML5 Crossword Solver */
 
-html, body {
+html,
+body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     margin: 0;
 }
@@ -24,38 +25,106 @@ html, body {
 /**
 * Overlay: opening files
 **/
-div.cw-open-holder { position: absolute; top: 0; left: 0; bottom: 0; z-index: 4; width: 100%; }
-div.cw-overflow { position: absolute; top: 0; left: 0; height:100%; width: 100%; background: white; opacity: 0.9; z-index: -1; }
-div.cw-main.loading div.cw-open-holder, div.cw-main.loaded div.cw-open-holder { display: none; }
+div.cw-open-holder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 4;
+    width: 100%;
+}
+div.cw-overflow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: white;
+    opacity: 0.9;
+    z-index: -1;
+}
+div.cw-main.loading div.cw-open-holder,
+div.cw-main.loaded div.cw-open-holder {
+    display: none;
+}
 div.cw-open-puzzle {
     position: relative;
     margin: 50px auto;
     width: 300px;
     height: auto;
     border-radius: 5px;
-    box-shadow: 3px 3px 3px 0 #BFBFBF, 0 0 1px 2px gray inset;
+    box-shadow: 3px 3px 3px 0 #bfbfbf, 0 0 1px 2px gray inset;
     padding: 5px;
 }
-div.cw-text { position: relative; margin: 5px auto; width: 200px; line-height: 20px; font-size: 20px; }
-div.cw-puzzles-list { position: relative; margin: 0 auto; width: 200px; min-height: 40px; max-height: 250px; background: white; overflow-y: scroll; border-radius: 5px;}
-div.cw-open-puzzle.empty div.cw-text, div.cw-open-puzzle.empty div.cw-puzzles-list { display: none; }
-div.cw-open-button { position: relative; text-align: center; width: 260px; height: 40px; margin: 5px auto; border: 1px solid; line-height: 50px; border-radius: 5px; box-shadow: 3px 3px 3px 0 gray, 0 0 10px 1px #007000 inset; background: linear-gradient(#008F00, #55e214); cursor: pointer; }
-div.cw-open-button::after { content: 'Open puzzle file'; position: relative; top: -6px; font-size: 24px; color: #FFFFFF; font-weight: bold; }
-div.cw-open-holder input { visibility: hidden; position: absolute; }
+div.cw-text {
+    position: relative;
+    margin: 5px auto;
+    width: 200px;
+    line-height: 20px;
+    font-size: 20px;
+}
+div.cw-puzzles-list {
+    position: relative;
+    margin: 0 auto;
+    width: 200px;
+    min-height: 40px;
+    max-height: 250px;
+    background: white;
+    overflow-y: scroll;
+    border-radius: 5px;
+}
+div.cw-open-puzzle.empty div.cw-text,
+div.cw-open-puzzle.empty div.cw-puzzles-list {
+    display: none;
+}
+div.cw-open-button {
+    position: relative;
+    text-align: center;
+    width: 260px;
+    height: 40px;
+    margin: 5px auto;
+    border: 1px solid;
+    line-height: 50px;
+    border-radius: 5px;
+    box-shadow: 3px 3px 3px 0 gray, 0 0 10px 1px #007000 inset;
+    background: linear-gradient(#008f00, #55e214);
+    cursor: pointer;
+}
+div.cw-open-button::after {
+    content: "Open puzzle file";
+    position: relative;
+    top: -6px;
+    font-size: 24px;
+    color: #ffffff;
+    font-weight: bold;
+}
+div.cw-open-holder input {
+    visibility: hidden;
+    position: absolute;
+}
 
 /* drag-and-drop style */
 div.has-advanced-upload {
-  outline: 2px dashed gray;
-  outline-offset: -10px;
+    outline: 2px dashed gray;
+    outline-offset: -10px;
 }
 
 div.is-dragover {
-  background-color: grey;
+    background-color: grey;
 }
 
-div.crossword { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+div.crossword {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
 
-div.cw-main.fixed { position: relative; display: inline-block; }
+div.cw-main.fixed {
+    position: relative;
+    display: inline-block;
+}
 div.cw-main.auto {
     bottom: 0;
     display: flex;
@@ -69,7 +138,15 @@ div.cw-main.auto {
     visibility: hidden;
 }
 
-input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; width: 0; height: 0; z-index: -1;}
+input.cw-hidden-input {
+    opacity: 0;
+    position: fixed;
+    top: -100px;
+    left: -100px;
+    width: 0;
+    height: 0;
+    z-index: -1;
+}
 
 .cw-header {
     border-bottom: 1px solid #ccc;
@@ -207,7 +284,7 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 **/
 
 .cw-button {
-    background: #FEE300;
+    background: #fee300;
     border: none;
     border-radius: 2px;
     cursor: pointer;
@@ -231,8 +308,9 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 .cw-timer {
 }
 
-
-.cw-timer.running {background: #00AA00; }
+.cw-timer.running {
+    background: #00aa00;
+}
 
 .cw-clues-items {
     flex: 1 1 auto;
@@ -244,8 +322,12 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
     cursor: pointer;
     display: flex;
 }
-.cw-clue.active { background: #FEE300; }
-.cw-clue.passive { background: #eee; }
+.cw-clue.active {
+    background: #fee300;
+}
+.cw-clue.passive {
+    background: #eee;
+}
 .cw-clue-number {
     flex-shrink: 0;
     font-weight: 600;
@@ -264,7 +346,9 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 }
 
 /* size-dependent styles */
-.cw-main { font-size: 20px; }
+.cw-main {
+    font-size: 20px;
+}
 .cw-buttons-holder {
     align-items: center;
     display: flex;
@@ -275,7 +359,9 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 .submitted .cw-buttons-holder {
     display: none;
 }
-.cw-clues { width: 350px; }
+.cw-clues {
+    width: 350px;
+}
 .cw-top-text-wrapper {
     align-items: center;
     display: flex;
@@ -306,18 +392,36 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 }
 
 @media (max-width: 1200px) {
-    .cw-top-text-wrapper { min-height: 55px; }
-    .cw-main { font-size: 15px; }
-    .cw-clues  { width: 300px; }
-    .cw-clues-holder { width: auto; }
+    .cw-top-text-wrapper {
+        min-height: 55px;
+    }
+    .cw-main {
+        font-size: 15px;
+    }
+    .cw-clues {
+        width: 300px;
+    }
+    .cw-clues-holder {
+        width: auto;
+    }
 }
 
 @media (max-width: 960px) {
-    .cw-top-text-wrapper { min-height: 45px; }
-    .cw-main { font-size: 13px; }
-    .cw-clues { width: 220px; }
-    .cw-clue-number { width: 20px; }
-    .cw-header { font-size: 14px; }
+    .cw-top-text-wrapper {
+        min-height: 45px;
+    }
+    .cw-main {
+        font-size: 13px;
+    }
+    .cw-clues {
+        width: 220px;
+    }
+    .cw-clue-number {
+        width: 20px;
+    }
+    .cw-header {
+        font-size: 14px;
+    }
 }
 
 @media (max-width: 850px) {
@@ -327,7 +431,13 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 }
 
 @media (max-width: 550px) {
-    .cw-main { font-size: 13px; }
-    .cw-clues-holder  { display: none; }
-    .cw-header { display: none; }
+    .cw-main {
+        font-size: 13px;
+    }
+    .cw-clues-holder {
+        display: none;
+    }
+    .cw-header {
+        display: none;
+    }
 }
