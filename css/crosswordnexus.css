@@ -20,6 +20,39 @@ html, body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     margin: 0;
 }
+
+/**
+* Overlay: opening files
+**/
+div.cw-open-holder { position: absolute; top: 0; left: 0; bottom: 0; z-index: 4; width: 100%; }
+div.cw-overflow { position: absolute; top: 0; left: 0; height:100%; width: 100%; background: white; opacity: 0.9; z-index: -1; }
+div.cw-main.loading div.cw-open-holder, div.cw-main.loaded div.cw-open-holder { display: none; }
+div.cw-open-puzzle {
+    position: relative;
+    margin: 50px auto;
+    width: 300px;
+    height: auto;
+    border-radius: 5px;
+    box-shadow: 3px 3px 3px 0 #BFBFBF, 0 0 1px 2px gray inset;
+    padding: 5px;
+}
+div.cw-text { position: relative; margin: 5px auto; width: 200px; line-height: 20px; font-size: 20px; }
+div.cw-puzzles-list { position: relative; margin: 0 auto; width: 200px; min-height: 40px; max-height: 250px; background: white; overflow-y: scroll; border-radius: 5px;}
+div.cw-open-puzzle.empty div.cw-text, div.cw-open-puzzle.empty div.cw-puzzles-list { display: none; }
+div.cw-open-button { position: relative; text-align: center; width: 260px; height: 40px; margin: 5px auto; border: 1px solid; line-height: 50px; border-radius: 5px; box-shadow: 3px 3px 3px 0 gray, 0 0 10px 1px #007000 inset; background: linear-gradient(#008F00, #55e214); cursor: pointer; }
+div.cw-open-button::after { content: 'Open puzzle file'; position: relative; top: -6px; font-size: 24px; color: #FFFFFF; font-weight: bold; }
+div.cw-open-holder input { visibility: hidden; position: absolute; }
+
+/* drag-and-drop style */
+div.has-advanced-upload {
+  outline: 2px dashed gray;
+  outline-offset: -10px;
+}
+
+div.is-dragover {
+  background-color: grey;
+}
+
 div.crossword { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
 
 div.cw-main.fixed { position: relative; display: inline-block; }
@@ -117,7 +150,6 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 
 .cw-results {
     display: none;
-    padding: 0 15px;
 }
 .submitted .cw-results {
     align-items: center;
@@ -175,22 +207,21 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 **/
 
 .cw-button {
-    background: #f7be16;
+    background: #FEE300;
     border: none;
-    border-radius: 5px;
+    border-radius: 2px;
     cursor: pointer;
     display: inline-block;
     font-size: 1em;
-    height: 35px;
-    padding: 0 15px;
+    height: 30px;
+    padding: 0 10px;
     position: relative;
+    margin: 1px 2px;
+    text-align: center;
+    line-height: 30px;
 }
 .cw-button:hover {
     opacity: 0.8;
-}
-
-.cw-check {
-    display: none;
 }
 
 /**
@@ -198,16 +229,10 @@ input.cw-hidden-input {opacity: 0; position: fixed; top: -100px; left: -100px; w
 **/
 
 .cw-timer {
-    display: inline-block;
-    font-size: 1.3em;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    box-shadow: 0 0 1px 1px gray inset;
 }
 
+
 .cw-timer.running {background: #00AA00; }
-/* div.cw-timer {outline: 1px solid #fff; } */
 
 .cw-clues-items {
     flex: 1 1 auto;
