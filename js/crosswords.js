@@ -87,43 +87,43 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
     /** Template will have to change along with CSS **/
     var template = `
-        <div class="cw-main auto normal">
-          <!-- Overlay for opening puzzles -->
-          <div class="cw-open-holder">
-            <div class="cw-overflow"></div>
-            <div class="cw-open-puzzle">
-              <div class="cw-text"></div>
-              <div class="cw-puzzles-list"></div>
-              <div class="cw-text">or</div>
-              <div class="cw-open-button"></div>
-            </div>
-            <input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz,.xpz"> +
+      <div class="cw-main auto normal">
+        <!-- Overlay for opening puzzles -->
+        <div class="cw-open-holder">
+          <div class="cw-overflow"></div>
+          <div class="cw-open-puzzle">
+            <div class="cw-text"></div>
+            <div class="cw-puzzles-list"></div>
+            <div class="cw-text">or</div>
+            <div class="cw-open-button"></div>
           </div>
-          <!-- End overlay -->
-          <header class="cw-header"></header>
-          <div class="cw-content">
-            <div class="cw-left">
-              <div class="cw-buttons-holder">
-                <div class="cw-button cw-print">Print</div>
-                <div class="cw-button cw-check">Check</div>
-                <div class="cw-button cw-timer">00:00</div>
-              </div>
-              <div class="cw-top-text-wrapper">
-                <div class="cw-top-text">
-                  <span class="cw-clue-number">1</span>
-                  <span class="cw-clue-text">Clue</span>
-                </div>
-              </div>
-              <input type="text" class="cw-hidden-input">
-              <div class="cw-canvas">
-                <canvas></canvas>
+          <input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz,.xpz"> +
+        </div>
+        <!-- End overlay -->
+        <header class="cw-header"></header>
+        <div class="cw-content">
+          <div class="cw-left">
+            <div class="cw-buttons-holder">
+              <div class="cw-button cw-print">Print</div>
+              <div class="cw-button cw-check">Check</div>
+              <div class="cw-button cw-timer">00:00</div>
+            </div>
+            <div class="cw-top-text-wrapper">
+              <div class="cw-top-text">
+                <span class="cw-clue-number">1</span>
+                <span class="cw-clue-text">Clue</span>
               </div>
             </div>
-            <div class="cw-clues-holder">
-              <div class="cw-clues cw-clues-top">
-                <div class="cw-clues-title"></div>
-                <div class="cw-clues-items"></div>
-              </div>
+            <input type="text" class="cw-hidden-input">
+            <div class="cw-canvas">
+              <canvas></canvas>
+            </div>
+          </div>
+          <div class="cw-clues-holder">
+            <div class="cw-clues cw-clues-top">
+              <div class="cw-clues-title"></div>
+              <div class="cw-clues-items"></div>
+            </div>
             <div class="cw-clues cw-clues-bottom">
               <div class="cw-clues-title"></div>
               <div class="cw-clues-items"></div>
