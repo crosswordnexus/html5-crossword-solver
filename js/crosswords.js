@@ -450,7 +450,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // render list of puzzle files
         if (this.config.puzzles && this.config.puzzles.length) {
           for (i = 0; (puzzle_file = this.config.puzzles[i]); i++) {
-            el = $('<span>' + puzzle_file.name + '</span>');
+            el = $(`<span>${puzzle_file.name}</span>`);
             el.data('url', puzzle_file.url);
             el.data('type', puzzle_file.type);
             puzzles_list.append(el);
@@ -2252,12 +2252,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         if (this.clues_top.clues.hasOwnProperty(i)) {
           var num = this.clues_top.clues[i].number.toString();
           var clue = this.clues_top.clues[i].text.trim();
-          var this_clue_string = num + '. ' + clue;
+          var this_clue_string = `${num}. ${clue}`;
           if (i == 0) {
             var clues_top_title = this.clues_top.title
               .replace(/(<([^>]+)>)/gi, '')
               .trim();
-            across_clues.push(clues_top_title + '\n' + this_clue_string);
+            across_clues.push(`${clues_top_title}\n${this_clue_string}`);
           } else {
             across_clues.push(this_clue_string);
           }
@@ -2272,12 +2272,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           if (this.clues_bottom.clues.hasOwnProperty(i)) {
             var num = this.clues_bottom.clues[i].number.toString();
             var clue = this.clues_bottom.clues[i].text.trim();
-            var this_clue_string = num + '. ' + clue;
+            var this_clue_string = `${num}. ${clue}`;
             if (i == 0) {
               var clues_bottom_title = this.clues_bottom.title
                 .replace(/(<([^>]+)>)/gi, '')
                 .trim();
-              down_clues.push(clues_bottom_title + '\n' + this_clue_string);
+              down_clues.push(`${clues_bottom_title}\n${this_clue_string}`);
             } else {
               down_clues.push(this_clue_string);
             }
@@ -2862,7 +2862,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         word = this.crossword.words.hasOwnProperty(word_id)
           ? this.crossword.words[word_id]
           : null;
-        if (word && word.cells.indexOf(x + '-' + y) >= 0) {
+        if (word && word.cells.indexOf(`${x}-${y}`) >= 0) {
           words.push(word);
         }
       }
@@ -3032,7 +3032,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             x_from < x_to ? k <= x_to : k >= x_to;
             x_from < x_to ? k++ : k--
           ) {
-            this.cells.push(k + '-' + y);
+            this.cells.push(`${k}-${y}`);
           }
         } else if (split_y.length > 1) {
           x = split_x[0];
@@ -3043,17 +3043,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             y_from < y_to ? k <= y_to : k >= y_to;
             y_from < y_to ? k++ : k--
           ) {
-            this.cells.push(x + '-' + k);
+            this.cells.push(`${x}-${k}`);
           }
         } else {
           x = split_x[0];
           y = split_y[0];
-          this.cells.push(x + '-' + y);
+          this.cells.push(`${x}-${y}`);
         }
       }
     };
     Word.prototype.hasCell = function (x, y) {
-      return this.cells.indexOf(x + '-' + y) >= 0;
+      return this.cells.indexOf(`${x}-${y}`) >= 0;
     };
 
     // get first empty cell in word
@@ -3065,7 +3065,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         coordinates,
         start = 0;
       if (x && y) {
-        start = Math.max(0, this.cells.indexOf(x + '-' + y));
+        start = Math.max(0, this.cells.indexOf(`${x}-${y}`));
         // if currently last cell - search from beginning
         if (start == this.cells.length - 1) {
           start = 0;
@@ -3108,7 +3108,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       return cell;
     };
     Word.prototype.getNextCell = function (x, y) {
-      var index = this.cells.indexOf(x + '-' + y),
+      var index = this.cells.indexOf(`${x}-${y}`),
         cell = null;
       if (index < this.cells.length - 1) {
         cell = this.getCellByCoordinates(this.cells[index + 1]);
@@ -3117,7 +3117,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     };
 
     Word.prototype.getPreviousCell = function (x, y) {
-      var index = this.cells.indexOf(x + '-' + y),
+      var index = this.cells.indexOf(`${x}-${y}`),
         cell = null;
       if (index > 0) {
         cell = this.getCellByCoordinates(this.cells[index - 1]);
