@@ -104,9 +104,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         <div class="cw-content">
           <div class="cw-left">
             <div class="cw-buttons-holder">
-              <div class="cw-button cw-print">Print</div>
+              <div class="cw-emoji cw-info">ℹ️</div>
+              <div class="cw-emoji cw-print">🖨️</div>
+              <div class="cw-emoji cw-settings">⚙️</div>
+              <div class="cw-emoji cw-timer">🕰️</div>
+              <div class="cw-emoji cw-notepad">📝</div>
+
               <div class="cw-button cw-check">Check</div>
-              <div class="cw-button cw-timer">00:00</div>
+              <div class="cw-button cw-Reveal">Reveal</div>
+
             </div>
             <div class="cw-top-text-wrapper">
               <div class="cw-top-text">
@@ -1041,7 +1047,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.reveal_letter.on('click', $.proxy(this.check_reveal, this, 'letter', 'reveal'));
           this.reveal_word.on('click', $.proxy(this.check_reveal, this, 'word', 'reveal'));
           this.reveal_puzzle.on('click', $.proxy(this.check_reveal, this, 'puzzle', 'reveal'));
-  
+
           // CHECK
           this.check_button.on('click', $.proxy(this.toggleCheck, this));
           this.check_button.on('mouseenter', $.proxy(this.openCheck, this));

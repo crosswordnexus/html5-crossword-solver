@@ -280,6 +280,14 @@ input.cw-hidden-input {
 }
 
 /**
+* Header Emoji
+**/
+.cw-emoji {
+    padding: 5px;
+    font-size: 1.6em;
+}
+
+/**
 * Buttons
 **/
 
@@ -309,7 +317,7 @@ input.cw-hidden-input {
 }
 
 .cw-timer.running {
-    background: #00aa00;
+    color: #FF4136;
 }
 
 .cw-clues-items {
