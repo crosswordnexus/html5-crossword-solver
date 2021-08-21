@@ -190,6 +190,33 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       return deferred;
     }
 
+    /** Functions to resize text **/
+    let isOverflown = ({ clientHeight, scrollHeight }) => scrollHeight > clientHeight;
+
+    function resizeText(nodeList) {
+      const minSize = 5;
+      const maxSize = 20;
+      const step = 1;
+      const unit = 'px';
+      for (var j=0; j < nodeList.length; j++) {
+        var el= nodeList[j];
+        let i = minSize;
+        let overflow = false;
+        const parent = el.parentNode;
+
+        while (!overflow && i < maxSize) {
+          el.style.fontSize = `${i}${unit}`;
+          overflow = isOverflown(parent);
+
+          if (!overflow) {
+            i += step;
+          }
+        }
+        // revert to last state where no overflow happened
+        el.style.fontSize = `${i - step}${unit}`;
+      }
+    }
+
     function unzip(zip_reader, success_callback, deferred) {
       zip.workerScripts = {
         inflater: [ZIPJS_PATH + '/z-worker.js', ZIPJS_PATH + '/inflate.js'],
@@ -1124,6 +1151,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         return this.cells[x] ? this.cells[x][y] : null;
       }
 
+
       setActiveWord(word) {
         if (word) {
           this.selected_word = word;
@@ -1136,6 +1164,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               word.clue.text +
               '</span>'
           );
+          resizeText(this.top_text);
         }
       }
 
@@ -1190,7 +1219,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var x, y;
 
         //this.adjustSize();
-        console.log(this.config.cell_size);
         if (Number(this.config.cell_size) === 0) {
           this.root.removeClass('fixed');
           this.root.addClass('auto');
