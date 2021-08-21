@@ -1218,7 +1218,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       renderCells() {
         var x, y;
 
-        //this.adjustSize();
+        // Resize the clue text
+        resizeText(this.top_text);
+        // Take care of the grid
         if (Number(this.config.cell_size) === 0) {
           this.root.removeClass('fixed');
           this.root.addClass('auto');
