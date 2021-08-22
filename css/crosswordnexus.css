@@ -56,27 +56,6 @@ div.cw-open-puzzle {
     box-shadow: 3px 3px 3px 0 #bfbfbf, 0 0 1px 2px gray inset;
     padding: 5px;
 }
-div.cw-text {
-    position: relative;
-    margin: 5px auto;
-    width: 200px;
-    line-height: 20px;
-    font-size: 20px;
-}
-div.cw-puzzles-list {
-    position: relative;
-    margin: 0 auto;
-    width: 200px;
-    min-height: 40px;
-    max-height: 250px;
-    background: white;
-    overflow-y: scroll;
-    border-radius: 5px;
-}
-div.cw-open-puzzle.empty div.cw-text,
-div.cw-open-puzzle.empty div.cw-puzzles-list {
-    display: none;
-}
 div.cw-open-button {
     position: relative;
     text-align: center;
