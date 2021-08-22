@@ -32,6 +32,9 @@ div.cw-open-holder {
     bottom: 0;
     z-index: 4;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 div.cw-overflow {
     position: absolute;
@@ -40,44 +43,58 @@ div.cw-overflow {
     height: 100%;
     width: 100%;
     background: white;
-    opacity: 0.9;
     z-index: -1;
 }
 div.cw-main.loading div.cw-open-holder,
 div.cw-main.loaded div.cw-open-holder {
     display: none;
 }
-div.cw-open-puzzle {
-    position: relative;
-    margin: 50px auto;
-    width: 300px;
-    height: auto;
-    border-radius: 5px;
-    box-shadow: 3px 3px 3px 0 #bfbfbf, 0 0 1px 2px gray inset;
-    padding: 5px;
-}
-div.cw-open-button {
-    position: relative;
+
+.cw-open-puzzle {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 20px;
     text-align: center;
-    width: 260px;
-    height: 40px;
-    margin: 5px auto;
-    border: 1px solid;
-    line-height: 50px;
-    border-radius: 5px;
-    box-shadow: 3px 3px 3px 0 gray, 0 0 10px 1px #007000 inset;
-    background: linear-gradient(#008f00, #55e214);
+}
+.cw-open-puzzle-instructions {
+    font-size: 16px;
+    margin-bottom: 2em;
+}
+.cw-open-puzzle-formats {
+    font-size: 13px;
+    margin-top: 1em;
+    opacity: 0.7;
+}
+
+.cw-open-button {
+    /* General button styles (TODO: Extract to shared class) */
+    align-items: center;
+    border-radius: 0.2em;
+    border: none;
+    box-shadow: none;
     cursor: pointer;
+    display: flex;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    justify-content: center;
+    padding: 0.25em 0.5em;
+    text-align: center;
+
+    /* Specific styles */
+    background-color: #52B323;
+    box-shadow: 0 0.125em 0 0 #368C0E;
+    color: white;
+    font-size: 32px;
 }
-div.cw-open-button::after {
-    content: "Open puzzle file";
+.cw-open-button:active {
     position: relative;
-    top: -6px;
-    font-size: 24px;
-    color: #ffffff;
-    font-weight: bold;
+    top: 0.0625em;
+    box-shadow: 0px 0.0625em 0px 0 #368C0E;
 }
-div.cw-open-holder input {
+
+.cw-open-holder input {
     visibility: hidden;
     position: absolute;
 }
@@ -89,7 +106,7 @@ div.has-advanced-upload {
 }
 
 div.is-dragover {
-    background-color: grey;
+    background-color: #fff5d7;
 }
 
 div.crossword {
@@ -161,18 +178,6 @@ input.cw-hidden-input {
     min-height: 1px;
     position: relative;
 }
-.cw-overlay {
-    align-items: center;
-    background: rgba(255, 255, 255, 0.7);
-    bottom: 0;
-    display: none;
-    flex-direction: column;
-    font-size: 1.3em;
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-}
 .cw-start-dialog,
 .cw-end-dialog {
     align-items: center;
@@ -186,10 +191,6 @@ input.cw-hidden-input {
     margin-top: 15px;
 }
 
-.pregame .cw-overlay,
-.end .cw-overlay {
-    display: flex;
-}
 .pregame .cw-start-dialog {
     display: flex;
     flex-direction: column;

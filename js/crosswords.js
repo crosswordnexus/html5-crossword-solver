@@ -94,10 +94,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         <div class="cw-open-holder">
           <div class="cw-overflow"></div>
           <div class="cw-open-puzzle">
-            <div class="cw-text"></div>
-            <div class="cw-open-button"></div>
+            <div class="cw-open-puzzle-instructions">
+              Drag and drop a file here, or click the button to choose a file
+              to open.
+            </div>
+            <button type="button" class="cw-open-button">
+              Open puzzle file
+            </button>
+            <div class="cw-open-puzzle-formats">
+              <b>Accepted formats:</b> PUZ, JPZ, and XML
+            </div>
           </div>
-          <input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz,.xpz"> +
+          <input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz,.xpz">
         </div>
         <!-- End overlay -->
         <header class="cw-header"></header>
@@ -478,7 +486,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           // shows open button
           var i, puzzle_file, el;
 
-          this.open_button = this.root.find('div.cw-open-button');
+          this.open_button = this.root.find('button.cw-open-button');
           this.file_input = this.root.find('input[type="file"]');
 
           this.open_button.on('click', () => {
