@@ -32,6 +32,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       color_word: '#FEE300',
       color_hilite: '#fff5d7',
       color_none: '#FFFFFF',
+      background_color_clue: '#666666',
+      font_color_clue: '#FFFFFF',
       color_block: '#000000',
       cell_size: null, // null or anything converts to 0 means 'auto'
       puzzle_file: null,
@@ -1340,10 +1342,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               );
             } else {
               // cell is empty
-              if (cell.is_void || cell.clue) {
-                /* don't bother filling */
-                //this.context.fillStyle = this.config.color_none;
-                //this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
+              if (cell.is_void) {
+                /* don't fill voids */
+              }
+              else if (cell.clue) {
+                // fill
+                this.context.fillStyle = this.config.background_color_clue;
+                this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
+                // bounding box
+                this.context.strokeRect(
+                  cell_x,
+                  cell_y,
+                  this.cell_size,
+                  this.cell_size,
+                  this.config.color_block
+                );
               } else {
                 // empty + not (void or clue) == block
                 // respect cell coloring, even for blocks
@@ -1365,6 +1378,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                   );
                 }
               }
+              // reset fill style
               this.context.fillStyle = this.config.color_block;
             }
 
@@ -1450,11 +1464,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               }
               this.context.textAlign = 'center';
               this.context.textBaseline = 'middle';
+              // change font color for clue cells
+              if (cell.clue) {
+                this.context.fillStyle = this.config.font_color_clue;
+              }
               this.context.fillText(
                 cell.letter,
                 cell_x + this.cell_size / 2,
                 cell_y + (2 * this.cell_size) / 3
               );
+              // reset fill style
+              this.context.fillStyle = this.config.color_block;
             }
           }
         }
