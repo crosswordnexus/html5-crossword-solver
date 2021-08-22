@@ -342,7 +342,7 @@ input.cw-hidden-input {
 .cw-clue-number {
     flex-shrink: 0;
     font-weight: 600;
-    margin-right: 10px;
+    margin-right: 0.8em;
     text-align: right;
     min-width: 24px;
 }
