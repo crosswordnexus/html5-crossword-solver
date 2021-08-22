@@ -375,7 +375,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // Solution message
         this.msg_solved = MSG_SOLVED;
 
-        this.render_cells_callback = $.proxy(this.renderCells, this);
+        this.windowResized = this.windowResized.bind(this);
 
         this.init();
       }
@@ -1004,7 +1004,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       removeGlobalListeners() {
-        $(window).off('resize', this.render_cells_callback);
+        $(window).off('resize', this.windowResized);
       }
 
       removeListeners() {
@@ -1046,7 +1046,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       addListeners() {
-        $(window).on('resize', this.render_cells_callback);
+        $(window).on('resize', this.windowResized);
         this.clues_holder.delegate(
           'div.cw-clues-items div.cw-clue',
           'mouseenter',
@@ -1220,8 +1220,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       renderCells() {
         var x, y;
 
-        // Resize the clue text
-        resizeText(this.top_text);
         // Take care of the grid
         if (Number(this.config.cell_size) === 0) {
           this.root.removeClass('fixed');
@@ -1874,6 +1872,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.setActiveCell(new_cell);
           this.renderCells();
         }
+      }
+
+      windowResized() {
+        // Resize the clue text, then re-render the actual grid
+        resizeText(this.top_text);
+        this.renderCells();
       }
 
       mouseEnteredClue(e) {
