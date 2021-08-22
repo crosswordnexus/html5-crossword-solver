@@ -196,7 +196,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     let isOverflown = ({ clientHeight, scrollHeight }) => scrollHeight > clientHeight;
 
     function resizeText(nodeList) {
-      const minSize = 5;
+      const minSize = 9;
       const maxSize = 20;
       const step = 1;
       const unit = 'px';
@@ -209,7 +209,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         while (!overflow && i < maxSize) {
           el.style.fontSize = `${i}${unit}`;
           overflow = isOverflown(parent);
-
+          console.log(parent);
           if (!overflow) {
             i += step;
           }
@@ -1324,6 +1324,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               }
 
               this.context.fillStyle = color;
+
               this.context.fillRect(
                 cell_x,
                 cell_y,
@@ -1360,22 +1361,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               } else {
                 // empty + not (void or clue) == block
                 // respect cell coloring, even for blocks
-                this.context.fillStyle = cell.color || this.config.color_block;
-                this.context.fillRect(
-                  cell_x,
-                  cell_y,
-                  this.cell_size,
-                  this.cell_size
-                );
-                // we want a bounding box for blocks
-                if (cell.color != this.config.color_none) {
-                  this.context.strokeRect(
+                // don't fill if the cell's color is the "none" color
+                if (cell.color !== this.config.color_none) {
+                  this.context.fillStyle = cell.color || this.config.color_block;
+                  this.context.fillRect(
                     cell_x,
                     cell_y,
                     this.cell_size,
-                    this.cell_size,
-                    this.config.color_block
+                    this.cell_size
                   );
+                  // we want a bounding box for blocks
+                  if (cell.color != this.config.color_none) {
+                    this.context.strokeRect(
+                      cell_x,
+                      cell_y,
+                      this.cell_size,
+                      this.cell_size,
+                      this.config.color_block
+                    );
+                  }
                 }
               }
               // reset fill style
