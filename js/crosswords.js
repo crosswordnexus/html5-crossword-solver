@@ -1472,10 +1472,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               if (cell.clue) {
                 this.context.fillStyle = this.config.font_color_clue;
               }
+              // the y-offset changes if this is a "clue" block
+              // normally we slide the letter down to fit with numbers
+              // for "clue" blocks we can center it
+              var y_offset = cell.clue? this.cell_size / 2 : (2 * this.cell_size) / 3;
               this.context.fillText(
                 cell.letter,
                 cell_x + this.cell_size / 2,
-                cell_y + (2 * this.cell_size) / 3
+                cell_y + y_offset
               );
               // reset fill style
               this.context.fillStyle = this.config.color_block;
