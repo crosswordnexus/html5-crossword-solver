@@ -167,10 +167,13 @@ input.cw-hidden-input {
     display: block;
     float: left;
 }
+.cw-author::after {
+    content: "\a0•\a0";
+}
 .cw-copyright {
     display: block;
     float: left;
-    clear: left;
+    color: #555555;
 }
 
 .cw-content {
@@ -373,7 +376,7 @@ input.cw-hidden-input {
 .cw-top-text-wrapper {
     align-items: center;
     display: flex;
-    height: 70px;
+    height: 60px;
 }
 .cw-top-text {
     align-items: flex-start;
