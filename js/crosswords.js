@@ -98,7 +98,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               Drag and drop a file here, or click the button to choose a file
               to open.
             </div>
-            <button type="button" class="cw-open-button">
+            <button type="button" class="cw-button cw-button-open-puzzle">
               Open puzzle file
             </button>
             <div class="cw-open-puzzle-formats">
@@ -118,8 +118,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               <div class="cw-emoji cw-timer">🕰️</div>
               <div class="cw-emoji cw-notepad">📝</div>
 
-              <div class="cw-button cw-check">Check</div>
-              <div class="cw-button cw-Reveal">Reveal</div>
+              <button type="button" class="cw-button cw-check">Check</button>
+              &nbsp;
+              <button type="button" class="cw-button cw-reveal">Reveal</button>
 
             </div>
             <div class="cw-top-text-wrapper">
@@ -486,7 +487,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           // shows open button
           var i, puzzle_file, el;
 
-          this.open_button = this.root.find('button.cw-open-button');
+          this.open_button = this.root.find('.cw-button-open-puzzle');
           this.file_input = this.root.find('input[type="file"]');
 
           this.open_button.on('click', () => {

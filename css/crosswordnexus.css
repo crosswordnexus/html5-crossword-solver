@@ -67,33 +67,6 @@ div.cw-main.loaded div.cw-open-holder {
     margin-top: 1em;
     opacity: 0.7;
 }
-
-.cw-open-button {
-    /* General button styles (TODO: Extract to shared class) */
-    align-items: center;
-    border-radius: 0.2em;
-    border: none;
-    box-shadow: none;
-    cursor: pointer;
-    display: flex;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-weight: 500;
-    justify-content: center;
-    padding: 0.25em 0.5em;
-    text-align: center;
-
-    /* Specific styles */
-    background-color: #52B323;
-    box-shadow: 0 0.125em 0 0 #368C0E;
-    color: white;
-    font-size: 32px;
-}
-.cw-open-button:active {
-    position: relative;
-    top: 0.0625em;
-    box-shadow: 0px 0.0625em 0px 0 #368C0E;
-}
-
 .cw-open-holder input {
     visibility: hidden;
     position: absolute;
@@ -275,21 +248,42 @@ input.cw-hidden-input {
 **/
 
 .cw-button {
-    background: #fee300;
+    /* default yellow color scheme */
+    --button-background-color: #FFEB3F;
+    --button-background-color-hover: #FFF27F;
+    --button-shadow-color: #EBD200;
+    color: #413A00;
+
+    align-items: center;
+    background-color: var(--button-background-color);
+    border-radius: 0.2em;
     border: none;
-    border-radius: 2px;
+    box-shadow: 0 0.125em 0 0 var(--button-shadow-color);
     cursor: pointer;
-    display: inline-block;
-    font-size: 1em;
-    height: 30px;
-    padding: 0 10px;
-    position: relative;
-    margin: 1px 2px;
+    display: flex;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    justify-content: center;
+    padding: 0.25em 0.5em;
     text-align: center;
-    line-height: 30px;
+    text-select: none;
+}
+.cw-button:active {
+    position: relative;
+    top: 0.0625em;
+    box-shadow: 0px 0.0625em 0px 0 var(--button-shadow-color);
 }
 .cw-button:hover {
-    opacity: 0.8;
+    background-color: var(--button-background-color-hover);
+}
+
+/* large green button for initial overlay */
+.cw-button-open-puzzle {
+    --button-background-color: #52B323;
+    --button-background-color-hover: #58BA28;
+    --button-shadow-color: #368C0E;
+    color: white;
+    font-size: 32px;
 }
 
 /**
