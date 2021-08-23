@@ -240,7 +240,8 @@ input.cw-hidden-input {
 **/
 .cw-emoji {
     padding: 5px;
-    font-size: 1.6em;
+    font-size: 1.4em;
+    cursor: pointer;
 }
 
 /**
@@ -260,13 +261,15 @@ input.cw-hidden-input {
     border: none;
     box-shadow: 0 0.125em 0 0 var(--button-shadow-color);
     cursor: pointer;
-    display: flex;
+    /* display: flex; */
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 500;
     justify-content: center;
     padding: 0.25em 0.5em;
     text-align: center;
     text-select: none;
+    margin-left: 0.5em;
+    float: right;
 }
 .cw-button:active {
     position: relative;
@@ -289,12 +292,13 @@ input.cw-hidden-input {
 /**
 * Timer
 **/
-
 .cw-timer {
+    /* font-size: 1em; */
 }
 
 .cw-timer.running {
-    color: #FF4136;
+    color: #008215;
+    /* font-size: 1em; */
 }
 
 .cw-clues-items {
@@ -328,6 +332,57 @@ input.cw-hidden-input {
     flex: 1 1 auto;
     min-width: 1px;
     word-wrap: break-word;
+}
+
+/* Settings */
+div.cw-settings {
+    display: none;
+    padding: 4px;
+    position: absolute;
+    width: 200px;
+    height: auto;
+    top: 46px;
+    left: 6px;
+    z-index: 2;
+    border-radius: 5px;
+    overflow: hidden;
+}
+div.cw-settings-background {
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    background: gray;
+    opacity: 0.95;
+    z-index: -1;
+}
+div.cw-settings-overflow {
+    position: fixed;
+    left: 0; right: 0; top: 0; bottom: 0;
+    z-index: -1;
+    cursor: pointer;
+}
+div.cw-settings.open {
+    display: block;
+}
+
+/**
+* Info
+**/
+div.cw-info {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    width: 200px;
+    margin-right: auto;
+    background-color: #666666;
+    color: #FFFFFF;
+    z-index: 5;
+    border-radius: 5px;
+}
+
+div.cw-info.open {
+    display: block;
 }
 
 /* size-dependent styles */

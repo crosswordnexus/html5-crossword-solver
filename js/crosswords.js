@@ -112,14 +112,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         <div class="cw-content">
           <div class="cw-left">
             <div class="cw-buttons-holder">
-              <div class="cw-emoji cw-info">ℹ️</div>
-              <div class="cw-emoji cw-print">🖨️</div>
-              <div class="cw-emoji cw-settings">⚙️</div>
-              <div class="cw-emoji cw-timer">🕰️</div>
-              <div class="cw-emoji cw-notepad">📝</div>
+              <div class="cw-emoji cw-info-icon">ℹ️</div>
+              <div class="cw-emoji cw-info"></div>
+              <div class="cw-emoji cw-print-icon">🖨️</div>
+              <div class="cw-emoji cw-settings-icon">⚙️</div>
+              <div class="cw-settings">
+                <div class="cw-settings-overflow"></div>
+                <div class="cw-settings-background"></div>
+                <div class="cw-option cw-skip-filled"><label><input type="checkbox">Skip filled letters</label></div>
+                <button>Ok</button>
+              </div>
+              <div class="cw-emoji cw-notepad-icon">📝</div>
 
+              <button type="button" class="cw-button cw-timer">00:00</button>
               <button type="button" class="cw-button cw-check">Check</button>
-              &nbsp;
               <button type="button" class="cw-button cw-reveal">Reveal</button>
 
             </div>
@@ -216,7 +222,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         while (!overflow && i < maxSize) {
           el.style.fontSize = `${i}${unit}`;
           overflow = isOverflown(parent);
-          console.log(parent);
           if (!overflow) {
             i += step;
           }
@@ -409,6 +414,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         this.settings_icon = this.root.find('div.cw-settings-icon');
         this.settings = this.root.find('div.cw-settings');
+
+        this.info_icon = this.root.find('div.cw-info-icon');
+        this.info = this.root.find('div.cw-info');
+
         if (this.config.settings_enabled) {
           this.settings_overflow = this.root.find('div.cw-settings-overflow');
           this.settings_submit = this.root.find('div.cw-settings button');
@@ -435,14 +444,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.file_button = this.root.find('div.cw-buttons-holder div.cw-file');
           this.save_btn = this.root.find('div.cw-buttons-holder div.cw-save');
           this.load_btn = this.root.find('div.cw-buttons-holder div.cw-load');
-          this.print_btn = this.root.find('div.cw-buttons-holder div.cw-print');
-          */
-        this.timer_button = this.root.find(
-          'div.cw-buttons-holder div.cw-timer'
-        );
+        */
 
         this.check_button = this.root.find('div.cw-buttons-holder .cw-check');
-        this.print_btn = this.root.find('div.cw-buttons-holder .cw-print');
+        this.print_btn = this.root.find('div.cw-buttons-holder .cw-print-icon');
 
         this.submit_button = this.root.find('div.cw-buttons-holder .cw-submit');
         this.timer_button = this.root.find('div.cw-buttons-holder .cw-timer');
@@ -947,6 +952,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           <span class="cw-copyright">
           ${this.copyright}
           </span>`);
+
+        $('.cw-info').html(`
+          <span class="cw-info-metadata">
+            ${this.title}
+          </span>
+          <span class="cw-info-metadata">
+            ${this.author}
+          </span>
+          <span class="cw-info-metadata">
+            ${this.copyright}
+          </span>
+          <span class="cw-info-about">
+            Solver © Crossword Nexus. BSD-3 License. https://github.com/crosswordnexus/html5-crossword-solver
+          </span>
+        `);
+
         this.changeActiveClues();
 
         if (this.clues_top) {
@@ -995,8 +1016,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.file_button.off('click mouseenter mouseleave');
           this.save_btn.off('click');
           this.load_btn.off('click');
-          this.print_btn.off('click');
           */
+        this.print_btn.off('click');
         this.timer_button.off('click');
 
         if (this.config.settings_enabled) {
@@ -1008,6 +1029,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.settings.undelegate('div.cw-cell-size input[type=checkbox]');
         }
 
+        this.info_icon.off('click');
         this.notepad_icon.off('click');
 
         this.hidden_input.off('input');
@@ -1059,8 +1081,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.file_button.on('mouseleave', $.proxy(this.closeFile, this));
           this.save_btn.on('click', $.proxy(this.savePuzzle, this));
           this.load_btn.on('click', $.proxy(this.loadPuzzle, this));
-          this.print_btn.on('click', $.proxy(this.printPuzzle, this));
           */
+        // PRINTER
+        this.print_btn.on('click', $.proxy(this.printPuzzle, this));
         // TIMER
         this.timer_button.on('click', $.proxy(this.toggleTimer, this));
 
@@ -1080,6 +1103,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             $.proxy(this.settingSizeAuto, this)
           );
         }
+
+        // INFO
+        this.info_icon.on('click', function() {
+          // TODO
+          this.info.addClass('open');
+        });
 
         // NOTEPAD
         if (this.notepad) {
@@ -1194,13 +1223,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.root.removeClass('fixed');
           this.root.addClass('auto');
           const canvasRect = $('.cw-canvas').get(0).getBoundingClientRect();
-          //const max_height = this.root.height() - (this.top_text_height + this.bottom_text_height) - 6;
-          //const max_width = this.root.width() - 16;
           const max_height = canvasRect.bottom - canvasRect.top - 6;
           const max_width = canvasRect.right - canvasRect.left - 6;
-          /* CTFYC max height and width below */
-          //const max_height = canvasRect.bottom - canvasRect.top - 6;
-          //const max_width = canvasRect.right - canvasRect.left - 6;
           this.cell_size = Math.min(
             Math.floor(max_height / this.grid_height),
             Math.floor(max_width / this.grid_width)
@@ -1212,11 +1236,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
 
         // Scale the grid so it is crisp on high-density screens.
-        var widthDps = this.grid_width * this.cell_size;
-        var heightDps = this.grid_height * this.cell_size;
         /* CTFYC dps below */
-        //var widthDps = this.grid_width * this.cell_size - 1 + 6;
-        //var heightDps = this.grid_height * this.cell_size - 1 + 6;
+        var widthDps = this.grid_width * this.cell_size - 2 + 6;
+        var heightDps = this.grid_height * this.cell_size - 2 + 6;
         var devicePixelRatio = window.devicePixelRatio || 1;
         this.canvas[0].width = devicePixelRatio * widthDps;
         this.canvas[0].height = devicePixelRatio * heightDps;
@@ -1244,11 +1266,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         for (x in this.cells) {
           for (y in this.cells[x]) {
             var cell = this.cells[x][y],
-              cell_x = (x - 1) * this.cell_size,
-              cell_y = (y - 1) * this.cell_size;
-            /* CTFYC cell_x and cell_y */
-            //cell_x = (x - 1) * this.cell_size + 3,
-            //cell_y = (y - 1) * this.cell_size + 3;
+            cell_x = (x - 1) * this.cell_size + 3,
+            cell_y = (y - 1) * this.cell_size + 3;
             if (!cell.empty) {
               // detect cell color
               var color = cell.color || this.config.color_none;
@@ -1968,40 +1987,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       saveSettings(e) {
         var value;
 
-        value = this.settings.find('div.cw-color-hover input').val();
-        if (value.match(/#[0-9a-fA-F]{6}/)) {
-          this.config.color_hover = value;
-        }
-        value = this.settings.find('div.cw-color-selected input').val();
-        if (value.match(/#[0-9a-fA-F]{6}/)) {
-          this.config.color_selected = value;
-        }
-
-        value = this.settings.find('div.cw-color-word input').val();
-        if (value.match(/#[0-9a-fA-F]{6}/)) {
-          this.config.color_word = value;
-        }
-
-        value = this.settings.find('div.cw-color-hilite input').val();
-        if (value.match(/#[0-9a-fA-F]{6}/)) {
-          this.config.color_hilite = value;
-        }
-
-        value = this.settings
-          .find('div.cw-cell-size input[type=checkbox]')
-          .prop('checked');
-        if (value) {
-          this.config.cell_size = null;
-        } else {
-          value = this.settings
-            .find('div.cw-cell-size input.cw-input-size')
-            .val();
-          this.config.cell_size = Math.max(
-            MIN_SIZE,
-            Math.min(MAX_SIZE, Number(value))
-          );
-        }
-
         this.config.skip_filled_letters = this.settings
           .find('div.cw-skip-filled input[type=checkbox]')
           .prop('checked');
@@ -2464,7 +2449,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             return;
           }
 
-          //console.log(textObject);
           if (typeof textObject == 'string') {
             doc.text(startX, startY, line);
           } else {
