@@ -1217,14 +1217,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       // Clears canvas and re-renders all cells
       renderCells() {
         var x, y;
+        const SIZE_OFFSET = 4;
 
         // Take care of the grid
         if (Number(this.config.cell_size) === 0) {
           this.root.removeClass('fixed');
           this.root.addClass('auto');
           const canvasRect = $('.cw-canvas').get(0).getBoundingClientRect();
-          const max_height = canvasRect.bottom - canvasRect.top - 6;
-          const max_width = canvasRect.right - canvasRect.left - 6;
+          const max_height = canvasRect.bottom - canvasRect.top;
+          const max_width = canvasRect.right - canvasRect.left;
           this.cell_size = Math.min(
             Math.floor(max_height / this.grid_height),
             Math.floor(max_width / this.grid_width)
@@ -1237,8 +1238,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         // Scale the grid so it is crisp on high-density screens.
         /* CTFYC dps below */
-        var widthDps = this.grid_width * this.cell_size - 2 + 6;
-        var heightDps = this.grid_height * this.cell_size - 2 + 6;
+        var widthDps = this.grid_width * this.cell_size - 2 + SIZE_OFFSET;
+        var heightDps = this.grid_height * this.cell_size - 2 + SIZE_OFFSET;
         var devicePixelRatio = window.devicePixelRatio || 1;
         this.canvas[0].width = devicePixelRatio * widthDps;
         this.canvas[0].height = devicePixelRatio * heightDps;
@@ -1266,8 +1267,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         for (x in this.cells) {
           for (y in this.cells[x]) {
             var cell = this.cells[x][y],
-            cell_x = (x - 1) * this.cell_size + 3,
-            cell_y = (y - 1) * this.cell_size + 3;
+            cell_x = (x - 1) * this.cell_size + 1,
+            cell_y = (y - 1) * this.cell_size + 1;
             if (!cell.empty) {
               // detect cell color
               var color = cell.color || this.config.color_none;
