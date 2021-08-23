@@ -486,4 +486,11 @@ div.cw-info.open {
     .cw-header {
         display: none;
     }
+    .cw-buttons-holder {
+        padding: 0px;
+        height: 45px;
+    }
+    .cw-top-text-wrapper {
+        height: 40px;
+    }
 }
