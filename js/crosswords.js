@@ -94,12 +94,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         <div class="cw-open-holder">
           <div class="cw-overflow"></div>
           <div class="cw-open-puzzle">
-            <div class="cw-text"></div>
-            <div class="cw-puzzles-list"></div>
-            <div class="cw-text">or</div>
-            <div class="cw-open-button"></div>
+            <div class="cw-open-puzzle-instructions">
+              Drag and drop a file here, or click the button to choose a file
+              to open.
+            </div>
+            <button type="button" class="cw-button cw-button-open-puzzle">
+              Open puzzle file
+            </button>
+            <div class="cw-open-puzzle-formats">
+              <b>Accepted formats:</b> PUZ, JPZ, and XML
+            </div>
           </div>
-          <input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz,.xpz"> +
+          <input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz,.xpz">
         </div>
         <!-- End overlay -->
         <header class="cw-header"></header>
@@ -112,8 +118,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               <div class="cw-emoji cw-timer">🕰️</div>
               <div class="cw-emoji cw-notepad">📝</div>
 
-              <div class="cw-button cw-check">Check</div>
-              <div class="cw-button cw-Reveal">Reveal</div>
+              <button type="button" class="cw-button cw-check">Check</button>
+              &nbsp;
+              <button type="button" class="cw-button cw-reveal">Reveal</button>
 
             </div>
             <div class="cw-top-text-wrapper">
@@ -477,48 +484,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.config.puzzle_file.type
           ).then(loaded_callback, error_callback);
         } else {
-          // shows open button and, optionally, list of available puzzles
-          var i,
-            puzzle_file,
-            el,
-            puzzles_holder = this.root.find('div.cw-open-puzzle'),
-            puzzles_list = this.root.find('div.cw-puzzles-list'),
-            puzzles_count = 0;
+          // shows open button
+          var i, puzzle_file, el;
 
-          // render list of puzzle files
-          if (this.config.puzzles && this.config.puzzles.length) {
-            for (i = 0; (puzzle_file = this.config.puzzles[i]); i++) {
-              el = $(`<span>${puzzle_file.name}</span>`);
-              el.data('url', puzzle_file.url);
-              el.data('type', puzzle_file.type);
-              puzzles_list.append(el);
-              puzzles_count++;
-            }
-          }
-          if (!puzzles_count) {
-            puzzles_holder.addClass('empty');
-          } else {
-            puzzles_holder.delegate(
-              'div.cw-puzzles-list span',
-              'click',
-              function (e) {
-                var target = $(e.currentTarget),
-                  url = target.data('url'),
-                  type = target.data('type'),
-                  callback;
-                if (type === FILE_JPZ) {
-                  callback = parseJPZ_callback;
-                } else if (type === FILE_PUZ) {
-                  callback = parsePUZ_callback;
-                }
-
-                if (callback) {
-                  loadFileFromServer(url, type).then(callback, error_callback);
-                }
-              }
-            );
-          }
-          this.open_button = this.root.find('div.cw-open-button');
+          this.open_button = this.root.find('.cw-button-open-puzzle');
           this.file_input = this.root.find('input[type="file"]');
 
           this.open_button.on('click', () => {
