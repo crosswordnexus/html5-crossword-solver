@@ -261,7 +261,7 @@ input.cw-hidden-input {
     border: none;
     box-shadow: 0 0.125em 0 0 var(--button-shadow-color);
     cursor: pointer;
-    /* display: flex; */
+    display: flex;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 500;
     justify-content: center;

@@ -1774,6 +1774,32 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       moveToNextWord(to_previous) {
         if (this.selected_word) {
+          var next_word = null;
+          if (to_previous) {
+            next_word = this.active_clues.getPreviousWord(this.selected_word);
+            if (!next_word) {
+              this.changeActiveClues();
+              next_word = this.active_clues.getLastWord();
+            }
+          } else {
+            next_word = this.active_clues.getNextWord(this.selected_word);
+            if (!next_word) {
+              this.changeActiveClues();
+              next_word = this.active_clues.getFirstWord();
+            }
+          }
+          var cell;
+          if (next_word) {
+            cell = next_word.getFirstEmptyCell() || next_word.getFirstCell();
+            this.setActiveWord(next_word);
+            this.setActiveCell(cell);
+            this.renderCells();
+          }
+        }
+      }
+
+      moveToNextWord_OLD(to_previous) {
+        if (this.selected_word) {
           var next_word = to_previous
               ? this.active_clues.getPreviousWord(this.selected_word)
               : this.active_clues.getNextWord(this.selected_word),
@@ -2889,6 +2915,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       getFirstWord() {
         if (this.words_ids.length) {
           return this.crossword.words[this.words_ids[0]];
+        }
+        return null;
+      }
+
+      getLastWord() {
+        if (this.words_ids.length) {
+          return this.crossword.words[this.words_ids[this.words_ids.length - 1]];
         }
         return null;
       }
