@@ -1125,7 +1125,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       // Function to switch the clues, generally from "ACROSS" to "DOWN"
       changeActiveClues() {
-        if (!this.clues_bottom) {
+        if (!this.clues_bottom) { // only one clue list
           this.active_clues = this.clues_top;
           this.inactive_clues = this.clues_top;
           if (this.selected_cell) {
@@ -1137,12 +1137,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.setActiveWord(new_word);
           }
         } else if (this.active_clues && this.active_clues.id === CLUES_TOP) {
-          // check that there are inactive clues to switch to
           if (this.inactive_clues !== null) {
             this.active_clues = this.clues_bottom;
             this.inactive_clues = this.clues_top;
           }
-        } else {
+      } else { // active is the bottom
           this.active_clues = this.clues_top;
           this.inactive_clues = this.clues_bottom;
         }
@@ -1507,14 +1506,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.changeActiveClues();
         }
 
-        if (this.active_clues.getMatchingWord(index_x, index_y)) {
+        if (this.active_clues.getMatchingWord(index_x, index_y, true)) {
           this.setActiveWord(
-            this.active_clues.getMatchingWord(index_x, index_y)
+            this.active_clues.getMatchingWord(index_x, index_y, true)
           );
         } else {
           this.setActiveWord(
-            this.inactive_clues.getMatchingWord(index_x, index_y)
+            this.inactive_clues.getMatchingWord(index_x, index_y, true)
           );
+          this.changeActiveClues();
         }
         this.setActiveCell(this.getCell(index_x, index_y));
         this.renderCells();
