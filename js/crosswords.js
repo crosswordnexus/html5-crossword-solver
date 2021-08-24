@@ -1408,6 +1408,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.setActiveWord(this.active_clues.getMatchingWord(index_x, index_y));
         } else {
             this.setActiveWord(this.inactive_clues.getMatchingWord(index_x, index_y));
+            this.changeActiveClues();
         }
         this.setActiveCell(this.getCell(index_x, index_y));
         this.renderCells();
