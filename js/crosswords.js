@@ -1860,25 +1860,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           if (!this.selected_word.hasCell(x, y)) {
             // If the selected cell and the new cell are in the same word, we switch directions
             // We make sure that there is such a word as well (i.e. both are not null)
-            if (
-              this.inactive_clues
-                .getMatchingWord(
-                  this.selected_cell.x,
-                  this.selected_cell.y,
-                  true
-                )
-                .hasCell(new_cell.x, new_cell.y) &&
-              this.inactive_clues.getMatchingWord(
-                new_cell.x,
-                new_cell.y,
-                true
-              ) !== null
-            ) {
-              this.changeActiveClues();
-              // if cell empty - keep current cell selected
-              if (!this.selected_cell.letter) {
-                new_cell = this.selected_cell;
+            var selectedCellInactiveWord = this.inactive_clues.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true);
+            var newCellInactiveWord = this.inactive_clues.getMatchingWord(new_cell.x, new_cell.y, true);
+            if (selectedCellInactiveWord) {
+              if (selectedCellInactiveWord.hasCell(new_cell.x, new_cell.y) && newCellInactiveWord !== null) {
+                this.changeActiveClues();
+                // if cell empty - keep current cell selected
+                if (!this.selected_cell.letter) {
+                  new_cell = this.selected_cell;
+                }
               }
+            }
+            // If the new cell does not have a word in the currently active direction,
+            // we change the direction
+            var newCellActiveWord = this.active_clues.getMatchingWord(new_cell.x, new_cell.y, true);
+            if (!newCellActiveWord) {
+              this.changeActiveClues();
             }
             // In any case we change the active word
             this.setActiveWord(
