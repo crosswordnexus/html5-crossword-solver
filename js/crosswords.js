@@ -745,7 +745,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           items.css({ display: 'none' });
           // Hide the reveal itself if we're hiding all its subelements
           if (hidden_reveal_count == 3) {
-            $('div.cw-reveal').css({ display: 'none' });
+            $('.cw-reveal').css({ display: 'none' });
           }
         }
 
