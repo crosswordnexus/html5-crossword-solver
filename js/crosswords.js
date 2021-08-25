@@ -206,9 +206,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       return deferred;
     }
 
-    /** Functions to resize text **/
-    let isOverflown = ({ clientHeight, scrollHeight }) => scrollHeight > clientHeight;
-
+    /** Function to resize text **/
     function resizeText(nodeList) {
       const minSize = 9;
       const maxSize = 20;
@@ -222,7 +220,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         while (!overflow && i < maxSize) {
           el.style.fontSize = `${i}${unit}`;
-          overflow = isOverflown(parent);
+          // TODO: is this the best logic we can use here?
+          overflow = (parent.scrollHeight < el.clientHeight);
           if (!overflow) {
             i += step;
           }
