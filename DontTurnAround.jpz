@@ -20,7 +20,8 @@ I lived in downtown LA, and downtown LA is kinda like the eighties decided to st
 			<title>Don't Turn Around</title>
 			<creator>Alex Boisvert</creator>
 			<copyright>© 2021 Crossword Nexus. CC BY 4.0 License.</copyright>
-		</metadata>
+            <description>Use the lettered clues to fill in the corresponding squares. Each letter will automatically be filled into the correspondingly numbered square in the grid at the top, which features a quotation reading from left to right. Black squares represent word endings. The first letters of the clue answers will spell out the author and source of the quote.</description>
+        </metadata>
 		<acrostic>
 			<grid width="27" height="19">
 				<grid-look numbering-scheme="normal"/>
