@@ -90,11 +90,7 @@ div.crossword {
     height: 100%;
 }
 
-div.cw-main.fixed {
-    position: relative;
-    display: inline-block;
-}
-div.cw-main.auto {
+.cw-main {
     bottom: 0;
     display: flex;
     flex-direction: column;

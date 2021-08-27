@@ -35,7 +35,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       background_color_clue: '#666666',
       font_color_clue: '#FFFFFF',
       color_block: '#000000',
-      cell_size: null, // null or anything converts to 0 means 'auto'
       puzzle_file: null,
       puzzles: null,
       skip_filled_letters: true,
@@ -1219,21 +1218,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         const SIZE_OFFSET = 4;
 
         // Take care of the grid
-        if (Number(this.config.cell_size) === 0) {
-          this.root.removeClass('fixed');
-          this.root.addClass('auto');
-          const canvasRect = $('.cw-canvas').get(0).getBoundingClientRect();
-          const max_height = canvasRect.bottom - canvasRect.top;
-          const max_width = canvasRect.right - canvasRect.left;
-          this.cell_size = Math.min(
-            Math.floor(max_height / this.grid_height),
-            Math.floor(max_width / this.grid_width)
-          );
-        } else {
-          this.root.removeClass('auto');
-          this.root.addClass('fixed');
-          this.cell_size = Number(this.config.cell_size);
-        }
+        const canvasRect = $('.cw-canvas').get(0).getBoundingClientRect();
+        const max_height = canvasRect.bottom - canvasRect.top;
+        const max_width = canvasRect.right - canvasRect.left;
+        this.cell_size = Math.min(
+          Math.floor(max_height / this.grid_height),
+          Math.floor(max_width / this.grid_width)
+        );
 
         // Scale the grid so it is crisp on high-density screens.
         /* CTFYC dps below */
@@ -1461,7 +1452,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               // the y-offset changes if this is a "clue" block
               // normally we slide the letter down to fit with numbers
               // for "clue" blocks we can center it
-              var y_offset = cell.clue? this.cell_size / 1.8 : (2 * this.cell_size) / 3;
+              var y_offset = cell.clue ? this.cell_size / 1.8 : (2 * this.cell_size) / 3;
               this.context.fillText(
                 cell.letter,
                 cell_x + this.cell_size / 2,
@@ -1950,24 +1941,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.settings.find('div.cw-color-hilite span.cw-color-preview').css({
           background: this.config.color_hilite,
         });
-        if (!this.config.cell_size) {
-          this.settings
-            .find('div.cw-cell-size input[type=text]')
-            .prop('disabled', true);
-          this.settings
-            .find('div.cw-cell-size input[type=checkbox]')
-            .prop('checked', true);
-        } else {
-          this.settings
-            .find('div.cw-cell-size input[type=text]')
-            .removeAttr('disabled');
-          this.settings
-            .find('div.cw-cell-size input[type=text]')
-            .val(this.config.cell_size);
-          this.settings
-            .find('div.cw-cell-size input[type=checkbox]')
-            .prop('checked', false);
-        }
 
         this.settings
           .find('div.cw-skip-filled input[type=checkbox]')
@@ -2129,7 +2102,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var i,
           savegame_name,
           savegame = {
-            cell_size: this.cell_size,
             top_text_height: this.top_text_height,
             bottom_text_height: this.bottom_text_height,
             grid_width: this.grid_width,
@@ -2184,13 +2156,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           savegame.hasOwnProperty('top_clues') &&
           savegame.hasOwnProperty('words') &&
           savegame.hasOwnProperty('cells') &&
-          savegame.hasOwnProperty('cell_size') &&
           savegame.hasOwnProperty('top_text_height') &&
           savegame.hasOwnProperty('bottom_text_height') &&
           savegame.hasOwnProperty('grid_width') &&
           savegame.hasOwnProperty('grid_height')
         ) {
-          this.cell_size = savegame.cell_size;
           this.top_text_height = savegame.top_text_height;
           this.bottom_text_height = savegame.bottom_text_height;
           this.grid_width = savegame.grid_width;
