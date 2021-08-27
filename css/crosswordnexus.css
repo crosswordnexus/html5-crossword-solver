@@ -147,50 +147,6 @@ input.cw-hidden-input {
     min-height: 1px;
     position: relative;
 }
-.cw-start-dialog,
-.cw-end-dialog {
-    align-items: center;
-    background: #fff;
-    border: 5px solid #6fc2d0;
-    display: none;
-    margin-top: 200px;
-    padding: 60px;
-}
-.cw-start {
-    margin-top: 15px;
-}
-
-.pregame .cw-start-dialog {
-    display: flex;
-    flex-direction: column;
-}
-.end .cw-end-dialog {
-    display: block;
-}
-
-.cw-end-results {
-    list-style-type: none;
-    padding: 0;
-}
-.cw-end-label {
-    font-weight: 600;
-    margin-right: 15px;
-}
-
-.cw-results {
-    display: none;
-}
-.submitted .cw-results {
-    align-items: center;
-    display: flex;
-    height: 50px;
-}
-.cw-exit {
-    flex-shrink: 0;
-}
-.cw-stat {
-    margin-left: 20px;
-}
 
 .cw-left {
     display: flex;
@@ -320,10 +276,6 @@ input.cw-hidden-input {
     text-align: right;
     min-width: 24px;
 }
-.pregame .cw-clue-text {
-    background: #ccc;
-    color: #ccc;
-}
 .cw-clue-text {
     flex: 1 1 auto;
     min-width: 1px;
@@ -391,9 +343,6 @@ div.cw-info.open {
     flex-shrink: 0;
     height: 50px;
     padding: 0 15px;
-}
-.submitted .cw-buttons-holder {
-    display: none;
 }
 .cw-clues {
     width: 350px;
