@@ -112,22 +112,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         <div class="cw-content">
           <div class="cw-left">
             <div class="cw-buttons-holder">
-              <div class="cw-emoji cw-info-icon">ℹ️</div>
-              <div class="cw-emoji cw-info"></div>
-              <div class="cw-emoji cw-print-icon">🖨️</div>
-              <div class="cw-emoji cw-settings-icon">⚙️</div>
-              <div class="cw-settings">
-                <div class="cw-settings-overflow"></div>
-                <div class="cw-settings-background"></div>
-                <div class="cw-option cw-skip-filled"><label><input type="checkbox">Skip filled letters</label></div>
-                <button>Ok</button>
-              </div>
-              <div class="cw-emoji cw-notepad-icon">📝</div>
-
-              <button type="button" class="cw-button cw-timer">00:00</button>
-              <button type="button" class="cw-button cw-check">Check</button>
-              <button type="button" class="cw-button cw-reveal">Reveal</button>
-
+              <button type="button" class="cw-button cw-file">
+                <span class="cw-button-icon">🗄️</span> File
+                <span class="cw-arrow"></span>
+              </button>
+              <button type="button" class="cw-button cw-check">
+                <span class="cw-button-icon">🔍</span> Check
+                <span class="cw-arrow"></span>
+              </button>
+              <button type="button" class="cw-button cw-reveal">
+                <span class="cw-button-icon">🎱</span> Reveal
+                <span class="cw-arrow"></span>
+              </button>
+              <button type="button" class="cw-button cw-settings-button">
+                <span class="cw-button-icon">⚙️</span> Settings
+              </button>
+              <span class="cw-flex-spacer"></span>
+              <button type="button" class="cw-button cw-button-timer">00:00</button>
             </div>
             <div class="cw-top-text-wrapper">
               <div class="cw-top-text">
@@ -411,10 +412,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.canvas = this.root.find('canvas');
         this.context = this.canvas[0].getContext('2d');
 
-        this.settings_icon = this.root.find('div.cw-settings-icon');
+        this.settings_icon = this.root.find('.cw-settings-button');
         this.settings = this.root.find('div.cw-settings');
 
-        this.info_icon = this.root.find('div.cw-info-icon');
+        this.info_icon = this.root.find('div.cw-info-icon'); // FIXME
         this.info = this.root.find('div.cw-info');
 
         if (this.config.settings_enabled) {
@@ -424,8 +425,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.settings_icon.remove();
           this.settings.remove();
         }
-
-        this.notepad_icon = this.root.find('div.cw-notepad-icon');
 
         this.hidden_input = this.root.find('input.cw-hidden-input');
 
@@ -445,11 +444,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.load_btn = this.root.find('div.cw-buttons-holder div.cw-load');
         */
 
-        this.check_button = this.root.find('div.cw-buttons-holder .cw-check');
-        this.print_btn = this.root.find('div.cw-buttons-holder .cw-print-icon');
-
-        this.submit_button = this.root.find('div.cw-buttons-holder .cw-submit');
-        this.timer_button = this.root.find('div.cw-buttons-holder .cw-timer');
+        this.check_button = this.root.find('.cw-check');
+        this.print_btn = this.root.find('.cw-print-icon'); // FIXME
+        this.timer_button = this.root.find('.cw-button-timer');
         this.xw_timer_seconds = 0;
 
         // function to process uploaded files
@@ -571,10 +568,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
 
         this.notepad = puzzle.notes;
-        if (!this.notepad) {
-          this.notepad_icon.remove();
-        }
-
         this.grid_width = puzzle.width;
         this.grid_height = puzzle.height;
 
@@ -804,9 +797,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         // Handle the notepad
         this.notepad = description;
-        if (!this.notepad) {
-          this.notepad_icon.remove();
-        }
 
         // parse cells
         for (i = 0; (cell = xml_cells[i]); i++) {
@@ -942,15 +932,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       completeLoad() {
-        $('.cw-header').html(`<span class="cw-title">
-          ${this.title}
-          </span>
-          <span class="cw-author">
-          ${this.author}
-          </span>
-          <span class="cw-copyright">
-          ${this.copyright}
-          </span>`);
+        $('.cw-header').html(`
+          <span class="cw-title">${this.title}</span>
+          <span class="cw-header-separator">&nbsp;•&nbsp;</span>
+          <span class="cw-author">${this.author}</span>
+          ${this.notepad ? `
+            <button class="cw-button cw-button-notepad">
+              <span class="cw-button-icon">📝</span> Notes
+            </button>
+          ` : ""}
+          <span class="cw-flex-spacer"></span>
+          <span class="cw-copyright">${this.copyright}</span>
+        `);
+
+        this.notepad_icon = this.root.find('.cw-button-notepad');
 
         $('.cw-info').html(`
           <span class="cw-info-metadata">

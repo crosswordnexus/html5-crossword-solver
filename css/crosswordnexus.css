@@ -114,31 +114,30 @@ input.cw-hidden-input {
 }
 
 .cw-header {
+    align-items: center;
     border-bottom: 1px solid #ccc;
-    line-height: 2em;
-    margin: 5px 0 0;
-    padding: 0 5px;
+    display: flex;
     font-size: 15px;
+    padding: 0.5em;
+    white-space: nowrap;
+}
+.cw-title, .cw-author, .cw-copyright {
+    flex: 0 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .cw-title {
-    display: block;
-    float: left;
     font-weight: bold;
 }
-.cw-title::after {
-    content: "\a0•\a0";
+.cw-header-separator {
+    flex: 0 0 auto;
 }
 .cw-author {
-    display: block;
-    float: left;
-}
-.cw-author::after {
-    content: "\a0•\a0";
+    margin-right: 0.5em;
 }
 .cw-copyright {
-    display: block;
-    float: left;
     color: #555555;
+    margin-right: 0.5em;
 }
 
 .cw-content {
@@ -187,13 +186,13 @@ input.cw-hidden-input {
     min-width: 1px;
 }
 
-/**
-* Header Emoji
-**/
-.cw-emoji {
-    padding: 5px;
-    font-size: 1.4em;
-    cursor: pointer;
+.cw-buttons-holder {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+}
+.cw-buttons-holder .cw-button:not(:first-child) {
+    margin-left: 0.5em;
 }
 
 /**
@@ -219,9 +218,7 @@ input.cw-hidden-input {
     justify-content: center;
     padding: 0.25em 0.5em;
     text-align: center;
-    text-select: none;
-    margin-left: 0.5em;
-    float: right;
+    margin-bottom: 0.125em;
 }
 .cw-button:active {
     position: relative;
@@ -241,17 +238,56 @@ input.cw-hidden-input {
     font-size: 32px;
 }
 
-/**
-* Timer
-**/
-.cw-timer {
-    /* font-size: 1em; */
+/* medium-sized gray button for timer */
+.cw-button-timer {
+    --button-background-color: #EEEEEE;
+    --button-background-color-hover: #F2F2F2;
+    --button-shadow-color: #999999;
+    color: #000000;
+    font-size: 1em;
+
+    transition: background-color box-shadow .1s;
 }
 
-.cw-timer.running {
-    color: #008215;
-    /* font-size: 1em; */
+/* medium-sized green button for active timer */
+.cw-button-timer.running {
+    --button-background-color: #52B323;
+    --button-background-color-hover: #58BA28;
+    --button-shadow-color: #368C0E;
+    color: white;
 }
+
+/* small gray button for notes */
+.cw-button-notepad {
+    --button-background-color: #EEEEEE;
+    --button-background-color-hover: #F2F2F2;
+    --button-shadow-color: #999999;
+    color: #000000;
+    font-size: 0.75em;
+}
+
+/* left emoji icon */
+.cw-button-icon {
+    font-size: 1.25em;
+    line-height: 0; /* never stretch button vertically */
+    margin-right: 0.25em;
+    width: 1em; /* standardize spacing between Chrome and Firefox */
+}
+
+/* right arrow icon for dropdown triggers */
+.cw-arrow {
+    border: solid currentColor;
+    border-width: 0 1.5px 1.5px 0;
+    display: inline-block;
+    margin-left: 0.4em;
+    padding: 2px;
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
+
+/**
+* Clues
+**/
 
 .cw-clues-items {
     flex: 1 1 auto;
@@ -333,16 +369,25 @@ div.cw-info.open {
     display: block;
 }
 
-/* size-dependent styles */
+/**
+* Utilities
+**/
+
+.cw-flex-spacer {
+    flex-grow: 1;
+    min-width: 1em;
+}
+
+/**
+* Size-dependent styles
+**/
+
 .cw-main {
     font-size: 19px;
 }
 .cw-buttons-holder {
-    align-items: center;
-    display: flex;
-    flex-shrink: 0;
     height: 50px;
-    padding: 0 15px;
+    padding-left: 0.5em;
 }
 .cw-clues {
     width: 350px;
@@ -432,7 +477,7 @@ div.cw-info.open {
         display: none;
     }
     .cw-buttons-holder {
-        padding: 0px;
+        padding: 0 12px;
         height: 45px;
     }
     .cw-top-text-wrapper {
