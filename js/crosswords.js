@@ -35,7 +35,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       background_color_clue: '#666666',
       font_color_clue: '#FFFFFF',
       color_block: '#000000',
-      cell_size: null, // null or anything converts to 0 means 'auto'
       puzzle_file: null,
       puzzles: null,
       skip_filled_letters: true,
@@ -113,22 +112,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         <div class="cw-content">
           <div class="cw-left">
             <div class="cw-buttons-holder">
-              <div class="cw-emoji cw-info-icon">ℹ️</div>
-              <div class="cw-emoji cw-info"></div>
-              <div class="cw-emoji cw-print-icon">🖨️</div>
-              <div class="cw-emoji cw-settings-icon">⚙️</div>
-              <div class="cw-settings">
-                <div class="cw-settings-overflow"></div>
-                <div class="cw-settings-background"></div>
-                <div class="cw-option cw-skip-filled"><label><input type="checkbox">Skip filled letters</label></div>
-                <button>Ok</button>
-              </div>
-              <div class="cw-emoji cw-notepad-icon">📝</div>
-
-              <button type="button" class="cw-button cw-timer">00:00</button>
-              <button type="button" class="cw-button cw-check">Check</button>
-              <button type="button" class="cw-button cw-reveal">Reveal</button>
-
+              <button type="button" class="cw-button cw-file">
+                <span class="cw-button-icon">🗄️</span> File
+                <span class="cw-arrow"></span>
+              </button>
+              <button type="button" class="cw-button cw-check">
+                <span class="cw-button-icon">🔍</span> Check
+                <span class="cw-arrow"></span>
+              </button>
+              <button type="button" class="cw-button cw-reveal">
+                <span class="cw-button-icon">🎱</span> Reveal
+                <span class="cw-arrow"></span>
+              </button>
+              <button type="button" class="cw-button cw-settings-button">
+                <span class="cw-button-icon">⚙️</span> Settings
+              </button>
+              <span class="cw-flex-spacer"></span>
+              <button type="button" class="cw-button cw-button-timer">00:00</button>
             </div>
             <div class="cw-top-text-wrapper">
               <div class="cw-top-text">
@@ -206,19 +206,28 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       return deferred;
     }
 
+    // Breakpoint config for the top clue, as tuples of `[max_width, max_size]`
+    const maxClueSizes = [
+      [960, 15],
+      [1200, 17],
+      [Infinity, 19]
+    ];
+
     /** Function to resize text **/
     function resizeText(nodeList) {
       const minSize = 9;
-      const maxSize = 20;
+      const windowWidth = $(window).width();
+      const maxSize = maxClueSizes.find((breakpoint) => breakpoint[0] > windowWidth)[1];
       const step = 1;
       const unit = 'px';
+
       for (var j=0; j < nodeList.length; j++) {
-        var el= nodeList[j];
+        const el = nodeList[j];
         let i = minSize;
         let overflow = false;
         const parent = el.parentNode;
 
-        while (!overflow && i < maxSize) {
+        while (!overflow && i <= maxSize) {
           el.style.fontSize = `${i}${unit}`;
           // TODO: is this the best logic we can use here?
           overflow = (parent.scrollHeight < el.clientHeight);
@@ -412,10 +421,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.canvas = this.root.find('canvas');
         this.context = this.canvas[0].getContext('2d');
 
-        this.settings_icon = this.root.find('div.cw-settings-icon');
+        this.settings_icon = this.root.find('.cw-settings-button');
         this.settings = this.root.find('div.cw-settings');
 
-        this.info_icon = this.root.find('div.cw-info-icon');
+        this.info_icon = this.root.find('div.cw-info-icon'); // FIXME
         this.info = this.root.find('div.cw-info');
 
         if (this.config.settings_enabled) {
@@ -425,8 +434,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.settings_icon.remove();
           this.settings.remove();
         }
-
-        this.notepad_icon = this.root.find('div.cw-notepad-icon');
 
         this.hidden_input = this.root.find('input.cw-hidden-input');
 
@@ -446,11 +453,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.load_btn = this.root.find('div.cw-buttons-holder div.cw-load');
         */
 
-        this.check_button = this.root.find('div.cw-buttons-holder .cw-check');
-        this.print_btn = this.root.find('div.cw-buttons-holder .cw-print-icon');
-
-        this.submit_button = this.root.find('div.cw-buttons-holder .cw-submit');
-        this.timer_button = this.root.find('div.cw-buttons-holder .cw-timer');
+        this.check_button = this.root.find('.cw-check');
+        this.print_btn = this.root.find('.cw-print-icon'); // FIXME
+        this.timer_button = this.root.find('.cw-button-timer');
         this.xw_timer_seconds = 0;
 
         // function to process uploaded files
@@ -510,12 +515,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
           // drag-and-drop
           if (isAdvancedUpload) {
-            var div_overflow = this.root.find('div.cw-overflow');
+            const div_open_holder = this.root.find('div.cw-open-holder');
+            const div_overflow = this.root.find('div.cw-overflow');
             div_overflow.addClass('has-advanced-upload');
 
             var droppedFiles = false;
 
-            div_overflow
+            div_open_holder
               .on(
                 'drag dragstart dragend dragover dragenter dragleave drop',
                 function (e) {
@@ -572,10 +578,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
 
         this.notepad = puzzle.notes;
-        if (!this.notepad) {
-          this.notepad_icon.remove();
-        }
-
         this.grid_width = puzzle.width;
         this.grid_height = puzzle.height;
 
@@ -805,9 +807,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         // Handle the notepad
         this.notepad = description;
-        if (!this.notepad) {
-          this.notepad_icon.remove();
-        }
 
         // parse cells
         for (i = 0; (cell = xml_cells[i]); i++) {
@@ -943,15 +942,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       completeLoad() {
-        $('.cw-header').html(`<span class="cw-title">
-          ${this.title}
-          </span>
-          <span class="cw-author">
-          ${this.author}
-          </span>
-          <span class="cw-copyright">
-          ${this.copyright}
-          </span>`);
+        $('.cw-header').html(`
+          <span class="cw-title">${this.title}</span>
+          <span class="cw-header-separator">&nbsp;•&nbsp;</span>
+          <span class="cw-author">${this.author}</span>
+          ${this.notepad ? `
+            <button class="cw-button cw-button-notepad">
+              <span class="cw-button-icon">📝</span> Notes
+            </button>
+          ` : ""}
+          <span class="cw-flex-spacer"></span>
+          <span class="cw-copyright">${this.copyright}</span>
+        `);
+
+        this.notepad_icon = this.root.find('.cw-button-notepad');
 
         $('.cw-info').html(`
           <span class="cw-info-metadata">
@@ -1219,21 +1223,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         const SIZE_OFFSET = 4;
 
         // Take care of the grid
-        if (Number(this.config.cell_size) === 0) {
-          this.root.removeClass('fixed');
-          this.root.addClass('auto');
-          const canvasRect = $('.cw-canvas').get(0).getBoundingClientRect();
-          const max_height = canvasRect.bottom - canvasRect.top;
-          const max_width = canvasRect.right - canvasRect.left;
-          this.cell_size = Math.min(
-            Math.floor(max_height / this.grid_height),
-            Math.floor(max_width / this.grid_width)
-          );
-        } else {
-          this.root.removeClass('auto');
-          this.root.addClass('fixed');
-          this.cell_size = Number(this.config.cell_size);
-        }
+        const canvasRect = $('.cw-canvas').get(0).getBoundingClientRect();
+        const max_height = canvasRect.bottom - canvasRect.top;
+        const max_width = canvasRect.right - canvasRect.left;
+        this.cell_size = Math.min(
+          Math.floor(max_height / this.grid_height),
+          Math.floor(max_width / this.grid_width)
+        );
 
         // Scale the grid so it is crisp on high-density screens.
         /* CTFYC dps below */
@@ -1461,7 +1457,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               // the y-offset changes if this is a "clue" block
               // normally we slide the letter down to fit with numbers
               // for "clue" blocks we can center it
-              var y_offset = cell.clue? this.cell_size / 1.8 : (2 * this.cell_size) / 3;
+              var y_offset = cell.clue ? this.cell_size / 1.8 : (2 * this.cell_size) / 3;
               this.context.fillText(
                 cell.letter,
                 cell_x + this.cell_size / 2,
@@ -1950,24 +1946,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.settings.find('div.cw-color-hilite span.cw-color-preview').css({
           background: this.config.color_hilite,
         });
-        if (!this.config.cell_size) {
-          this.settings
-            .find('div.cw-cell-size input[type=text]')
-            .prop('disabled', true);
-          this.settings
-            .find('div.cw-cell-size input[type=checkbox]')
-            .prop('checked', true);
-        } else {
-          this.settings
-            .find('div.cw-cell-size input[type=text]')
-            .removeAttr('disabled');
-          this.settings
-            .find('div.cw-cell-size input[type=text]')
-            .val(this.config.cell_size);
-          this.settings
-            .find('div.cw-cell-size input[type=checkbox]')
-            .prop('checked', false);
-        }
 
         this.settings
           .find('div.cw-skip-filled input[type=checkbox]')
@@ -2129,7 +2107,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var i,
           savegame_name,
           savegame = {
-            cell_size: this.cell_size,
             top_text_height: this.top_text_height,
             bottom_text_height: this.bottom_text_height,
             grid_width: this.grid_width,
@@ -2184,13 +2161,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           savegame.hasOwnProperty('top_clues') &&
           savegame.hasOwnProperty('words') &&
           savegame.hasOwnProperty('cells') &&
-          savegame.hasOwnProperty('cell_size') &&
           savegame.hasOwnProperty('top_text_height') &&
           savegame.hasOwnProperty('bottom_text_height') &&
           savegame.hasOwnProperty('grid_width') &&
           savegame.hasOwnProperty('grid_height')
         ) {
-          this.cell_size = savegame.cell_size;
           this.top_text_height = savegame.top_text_height;
           this.bottom_text_height = savegame.bottom_text_height;
           this.grid_width = savegame.grid_width;
