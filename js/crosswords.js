@@ -206,19 +206,28 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       return deferred;
     }
 
+    // Breakpoint config for the top clue, as tuples of `[max_width, max_size]`
+    const maxClueSizes = [
+      [960, 15],
+      [1200, 17],
+      [Infinity, 19]
+    ];
+
     /** Function to resize text **/
     function resizeText(nodeList) {
       const minSize = 9;
-      const maxSize = 20;
+      const windowWidth = $(window).width();
+      const maxSize = maxClueSizes.find((breakpoint) => breakpoint[0] > windowWidth)[1];
       const step = 1;
       const unit = 'px';
+
       for (var j=0; j < nodeList.length; j++) {
-        var el= nodeList[j];
+        const el = nodeList[j];
         let i = minSize;
         let overflow = false;
         const parent = el.parentNode;
 
-        while (!overflow && i < maxSize) {
+        while (!overflow && i <= maxSize) {
           el.style.fontSize = `${i}${unit}`;
           // TODO: is this the best logic we can use here?
           overflow = (parent.scrollHeight < el.clientHeight);
