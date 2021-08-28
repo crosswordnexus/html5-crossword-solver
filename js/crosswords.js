@@ -1081,9 +1081,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.hidden_input.on('keydown', $.proxy(this.keyPressed, this));
       }
 
-      closeModalBox() {
-      }
-
       // Create a generic modal box with content
       createModalBox(title, content, button_text='Close') {
         // Set the contents of the modal box
@@ -1119,7 +1116,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         window.onclick = function(event) {
           if (event.target == modal) {
             modal.style.display = "none";
-            this_hidden_inputt.focus();
+            this_hidden_input.focus();
           }
         }
         // Clicking the button should close the modal
