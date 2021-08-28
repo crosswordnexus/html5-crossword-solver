@@ -419,32 +419,16 @@ input.cw-hidden-input {
 }
 
 /* Settings */
-div.cw-settings {
-    display: none;
-    padding: 4px;
-    position: absolute;
-    width: 200px;
-    height: auto;
-    top: 46px;
-    left: 6px;
-    z-index: 2;
-    border-radius: 5px;
-    overflow: hidden;
+.settings-setting {
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
-div.cw-settings-background {
-    position: absolute;
-    left: 0; right: 0; top: 0; bottom: 0;
-    background: gray;
-    opacity: 0.95;
-    z-index: -1;
+
+.settings-description {
+    font-weight: bold;
 }
-div.cw-settings-overflow {
-    position: fixed;
-    left: 0; right: 0; top: 0; bottom: 0;
-    z-index: -1;
-    cursor: pointer;
-}
-div.cw-settings.open {
+
+.settings-label {
     display: block;
 }
 
@@ -529,7 +513,7 @@ div.cw-info.open {
         padding: 5px 10px 5px 10px;
     }
     .cw-main {
-        font-size: 15px;
+        font-size: 16px;
     }
     .cw-clues {
         width: 300px;
@@ -547,7 +531,7 @@ div.cw-info.open {
         padding: 4px 8px 4px 8px;
     }
     .cw-main {
-        font-size: 13px;
+        font-size: 14px;
     }
     .cw-clues {
         width: 220px;
@@ -560,12 +544,12 @@ div.cw-info.open {
     }
 }
 
-@media (max-width: 550px) {
+@media (max-width: 600px) {
     .cw-top-text {
         padding: 3px 5px 3px 5px;
     }
     .cw-main {
-        font-size: 13px;
+        font-size: 14px;
     }
     .cw-clues-holder {
         display: none;

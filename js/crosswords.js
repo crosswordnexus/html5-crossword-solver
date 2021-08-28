@@ -26,7 +26,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
     var default_config = {
       hover_enabled: false,
-      settings_enabled: true,
       color_hover: '#FFFFAA',
       color_selected: '#FF4136',
       color_word: '#FEE300',
@@ -38,6 +37,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       puzzle_file: null,
       puzzles: null,
       skip_filled_letters: true,
+      arrow_direction: 'arrow_move_filled',
+      space_bar: 'space_clear',
       savegame_name: '',
       filled_clue_color: '#999999',
     };
@@ -269,52 +270,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       );
     }
 
-    // Create a generic modal box with content
-    function createModalBox(title, content, button_text='Close') {
-      // Set the contents of the modal box
-      const modalContent = `
-      <div class="modal-content">
-        <div class="modal-header">
-          <span class="close" id="modalClose">&times;</span>
-          <span class="modal-title">${title}</span>
-        </div>
-        <div class="modal-body">
-          ${content}
-        </div>
-        <div class="modal-footer">
-          <div class="modal-button-wrapper">
-            <button id="modal-button" class="modal-button">${button_text}</button>
-          </div>
-        </div>
-      </div>`;
-      // Set this to be the contents of the container modal div
-      $('#myModal').html(modalContent);
-
-      // Show the div
-      var modal = document.getElementById("myModal");
-      modal.style.display = "block";
-
-      // Allow user to close the div
-      var span = document.getElementById("modalClose");
-      // When the user clicks on <span> (x), close the modal
-      span.onclick = function() {
-        modal.style.display = "none";
-      }
-      // When the user clicks anywhere outside of the modal, close it
-      window.onclick = function(event) {
-        if (event.target == modal) {
-          modal.style.display = "none";
-        }
-      }
-      // Clicking the button should close the modal, and also do some other stuff
-      var modalButton = document.getElementById("modal-button");
-      modalButton.onclick = function() {
-        modal.style.display = "none";
-        // TODO: save the settings or something
-      }
-
-    }
-
     // parses XML string and creates DOMParser object
     function parseJPZString(xml_string, deferred) {
       var parser, xmlDoc;
@@ -401,10 +356,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.parent = parent;
         this.config = {};
         // Load solver config
-        var solver_config_name = SETTINGS_STORAGE_KEY;
         var saved_settings = {};
         try {
-          JSON.parse(localStorage.getItem(solver_config_name));
+          saved_settings = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY));
         } catch (error) {
           console.log(error);
         }
@@ -470,17 +424,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.context = this.canvas[0].getContext('2d');
 
         this.settings_icon = this.root.find('.cw-settings-button');
-        this.settings = this.root.find('div.cw-settings');
 
         this.info_icon = this.root.find('div.cw-info-icon'); // FIXME
-
-        if (this.config.settings_enabled) {
-          this.settings_overflow = this.root.find('div.cw-settings-overflow');
-          this.settings_submit = this.root.find('div.cw-settings button');
-        } else {
-          this.settings_icon.remove();
-          this.settings.remove();
-        }
 
         this.hidden_input = this.root.find('input.cw-hidden-input');
 
@@ -1056,14 +1001,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.print_btn.off('click');
         this.timer_button.off('click');
 
-        if (this.config.settings_enabled) {
-          this.settings_icon.off('click');
-          this.settings_overflow.off('click');
-          this.settings_submit.off('click');
-
-          this.settings.undelegate('div.cw-option input.cw-input-color');
-          this.settings.undelegate('div.cw-cell-size input[type=checkbox]');
-        }
+        this.settings_icon.off('click');
 
         this.info_icon.off('click');
         this.notepad_icon.off('click');
@@ -1122,23 +1060,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.print_btn.on('click', $.proxy(this.printPuzzle, this));
         // TIMER
         this.timer_button.on('click', $.proxy(this.toggleTimer, this));
-
-        if (this.config.settings_enabled) {
-          this.settings_icon.on('click', $.proxy(this.openSettings, this));
-          this.settings_overflow.on('click', $.proxy(this.closeSettings, this));
-          this.settings_submit.on('click', $.proxy(this.saveSettings, this));
-
-          this.settings.delegate(
-            'div.cw-option input.cw-input-color',
-            'input',
-            $.proxy(this.settingChanged, this)
-          );
-          this.settings.delegate(
-            'div.cw-cell-size input[type=checkbox]',
-            'change',
-            $.proxy(this.settingSizeAuto, this)
-          );
-        }
+        // SETTINGS
+        this.settings_icon.on('click', $.proxy(this.openSettings, this));
 
         // INFO
         this.info_icon.on('click', function() {
@@ -1156,6 +1079,55 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           $.proxy(this.hiddenInputChanged, this, null)
         );
         this.hidden_input.on('keydown', $.proxy(this.keyPressed, this));
+      }
+
+      closeModalBox() {
+      }
+
+      // Create a generic modal box with content
+      createModalBox(title, content, button_text='Close') {
+        // Set the contents of the modal box
+        const modalContent = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <span class="close" id="modalClose">&times;</span>
+            <span class="modal-title">${title}</span>
+          </div>
+          <div class="modal-body">
+            ${content}
+          </div>
+          <div class="modal-footer">
+              <button id="modal-button" class="modal-button">${button_text}</button>
+          </div>
+        </div>`;
+        // Set this to be the contents of the container modal div
+        $('#myModal').html(modalContent);
+
+        // Show the div
+        var modal = document.getElementById("myModal");
+        modal.style.display = "block";
+
+        // Allow user to close the div
+        const this_hidden_input = this.hidden_input;
+        var span = document.getElementById("modalClose");
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+          modal.style.display = "none";
+          this_hidden_input.focus();
+        }
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
+            this_hidden_inputt.focus();
+          }
+        }
+        // Clicking the button should close the modal
+        var modalButton = document.getElementById("modal-button");
+        modalButton.onclick = function() {
+          modal.style.display = "none";
+          this_hidden_input.focus();
+        }
       }
 
       // Function to switch the clues, generally from "ACROSS" to "DOWN"
@@ -1593,14 +1565,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             break;
           case 32: //space
             if (this.selected_cell && this.selected_word) {
-              this.selected_cell.letter = '';
-              this.selected_cell.checked = false;
-              this.autofill();
-              var next_cell = this.selected_word.getNextCell(
-                this.selected_cell.x,
-                this.selected_cell.y
-              );
-              this.setActiveCell(next_cell);
+              // change the behavior based on the config
+              if (this.config.space_bar === 'space_switch') {
+                // check that there is a word in the other direction
+                // if there's not, we just don't do anything
+                var selectedCellInactiveWord = this.inactive_clues.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true);
+                if (selectedCellInactiveWord) {
+                  this.setActiveWord(selectedCellInactiveWord);
+                  this.changeActiveClues();
+                }
+              } else {
+                this.selected_cell.letter = '';
+                this.selected_cell.checked = false;
+                this.autofill();
+                var next_cell = this.selected_word.getNextCell(
+                  this.selected_cell.x,
+                  this.selected_cell.y
+                );
+                this.setActiveCell(next_cell);
+              }
             }
             this.renderCells();
             break;
@@ -1735,7 +1718,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.timer_running = false;
         }
         var solvedMessage = this.msg_solved.replaceAll('\n', '<br />');
-        createModalBox('🎉🎉🎉', solvedMessage);
+        this.createModalBox('🎉🎉🎉', solvedMessage);
       }
 
       // callback for shift+arrows
@@ -1893,8 +1876,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             if (selectedCellInactiveWord) {
               if (selectedCellInactiveWord.hasCell(new_cell.x, new_cell.y) && newCellInactiveWord !== null) {
                 this.changeActiveClues();
-                // if cell empty - keep current cell selected
-                if (!this.selected_cell.letter) {
+                /*
+                * when do we keep the current cell selected? in two cases:
+                * (a) this.config.arrow_direction === 'arrow_stay'
+                * (b) arrow_direction is 'arrow_move_filled' and the current cell is empty
+                */
+                if (this.config.arrow_direction === 'arrow_stay') {
+                  new_cell = this.selected_cell;
+                } else if (!this.selected_cell.letter && this.config.arrow_direction === 'arrow_move_filled') {
                   new_cell = this.selected_cell;
                 }
               }
@@ -1947,91 +1936,102 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       showNotepad() {
-        createModalBox('Notes', this.notepad);
+        this.createModalBox('Notes', this.notepad);
       }
 
       openSettings() {
-        this.settings.addClass('open');
+        // Create a modal box
+        var settingsHTML = `
+        <div class="settings-wrapper" id="settings-wrapper">
+          <!-- Skip filled letters -->
+          <div class="settings-setting">
+            <div class="settings-description">
+              While filling a word
+            </div>
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="skip_filled_letters" checked="checked" type="checkbox" name="skip_filled_letters" class="settings-changer">
+                  Skip over filled letters
+                </input>
+              </label>
+            </div>
+          </div>
 
-        this.settings
-          .find('div.cw-color-hover input')
-          .val(this.config.color_hover);
-        this.settings.find('div.cw-color-hover span.cw-color-preview').css({
-          background: this.config.color_hover,
-        });
-        this.settings
-          .find('div.cw-color-selected input')
-          .val(this.config.color_selected);
-        this.settings.find('div.cw-color-selected span.cw-color-preview').css({
-          background: this.config.color_selected,
-        });
+          <!-- When changing direction with arrow keys -->
+          <div class="settings-setting">
+            <div class="settings-description">
+              When changing direction with arrow keys
+            </div>
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="arrow_stay" checked="" type="radio" name="arrow_direction" class="settings-changer">
+                  Stay in the same square
+                </input>
+              </label class="settings-label">
+              <label class="settings-label">
+                <input id="arrow_move" checked="" type="radio" name="arrow_direction" class="settings-changer">
+                  Move in the direction of the arrow
+                </input>
+              </label>
+              <label class="settings-label">
+                <input id="arrow_move_filled" checked="" type="radio" name="arrow_direction" class="settings-changer">
+                  Move in the direction of the arrow if the square is filled
+                </input>
+              </label>
+            </div>
+          </div>
 
-        this.settings
-          .find('div.cw-color-word input')
-          .val(this.config.color_word);
-        this.settings.find('div.cw-color-word span.cw-color-preview').css({
-          background: this.config.color_word,
-        });
-
-        this.settings
-          .find('div.cw-color-hilite input')
-          .val(this.config.color_hilite);
-        this.settings.find('div.cw-color-hilite span.cw-color-preview').css({
-          background: this.config.color_hilite,
-        });
-
-        this.settings
-          .find('div.cw-skip-filled input[type=checkbox]')
-          .prop('checked', this.config.skip_filled_letters);
-
-        this.settings_open = true;
-      }
-
-      closeSettings() {
-        // Save the settings
-        // We don't do this for now: it was causing problems
-        // Instead just save an empty element
-        var saveconfig_name = SETTINGS_STORAGE_KEY;
-        localStorage.setItem(saveconfig_name, '{}');
-        this.settings.removeClass('open');
-        this.settings_open = false;
-        this.hidden_input.focus();
-      }
-
-      settingChanged(e) {
-        var target = $(e.currentTarget),
-          value = target.val();
-        if (value.match(/#[0-9a-fA-F]{6}/)) {
-          target.siblings('span.cw-color-preview').css({
-            background: value,
+          <!-- Space bar -->
+          <div class="settings-setting">
+            <div class="settings-description">
+              When pressing space bar
+            </div>
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="space_clear" checked="" type="radio" name="space_bar" class="settings-changer">
+                  Clear the current square and move forward
+                </input>
+              </label class="settings-label">
+              <label class="settings-label">
+                <input id="space_switch" checked="" type="radio" name="space_bar" class="settings-changer">
+                  Switch directions
+                </input>
+              </label>
+            </div>
+          </div>
+        </div>
+        `;
+        this.createModalBox('Settings', settingsHTML);
+        // Show the proper value for each of these fields
+        var classChangers = document.getElementsByClassName('settings-changer');
+        for (var cc of classChangers) {
+          if (cc.type === 'radio') {
+            document.getElementById(cc.id)['checked'] = (this.config[cc.name] === cc.id);
+          } else { // checkbox
+            document.getElementById(cc.id)['checked'] = this.config[cc.name];
+          }
+        }
+        // Add a listener for these events
+        document.getElementById('settings-wrapper')
+          .addEventListener('click', event => {
+            if (event.target.className === 'settings-changer') {
+              if (event.target.type === 'checkbox') {
+                this.config[event.target.name] = event.target.checked;
+              } else if (event.target.type === 'radio') {
+                this.config[event.target.name] = event.target.id;
+              }
+            }
+            this.saveSettings();
           });
-        }
       }
 
-      settingSizeAuto(e) {
-        var target = $(e.currentTarget),
-          input = target.parent().siblings('input.cw-input-size');
-        if (target.prop('checked')) {
-          input.prop('disabled', true);
-          input.val('');
-        } else {
-          input.removeAttr('disabled');
-        }
-      }
-
-      saveSettings(e) {
-        var value;
-
-        this.config.skip_filled_letters = this.settings
-          .find('div.cw-skip-filled input[type=checkbox]')
-          .prop('checked');
-
-        this.closeSettings();
-        this.renderCells();
-        this.hidden_input.focus();
-
-        e.preventDefault();
-        e.stopPropagation();
+      saveSettings() {
+        // make a copy of the config
+        var savedSettings = { ...this.config};
+        // We don't save "puzzle" keys
+        delete savedSettings.puzzle_file;
+        delete savedSettings.puzzles;
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(savedSettings));
       }
 
       openReveal() {
