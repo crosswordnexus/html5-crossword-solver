@@ -515,12 +515,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
           // drag-and-drop
           if (isAdvancedUpload) {
-            var div_overflow = this.root.find('div.cw-overflow');
+            const div_open_holder = this.root.find('div.cw-open-holder');
+            const div_overflow = this.root.find('div.cw-overflow');
             div_overflow.addClass('has-advanced-upload');
 
             var droppedFiles = false;
 
-            div_overflow
+            div_open_holder
               .on(
                 'drag dragstart dragend dragover dragenter dragleave drop',
                 function (e) {
