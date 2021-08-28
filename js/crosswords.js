@@ -270,19 +270,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     }
 
     // Create a generic modal box with content
-    function createModalBox(title, content) {
+    function createModalBox(title, content, button_text='Close') {
       // Set the contents of the modal box
       const modalContent = `
       <div class="modal-content">
         <div class="modal-header">
           <span class="close" id="modalClose">&times;</span>
-          <h4 class="modal-title">${title}</h4>
+          <span class="modal-title">${title}</span>
         </div>
         <div class="modal-body">
           ${content}
         </div>
         <div class="modal-footer">
-          <span></span>
+          <button id="modal-button" class="modal-button">${button_text}</button>
         </div>
       </div>`;
       // Set this to be the contents of the container modal div
@@ -303,6 +303,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         if (event.target == modal) {
           modal.style.display = "none";
         }
+      }
+      // Clicking the button should close the modal, and also do some other stuff
+      var modalButton = document.getElementById("modal-button");
+      modalButton.onclick = function() {
+        modal.style.display = "none";
+        // TODO: save the settings or something
       }
 
     }
@@ -1726,7 +1732,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.timer_button.removeClass('running');
           this.timer_running = false;
         }
-        alert(this.msg_solved);
+        var solvedMessage = this.msg_solved.replace('\n', '<br />');
+        createModalBox('🎉🎉🎉', solvedMessage);
       }
 
       // callback for shift+arrows
@@ -1938,7 +1945,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       showNotepad() {
-        //alert(this.notepad);
         createModalBox('Notes', this.notepad);
       }
 

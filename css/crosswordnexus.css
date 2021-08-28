@@ -203,6 +203,7 @@ input.cw-hidden-input {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
+    padding-top: 30px; /* location of the box */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
@@ -216,7 +217,7 @@ input.cw-hidden-input {
 .modal-content {
   position: relative;
   background-color: #fefefe;
-  margin: 30px auto;
+  margin: auto;
   padding: 0;
   border: 1px solid #888;
   width: 80%;
@@ -234,31 +235,32 @@ input.cw-hidden-input {
   background-color: #777777;
   color: white;
   text-align: center;
+  height: 40px;
+  font-size: max(1.1em, 14px);
 }
 
 /* Modal Body */
 .modal-body {
     padding: 2px 16px;
     margin: 1em;
-    font-size: 0.8em;
+    /* font-size: 0.8em; */
+    font-size: max(0.8em, 12px);
 }
 
 /* Modal Footer */
 .modal-footer {
     padding: 2px 16px;
-    background-color: #777777;
-    color: white;
-    min-height: 40px;
+    /* background-color: #777777; */
+    color: gray;
+    height: 40px;
+    border-top: 1px solid #e5e5e5;
+    text-align: center;
 }
 
 /* Modal Title */
-/*
 .modal-title {
-    vertical-align: middle;
-    display: inline;
-    padding: 10px;
+    line-height: 40px; /* same as the containing div, to vertically center */
 }
-*/
 
 /* Modal Animation */
 @-webkit-keyframes animatetop {
@@ -284,6 +286,10 @@ input.cw-hidden-input {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+/* The bottom button */
+.modal-button {
 }
 
 /**
