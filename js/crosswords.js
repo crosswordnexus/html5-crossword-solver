@@ -282,7 +282,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           ${content}
         </div>
         <div class="modal-footer">
-          <button id="modal-button" class="modal-button">${button_text}</button>
+          <div class="modal-button-wrapper">
+            <button id="modal-button" class="modal-button">${button_text}</button>
+          </div>
         </div>
       </div>`;
       // Set this to be the contents of the container modal div
@@ -1732,7 +1734,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.timer_button.removeClass('running');
           this.timer_running = false;
         }
-        var solvedMessage = this.msg_solved.replace('\n', '<br />');
+        var solvedMessage = this.msg_solved.replaceAll('\n', '<br />');
         createModalBox('🎉🎉🎉', solvedMessage);
       }
 

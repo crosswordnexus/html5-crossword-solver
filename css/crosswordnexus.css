@@ -249,7 +249,6 @@ input.cw-hidden-input {
 
 /* Modal Footer */
 .modal-footer {
-    padding: 2px 16px;
     /* background-color: #777777; */
     color: gray;
     height: 40px;
@@ -288,8 +287,11 @@ input.cw-hidden-input {
   cursor: pointer;
 }
 
-/* The bottom button */
+/* The modal footer button */
 .modal-button {
+    /* the footer is 40px, so these numbers are to center it */
+    margin: 10px auto;
+    height: 20px;
 }
 
 /**
