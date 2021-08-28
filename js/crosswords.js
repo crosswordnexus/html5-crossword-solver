@@ -110,6 +110,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         <!-- End overlay -->
         <header class="cw-header"></header>
         <div class="cw-content">
+          <!-- Placeholder for modal boxes -->
+          <div id="myModal" class="modal"></div>
           <div class="cw-left">
             <div class="cw-buttons-holder">
               <button type="button" class="cw-button cw-file">
@@ -265,6 +267,44 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           deferred.reject(ERR_UNZIP);
         }
       );
+    }
+
+    // Create a generic modal box with content
+    function createModalBox(title, content) {
+      // Set the contents of the modal box
+      const modalContent = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close" id="modalClose">&times;</span>
+          <h4 class="modal-title">${title}</h4>
+        </div>
+        <div class="modal-body">
+          ${content}
+        </div>
+        <div class="modal-footer">
+          <span></span>
+        </div>
+      </div>`;
+      // Set this to be the contents of the container modal div
+      $('#myModal').html(modalContent);
+
+      // Show the div
+      var modal = document.getElementById("myModal");
+      modal.style.display = "block";
+
+      // Allow user to close the div
+      var span = document.getElementById("modalClose");
+      // When the user clicks on <span> (x), close the modal
+      span.onclick = function() {
+        modal.style.display = "none";
+      }
+      // When the user clicks anywhere outside of the modal, close it
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      }
+
     }
 
     // parses XML string and creates DOMParser object
@@ -425,7 +465,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.settings = this.root.find('div.cw-settings');
 
         this.info_icon = this.root.find('div.cw-info-icon'); // FIXME
-        this.info = this.root.find('div.cw-info');
 
         if (this.config.settings_enabled) {
           this.settings_overflow = this.root.find('div.cw-settings-overflow');
@@ -956,21 +995,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         `);
 
         this.notepad_icon = this.root.find('.cw-button-notepad');
-
-        $('.cw-info').html(`
-          <span class="cw-info-metadata">
-            ${this.title}
-          </span>
-          <span class="cw-info-metadata">
-            ${this.author}
-          </span>
-          <span class="cw-info-metadata">
-            ${this.copyright}
-          </span>
-          <span class="cw-info-about">
-            Solver © Crossword Nexus. BSD-3 License. https://github.com/crosswordnexus/html5-crossword-solver
-          </span>
-        `);
 
         this.changeActiveClues();
 
@@ -1914,7 +1938,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       showNotepad() {
-        alert(this.notepad);
+        //alert(this.notepad);
+        createModalBox('Notes', this.notepad);
       }
 
       openSettings() {
