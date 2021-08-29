@@ -115,18 +115,38 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           <div id="myModal" class="modal"></div>
           <div class="cw-left">
             <div class="cw-buttons-holder">
-              <button type="button" class="cw-button cw-file">
-                <span class="cw-button-icon">🗄️</span> File
-                <span class="cw-arrow"></span>
-              </button>
-              <button type="button" class="cw-button cw-check">
-                <span class="cw-button-icon">🔍</span> Check
-                <span class="cw-arrow"></span>
-              </button>
-              <button type="button" class="cw-button cw-reveal">
-                <span class="cw-button-icon">🎱</span> Reveal
-                <span class="cw-arrow"></span>
-              </button>
+              <div class="cw-menu-container">
+                <button type="button" class="cw-button">
+                  <span class="cw-button-icon">🗄️</span> File
+                  <span class="cw-arrow"></span>
+                </button>
+                <div class="cw-menu">
+                  <button class="cw-menu-item cw-file-info">Info</button>
+                  <button class="cw-menu-item cw-file-print">Print</button>
+                </div>
+              </div>
+              <div class="cw-menu-container">
+                <button type="button" class="cw-button">
+                  <span class="cw-button-icon">🔍</span> Check
+                  <span class="cw-arrow"></span>
+                </button>
+                <div class="cw-menu">
+                  <button class="cw-menu-item cw-check-letter">Letter</button>
+                  <button class="cw-menu-item cw-check-word">Word</button>
+                  <button class="cw-menu-item cw-check-puzzle">Puzzle</button>
+                </div>
+              </div>
+              <div class="cw-menu-container">
+                <button type="button" class="cw-button">
+                  <span class="cw-button-icon">🎱</span> Reveal
+                  <span class="cw-arrow"></span>
+                </button>
+                <div class="cw-menu">
+                  <button class="cw-menu-item cw-reveal-letter">Letter</button>
+                  <button class="cw-menu-item cw-reveal-word">Word</button>
+                  <button class="cw-menu-item cw-reveal-puzzle">Puzzle</button>
+                </div>
+              </div>
               <button type="button" class="cw-button cw-settings-button">
                 <span class="cw-button-icon">⚙️</span> Settings
               </button>
@@ -423,30 +443,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.canvas = this.root.find('canvas');
         this.context = this.canvas[0].getContext('2d');
 
-        this.settings_icon = this.root.find('.cw-settings-button');
-
-        this.info_icon = this.root.find('div.cw-info-icon'); // FIXME
+        this.settings_btn = this.root.find('.cw-settings-button');
 
         this.hidden_input = this.root.find('input.cw-hidden-input');
 
-        /*
-          this.reveal_button = this.root.find('div.cw-buttons-holder div.cw-reveal');
-          this.reveal_letter = this.root.find('div.cw-buttons-holder div.cw-reveal-letter');
-          this.reveal_word = this.root.find('div.cw-buttons-holder div.cw-reveal-word');
-          this.reveal_puzzle = this.root.find('div.cw-buttons-holder div.cw-reveal-puzzle');
+        this.reveal_letter = this.root.find('.cw-reveal-letter');
+        this.reveal_word = this.root.find('.cw-reveal-word');
+        this.reveal_puzzle = this.root.find('.cw-reveal-puzzle');
 
-          this.check_button = this.root.find('div.cw-buttons-holder div.cw-check');
-          this.check_letter = this.root.find('div.cw-buttons-holder div.cw-check-letter');
-          this.check_word = this.root.find('div.cw-buttons-holder div.cw-check-word');
-          this.check_puzzle = this.root.find('div.cw-buttons-holder div.cw-check-puzzle');
+        this.check_letter = this.root.find('.cw-check-letter');
+        this.check_word = this.root.find('.cw-check-word');
+        this.check_puzzle = this.root.find('.cw-check-puzzle');
 
-          this.file_button = this.root.find('div.cw-buttons-holder div.cw-file');
-          this.save_btn = this.root.find('div.cw-buttons-holder div.cw-save');
-          this.load_btn = this.root.find('div.cw-buttons-holder div.cw-load');
-        */
+        this.info_btn = this.root.find('.cw-file-info');
+        this.print_btn = this.root.find('.cw-file-print');
 
-        this.check_button = this.root.find('.cw-check');
-        this.print_btn = this.root.find('.cw-print-icon'); // FIXME
         this.timer_button = this.root.find('.cw-button-timer');
         this.xw_timer_seconds = 0;
 
@@ -980,30 +991,24 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       removeListeners() {
         this.removeGlobalListeners();
+        this.root.undelegate();
         this.clues_holder.undelegate('div.cw-clues-items span');
         this.canvas.off('mousemove click');
 
-        /*
-          this.reveal_button.off('click mouseenter mouseleave');
-          this.reveal_letter.off('click');
-          this.reveal_word.off('click');
-          this.reveal_puzzle.off('click');
+        this.reveal_letter.off('click');
+        this.reveal_word.off('click');
+        this.reveal_puzzle.off('click');
 
-          this.check_button.off('click mouseenter mouseleave');
-          this.check_letter.off('click');
-          this.check_word.off('click');
-          this.check_puzzle.off('click');
+        this.check_letter.off('click');
+        this.check_word.off('click');
+        this.check_puzzle.off('click');
 
-          this.file_button.off('click mouseenter mouseleave');
-          this.save_btn.off('click');
-          this.load_btn.off('click');
-          */
         this.print_btn.off('click');
         this.timer_button.off('click');
 
-        this.settings_icon.off('click');
+        this.settings_btn.off('click');
 
-        this.info_icon.off('click');
+        this.info_btn.off('click');
         this.notepad_icon.off('click');
 
         this.hidden_input.off('input');
@@ -1012,6 +1017,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       addListeners() {
         $(window).on('resize', this.windowResized);
+
+        this.root.delegate(
+          '.cw-menu-container > button',
+          'click',
+          $.proxy(this.handleClickOpenMenu, this)
+        );
+        this.root.delegate(
+          '.cw-menu-container',
+          'blur',
+          $.proxy(this.handleMenuBlur, this)
+        );
+        this.root.delegate(
+          '.cw-menu-container .cw-menu > button',
+          'click',
+          $.proxy(this.handleClickMenuButton, this)
+        );
+
         this.clues_holder.delegate(
           'div.cw-clues-items div.cw-clue',
           'mouseenter',
@@ -1033,41 +1055,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
         this.canvas.on('click', $.proxy(this.mouseClicked, this));
 
-        /*
-          // REVEAL
-          this.reveal_button.on('click', $.proxy(this.toggleReveal, this));
-          this.reveal_button.on('mouseenter', $.proxy(this.openReveal, this));
-          this.reveal_button.on('mouseleave', $.proxy(this.closeReveal, this));
-          this.reveal_letter.on('click', $.proxy(this.check_reveal, this, 'letter', 'reveal'));
-          this.reveal_word.on('click', $.proxy(this.check_reveal, this, 'word', 'reveal'));
-          this.reveal_puzzle.on('click', $.proxy(this.check_reveal, this, 'puzzle', 'reveal'));
+        // REVEAL
+        this.reveal_letter.on('click', $.proxy(this.check_reveal, this, 'letter', 'reveal'));
+        this.reveal_word.on('click', $.proxy(this.check_reveal, this, 'word', 'reveal'));
+        this.reveal_puzzle.on('click', $.proxy(this.check_reveal, this, 'puzzle', 'reveal'));
 
-          // CHECK
-          this.check_button.on('click', $.proxy(this.toggleCheck, this));
-          this.check_button.on('mouseenter', $.proxy(this.openCheck, this));
-          this.check_button.on('mouseleave', $.proxy(this.closeCheck, this));
-          this.check_letter.on('click', $.proxy(this.check_reveal, this, 'letter', 'check'));
-          this.check_word.on('click', $.proxy(this.check_reveal, this, 'word', 'check'));
-          this.check_puzzle.on('click', $.proxy(this.check_reveal, this, 'puzzle', 'check'));
-          // FILE
-          this.file_button.on('click', $.proxy(this.toggleFile, this));
-          this.file_button.on('mouseenter', $.proxy(this.openFile, this));
-          this.file_button.on('mouseleave', $.proxy(this.closeFile, this));
-          this.save_btn.on('click', $.proxy(this.savePuzzle, this));
-          this.load_btn.on('click', $.proxy(this.loadPuzzle, this));
-          */
+        // CHECK
+        this.check_letter.on('click', $.proxy(this.check_reveal, this, 'letter', 'check'));
+        this.check_word.on('click', $.proxy(this.check_reveal, this, 'word', 'check'));
+        this.check_puzzle.on('click', $.proxy(this.check_reveal, this, 'puzzle', 'check'));
+
         // PRINTER
         this.print_btn.on('click', $.proxy(this.printPuzzle, this));
         // TIMER
         this.timer_button.on('click', $.proxy(this.toggleTimer, this));
         // SETTINGS
-        this.settings_icon.on('click', $.proxy(this.openSettings, this));
+        this.settings_btn.on('click', $.proxy(this.openSettings, this));
 
         // INFO
-        this.info_icon.on('click', function() {
-          // TODO
-          this.info.addClass('open');
-        });
+        this.info_btn.on('click', $.proxy(this.showInfo, this));
 
         // NOTEPAD
         if (this.notepad) {
@@ -1079,6 +1085,28 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           $.proxy(this.hiddenInputChanged, this, null)
         );
         this.hidden_input.on('keydown', $.proxy(this.keyPressed, this));
+      }
+
+      handleClickOpenMenu(event) {
+        const menuContainer = $(event.target).closest('.cw-menu-container');
+        const menu = menuContainer.find('.cw-menu');
+        if (menu.is(':visible')) menu.hide();
+        else menu.show();
+      }
+
+      handleMenuBlur(event) {
+        const menuContainer = $(event.target).closest('.cw-menu-container');
+        const menu = menuContainer.find('.cw-menu');
+        const focusTarget = event.relatedTarget;
+        if (!focusTarget || !$.contains(menu.get(0), focusTarget)) {
+          menu.hide();
+        }
+      }
+
+      handleClickMenuButton(event) {
+        const menuContainer = $(event.target).closest('.cw-menu-container');
+        const menu = menuContainer.find('.cw-menu');
+        menu.hide();
       }
 
       // Create a generic modal box with content
@@ -1094,7 +1122,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             ${content}
           </div>
           <div class="modal-footer">
-              <button id="modal-button" class="modal-button">${button_text}</button>
+            <button id="modal-button" class="modal-button">${button_text}</button>
           </div>
         </div>`;
         // Set this to be the contents of the container modal div
@@ -1932,6 +1960,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
       }
 
+      showInfo() {
+        this.createModalBox('Info', `
+          <p><b>${this.title}</b></p>
+          <p>${this.author}</p>
+          <p><i>${this.copyright}</i></p>
+        `);
+      }
+
       showNotepad() {
         this.createModalBox('Notes', this.notepad);
       }
@@ -2031,36 +2067,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(savedSettings));
       }
 
-      openReveal() {
-        this.reveal_button.addClass('open');
-      }
-      closeReveal() {
-        this.reveal_button.removeClass('open');
-      }
-      toggleReveal() {
-        this.reveal_button.toggleClass('open');
-      }
-
-      openCheck() {
-        this.check_button.addClass('open');
-      }
-      closeCheck() {
-        this.check_button.removeClass('open');
-      }
-      toggleCheck() {
-        this.check_button.toggleClass('open');
-      }
-
-      openFile() {
-        this.file_button.addClass('open');
-      }
-      closeFile() {
-        this.file_button.removeClass('open');
-      }
-      toggleFile() {
-        this.file_button.toggleClass('open');
-      }
-
       check_reveal(to_solve, reveal_or_check, e) {
         var my_cells = [],
           cell;
@@ -2129,124 +2135,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.closeCheck();
         }
         this.hidden_input.focus();
-        e.preventDefault();
-        e.stopPropagation();
-      }
-
-      savePuzzle(e) {
-        var i,
-          savegame_name,
-          savegame = {
-            top_text_height: this.top_text_height,
-            bottom_text_height: this.bottom_text_height,
-            grid_width: this.grid_width,
-            grid_height: this.grid_height,
-
-            bottom_text: this.bottom_text.html(),
-            top_clues: {
-              id: this.clues_top.id,
-              title: this.clues_top.title,
-              clues: this.clues_top.clues,
-              words_ids: this.clues_top.words_ids,
-            },
-            words: {},
-            cells: this.cells,
-          };
-        if (this.clues_bottom) {
-          savegame.bottom_clues = {
-            id: this.clues_bottom.id,
-            title: this.clues_bottom.title,
-            clues: this.clues_bottom.clues,
-            words_ids: this.clues_bottom.words_ids,
-          };
-        }
-        for (i in this.words) {
-          if (this.words.hasOwnProperty(i)) {
-            savegame.words[i] = {
-              id: this.words[i].id,
-              cell_ranges: this.words[i].cell_ranges,
-              cells: this.words[i].cells,
-              clue: this.words[i].clue,
-            };
-          }
-        }
-
-        savegame_name = STORAGE_KEY + (this.config.savegame_name || '');
-        localStorage.setItem(savegame_name, JSON.stringify(savegame));
-        alert(MSG_SAVED);
-
-        this.closeFile();
-        e.preventDefault();
-        e.stopPropagation();
-      }
-
-      // loads saved puzzle
-      loadPuzzle(e) {
-        var i, savegame_name, savegame, active_word;
-        savegame_name = STORAGE_KEY + (this.config.savegame_name || '');
-        savegame = JSON.parse(localStorage.getItem(savegame_name));
-        if (
-          savegame &&
-          savegame.hasOwnProperty('bottom_text') &&
-          savegame.hasOwnProperty('top_clues') &&
-          savegame.hasOwnProperty('words') &&
-          savegame.hasOwnProperty('cells') &&
-          savegame.hasOwnProperty('top_text_height') &&
-          savegame.hasOwnProperty('bottom_text_height') &&
-          savegame.hasOwnProperty('grid_width') &&
-          savegame.hasOwnProperty('grid_height')
-        ) {
-          this.top_text_height = savegame.top_text_height;
-          this.bottom_text_height = savegame.bottom_text_height;
-          this.grid_width = savegame.grid_width;
-          this.grid_height = savegame.grid_height;
-
-          this.bottom_text.html(savegame.bottom_text);
-
-          this.selected_cell = null;
-          this.selected_word = null;
-
-          // restore words
-          this.words = {};
-          for (i in savegame.words) {
-            if (savegame.words.hasOwnProperty(i)) {
-              this.words[i] = new Word(this, savegame.words[i]);
-            }
-          }
-
-          this.cells = savegame.cells;
-          load_error = false;
-
-          // restore clues
-          this.clues_top = new CluesGroup(this, savegame.top_clues);
-          this.clues_bottom = new CluesGroup(this, savegame.bottom_clues);
-
-          if (load_error) {
-            this.error(ERR_LOAD);
-            return;
-          }
-
-          if (this.clues_top) {
-            this.renderClues(this.clues_top, this.clues_top_container);
-          }
-          if (this.clues_bottom) {
-            this.renderClues(this.clues_bottom, this.clues_bottom_container);
-          }
-
-          this.active_clues = null;
-          this.inactive_clues = null;
-          this.changeActiveClues();
-
-          active_word = this.active_clues.getFirstWord();
-          this.setActiveWord(active_word);
-          this.setActiveCell(active_word.getFirstCell());
-
-          this.renderCells();
-          alert(MSG_LOADED);
-        } else {
-          alert(ERR_NO_SAVEGAME);
-        }
-        this.closeFile();
         e.preventDefault();
         e.stopPropagation();
       }

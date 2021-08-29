@@ -191,7 +191,7 @@ input.cw-hidden-input {
     display: flex;
     flex-shrink: 0;
 }
-.cw-buttons-holder .cw-button:not(:first-child) {
+.cw-buttons-holder > *:not(:first-child) {
     margin-left: 0.5em;
 }
 
@@ -316,6 +316,7 @@ input.cw-hidden-input {
     font-size: 0.8em;
     font-weight: 500;
     justify-content: center;
+    margin: 0;
     padding: 0.25em 0.5em;
     text-align: center;
     margin-bottom: 0.125em;
@@ -386,6 +387,44 @@ input.cw-hidden-input {
 }
 
 /**
+* Popup menus
+**/
+
+.cw-menu-container {
+  position: relative;
+}
+
+.cw-menu {
+  background-color: white;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+  display: none;
+  margin-top: 2px;
+  padding: 0.2em 0;
+  position: absolute;
+  z-index: 1;
+}
+
+.cw-menu-item {
+  background: none;
+  border: none;
+  color: inherit; /* avoid Safari active style */
+  cursor: pointer;
+  display: block;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.8em;
+  font-weight: 500;
+  margin: 0;
+  min-width: 7em;
+  padding: 0.3em 0.6em;
+  text-align: left;
+}
+.cw-menu-item:hover {
+  background-color: #FFEB3F;
+}
+
+/**
 * Clues
 **/
 
@@ -433,33 +472,11 @@ input.cw-hidden-input {
 }
 
 /**
-* Info
-**/
-div.cw-info {
-    display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    width: 200px;
-    margin-right: auto;
-    background-color: #666666;
-    color: #FFFFFF;
-    z-index: 5;
-    border-radius: 5px;
-}
-
-div.cw-info.open {
-    display: block;
-}
-
-/**
 * Utilities
 **/
 
 .cw-flex-spacer {
     flex-grow: 1;
-    min-width: 1em;
 }
 
 /**
@@ -566,7 +583,7 @@ div.cw-info.open {
     }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 420px) {
     .cw-button-icon {
         display: none;
     }
