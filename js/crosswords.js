@@ -115,18 +115,38 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           <div id="myModal" class="modal"></div>
           <div class="cw-left">
             <div class="cw-buttons-holder">
-              <button type="button" class="cw-button cw-file">
-                <span class="cw-button-icon">🗄️</span> File
-                <span class="cw-arrow"></span>
-              </button>
-              <button type="button" class="cw-button cw-check">
-                <span class="cw-button-icon">🔍</span> Check
-                <span class="cw-arrow"></span>
-              </button>
-              <button type="button" class="cw-button cw-reveal">
-                <span class="cw-button-icon">🎱</span> Reveal
-                <span class="cw-arrow"></span>
-              </button>
+              <div class="cw-menu-container">
+                <button type="button" class="cw-button">
+                  <span class="cw-button-icon">🗄️</span> File
+                  <span class="cw-arrow"></span>
+                </button>
+                <div class="cw-menu">
+                  <button class="cw-menu-item cw-file-info">Info</button>
+                  <button class="cw-menu-item cw-file-print">Print</button>
+                </div>
+              </div>
+              <div class="cw-menu-container">
+                <button type="button" class="cw-button">
+                  <span class="cw-button-icon">🔍</span> Check
+                  <span class="cw-arrow"></span>
+                </button>
+                <div class="cw-menu">
+                  <button class="cw-menu-item cw-check-letter">Letter</button>
+                  <button class="cw-menu-item cw-check-word">Word</button>
+                  <button class="cw-menu-item cw-check-puzzle">Puzzle</button>
+                </div>
+              </div>
+              <div class="cw-menu-container">
+                <button type="button" class="cw-button">
+                  <span class="cw-button-icon">🎱</span> Reveal
+                  <span class="cw-arrow"></span>
+                </button>
+                <div class="cw-menu">
+                  <button class="cw-menu-item cw-reveal-letter">Letter</button>
+                  <button class="cw-menu-item cw-reveal-word">Word</button>
+                  <button class="cw-menu-item cw-reveal-puzzle">Puzzle</button>
+                </div>
+              </div>
               <button type="button" class="cw-button cw-settings-button">
                 <span class="cw-button-icon">⚙️</span> Settings
               </button>
@@ -213,18 +233,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     const maxClueSizes = [
       [960, 15],
       [1200, 17],
-      [Infinity, 19]
+      [Infinity, 19],
     ];
 
     /** Function to resize text **/
     function resizeText(nodeList) {
       const minSize = 9;
       const windowWidth = $(window).width();
-      const maxSize = maxClueSizes.find((breakpoint) => breakpoint[0] > windowWidth)[1];
+      const maxSize = maxClueSizes.find(
+        (breakpoint) => breakpoint[0] > windowWidth
+      )[1];
       const step = 1;
       const unit = 'px';
 
-      for (var j=0; j < nodeList.length; j++) {
+      for (var j = 0; j < nodeList.length; j++) {
         const el = nodeList[j];
         let i = minSize;
         let overflow = false;
@@ -233,7 +255,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         while (!overflow && i <= maxSize) {
           el.style.fontSize = `${i}${unit}`;
           // TODO: is this the best logic we can use here?
-          overflow = (parent.scrollHeight < el.clientHeight);
+          overflow = parent.scrollHeight < el.clientHeight;
           if (!overflow) {
             i += step;
           }
@@ -358,7 +380,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // Load solver config
         var saved_settings = {};
         try {
-          saved_settings = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY));
+          saved_settings = JSON.parse(
+            localStorage.getItem(SETTINGS_STORAGE_KEY)
+          );
         } catch (error) {
           console.log(error);
         }
@@ -423,30 +447,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.canvas = this.root.find('canvas');
         this.context = this.canvas[0].getContext('2d');
 
-        this.settings_icon = this.root.find('.cw-settings-button');
-
-        this.info_icon = this.root.find('div.cw-info-icon'); // FIXME
+        this.settings_btn = this.root.find('.cw-settings-button');
 
         this.hidden_input = this.root.find('input.cw-hidden-input');
 
-        /*
-          this.reveal_button = this.root.find('div.cw-buttons-holder div.cw-reveal');
-          this.reveal_letter = this.root.find('div.cw-buttons-holder div.cw-reveal-letter');
-          this.reveal_word = this.root.find('div.cw-buttons-holder div.cw-reveal-word');
-          this.reveal_puzzle = this.root.find('div.cw-buttons-holder div.cw-reveal-puzzle');
+        this.reveal_letter = this.root.find('.cw-reveal-letter');
+        this.reveal_word = this.root.find('.cw-reveal-word');
+        this.reveal_puzzle = this.root.find('.cw-reveal-puzzle');
 
-          this.check_button = this.root.find('div.cw-buttons-holder div.cw-check');
-          this.check_letter = this.root.find('div.cw-buttons-holder div.cw-check-letter');
-          this.check_word = this.root.find('div.cw-buttons-holder div.cw-check-word');
-          this.check_puzzle = this.root.find('div.cw-buttons-holder div.cw-check-puzzle');
+        this.check_letter = this.root.find('.cw-check-letter');
+        this.check_word = this.root.find('.cw-check-word');
+        this.check_puzzle = this.root.find('.cw-check-puzzle');
 
-          this.file_button = this.root.find('div.cw-buttons-holder div.cw-file');
-          this.save_btn = this.root.find('div.cw-buttons-holder div.cw-save');
-          this.load_btn = this.root.find('div.cw-buttons-holder div.cw-load');
-        */
+        this.info_btn = this.root.find('.cw-file-info');
+        this.print_btn = this.root.find('.cw-file-print');
 
-        this.check_button = this.root.find('.cw-check');
-        this.print_btn = this.root.find('.cw-print-icon'); // FIXME
         this.timer_button = this.root.find('.cw-button-timer');
         this.xw_timer_seconds = 0;
 
@@ -938,11 +953,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           <span class="cw-title">${this.title}</span>
           <span class="cw-header-separator">&nbsp;•&nbsp;</span>
           <span class="cw-author">${this.author}</span>
-          ${this.notepad ? `
-            <button class="cw-button cw-button-notepad">
-              <span class="cw-button-icon">📝</span> Notes
-            </button>
-          ` : ""}
+          ${
+            this.notepad
+              ? `<button class="cw-button cw-button-notepad">
+                   <span class="cw-button-icon">📝</span> Notes
+                 </button>`
+              : ''
+          }
           <span class="cw-flex-spacer"></span>
           <span class="cw-copyright">${this.copyright}</span>
         `);
@@ -980,30 +997,24 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       removeListeners() {
         this.removeGlobalListeners();
+        this.root.undelegate();
         this.clues_holder.undelegate('div.cw-clues-items span');
         this.canvas.off('mousemove click');
 
-        /*
-          this.reveal_button.off('click mouseenter mouseleave');
-          this.reveal_letter.off('click');
-          this.reveal_word.off('click');
-          this.reveal_puzzle.off('click');
+        this.reveal_letter.off('click');
+        this.reveal_word.off('click');
+        this.reveal_puzzle.off('click');
 
-          this.check_button.off('click mouseenter mouseleave');
-          this.check_letter.off('click');
-          this.check_word.off('click');
-          this.check_puzzle.off('click');
+        this.check_letter.off('click');
+        this.check_word.off('click');
+        this.check_puzzle.off('click');
 
-          this.file_button.off('click mouseenter mouseleave');
-          this.save_btn.off('click');
-          this.load_btn.off('click');
-          */
         this.print_btn.off('click');
         this.timer_button.off('click');
 
-        this.settings_icon.off('click');
+        this.settings_btn.off('click');
 
-        this.info_icon.off('click');
+        this.info_btn.off('click');
         this.notepad_icon.off('click');
 
         this.hidden_input.off('input');
@@ -1012,6 +1023,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       addListeners() {
         $(window).on('resize', this.windowResized);
+
+        this.root.delegate(
+          '.cw-menu-container > button',
+          'click',
+          $.proxy(this.handleClickOpenMenu, this)
+        );
+        this.root.delegate(
+          '.cw-menu-container',
+          'blur',
+          $.proxy(this.handleMenuBlur, this)
+        );
+        this.root.delegate(
+          '.cw-menu-container .cw-menu > button',
+          'click',
+          $.proxy(this.handleClickMenuButton, this)
+        );
+
         this.clues_holder.delegate(
           'div.cw-clues-items div.cw-clue',
           'mouseenter',
@@ -1033,41 +1061,43 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
         this.canvas.on('click', $.proxy(this.mouseClicked, this));
 
-        /*
-          // REVEAL
-          this.reveal_button.on('click', $.proxy(this.toggleReveal, this));
-          this.reveal_button.on('mouseenter', $.proxy(this.openReveal, this));
-          this.reveal_button.on('mouseleave', $.proxy(this.closeReveal, this));
-          this.reveal_letter.on('click', $.proxy(this.check_reveal, this, 'letter', 'reveal'));
-          this.reveal_word.on('click', $.proxy(this.check_reveal, this, 'word', 'reveal'));
-          this.reveal_puzzle.on('click', $.proxy(this.check_reveal, this, 'puzzle', 'reveal'));
+        // REVEAL
+        this.reveal_letter.on(
+          'click',
+          $.proxy(this.check_reveal, this, 'letter', 'reveal')
+        );
+        this.reveal_word.on(
+          'click',
+          $.proxy(this.check_reveal, this, 'word', 'reveal')
+        );
+        this.reveal_puzzle.on(
+          'click',
+          $.proxy(this.check_reveal, this, 'puzzle', 'reveal')
+        );
 
-          // CHECK
-          this.check_button.on('click', $.proxy(this.toggleCheck, this));
-          this.check_button.on('mouseenter', $.proxy(this.openCheck, this));
-          this.check_button.on('mouseleave', $.proxy(this.closeCheck, this));
-          this.check_letter.on('click', $.proxy(this.check_reveal, this, 'letter', 'check'));
-          this.check_word.on('click', $.proxy(this.check_reveal, this, 'word', 'check'));
-          this.check_puzzle.on('click', $.proxy(this.check_reveal, this, 'puzzle', 'check'));
-          // FILE
-          this.file_button.on('click', $.proxy(this.toggleFile, this));
-          this.file_button.on('mouseenter', $.proxy(this.openFile, this));
-          this.file_button.on('mouseleave', $.proxy(this.closeFile, this));
-          this.save_btn.on('click', $.proxy(this.savePuzzle, this));
-          this.load_btn.on('click', $.proxy(this.loadPuzzle, this));
-          */
+        // CHECK
+        this.check_letter.on(
+          'click',
+          $.proxy(this.check_reveal, this, 'letter', 'check')
+        );
+        this.check_word.on(
+          'click',
+          $.proxy(this.check_reveal, this, 'word', 'check')
+        );
+        this.check_puzzle.on(
+          'click',
+          $.proxy(this.check_reveal, this, 'puzzle', 'check')
+        );
+
         // PRINTER
         this.print_btn.on('click', $.proxy(this.printPuzzle, this));
         // TIMER
         this.timer_button.on('click', $.proxy(this.toggleTimer, this));
         // SETTINGS
-        this.settings_icon.on('click', $.proxy(this.openSettings, this));
+        this.settings_btn.on('click', $.proxy(this.openSettings, this));
 
         // INFO
-        this.info_icon.on('click', function() {
-          // TODO
-          this.info.addClass('open');
-        });
+        this.info_btn.on('click', $.proxy(this.showInfo, this));
 
         // NOTEPAD
         if (this.notepad) {
@@ -1081,8 +1111,30 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.hidden_input.on('keydown', $.proxy(this.keyPressed, this));
       }
 
+      handleClickOpenMenu(event) {
+        const menuContainer = $(event.target).closest('.cw-menu-container');
+        const menu = menuContainer.find('.cw-menu');
+        if (menu.is(':visible')) menu.hide();
+        else menu.show();
+      }
+
+      handleMenuBlur(event) {
+        const menuContainer = $(event.target).closest('.cw-menu-container');
+        const menu = menuContainer.find('.cw-menu');
+        const focusTarget = event.relatedTarget;
+        if (!focusTarget || !$.contains(menu.get(0), focusTarget)) {
+          menu.hide();
+        }
+      }
+
+      handleClickMenuButton(event) {
+        const menuContainer = $(event.target).closest('.cw-menu-container');
+        const menu = menuContainer.find('.cw-menu');
+        menu.hide();
+      }
+
       // Create a generic modal box with content
-      createModalBox(title, content, button_text='Close') {
+      createModalBox(title, content, button_text = 'Close') {
         // Set the contents of the modal box
         const modalContent = `
         <div class="modal-content">
@@ -1094,42 +1146,43 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             ${content}
           </div>
           <div class="modal-footer">
-              <button id="modal-button" class="modal-button">${button_text}</button>
+            <button id="modal-button" class="modal-button">${button_text}</button>
           </div>
         </div>`;
         // Set this to be the contents of the container modal div
         $('#myModal').html(modalContent);
 
         // Show the div
-        var modal = document.getElementById("myModal");
-        modal.style.display = "block";
+        var modal = document.getElementById('myModal');
+        modal.style.display = 'block';
 
         // Allow user to close the div
         const this_hidden_input = this.hidden_input;
-        var span = document.getElementById("modalClose");
+        var span = document.getElementById('modalClose');
         // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
-          modal.style.display = "none";
+        span.onclick = function () {
+          modal.style.display = 'none';
           this_hidden_input.focus();
-        }
+        };
         // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
+        window.onclick = function (event) {
           if (event.target == modal) {
-            modal.style.display = "none";
+            modal.style.display = 'none';
             this_hidden_input.focus();
           }
-        }
+        };
         // Clicking the button should close the modal
-        var modalButton = document.getElementById("modal-button");
-        modalButton.onclick = function() {
-          modal.style.display = "none";
+        var modalButton = document.getElementById('modal-button');
+        modalButton.onclick = function () {
+          modal.style.display = 'none';
           this_hidden_input.focus();
-        }
+        };
       }
 
       // Function to switch the clues, generally from "ACROSS" to "DOWN"
       changeActiveClues() {
-        if (!this.clues_bottom) { // only one clue list
+        if (!this.clues_bottom) {
+          // only one clue list
           this.active_clues = this.clues_top;
           this.inactive_clues = this.clues_top;
           if (this.selected_cell) {
@@ -1145,7 +1198,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.active_clues = this.clues_bottom;
             this.inactive_clues = this.clues_top;
           }
-      } else { // active is the bottom
+        } else {
+          // active is the bottom
           this.active_clues = this.clues_top;
           this.inactive_clues = this.clues_bottom;
         }
@@ -1154,7 +1208,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       getCell(x, y) {
         return this.cells[x] ? this.cells[x][y] : null;
       }
-
 
       setActiveWord(word) {
         if (word) {
@@ -1263,8 +1316,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         for (x in this.cells) {
           for (y in this.cells[x]) {
             var cell = this.cells[x][y],
-            cell_x = (x - 1) * this.cell_size + 1,
-            cell_y = (y - 1) * this.cell_size + 1;
+              cell_x = (x - 1) * this.cell_size + 1,
+              cell_y = (y - 1) * this.cell_size + 1;
             if (!cell.empty) {
               // detect cell color
               var color = cell.color || this.config.color_none;
@@ -1328,11 +1381,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               // cell is empty
               if (cell.is_void) {
                 /* don't fill voids */
-              }
-              else if (cell.clue) {
+              } else if (cell.clue) {
                 // fill
                 this.context.fillStyle = this.config.background_color_clue;
-                this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
+                this.context.fillRect(
+                  cell_x,
+                  cell_y,
+                  this.cell_size,
+                  this.cell_size
+                );
                 // bounding box
                 this.context.strokeRect(
                   cell_x,
@@ -1346,7 +1403,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 // respect cell coloring, even for blocks
                 // don't fill if the cell's color is the "none" color
                 if (cell.color !== this.config.color_none) {
-                  this.context.fillStyle = cell.color || this.config.color_block;
+                  this.context.fillStyle =
+                    cell.color || this.config.color_block;
                   this.context.fillRect(
                     cell_x,
                     cell_y,
@@ -1458,7 +1516,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               // the y-offset changes if this is a "clue" block
               // normally we slide the letter down to fit with numbers
               // for "clue" blocks we can center it
-              var y_offset = cell.clue ? this.cell_size / 1.8 : (2 * this.cell_size) / 3;
+              var y_offset = cell.clue
+                ? this.cell_size / 1.8
+                : (2 * this.cell_size) / 3;
               this.context.fillText(
                 cell.letter,
                 cell_x + this.cell_size / 2,
@@ -1566,7 +1626,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               if (this.config.space_bar === 'space_switch') {
                 // check that there is a word in the other direction
                 // if there's not, we just don't do anything
-                var selectedCellInactiveWord = this.inactive_clues.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true);
+                var selectedCellInactiveWord =
+                  this.inactive_clues.getMatchingWord(
+                    this.selected_cell.x,
+                    this.selected_cell.y,
+                    true
+                  );
                 if (selectedCellInactiveWord) {
                   this.setActiveWord(selectedCellInactiveWord);
                   this.changeActiveClues();
@@ -1868,26 +1933,44 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           if (!this.selected_word.hasCell(x, y)) {
             // If the selected cell and the new cell are in the same word, we switch directions
             // We make sure that there is such a word as well (i.e. both are not null)
-            var selectedCellInactiveWord = this.inactive_clues.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true);
-            var newCellInactiveWord = this.inactive_clues.getMatchingWord(new_cell.x, new_cell.y, true);
+            var selectedCellInactiveWord = this.inactive_clues.getMatchingWord(
+              this.selected_cell.x,
+              this.selected_cell.y,
+              true
+            );
+            var newCellInactiveWord = this.inactive_clues.getMatchingWord(
+              new_cell.x,
+              new_cell.y,
+              true
+            );
             if (selectedCellInactiveWord) {
-              if (selectedCellInactiveWord.hasCell(new_cell.x, new_cell.y) && newCellInactiveWord !== null) {
+              if (
+                selectedCellInactiveWord.hasCell(new_cell.x, new_cell.y) &&
+                newCellInactiveWord !== null
+              ) {
                 this.changeActiveClues();
                 /*
-                * when do we keep the current cell selected? in two cases:
-                * (a) this.config.arrow_direction === 'arrow_stay'
-                * (b) arrow_direction is 'arrow_move_filled' and the current cell is empty
-                */
+                 * when do we keep the current cell selected? in two cases:
+                 * (a) this.config.arrow_direction === 'arrow_stay'
+                 * (b) arrow_direction is 'arrow_move_filled' and the current cell is empty
+                 */
                 if (this.config.arrow_direction === 'arrow_stay') {
                   new_cell = this.selected_cell;
-                } else if (!this.selected_cell.letter && this.config.arrow_direction === 'arrow_move_filled') {
+                } else if (
+                  !this.selected_cell.letter &&
+                  this.config.arrow_direction === 'arrow_move_filled'
+                ) {
                   new_cell = this.selected_cell;
                 }
               }
             }
             // If the new cell does not have a word in the currently active direction,
             // we change the direction
-            var newCellActiveWord = this.active_clues.getMatchingWord(new_cell.x, new_cell.y, true);
+            var newCellActiveWord = this.active_clues.getMatchingWord(
+              new_cell.x,
+              new_cell.y,
+              true
+            );
             if (!newCellActiveWord) {
               this.changeActiveClues();
             }
@@ -1930,6 +2013,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.setActiveCell(cell);
           this.renderCells();
         }
+      }
+
+      showInfo() {
+        this.createModalBox(
+          'Info',
+          `
+            <p><b>${this.title}</b></p>
+            <p>${this.author}</p>
+            <p><i>${this.copyright}</i></p>
+          `
+        );
       }
 
       showNotepad() {
@@ -2003,14 +2097,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var classChangers = document.getElementsByClassName('settings-changer');
         for (var cc of classChangers) {
           if (cc.type === 'radio') {
-            document.getElementById(cc.id)['checked'] = (this.config[cc.name] === cc.id);
-          } else { // checkbox
+            document.getElementById(cc.id)['checked'] =
+              this.config[cc.name] === cc.id;
+          } else {
+            // checkbox
             document.getElementById(cc.id)['checked'] = this.config[cc.name];
           }
         }
         // Add a listener for these events
-        document.getElementById('settings-wrapper')
-          .addEventListener('click', event => {
+        document
+          .getElementById('settings-wrapper')
+          .addEventListener('click', (event) => {
             if (event.target.className === 'settings-changer') {
               if (event.target.type === 'checkbox') {
                 this.config[event.target.name] = event.target.checked;
@@ -2024,41 +2121,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       saveSettings() {
         // make a copy of the config
-        var savedSettings = { ...this.config};
+        var savedSettings = { ...this.config };
         // We don't save "puzzle" keys
         delete savedSettings.puzzle_file;
         delete savedSettings.puzzles;
-        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(savedSettings));
-      }
-
-      openReveal() {
-        this.reveal_button.addClass('open');
-      }
-      closeReveal() {
-        this.reveal_button.removeClass('open');
-      }
-      toggleReveal() {
-        this.reveal_button.toggleClass('open');
-      }
-
-      openCheck() {
-        this.check_button.addClass('open');
-      }
-      closeCheck() {
-        this.check_button.removeClass('open');
-      }
-      toggleCheck() {
-        this.check_button.toggleClass('open');
-      }
-
-      openFile() {
-        this.file_button.addClass('open');
-      }
-      closeFile() {
-        this.file_button.removeClass('open');
-      }
-      toggleFile() {
-        this.file_button.toggleClass('open');
+        localStorage.setItem(
+          SETTINGS_STORAGE_KEY,
+          JSON.stringify(savedSettings)
+        );
       }
 
       check_reveal(to_solve, reveal_or_check, e) {
@@ -2129,124 +2199,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.closeCheck();
         }
         this.hidden_input.focus();
-        e.preventDefault();
-        e.stopPropagation();
-      }
-
-      savePuzzle(e) {
-        var i,
-          savegame_name,
-          savegame = {
-            top_text_height: this.top_text_height,
-            bottom_text_height: this.bottom_text_height,
-            grid_width: this.grid_width,
-            grid_height: this.grid_height,
-
-            bottom_text: this.bottom_text.html(),
-            top_clues: {
-              id: this.clues_top.id,
-              title: this.clues_top.title,
-              clues: this.clues_top.clues,
-              words_ids: this.clues_top.words_ids,
-            },
-            words: {},
-            cells: this.cells,
-          };
-        if (this.clues_bottom) {
-          savegame.bottom_clues = {
-            id: this.clues_bottom.id,
-            title: this.clues_bottom.title,
-            clues: this.clues_bottom.clues,
-            words_ids: this.clues_bottom.words_ids,
-          };
-        }
-        for (i in this.words) {
-          if (this.words.hasOwnProperty(i)) {
-            savegame.words[i] = {
-              id: this.words[i].id,
-              cell_ranges: this.words[i].cell_ranges,
-              cells: this.words[i].cells,
-              clue: this.words[i].clue,
-            };
-          }
-        }
-
-        savegame_name = STORAGE_KEY + (this.config.savegame_name || '');
-        localStorage.setItem(savegame_name, JSON.stringify(savegame));
-        alert(MSG_SAVED);
-
-        this.closeFile();
-        e.preventDefault();
-        e.stopPropagation();
-      }
-
-      // loads saved puzzle
-      loadPuzzle(e) {
-        var i, savegame_name, savegame, active_word;
-        savegame_name = STORAGE_KEY + (this.config.savegame_name || '');
-        savegame = JSON.parse(localStorage.getItem(savegame_name));
-        if (
-          savegame &&
-          savegame.hasOwnProperty('bottom_text') &&
-          savegame.hasOwnProperty('top_clues') &&
-          savegame.hasOwnProperty('words') &&
-          savegame.hasOwnProperty('cells') &&
-          savegame.hasOwnProperty('top_text_height') &&
-          savegame.hasOwnProperty('bottom_text_height') &&
-          savegame.hasOwnProperty('grid_width') &&
-          savegame.hasOwnProperty('grid_height')
-        ) {
-          this.top_text_height = savegame.top_text_height;
-          this.bottom_text_height = savegame.bottom_text_height;
-          this.grid_width = savegame.grid_width;
-          this.grid_height = savegame.grid_height;
-
-          this.bottom_text.html(savegame.bottom_text);
-
-          this.selected_cell = null;
-          this.selected_word = null;
-
-          // restore words
-          this.words = {};
-          for (i in savegame.words) {
-            if (savegame.words.hasOwnProperty(i)) {
-              this.words[i] = new Word(this, savegame.words[i]);
-            }
-          }
-
-          this.cells = savegame.cells;
-          load_error = false;
-
-          // restore clues
-          this.clues_top = new CluesGroup(this, savegame.top_clues);
-          this.clues_bottom = new CluesGroup(this, savegame.bottom_clues);
-
-          if (load_error) {
-            this.error(ERR_LOAD);
-            return;
-          }
-
-          if (this.clues_top) {
-            this.renderClues(this.clues_top, this.clues_top_container);
-          }
-          if (this.clues_bottom) {
-            this.renderClues(this.clues_bottom, this.clues_bottom_container);
-          }
-
-          this.active_clues = null;
-          this.inactive_clues = null;
-          this.changeActiveClues();
-
-          active_word = this.active_clues.getFirstWord();
-          this.setActiveWord(active_word);
-          this.setActiveCell(active_word.getFirstCell());
-
-          this.renderCells();
-          alert(MSG_LOADED);
-        } else {
-          alert(ERR_NO_SAVEGAME);
-        }
-        this.closeFile();
         e.preventDefault();
         e.stopPropagation();
       }
@@ -2923,7 +2875,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       getLastWord() {
         if (this.words_ids.length) {
-          return this.crossword.words[this.words_ids[this.words_ids.length - 1]];
+          return this.crossword.words[
+            this.words_ids[this.words_ids.length - 1]
+          ];
         }
         return null;
       }
