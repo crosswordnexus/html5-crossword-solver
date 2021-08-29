@@ -121,7 +121,9 @@ input.cw-hidden-input {
     padding: 0.5em 10px;
     white-space: nowrap;
 }
-.cw-title, .cw-author, .cw-copyright {
+.cw-title,
+.cw-author,
+.cw-copyright {
     flex: 0 1 auto;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -209,34 +211,34 @@ input.cw-hidden-input {
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
 }
 
 /* Modal Content/Box */
 .modal-content {
-  position: relative;
-  background-color: #fefefe;
-  margin: auto;
-  padding: 0;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 600px;
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
-  -webkit-animation-name: animatetop;
-  -webkit-animation-duration: 0.4s;
-  animation-name: animatetop;
-  animation-duration: 0.3s;
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    animation-duration: 0.3s;
 }
 
 /* Modal Header */
 .modal-header {
-  padding: 2px 16px;
-  background-color: #777777;
-  color: white;
-  text-align: center;
-  height: 40px;
-  font-size: max(1.1em, 14px);
+    padding: 2px 16px;
+    background-color: #777777;
+    color: white;
+    text-align: center;
+    height: 40px;
+    font-size: max(1.1em, 14px);
 }
 
 /* Modal Body */
@@ -263,28 +265,40 @@ input.cw-hidden-input {
 
 /* Modal Animation */
 @-webkit-keyframes animatetop {
-  from {top:-300px; opacity:0}
-  to {top:0; opacity:1}
+    from {
+        top: -300px;
+        opacity: 0;
+    }
+    to {
+        top: 0;
+        opacity: 1;
+    }
 }
 
 @keyframes animatetop {
-  from {top:-300px; opacity:0}
-  to {top:0; opacity:1}
+    from {
+        top: -300px;
+        opacity: 0;
+    }
+    to {
+        top: 0;
+        opacity: 1;
+    }
 }
 
 /* The Close Button */
 .close {
-  color: #white;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
+    color: #white;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
 }
 
 .close:hover,
 .close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 /* The modal footer button */
@@ -300,10 +314,10 @@ input.cw-hidden-input {
 
 .cw-button {
     /* default yellow color scheme */
-    --button-background-color: #FFEB3F;
-    --button-background-color-hover: #FFF27F;
-    --button-shadow-color: #EBD200;
-    color: #413A00;
+    --button-background-color: #ffeb3f;
+    --button-background-color-hover: #fff27f;
+    --button-shadow-color: #ebd200;
+    color: #413a00;
 
     align-items: center;
     background-color: var(--button-background-color);
@@ -332,36 +346,36 @@ input.cw-hidden-input {
 
 /* large green button for initial overlay */
 .cw-button-open-puzzle {
-    --button-background-color: #52B323;
-    --button-background-color-hover: #58BA28;
-    --button-shadow-color: #368C0E;
+    --button-background-color: #52b323;
+    --button-background-color-hover: #58ba28;
+    --button-shadow-color: #368c0e;
     color: white;
     font-size: 32px;
 }
 
 /* medium-sized gray button for timer */
 .cw-button-timer {
-    --button-background-color: #EEEEEE;
-    --button-background-color-hover: #F2F2F2;
+    --button-background-color: #eeeeee;
+    --button-background-color-hover: #f2f2f2;
     --button-shadow-color: #999999;
     color: #000000;
     font-size: 1em;
 
-    transition: background-color box-shadow .1s;
+    transition: background-color box-shadow 0.1s;
 }
 
 /* medium-sized green button for active timer */
 .cw-button-timer.running {
-    --button-background-color: #52B323;
-    --button-background-color-hover: #58BA28;
-    --button-shadow-color: #368C0E;
+    --button-background-color: #52b323;
+    --button-background-color-hover: #58ba28;
+    --button-shadow-color: #368c0e;
     color: white;
 }
 
 /* small gray button for notes */
 .cw-button-notepad {
-    --button-background-color: #EEEEEE;
-    --button-background-color-hover: #F2F2F2;
+    --button-background-color: #eeeeee;
+    --button-background-color-hover: #f2f2f2;
     --button-shadow-color: #999999;
     color: #000000;
     font-size: 0.75em;
@@ -391,37 +405,37 @@ input.cw-hidden-input {
 **/
 
 .cw-menu-container {
-  position: relative;
+    position: relative;
 }
 
 .cw-menu {
-  background-color: white;
-  border-radius: 5px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
-  display: none;
-  margin-top: 2px;
-  padding: 0.2em 0;
-  position: absolute;
-  z-index: 1;
+    background-color: white;
+    border-radius: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+    display: none;
+    margin-top: 2px;
+    padding: 0.2em 0;
+    position: absolute;
+    z-index: 1;
 }
 
 .cw-menu-item {
-  background: none;
-  border: none;
-  color: inherit; /* avoid Safari active style */
-  cursor: pointer;
-  display: block;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 0.8em;
-  font-weight: 500;
-  margin: 0;
-  min-width: 7em;
-  padding: 0.3em 0.6em;
-  text-align: left;
+    background: none;
+    border: none;
+    color: inherit; /* avoid Safari active style */
+    cursor: pointer;
+    display: block;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.8em;
+    font-weight: 500;
+    margin: 0;
+    min-width: 7em;
+    padding: 0.3em 0.6em;
+    text-align: left;
 }
 .cw-menu-item:hover {
-  background-color: #FFEB3F;
+    background-color: #ffeb3f;
 }
 
 /**

@@ -233,18 +233,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     const maxClueSizes = [
       [960, 15],
       [1200, 17],
-      [Infinity, 19]
+      [Infinity, 19],
     ];
 
     /** Function to resize text **/
     function resizeText(nodeList) {
       const minSize = 9;
       const windowWidth = $(window).width();
-      const maxSize = maxClueSizes.find((breakpoint) => breakpoint[0] > windowWidth)[1];
+      const maxSize = maxClueSizes.find(
+        (breakpoint) => breakpoint[0] > windowWidth
+      )[1];
       const step = 1;
       const unit = 'px';
 
-      for (var j=0; j < nodeList.length; j++) {
+      for (var j = 0; j < nodeList.length; j++) {
         const el = nodeList[j];
         let i = minSize;
         let overflow = false;
@@ -253,7 +255,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         while (!overflow && i <= maxSize) {
           el.style.fontSize = `${i}${unit}`;
           // TODO: is this the best logic we can use here?
-          overflow = (parent.scrollHeight < el.clientHeight);
+          overflow = parent.scrollHeight < el.clientHeight;
           if (!overflow) {
             i += step;
           }
@@ -378,7 +380,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // Load solver config
         var saved_settings = {};
         try {
-          saved_settings = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY));
+          saved_settings = JSON.parse(
+            localStorage.getItem(SETTINGS_STORAGE_KEY)
+          );
         } catch (error) {
           console.log(error);
         }
@@ -949,11 +953,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           <span class="cw-title">${this.title}</span>
           <span class="cw-header-separator">&nbsp;•&nbsp;</span>
           <span class="cw-author">${this.author}</span>
-          ${this.notepad ? `
-            <button class="cw-button cw-button-notepad">
-              <span class="cw-button-icon">📝</span> Notes
-            </button>
-          ` : ""}
+          ${
+            this.notepad
+              ? `<button class="cw-button cw-button-notepad">
+                   <span class="cw-button-icon">📝</span> Notes
+                 </button>`
+              : ''
+          }
           <span class="cw-flex-spacer"></span>
           <span class="cw-copyright">${this.copyright}</span>
         `);
@@ -1056,14 +1062,32 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.canvas.on('click', $.proxy(this.mouseClicked, this));
 
         // REVEAL
-        this.reveal_letter.on('click', $.proxy(this.check_reveal, this, 'letter', 'reveal'));
-        this.reveal_word.on('click', $.proxy(this.check_reveal, this, 'word', 'reveal'));
-        this.reveal_puzzle.on('click', $.proxy(this.check_reveal, this, 'puzzle', 'reveal'));
+        this.reveal_letter.on(
+          'click',
+          $.proxy(this.check_reveal, this, 'letter', 'reveal')
+        );
+        this.reveal_word.on(
+          'click',
+          $.proxy(this.check_reveal, this, 'word', 'reveal')
+        );
+        this.reveal_puzzle.on(
+          'click',
+          $.proxy(this.check_reveal, this, 'puzzle', 'reveal')
+        );
 
         // CHECK
-        this.check_letter.on('click', $.proxy(this.check_reveal, this, 'letter', 'check'));
-        this.check_word.on('click', $.proxy(this.check_reveal, this, 'word', 'check'));
-        this.check_puzzle.on('click', $.proxy(this.check_reveal, this, 'puzzle', 'check'));
+        this.check_letter.on(
+          'click',
+          $.proxy(this.check_reveal, this, 'letter', 'check')
+        );
+        this.check_word.on(
+          'click',
+          $.proxy(this.check_reveal, this, 'word', 'check')
+        );
+        this.check_puzzle.on(
+          'click',
+          $.proxy(this.check_reveal, this, 'puzzle', 'check')
+        );
 
         // PRINTER
         this.print_btn.on('click', $.proxy(this.printPuzzle, this));
@@ -1110,7 +1134,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       // Create a generic modal box with content
-      createModalBox(title, content, button_text='Close') {
+      createModalBox(title, content, button_text = 'Close') {
         // Set the contents of the modal box
         const modalContent = `
         <div class="modal-content">
@@ -1129,35 +1153,36 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         $('#myModal').html(modalContent);
 
         // Show the div
-        var modal = document.getElementById("myModal");
-        modal.style.display = "block";
+        var modal = document.getElementById('myModal');
+        modal.style.display = 'block';
 
         // Allow user to close the div
         const this_hidden_input = this.hidden_input;
-        var span = document.getElementById("modalClose");
+        var span = document.getElementById('modalClose');
         // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
-          modal.style.display = "none";
+        span.onclick = function () {
+          modal.style.display = 'none';
           this_hidden_input.focus();
-        }
+        };
         // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
+        window.onclick = function (event) {
           if (event.target == modal) {
-            modal.style.display = "none";
+            modal.style.display = 'none';
             this_hidden_input.focus();
           }
-        }
+        };
         // Clicking the button should close the modal
-        var modalButton = document.getElementById("modal-button");
-        modalButton.onclick = function() {
-          modal.style.display = "none";
+        var modalButton = document.getElementById('modal-button');
+        modalButton.onclick = function () {
+          modal.style.display = 'none';
           this_hidden_input.focus();
-        }
+        };
       }
 
       // Function to switch the clues, generally from "ACROSS" to "DOWN"
       changeActiveClues() {
-        if (!this.clues_bottom) { // only one clue list
+        if (!this.clues_bottom) {
+          // only one clue list
           this.active_clues = this.clues_top;
           this.inactive_clues = this.clues_top;
           if (this.selected_cell) {
@@ -1173,7 +1198,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.active_clues = this.clues_bottom;
             this.inactive_clues = this.clues_top;
           }
-      } else { // active is the bottom
+        } else {
+          // active is the bottom
           this.active_clues = this.clues_top;
           this.inactive_clues = this.clues_bottom;
         }
@@ -1182,7 +1208,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       getCell(x, y) {
         return this.cells[x] ? this.cells[x][y] : null;
       }
-
 
       setActiveWord(word) {
         if (word) {
@@ -1291,8 +1316,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         for (x in this.cells) {
           for (y in this.cells[x]) {
             var cell = this.cells[x][y],
-            cell_x = (x - 1) * this.cell_size + 1,
-            cell_y = (y - 1) * this.cell_size + 1;
+              cell_x = (x - 1) * this.cell_size + 1,
+              cell_y = (y - 1) * this.cell_size + 1;
             if (!cell.empty) {
               // detect cell color
               var color = cell.color || this.config.color_none;
@@ -1356,11 +1381,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               // cell is empty
               if (cell.is_void) {
                 /* don't fill voids */
-              }
-              else if (cell.clue) {
+              } else if (cell.clue) {
                 // fill
                 this.context.fillStyle = this.config.background_color_clue;
-                this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
+                this.context.fillRect(
+                  cell_x,
+                  cell_y,
+                  this.cell_size,
+                  this.cell_size
+                );
                 // bounding box
                 this.context.strokeRect(
                   cell_x,
@@ -1374,7 +1403,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 // respect cell coloring, even for blocks
                 // don't fill if the cell's color is the "none" color
                 if (cell.color !== this.config.color_none) {
-                  this.context.fillStyle = cell.color || this.config.color_block;
+                  this.context.fillStyle =
+                    cell.color || this.config.color_block;
                   this.context.fillRect(
                     cell_x,
                     cell_y,
@@ -1486,7 +1516,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               // the y-offset changes if this is a "clue" block
               // normally we slide the letter down to fit with numbers
               // for "clue" blocks we can center it
-              var y_offset = cell.clue ? this.cell_size / 1.8 : (2 * this.cell_size) / 3;
+              var y_offset = cell.clue
+                ? this.cell_size / 1.8
+                : (2 * this.cell_size) / 3;
               this.context.fillText(
                 cell.letter,
                 cell_x + this.cell_size / 2,
@@ -1594,7 +1626,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               if (this.config.space_bar === 'space_switch') {
                 // check that there is a word in the other direction
                 // if there's not, we just don't do anything
-                var selectedCellInactiveWord = this.inactive_clues.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true);
+                var selectedCellInactiveWord =
+                  this.inactive_clues.getMatchingWord(
+                    this.selected_cell.x,
+                    this.selected_cell.y,
+                    true
+                  );
                 if (selectedCellInactiveWord) {
                   this.setActiveWord(selectedCellInactiveWord);
                   this.changeActiveClues();
@@ -1896,26 +1933,44 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           if (!this.selected_word.hasCell(x, y)) {
             // If the selected cell and the new cell are in the same word, we switch directions
             // We make sure that there is such a word as well (i.e. both are not null)
-            var selectedCellInactiveWord = this.inactive_clues.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true);
-            var newCellInactiveWord = this.inactive_clues.getMatchingWord(new_cell.x, new_cell.y, true);
+            var selectedCellInactiveWord = this.inactive_clues.getMatchingWord(
+              this.selected_cell.x,
+              this.selected_cell.y,
+              true
+            );
+            var newCellInactiveWord = this.inactive_clues.getMatchingWord(
+              new_cell.x,
+              new_cell.y,
+              true
+            );
             if (selectedCellInactiveWord) {
-              if (selectedCellInactiveWord.hasCell(new_cell.x, new_cell.y) && newCellInactiveWord !== null) {
+              if (
+                selectedCellInactiveWord.hasCell(new_cell.x, new_cell.y) &&
+                newCellInactiveWord !== null
+              ) {
                 this.changeActiveClues();
                 /*
-                * when do we keep the current cell selected? in two cases:
-                * (a) this.config.arrow_direction === 'arrow_stay'
-                * (b) arrow_direction is 'arrow_move_filled' and the current cell is empty
-                */
+                 * when do we keep the current cell selected? in two cases:
+                 * (a) this.config.arrow_direction === 'arrow_stay'
+                 * (b) arrow_direction is 'arrow_move_filled' and the current cell is empty
+                 */
                 if (this.config.arrow_direction === 'arrow_stay') {
                   new_cell = this.selected_cell;
-                } else if (!this.selected_cell.letter && this.config.arrow_direction === 'arrow_move_filled') {
+                } else if (
+                  !this.selected_cell.letter &&
+                  this.config.arrow_direction === 'arrow_move_filled'
+                ) {
                   new_cell = this.selected_cell;
                 }
               }
             }
             // If the new cell does not have a word in the currently active direction,
             // we change the direction
-            var newCellActiveWord = this.active_clues.getMatchingWord(new_cell.x, new_cell.y, true);
+            var newCellActiveWord = this.active_clues.getMatchingWord(
+              new_cell.x,
+              new_cell.y,
+              true
+            );
             if (!newCellActiveWord) {
               this.changeActiveClues();
             }
@@ -1961,11 +2016,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       showInfo() {
-        this.createModalBox('Info', `
-          <p><b>${this.title}</b></p>
-          <p>${this.author}</p>
-          <p><i>${this.copyright}</i></p>
-        `);
+        this.createModalBox(
+          'Info',
+          `
+            <p><b>${this.title}</b></p>
+            <p>${this.author}</p>
+            <p><i>${this.copyright}</i></p>
+          `
+        );
       }
 
       showNotepad() {
@@ -2039,14 +2097,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var classChangers = document.getElementsByClassName('settings-changer');
         for (var cc of classChangers) {
           if (cc.type === 'radio') {
-            document.getElementById(cc.id)['checked'] = (this.config[cc.name] === cc.id);
-          } else { // checkbox
+            document.getElementById(cc.id)['checked'] =
+              this.config[cc.name] === cc.id;
+          } else {
+            // checkbox
             document.getElementById(cc.id)['checked'] = this.config[cc.name];
           }
         }
         // Add a listener for these events
-        document.getElementById('settings-wrapper')
-          .addEventListener('click', event => {
+        document
+          .getElementById('settings-wrapper')
+          .addEventListener('click', (event) => {
             if (event.target.className === 'settings-changer') {
               if (event.target.type === 'checkbox') {
                 this.config[event.target.name] = event.target.checked;
@@ -2060,11 +2121,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       saveSettings() {
         // make a copy of the config
-        var savedSettings = { ...this.config};
+        var savedSettings = { ...this.config };
         // We don't save "puzzle" keys
         delete savedSettings.puzzle_file;
         delete savedSettings.puzzles;
-        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(savedSettings));
+        localStorage.setItem(
+          SETTINGS_STORAGE_KEY,
+          JSON.stringify(savedSettings)
+        );
       }
 
       check_reveal(to_solve, reveal_or_check, e) {
@@ -2811,7 +2875,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       getLastWord() {
         if (this.words_ids.length) {
-          return this.crossword.words[this.words_ids[this.words_ids.length - 1]];
+          return this.crossword.words[
+            this.words_ids[this.words_ids.length - 1]
+          ];
         }
         return null;
       }
