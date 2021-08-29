@@ -371,7 +371,7 @@ input.cw-hidden-input {
     font-size: 1.25em;
     line-height: 0; /* never stretch button vertically */
     margin-right: 0.25em;
-    width: 1em; /* standardize spacing between Chrome and Firefox */
+    width: 1.25em; /* standardize spacing between Chrome and Firefox */
 }
 
 /* right arrow icon for dropdown triggers */
