@@ -27,14 +27,20 @@
 
 <script>
     (function(){
-        var params = {
-          //puzzle_file: {url: 'sample_puzzles/FM.jpz', type: 'jpz'}
-          //puzzle_file: {url: 'sample_puzzles/DontTurnAround.jpz', type: 'jpz'}
-          //puzzle_file: {url: 'sample_puzzles/kaidoku.jpz', type: 'jpz'}
-        };
+        // Grab puzzle from query string if available
+        var url = new URL(window.location.href);
+        var puzzle = url.searchParams.get("puzzle");
+        var params = {};
+        if (puzzle) {
+            params = {
+                puzzle_file: {
+                    url: puzzle,
+                    type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
+                }
+            };
+        }
         CrosswordNexus.createCrossword($('div.crossword'), params);
     })();
-
 </script>
 
 </body>
