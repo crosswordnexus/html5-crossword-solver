@@ -897,8 +897,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.clues_top = across_group;
           this.clues_bottom = down_group;
           // Also, in a coded crossword, there's no reason to show the clues
-          $('div.cw-right').css({ display: 'none' });
-          $('div.cw-main').css({ 'margin-right': '0px' });
+          $('div.cw-clues-holder').css({ display: 'none' });
+          $('div.cw-top-text-wrapper').css({ display: 'none' });
         } else {
           // not a coded crossword
           var clues_length = xml_clues.length;
