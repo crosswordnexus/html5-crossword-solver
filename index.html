@@ -30,6 +30,7 @@
         // Grab puzzle from query string if available
         var url = new URL(window.location.href);
         var puzzle = url.searchParams.get("puzzle");
+        if (!puzzle) puzzle = url.searchParams.get("file");
         var params = {};
         if (puzzle) {
             params = {
