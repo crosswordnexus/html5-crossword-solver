@@ -1,33 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head lang="en">
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<meta name="HandheldFriendly" content="True">
-	<title>Crossword Nexus Solver</title>
-	<link href="css/crosswordnexus.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="HandheldFriendly" content="True">
+    <title>Crossword Nexus Solver</title>
+    <link href="css/crosswordnexus.css" rel="stylesheet">
 
-	<script src="js/crosswords.js"></script>
-	<script src="js/puz.min.js"></script>
+    <script src="js/crosswords.js"></script>
+    <script src="js/puz.js"></script>
 
-	<script src="lib/jquery.js"></script>
-	<script src="lib/zip/zip.js"></script>
-	<script src="lib/jspdf.min.js"></script>
-	<style>
-		html, body {
-			height: 100%;
-			margin: 0;
-		}
-		div.crossword { position: absolute; left: 0; top: 0; width: 100%; height: 100%; text-align: center; }
-	</style>
+    <script src="lib/jquery.js"></script>
+    <script src="lib/zip/zip.js"></script>
+    <script src="lib/jspdf.min.js"></script>
+
+    <style>
+        html, body {
+            /* height: 100%; */
+            margin: 0;
+        }
+        div.crossword { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+    </style>
 </head>
 <body>
-	<div class="crossword"></div>
+    <div class="crossword"></div>
 
 <script>
-	(function(){
-		CrosswordNexus.createCrossword($('div.crossword'));
-	})();
+    (function(){
+        // Grab puzzle from query string if available
+        var url = new URL(window.location.href);
+        var puzzle = url.searchParams.get("puzzle");
+        if (!puzzle) puzzle = url.searchParams.get("file");
+        var params = {};
+        if (puzzle) {
+            params = {
+                puzzle_file: {
+                    url: puzzle,
+                    type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
+                }
+            };
+        }
+        CrosswordNexus.createCrossword($('div.crossword'), params);
+    })();
 </script>
 
 </body>
