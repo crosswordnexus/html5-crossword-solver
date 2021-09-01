@@ -372,6 +372,31 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
     }
 
+    /**
+     * Sanitize HTML in the given string, except the simplest no-attribute
+     * formatting tags.
+     */
+    const entityMap = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '/': '&#x2F;',
+      '`': '&#x60;',
+      '=': '&#x3D;'
+    };
+    const escapeRegex = new RegExp(
+      `</?(i|b|em|strong|span|br|p)>|[&<>"'\`=\\/]`,
+      "g"
+    );
+    function escape(string) {
+      return String(string).replace(
+        escapeRegex,
+        (s) => s.length > 1 ? s : entityMap[s]
+      );
+    }
+
     var CrosswordNexus = {
       createCrossword: function (parent, user_config) {
         var crossword;
@@ -596,16 +621,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         if (puzzle.title.length) {
           this.title = puzzle.title;
-          //var text = this.title;
           if (puzzle.author.length) {
             this.author = puzzle.author;
-            //text += "<br>" + this.author;
           }
           if (puzzle.copyright.length) {
             this.copyright = puzzle.copyright;
-            //text += "<br>" + this.copyright;
           }
-          //this.bottom_text.html(text);
         }
 
         this.notepad = puzzle.notes;
@@ -792,16 +813,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         if (title.length) {
           this.title = XMLElementToString(title[0]);
-          //var text = this.title;
           if (creator.length) {
             this.author = XMLElementToString(creator[0]);
-            //text += "<br>" + this.author;
           }
           if (copyright.length) {
             this.copyright = XMLElementToString(copyright[0]);
-            //text += "<br>" + this.copyright;
           }
-          //this.bottom_text.html(text);
         }
 
         var description = metadata[0].getElementsByTagName('description');
@@ -976,9 +993,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       completeLoad() {
         $('.cw-header').html(`
-          <span class="cw-title">${this.title}</span>
+          <span class="cw-title">${escape(this.title)}</span>
           <span class="cw-header-separator">&nbsp;•&nbsp;</span>
-          <span class="cw-author">${this.author}</span>
+          <span class="cw-author">${escape(this.author)}</span>
           ${
             this.notepad
               ? `<button class="cw-button cw-button-notepad">
@@ -987,7 +1004,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               : ''
           }
           <span class="cw-flex-spacer"></span>
-          <span class="cw-copyright">${this.copyright}</span>
+          <span class="cw-copyright">${escape(this.copyright)}</span>
         `);
 
         this.notepad_icon = this.root.find('.cw-button-notepad');
@@ -1238,15 +1255,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       setActiveWord(word) {
         if (word) {
           this.selected_word = word;
-          this.top_text.html(
-            '<span class="cw-clue-number">' +
-              word.clue.number +
-              //'.' +
-              '</span>' +
-              '<span class="cw-clue-text">' +
-              word.clue.text +
-              '</span>'
-          );
+          this.top_text.html(`
+            <span class="cw-clue-number">
+              ${escape(word.clue.number)}
+            </span>
+            <span class="cw-clue-text">
+              ${escape(word.clue.text)}
+            </span>
+          `);
           resizeText(this.root, this.top_text);
         }
       }
@@ -1276,16 +1292,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           items = clues_container.find('div.cw-clues-items');
         items.find('div.cw-clue').remove();
         for (i = 0; (clue = clues_group.clues[i]); i++) {
-          clue_el = $(
-            '<div>' +
-              '<span class="cw-clue-number">' +
-              clue.number +
-              '</span>' +
-              '<span class="cw-clue-text">' +
-              clue.text +
-              '</span>' +
-              '</div>'
-          );
+          clue_el = $(`
+            <div>
+              <span class="cw-clue-number">
+                ${escape(clue.number)}
+              </span>
+              <span class="cw-clue-text">
+                ${escape(clue.text)}
+              </span>
+            </div>
+          `);
           clue_el.data('word', clue.word);
           clue_el.data('number', clue.number);
           clue_el.data('clues', clues_group.id);
@@ -1293,7 +1309,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           clue_el.addClass('word-' + clue.word);
           items.append(clue_el);
         }
-        title.html(clues_group.title);
+        title.html(escape(clues_group.title));
         clues_group.clues_container = items;
       }
 
@@ -1805,7 +1821,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.timer_button.removeClass('running');
           this.timer_running = false;
         }
-        var solvedMessage = this.msg_solved.replaceAll('\n', '<br />');
+        var solvedMessage = escape(this.msg_solved).replaceAll('\n', '<br />');
         this.createModalBox('🎉🎉🎉', solvedMessage);
       }
 
@@ -2045,15 +2061,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.createModalBox(
           'Info',
           `
-            <p><b>${this.title}</b></p>
-            <p>${this.author}</p>
-            <p><i>${this.copyright}</i></p>
+            <p><b>${escape(this.title)}</b></p>
+            <p>${escape(this.author)}</p>
+            <p><i>${escape(this.copyright)}</i></p>
           `
         );
       }
 
       showNotepad() {
-        this.createModalBox('Notes', this.notepad);
+        this.createModalBox('Notes', escape(this.notepad));
       }
 
       openSettings() {
