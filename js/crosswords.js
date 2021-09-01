@@ -470,6 +470,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // Solution message
         this.msg_solved = MSG_SOLVED;
 
+        this.handleClickWindow = this.handleClickWindow.bind(this);
         this.windowResized = this.windowResized.bind(this);
 
         this.init();
@@ -1035,6 +1036,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       removeGlobalListeners() {
+        $(window).off('click', this.handleClickWindow);
         $(window).off('resize', this.windowResized);
       }
 
@@ -1065,22 +1067,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       addListeners() {
+        $(window).on('click', this.handleClickWindow);
         $(window).on('resize', this.windowResized);
 
         this.root.delegate(
           '.cw-menu-container > button',
           'click',
           $.proxy(this.handleClickOpenMenu, this)
-        );
-        this.root.delegate(
-          '.cw-menu-container',
-          'blur',
-          $.proxy(this.handleMenuBlur, this)
-        );
-        this.root.delegate(
-          '.cw-menu-container .cw-menu > button',
-          'click',
-          $.proxy(this.handleClickMenuButton, this)
         );
 
         this.clues_holder.delegate(
@@ -1154,26 +1147,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.hidden_input.on('keydown', $.proxy(this.keyPressed, this));
       }
 
+      handleClickWindow(event) {
+        this.root.find('.cw-menu').hide();
+      }
+
       handleClickOpenMenu(event) {
         const menuContainer = $(event.target).closest('.cw-menu-container');
         const menu = menuContainer.find('.cw-menu');
-        if (menu.is(':visible')) menu.hide();
-        else menu.show();
-      }
-
-      handleMenuBlur(event) {
-        const menuContainer = $(event.target).closest('.cw-menu-container');
-        const menu = menuContainer.find('.cw-menu');
-        const focusTarget = event.relatedTarget;
-        if (!focusTarget || !$.contains(menu.get(0), focusTarget)) {
-          menu.hide();
+        if (!menu.is(':visible')) {
+          // This is horrible: delay opening the menu so that
+          // `handleClickWindow` can run first and close all previously-open
+          // menus
+          setTimeout(() => {
+            menu.show();
+          });
         }
-      }
-
-      handleClickMenuButton(event) {
-        const menuContainer = $(event.target).closest('.cw-menu-container');
-        const menu = menuContainer.find('.cw-menu');
-        menu.hide();
       }
 
       // Create a generic modal box with content
@@ -2236,13 +2224,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         if (reveal_or_check == 'reveal') {
           this.checkIfSolved();
-          this.closeReveal();
-        } else {
-          this.closeCheck();
         }
         this.hidden_input.focus();
-        e.preventDefault();
-        e.stopPropagation();
       }
 
       printPuzzle(e) {
