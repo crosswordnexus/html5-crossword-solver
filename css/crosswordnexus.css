@@ -554,16 +554,16 @@ input.cw-hidden-input {
     width: auto;
 }
 
-.cw-max-width-960.cw-main {
+.cw-max-width-1080.cw-main {
     font-size: 14px;
 }
-.cw-max-width-960 .cw-top-text-wrapper {
+.cw-max-width-1080 .cw-top-text-wrapper {
     height: 45px;
 }
-.cw-max-width-960 .cw-top-text {
+.cw-max-width-1080 .cw-top-text {
     padding: 4px 8px 4px 8px;
 }
-.cw-max-width-960 .cw-clues {
+.cw-max-width-1080 .cw-clues {
     width: 220px;
 }
 

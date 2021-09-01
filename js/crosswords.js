@@ -231,7 +231,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
     // Breakpoint config for the top clue, as tuples of `[max_width, max_size]`
     const maxClueSizes = [
-      [960, 15],
+      [1080, 15],
       [1200, 17],
       [Infinity, 19],
     ];
@@ -270,7 +270,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       420,
       600,
       850,
-      960,
+      1080,
       1200
     ];
 
