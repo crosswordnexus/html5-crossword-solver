@@ -112,7 +112,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         <header class="cw-header"></header>
         <div class="cw-content">
           <!-- Placeholder for modal boxes -->
-          <div id="myModal" class="modal"></div>
+          <div class="cw-modal"></div>
           <div class="cw-left">
             <div class="cw-buttons-holder">
               <div class="cw-menu-container">
@@ -1170,26 +1170,26 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         const modalContent = `
         <div class="modal-content">
           <div class="modal-header">
-            <span class="close" id="modalClose">&times;</span>
+            <span class="modal-close">&times;</span>
             <span class="modal-title">${title}</span>
           </div>
           <div class="modal-body">
             ${content}
           </div>
           <div class="modal-footer">
-            <button id="modal-button" class="modal-button">${button_text}</button>
+            <button class="cw-button">${button_text}</button>
           </div>
         </div>`;
         // Set this to be the contents of the container modal div
-        $('#myModal').html(modalContent);
+        this.root.find('.cw-modal').html(modalContent);
 
         // Show the div
-        var modal = document.getElementById('myModal');
+        var modal = this.root.find('.cw-modal').get(0)
         modal.style.display = 'block';
 
         // Allow user to close the div
         const this_hidden_input = this.hidden_input;
-        var span = document.getElementById('modalClose');
+        var span = this.root.find('.modal-close').get(0);
         // When the user clicks on <span> (x), close the modal
         span.onclick = function () {
           modal.style.display = 'none';
@@ -2063,7 +2063,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       openSettings() {
         // Create a modal box
         var settingsHTML = `
-        <div class="settings-wrapper" id="settings-wrapper">
+        <div class="settings-wrapper">
           <!-- Skip filled letters -->
           <div class="settings-setting">
             <div class="settings-description">
@@ -2135,8 +2135,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           }
         }
         // Add a listener for these events
-        document
-          .getElementById('settings-wrapper')
+        this.root.find('.settings-wrapper').get(0)
           .addEventListener('click', (event) => {
             if (event.target.className === 'settings-changer') {
               if (event.target.type === 'checkbox') {

@@ -200,7 +200,7 @@ input.cw-hidden-input {
 * Modal box
 **/
 /* The Modal (background) */
-.modal {
+.cw-modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
@@ -224,6 +224,8 @@ input.cw-hidden-input {
     width: 80%;
     max-width: 600px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 5px;
+    overflow: hidden;
     -webkit-animation-name: animatetop;
     -webkit-animation-duration: 0.4s;
     animation-name: animatetop;
@@ -238,23 +240,23 @@ input.cw-hidden-input {
     text-align: center;
     height: 40px;
     font-size: max(1.1em, 14px);
+    font-weight: 500;
 }
 
 /* Modal Body */
 .modal-body {
     padding: 2px 16px;
     margin: 1em;
-    /* font-size: 0.8em; */
     font-size: max(0.8em, 12px);
 }
 
 /* Modal Footer */
 .modal-footer {
-    /* background-color: #777777; */
-    color: gray;
-    height: 40px;
     border-top: 1px solid #e5e5e5;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
 }
 
 /* Modal Title */
@@ -286,16 +288,16 @@ input.cw-hidden-input {
 }
 
 /* The Close Button */
-.close {
-    color: #white;
+.modal-close {
+    color: white;
     float: right;
     font-size: 28px;
     font-weight: bold;
 }
 
-.close:hover,
-.close:focus {
-    color: black;
+.modal-close:hover,
+.modal-close:focus {
+    color: #eeeeee;
     text-decoration: none;
     cursor: pointer;
 }
