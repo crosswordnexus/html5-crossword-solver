@@ -266,13 +266,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     }
 
     // Breakpoint widths used by the stylesheet.
-    const breakpoints = [
-      420,
-      600,
-      850,
-      1080,
-      1200
-    ];
+    const breakpoints = [420, 600, 850, 1080, 1200];
 
     function setBreakpointClasses(rootElement) {
       const rootWidth = rootElement.width();
@@ -384,16 +378,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       "'": '&#39;',
       '/': '&#x2F;',
       '`': '&#x60;',
-      '=': '&#x3D;'
+      '=': '&#x3D;',
     };
     const escapeRegex = new RegExp(
       `</?(i|b|em|strong|span|br|p)>|[&<>"'\`=\\/]`,
-      "g"
+      'g'
     );
     function escape(string) {
-      return String(string).replace(
-        escapeRegex,
-        (s) => s.length > 1 ? s : entityMap[s]
+      return String(string).replace(escapeRegex, (s) =>
+        s.length > 1 ? s : entityMap[s]
       );
     }
 
@@ -1184,7 +1177,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.root.find('.cw-modal').html(modalContent);
 
         // Show the div
-        var modal = this.root.find('.cw-modal').get(0)
+        var modal = this.root.find('.cw-modal').get(0);
         modal.style.display = 'block';
 
         // Allow user to close the div
@@ -2135,7 +2128,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           }
         }
         // Add a listener for these events
-        this.root.find('.settings-wrapper').get(0)
+        this.root
+          .find('.settings-wrapper')
+          .get(0)
           .addEventListener('click', (event) => {
             if (event.target.className === 'settings-changer') {
               if (event.target.type === 'checkbox') {

@@ -16,7 +16,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 **/
 /* CSS for using the Crossword Nexus HTML5 Crossword Solver */
 
-.cw-main, .cw-main * {
+.cw-main,
+.cw-main * {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     box-sizing: content-box; /* for consistency */
 }
