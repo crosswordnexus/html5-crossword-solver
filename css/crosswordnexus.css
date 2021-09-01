@@ -494,6 +494,9 @@ input.cw-hidden-input {
 
 /**
 * Size-dependent styles
+* NOTE: We don't use media queries here because we need to base the responsive
+* behavior on the width of the root element, not the width of the overall
+* window.
 **/
 
 .cw-main {
@@ -535,69 +538,59 @@ input.cw-hidden-input {
     background: #eee;
 }
 
-@media (max-width: 1200px) {
-    .cw-top-text-wrapper {
-        height: 55px;
-    }
-    .cw-top-text {
-        padding: 5px 10px 5px 10px;
-    }
-    .cw-main {
-        font-size: 16px;
-    }
-    .cw-clues {
-        width: 300px;
-    }
-    .cw-clues-holder {
-        width: auto;
-    }
+.cw-max-width-1200.cw-main {
+    font-size: 16px;
+}
+.cw-max-width-1200 .cw-top-text-wrapper {
+    height: 55px;
+}
+.cw-max-width-1200 .cw-top-text {
+    padding: 5px 10px 5px 10px;
+}
+.cw-max-width-1200 .cw-clues {
+    width: 300px;
+}
+.cw-max-width-1200 .cw-clues-holder {
+    width: auto;
 }
 
-@media (max-width: 960px) {
-    .cw-top-text-wrapper {
-        height: 45px;
-    }
-    .cw-top-text {
-        padding: 4px 8px 4px 8px;
-    }
-    .cw-main {
-        font-size: 14px;
-    }
-    .cw-clues {
-        width: 220px;
-    }
+.cw-max-width-960.cw-main {
+    font-size: 14px;
+}
+.cw-max-width-960 .cw-top-text-wrapper {
+    height: 45px;
+}
+.cw-max-width-960 .cw-top-text {
+    padding: 4px 8px 4px 8px;
+}
+.cw-max-width-960 .cw-clues {
+    width: 220px;
 }
 
-@media (max-width: 850px) {
-    .cw-clues-holder {
-        flex-direction: column;
-    }
+.cw-max-width-850 .cw-clues-holder {
+    flex-direction: column;
 }
 
-@media (max-width: 600px) {
-    .cw-top-text {
-        padding: 3px 5px 3px 5px;
-    }
-    .cw-main {
-        font-size: 14px;
-    }
-    .cw-clues-holder {
-        display: none;
-    }
-    .cw-header {
-        display: none;
-    }
-    .cw-buttons-holder {
-        height: 45px;
-        padding: 0 10px;
-    }
-    .cw-top-text-wrapper {
-        height: 40px;
-    }
+.cw-max-width-600.cw-main {
+    font-size: 14px;
+}
+.cw-max-width-600 .cw-top-text {
+    padding: 3px 5px 3px 5px;
+}
+.cw-max-width-600 .cw-clues-holder {
+    display: none;
+}
+.cw-max-width-600 .cw-header {
+    display: none;
+}
+.cw-max-width-600 .cw-buttons-holder {
+    height: 45px;
+    padding: 0 10px;
+}
+.cw-max-width-600 .cw-top-text-wrapper {
+    height: 40px;
 }
 
-@media (max-width: 420px) {
-    .cw-button-icon {
-        display: none;
-    }
+.cw-max-width-420 .cw-button-icon {
+    display: none;
 }

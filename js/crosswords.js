@@ -237,11 +237,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     ];
 
     /** Function to resize text **/
-    function resizeText(nodeList) {
+    function resizeText(rootElement, nodeList) {
       const minSize = 9;
-      const windowWidth = $(window).width();
+      const rootWidth = rootElement.width();
       const maxSize = maxClueSizes.find(
-        (breakpoint) => breakpoint[0] > windowWidth
+        (breakpoint) => breakpoint[0] > rootWidth
       )[1];
       const step = 1;
       const unit = 'px';
@@ -262,6 +262,29 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
         // revert to last state where no overflow happened
         el.style.fontSize = `${i - step}${unit}`;
+      }
+    }
+
+    // Breakpoint widths used by the stylesheet.
+    const breakpoints = [
+      420,
+      600,
+      850,
+      960,
+      1200
+    ];
+
+    function setBreakpointClasses(rootElement) {
+      const rootWidth = rootElement.width();
+
+      for (const breakpoint of breakpoints) {
+        const className = `cw-max-width-${breakpoint}`;
+
+        if (rootWidth <= breakpoint) {
+          rootElement.addClass(className);
+        } else {
+          rootElement.removeClass(className);
+        }
       }
     }
 
@@ -557,6 +580,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.is_autofill = false;
 
         this.root.appendTo(this.parent);
+        setBreakpointClasses(this.root);
       }
 
       error(message) {
@@ -1223,7 +1247,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               word.clue.text +
               '</span>'
           );
-          resizeText(this.top_text);
+          resizeText(this.root, this.top_text);
         }
       }
 
@@ -1987,8 +2011,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       windowResized() {
-        // Resize the clue text, then re-render the actual grid
-        resizeText(this.top_text);
+        setBreakpointClasses(this.root);
+        resizeText(this.root, this.top_text);
         this.renderCells();
       }
 
