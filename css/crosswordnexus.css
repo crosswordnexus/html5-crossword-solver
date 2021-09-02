@@ -298,7 +298,7 @@ input.cw-hidden-input {
 
 .modal-close:hover,
 .modal-close:focus {
-    color: #eeeeee;
+    color: #999999;
     text-decoration: none;
     cursor: pointer;
 }
