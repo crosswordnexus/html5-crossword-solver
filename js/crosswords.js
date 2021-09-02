@@ -112,7 +112,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         <header class="cw-header"></header>
         <div class="cw-content">
           <!-- Placeholder for modal boxes -->
-          <div id="myModal" class="modal"></div>
+          <div class="cw-modal"></div>
           <div class="cw-left">
             <div class="cw-buttons-holder">
               <div class="cw-menu-container">
@@ -231,17 +231,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
     // Breakpoint config for the top clue, as tuples of `[max_width, max_size]`
     const maxClueSizes = [
-      [960, 15],
+      [1080, 15],
       [1200, 17],
       [Infinity, 19],
     ];
 
     /** Function to resize text **/
-    function resizeText(nodeList) {
+    function resizeText(rootElement, nodeList) {
       const minSize = 9;
-      const windowWidth = $(window).width();
+      const rootWidth = rootElement.width();
       const maxSize = maxClueSizes.find(
-        (breakpoint) => breakpoint[0] > windowWidth
+        (breakpoint) => breakpoint[0] > rootWidth
       )[1];
       const step = 1;
       const unit = 'px';
@@ -262,6 +262,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
         // revert to last state where no overflow happened
         el.style.fontSize = `${i - step}${unit}`;
+      }
+    }
+
+    // Breakpoint widths used by the stylesheet.
+    const breakpoints = [420, 600, 850, 1080, 1200];
+
+    function setBreakpointClasses(rootElement) {
+      const rootWidth = rootElement.width();
+
+      for (const breakpoint of breakpoints) {
+        const className = `cw-max-width-${breakpoint}`;
+
+        if (rootWidth <= breakpoint) {
+          rootElement.addClass(className);
+        } else {
+          rootElement.removeClass(className);
+        }
       }
     }
 
@@ -349,6 +366,30 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
     }
 
+    /**
+     * Sanitize HTML in the given string, except the simplest no-attribute
+     * formatting tags.
+     */
+    const entityMap = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '/': '&#x2F;',
+      '`': '&#x60;',
+      '=': '&#x3D;',
+    };
+    const escapeRegex = new RegExp(
+      `</?(i|b|em|strong|span|br|p)>|[&<>"'\`=\\/]`,
+      'g'
+    );
+    function escape(string) {
+      return String(string).replace(escapeRegex, (s) =>
+        s.length > 1 ? s : entityMap[s]
+      );
+    }
+
     var CrosswordNexus = {
       createCrossword: function (parent, user_config) {
         var crossword;
@@ -422,6 +463,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // Solution message
         this.msg_solved = MSG_SOLVED;
 
+        this.handleClickWindow = this.handleClickWindow.bind(this);
         this.windowResized = this.windowResized.bind(this);
 
         this.init();
@@ -557,6 +599,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.is_autofill = false;
 
         this.root.appendTo(this.parent);
+        setBreakpointClasses(this.root);
       }
 
       error(message) {
@@ -572,16 +615,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         if (puzzle.title.length) {
           this.title = puzzle.title;
-          //var text = this.title;
           if (puzzle.author.length) {
             this.author = puzzle.author;
-            //text += "<br>" + this.author;
           }
           if (puzzle.copyright.length) {
             this.copyright = puzzle.copyright;
-            //text += "<br>" + this.copyright;
           }
-          //this.bottom_text.html(text);
         }
 
         this.notepad = puzzle.notes;
@@ -768,16 +807,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         if (title.length) {
           this.title = XMLElementToString(title[0]);
-          //var text = this.title;
           if (creator.length) {
             this.author = XMLElementToString(creator[0]);
-            //text += "<br>" + this.author;
           }
           if (copyright.length) {
             this.copyright = XMLElementToString(copyright[0]);
-            //text += "<br>" + this.copyright;
           }
-          //this.bottom_text.html(text);
         }
 
         var description = metadata[0].getElementsByTagName('description');
@@ -952,9 +987,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       completeLoad() {
         $('.cw-header').html(`
-          <span class="cw-title">${this.title}</span>
+          <span class="cw-title">${escape(this.title)}</span>
           <span class="cw-header-separator">&nbsp;•&nbsp;</span>
-          <span class="cw-author">${this.author}</span>
+          <span class="cw-author">${escape(this.author)}</span>
           ${
             this.notepad
               ? `<button class="cw-button cw-button-notepad">
@@ -963,7 +998,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               : ''
           }
           <span class="cw-flex-spacer"></span>
-          <span class="cw-copyright">${this.copyright}</span>
+          <span class="cw-copyright">${escape(this.copyright)}</span>
         `);
 
         this.notepad_icon = this.root.find('.cw-button-notepad');
@@ -994,6 +1029,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       removeGlobalListeners() {
+        $(window).off('click', this.handleClickWindow);
         $(window).off('resize', this.windowResized);
       }
 
@@ -1024,22 +1060,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       addListeners() {
+        $(window).on('click', this.handleClickWindow);
         $(window).on('resize', this.windowResized);
 
         this.root.delegate(
           '.cw-menu-container > button',
           'click',
           $.proxy(this.handleClickOpenMenu, this)
-        );
-        this.root.delegate(
-          '.cw-menu-container',
-          'blur',
-          $.proxy(this.handleMenuBlur, this)
-        );
-        this.root.delegate(
-          '.cw-menu-container .cw-menu > button',
-          'click',
-          $.proxy(this.handleClickMenuButton, this)
         );
 
         this.clues_holder.delegate(
@@ -1113,26 +1140,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.hidden_input.on('keydown', $.proxy(this.keyPressed, this));
       }
 
+      handleClickWindow(event) {
+        this.root.find('.cw-menu').hide();
+      }
+
       handleClickOpenMenu(event) {
         const menuContainer = $(event.target).closest('.cw-menu-container');
         const menu = menuContainer.find('.cw-menu');
-        if (menu.is(':visible')) menu.hide();
-        else menu.show();
-      }
-
-      handleMenuBlur(event) {
-        const menuContainer = $(event.target).closest('.cw-menu-container');
-        const menu = menuContainer.find('.cw-menu');
-        const focusTarget = event.relatedTarget;
-        if (!focusTarget || !$.contains(menu.get(0), focusTarget)) {
-          menu.hide();
+        if (!menu.is(':visible')) {
+          // This is horrible: delay opening the menu so that
+          // `handleClickWindow` can run first and close all previously-open
+          // menus
+          setTimeout(() => {
+            menu.show();
+          });
         }
-      }
-
-      handleClickMenuButton(event) {
-        const menuContainer = $(event.target).closest('.cw-menu-container');
-        const menu = menuContainer.find('.cw-menu');
-        menu.hide();
       }
 
       // Create a generic modal box with content
@@ -1141,26 +1163,26 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         const modalContent = `
         <div class="modal-content">
           <div class="modal-header">
-            <span class="close" id="modalClose">&times;</span>
+            <span class="modal-close">&times;</span>
             <span class="modal-title">${title}</span>
           </div>
           <div class="modal-body">
             ${content}
           </div>
           <div class="modal-footer">
-            <button id="modal-button" class="modal-button">${button_text}</button>
+            <button class="cw-button" id="modal-button">${button_text}</button>
           </div>
         </div>`;
         // Set this to be the contents of the container modal div
-        $('#myModal').html(modalContent);
+        this.root.find('.cw-modal').html(modalContent);
 
         // Show the div
-        var modal = document.getElementById('myModal');
+        var modal = this.root.find('.cw-modal').get(0);
         modal.style.display = 'block';
 
         // Allow user to close the div
         const this_hidden_input = this.hidden_input;
-        var span = document.getElementById('modalClose');
+        var span = this.root.find('.modal-close').get(0);
         // When the user clicks on <span> (x), close the modal
         span.onclick = function () {
           modal.style.display = 'none';
@@ -1214,16 +1236,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       setActiveWord(word) {
         if (word) {
           this.selected_word = word;
-          this.top_text.html(
-            '<span class="cw-clue-number">' +
-              word.clue.number +
-              //'.' +
-              '</span>' +
-              '<span class="cw-clue-text">' +
-              word.clue.text +
-              '</span>'
-          );
-          resizeText(this.top_text);
+          this.top_text.html(`
+            <span class="cw-clue-number">
+              ${escape(word.clue.number)}
+            </span>
+            <span class="cw-clue-text">
+              ${escape(word.clue.text)}
+            </span>
+          `);
+          resizeText(this.root, this.top_text);
         }
       }
 
@@ -1252,16 +1273,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           items = clues_container.find('div.cw-clues-items');
         items.find('div.cw-clue').remove();
         for (i = 0; (clue = clues_group.clues[i]); i++) {
-          clue_el = $(
-            '<div>' +
-              '<span class="cw-clue-number">' +
-              clue.number +
-              '</span>' +
-              '<span class="cw-clue-text">' +
-              clue.text +
-              '</span>' +
-              '</div>'
-          );
+          clue_el = $(`
+            <div>
+              <span class="cw-clue-number">
+                ${escape(clue.number)}
+              </span>
+              <span class="cw-clue-text">
+                ${escape(clue.text)}
+              </span>
+            </div>
+          `);
           clue_el.data('word', clue.word);
           clue_el.data('number', clue.number);
           clue_el.data('clues', clues_group.id);
@@ -1269,7 +1290,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           clue_el.addClass('word-' + clue.word);
           items.append(clue_el);
         }
-        title.html(clues_group.title);
+        title.html(escape(clues_group.title));
         clues_group.clues_container = items;
       }
 
@@ -1781,7 +1802,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.timer_button.removeClass('running');
           this.timer_running = false;
         }
-        var solvedMessage = this.msg_solved.replaceAll('\n', '<br />');
+        var solvedMessage = escape(this.msg_solved).replaceAll('\n', '<br />');
         this.createModalBox('🎉🎉🎉', solvedMessage);
       }
 
@@ -1987,8 +2008,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       windowResized() {
-        // Resize the clue text, then re-render the actual grid
-        resizeText(this.top_text);
+        setBreakpointClasses(this.root);
+        resizeText(this.root, this.top_text);
         this.renderCells();
       }
 
@@ -2021,21 +2042,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.createModalBox(
           'Info',
           `
-            <p><b>${this.title}</b></p>
-            <p>${this.author}</p>
-            <p><i>${this.copyright}</i></p>
+            <p><b>${escape(this.title)}</b></p>
+            <p>${escape(this.author)}</p>
+            <p><i>${escape(this.copyright)}</i></p>
           `
         );
       }
 
       showNotepad() {
-        this.createModalBox('Notes', this.notepad);
+        this.createModalBox('Notes', escape(this.notepad));
       }
 
       openSettings() {
         // Create a modal box
         var settingsHTML = `
-        <div class="settings-wrapper" id="settings-wrapper">
+        <div class="settings-wrapper">
           <!-- Skip filled letters -->
           <div class="settings-setting">
             <div class="settings-description">
@@ -2107,8 +2128,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           }
         }
         // Add a listener for these events
-        document
-          .getElementById('settings-wrapper')
+        this.root
+          .find('.settings-wrapper')
+          .get(0)
           .addEventListener('click', (event) => {
             if (event.target.className === 'settings-changer') {
               if (event.target.type === 'checkbox') {
@@ -2196,13 +2218,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         if (reveal_or_check == 'reveal') {
           this.checkIfSolved();
-          this.closeReveal();
-        } else {
-          this.closeCheck();
         }
         this.hidden_input.focus();
-        e.preventDefault();
-        e.stopPropagation();
       }
 
       printPuzzle(e) {
