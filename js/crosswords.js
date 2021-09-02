@@ -1170,7 +1170,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             ${content}
           </div>
           <div class="modal-footer">
-            <button class="cw-button">${button_text}</button>
+            <button class="cw-button" id="modal-button">${button_text}</button>
           </div>
         </div>`;
         // Set this to be the contents of the container modal div
