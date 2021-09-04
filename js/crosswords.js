@@ -543,7 +543,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           c.color = c['background-color'];
           c.shape = c['background-shape'];
           this.cells[c.x][c.y] = c;
+
+          // maintain the mapping of number -> cells
+          if (!this.number_to_cells[c.number]) {
+            this.number_to_cells[c.number] = [c];
+          } else {
+            this.number_to_cells[c.number].push(c);
+          }
         }
+
         /* clues */
         var clueMapping = {};
         // we handle them differently for coded crosswords
@@ -587,7 +595,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           $('div.cw-clues-holder').css({ display: 'none' });
           $('div.cw-top-text-wrapper').css({ display: 'none' });
           // Add some padding to the buttons holder
-          //$('div.cw-buttons-holder').css({ padding: '0 10px' });
+          $('div.cw-buttons-holder').css({ padding: '0 10px' });
 
         } else { // not a coded crossword
           // we need to keep a mapping of word ID to clue
