@@ -545,38 +545,83 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.cells[c.x][c.y] = c;
         }
         /* clues */
-        // we need to keep a mapping of word ID to clue
         var clueMapping = {};
-        puzzle.clues[0].clue.forEach( function (clue) {
-          clueMapping[clue.word] = clue;
-        });
-        var words_ids_top = puzzle.clues[0].clue.map(function (key) {
-          return key.word;
-        });
-        this.clues_top = new CluesGroup(this, {
-          id: CLUES_TOP,
-          title: puzzle.clues[0]['title'],
-          clues: puzzle.clues[0].clue,
-          words_ids: words_ids_top
-        });
-        // only do a second clue list if we have one
-        if (puzzle.clues.length > 1) {
-          puzzle.clues[1].clue.forEach( function (clue) {
+        // we handle them differently for coded crosswords
+        if (this.crossword_type === 'coded') {
+          // initialize the across and down groups
+          var across_group = new CluesGroup(this, {
+            id: CLUES_TOP,
+            title: 'ACROSS',
+            clues: [],
+            words_ids: [],
+          });
+          var down_group = new CluesGroup(this, {
+            id: CLUES_BOTTOM,
+            title: 'DOWN',
+            clues: [],
+            words_ids: [],
+          });
+          // Determine which word is an across and which is a down
+          // We do this by comparing the entry to the set of across entries
+          var thisGrid = new xwGrid(puzzle.get_solution_array(), null);
+          var acrossEntries = thisGrid.acrossEntries();
+          var acrossEntries = thisGrid.acrossEntries();
+          var acrossSet = new Set(Object.keys(acrossEntries).map(function (x) {return acrossEntries[x].word;}))
+          var entry_mapping = puzzle.get_entry_mapping();
+          Object.keys(entry_mapping).forEach(function (id) {
+            var thisClue = {word: id, number: id, text: '--'};
+            var entry = entry_mapping[id];
+            if (acrossSet.has(entry)) {
+              across_group.clues.push(thisClue);
+              across_group.words_ids.push(id);
+              clueMapping[id] = thisClue;
+            } else {
+              down_group.clues.push(thisClue);
+              down_group.words_ids.push(id);
+              clueMapping[id] = thisClue;
+            }
+          });
+          this.clues_top = across_group;
+          this.clues_bottom = down_group;
+          // Also, in a coded crossword, there's no reason to show the clues
+          $('div.cw-clues-holder').css({ display: 'none' });
+          $('div.cw-top-text-wrapper').css({ display: 'none' });
+          // Add some padding to the buttons holder
+          //$('div.cw-buttons-holder').css({ padding: '0 10px' });
+
+        } else { // not a coded crossword
+          // we need to keep a mapping of word ID to clue
+          puzzle.clues[0].clue.forEach( function (clue) {
             clueMapping[clue.word] = clue;
           });
-          this.clues_bottom = new CluesGroup(this, {
-            id: CLUES_BOTTOM,
-            title: puzzle.clues[1]['title'],
-            clues: puzzle.clues[1].clue,
-            words_ids: puzzle.clues[1].clue.map(function (key) {
-              return key.word;
-            })
+          var words_ids_top = puzzle.clues[0].clue.map(function (key) {
+            return key.word;
           });
-        } else {
-          // hide the bottom clues
-          $('div.cw-clues-bottom').css({
-            display: 'none',
+          this.clues_top = new CluesGroup(this, {
+            id: CLUES_TOP,
+            title: puzzle.clues[0]['title'],
+            clues: puzzle.clues[0].clue,
+            words_ids: words_ids_top
           });
+          // only do a second clue list if we have one
+          if (puzzle.clues.length > 1) {
+            puzzle.clues[1].clue.forEach( function (clue) {
+              clueMapping[clue.word] = clue;
+            });
+            this.clues_bottom = new CluesGroup(this, {
+              id: CLUES_BOTTOM,
+              title: puzzle.clues[1]['title'],
+              clues: puzzle.clues[1].clue,
+              words_ids: puzzle.clues[1].clue.map(function (key) {
+                return key.word;
+              })
+            });
+          } else {
+            // hide the bottom clues
+            $('div.cw-clues-bottom').css({
+              display: 'none',
+            });
+          }
         }
         /* words */
         this.words = {};
