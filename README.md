@@ -3,8 +3,8 @@
 
 ## Dependencies:
 #### jQuery
-#### zipjs - http://gildas-lormeau.github.io/zip.js/
 #### jsPDF (optional) - https://github.com/MrRio/jsPDF
+#### JSCrossword tools - https://github.com/crosswordnexus/crossword-tools
 
 ## Usage:
 ### Basic usage example
