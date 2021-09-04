@@ -72,12 +72,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
     // errors
     var ERR_FILE_LOAD = 'Error loading file';
-    var ERR_UNZIP = 'Failed to unzip file';
     var ERR_PARSE_JPZ = 'Error parsing JPZ file... Not JPZ or zipped JPZ file.';
     var ERR_NOT_CROSSWORD = 'Error opening file. Probably not a crossword.';
     var ERR_NO_JQUERY = 'jQuery not found';
     var ERR_CLUES_GROUPS = 'Wrong number of clues in jpz file';
-    var ERR_NO_ZIPJS = 'Zip js not found';
     var ERR_NO_PUZJS = 'Puz js not found';
     var ERR_LOAD = 'Error loading savegame - probably corrupted';
     var ERR_NO_SAVEGAME = 'No saved game found';
@@ -103,10 +101,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               Open puzzle file
             </button>
             <div class="cw-open-puzzle-formats">
-              <b>Accepted formats:</b> PUZ, JPZ, and XML
+              <b>Accepted formats:</b> PUZ, JPZ, XML, and iPUZ (partial)
             </div>
           </div>
-          <input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz,.xpz">
+          <input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz,.xpz,.ipuz">
         </div>
         <!-- End overlay -->
         <header class="cw-header"></header>
@@ -136,7 +134,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                   <button class="cw-menu-item cw-check-puzzle">Puzzle</button>
                 </div>
               </div>
-              <div class="cw-menu-container">
+              <div class="cw-menu-container cw-reveal">
                 <button type="button" class="cw-button">
                   <span class="cw-button-icon">🎱</span> Reveal
                   <span class="cw-arrow"></span>
@@ -209,23 +207,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       deferred = deferred || $.Deferred();
       reader.onload = function (event) {
         var string = event.target.result;
-        if (type === FILE_JPZ) {
-          if (string.match(/^<\?xml/)) {
-            // xml
-            parseJPZString(event.target.result, deferred);
-          } else {
-            // probably, zipped xml
-            unzip(new zip.TextReader(file), parseJPZString, deferred);
-          }
-        } else if (type === FILE_PUZ) {
-          deferred.resolve(string);
-        }
+        deferred.resolve(string);
       };
-      if (type === FILE_PUZ) {
-        reader.readAsBinaryString(file);
-      } else {
-        reader.readAsText(file);
-      }
+      reader.readAsBinaryString(file);
       return deferred;
     }
 
@@ -282,81 +266,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
     }
 
-    function unzip(zip_reader, success_callback, deferred) {
-      zip.workerScripts = {
-        inflater: [ZIPJS_PATH + '/z-worker.js', ZIPJS_PATH + '/inflate.js'],
-      };
-      // use a BlobReader to read the zip from a Blob object
-      zip.createReader(
-        zip_reader,
-        function (reader) {
-          // get all entries from the zip
-          reader.getEntries(function (entries) {
-            if (entries.length) {
-              // get first entry content as text
-              entries[0].getData(new zip.TextWriter(), function (text) {
-                // text contains the entry data as a String
-                if (typeof success_callback === 'function') {
-                  success_callback(text, deferred);
-                }
-              });
-            }
-          });
-        },
-        function (error) {
-          deferred.reject(ERR_UNZIP);
-        }
-      );
-    }
-
-    // parses XML string and creates DOMParser object
-    function parseJPZString(xml_string, deferred) {
-      var parser, xmlDoc;
-      // Some CS JPZs have &nbsp; in them.  Replace with a space.
-      xml_string = xml_string.replace('&nbsp;', ' ');
-      if (window.DOMParser) {
-        parser = new DOMParser();
-        xmlDoc = parser.parseFromString(xml_string, 'text/xml');
-      } else {
-        // Internet Explorer
-        xmlDoc = new ActiveXObject('Microsoft.XMLDOM');
-        xmlDoc.async = false;
-        xmlDoc.loadXML(xml_string);
-      }
-
-      if (xmlDoc.getElementsByTagName('parsererror').length) {
-        deferred.reject(ERR_PARSE_JPZ);
-        return;
-      }
-
-      deferred.resolve(xmlDoc);
-    }
-
-    function XMLElementToString(element) {
-      var i,
-        node,
-        nodename,
-        nodes = element.childNodes,
-        result = '';
-      for (i = 0; (node = nodes[i]); i++) {
-        if (node.nodeType === XMLDOM_TEXT) {
-          result += node.textContent;
-        }
-        if (node.nodeType === XMLDOM_ELEMENT) {
-          nodename = node.nodeName;
-          result +=
-            '<' +
-            nodename +
-            '>' +
-            XMLElementToString(node) +
-            '</' +
-            nodename +
-            '>';
-        }
-      }
-      return result;
-    }
-
     // Return the first element of a string -- if it's null return null
     function firstChar(str) {
       if (str == null) {
@@ -385,9 +294,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       'g'
     );
     function escape(string) {
-      return String(string).replace(escapeRegex, (s) =>
-        s.length > 1 ? s : entityMap[s]
-      );
+      //return String(string).replace(escapeRegex, (s) =>
+      //  s.length > 1 ? s : entityMap[s]
+      //);
+      return string;
     }
 
     var CrosswordNexus = {
@@ -396,15 +306,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         try {
           if (typeof jQuery === TYPE_UNDEFINED) {
             throw new Error(ERR_NO_JQUERY);
-          }
-          if (typeof zip === TYPE_UNDEFINED) {
-            throw new Error(ERR_NO_ZIPJS);
-          }
-          if (typeof PUZAPP === TYPE_UNDEFINED) {
-            throw new Error(ERR_NO_PUZJS);
-          }
-          if (user_config && user_config.hasOwnProperty(ZIPJS_CONFIG_OPTION)) {
-            ZIPJS_PATH = user_config[ZIPJS_CONFIG_OPTION];
           }
           crossword = new CrossWord(parent, user_config);
         } catch (e) {
@@ -463,6 +364,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // Solution message
         this.msg_solved = MSG_SOLVED;
 
+        // whether to show the reveal button
+        this.has_reveal = true;
+
         this.handleClickWindow = this.handleClickWindow.bind(this);
         this.windowResized = this.windowResized.bind(this);
 
@@ -470,8 +374,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       init() {
-        var parseJPZ_callback = $.proxy(this.parseJPZPuzzle, this);
-        var parsePUZ_callback = $.proxy(this.parsePUZPuzzle, this);
+        var parsePUZZLE_callback = $.proxy(this.parsePuzzle, this);
         var error_callback = $.proxy(this.error, this);
 
         if (this.root) {
@@ -509,17 +412,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         // function to process uploaded files
         function processFiles(files) {
-          if (files[0].name.endsWith('.puz')) {
-            loadFromFile(files[0], FILE_PUZ).then(
-              parsePUZ_callback,
+          loadFromFile(files[0], FILE_PUZ).then(
+              parsePUZZLE_callback,
               error_callback
             );
-          } else {
-            loadFromFile(files[0], FILE_JPZ).then(
-              parseJPZ_callback,
-              error_callback
-            );
-          }
         }
 
         // preload one puzzle
@@ -528,20 +424,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.config.puzzle_file.hasOwnProperty('url') &&
           this.config.puzzle_file.hasOwnProperty('type')
         ) {
-          this.root.addClass('loading');
-          var loaded_callback;
-          switch (this.config.puzzle_file.type) {
-            case FILE_JPZ:
-              loaded_callback = parseJPZ_callback;
-              break;
-            case FILE_PUZ:
-              loaded_callback = parsePUZ_callback;
-              break;
-          }
-          loadFileFromServer(
-            this.config.puzzle_file.url,
-            this.config.puzzle_file.type
-          ).then(loaded_callback, error_callback);
+            this.root.addClass('loading');
+            var loaded_callback = parsePUZZLE_callback;
+            loadFileFromServer(
+              this.config.puzzle_file.url,
+              this.config.puzzle_file.type
+            ).then(loaded_callback, error_callback);
         } else {
           // shows open button
           var i, puzzle_file, el;
@@ -606,147 +494,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         alert(message);
       }
 
-      parsePUZPuzzle(string) {
-        var puzzle = PUZAPP.parsepuz(string);
-        this.title = '';
-        this.author = '';
-        this.copyright = '';
-        this.crossword_type = 'crossword';
+      /** Parse a puzzle using JSCrossword **/
+      parsePuzzle(string) {
+        var xw_constructor = new JSCrossword();
+        //var puzzle = xw_constructor.fromData(string);
+        var puzzle = xw_constructor.fromData(string);
+        // we keep the original JSCrossword object as well
+        this.jsxw = puzzle;
+        // metadata
+        this.title = puzzle.metadata.title || '';
+        this.author = puzzle.metadata.author || '';
+        this.copyright = puzzle.metadata.copyright || '';
+        this.crossword_type = puzzle.metadata.crossword_type;
 
-        if (puzzle.title.length) {
-          this.title = puzzle.title;
-          if (puzzle.author.length) {
-            this.author = puzzle.author;
-          }
-          if (puzzle.copyright.length) {
-            this.copyright = puzzle.copyright;
-          }
-        }
-
-        this.notepad = puzzle.notes;
-        this.grid_width = puzzle.width;
-        this.grid_height = puzzle.height;
-
-        this.cells = {};
-        for (var x = 0; x < puzzle.width; x++) {
-          for (var y = 0; y < puzzle.height; y++) {
-            if (!this.cells[x + 1]) {
-              this.cells[x + 1] = {};
-            }
-            var thisIndex = y * puzzle.width + x;
-            var solutionLetter = puzzle.solution.charAt(thisIndex);
-            var myShape = puzzle.circles[thisIndex] ? 'circle' : null;
-            this.cells[x + 1][y + 1] = {
-              x: x + 1,
-              y: y + 1,
-              solution: solutionLetter != '.' ? solutionLetter : null,
-              number: puzzle.sqNbrs[thisIndex],
-              color: null,
-              shape: myShape,
-              empty: solutionLetter == '.',
-              letter: null,
-            };
-          }
-        }
-
-        var acrossClueWordIdBase = 1000;
-        var downClueWordIdBase = 2000;
-
-        var acrossClueList = Object.keys(puzzle.across_clues).map(function (
-          key
-        ) {
-          return {
-            word: (acrossClueWordIdBase + parseInt(key)).toString(),
-            number: key.toString(),
-            text: puzzle.across_clues[key],
-          };
-        });
-        this.clues_top = new CluesGroup(this, {
-          id: CLUES_TOP,
-          title: '<b>Across</b>',
-          clues: acrossClueList,
-          words_ids: Object.keys(puzzle.across_clues).map(function (key) {
-            return (acrossClueWordIdBase + parseInt(key)).toString();
-          }),
-        });
-        var downClueList = Object.keys(puzzle.down_clues).map(function (key) {
-          return {
-            word: (downClueWordIdBase + parseInt(key)).toString(),
-            number: key.toString(),
-            text: puzzle.down_clues[key],
-          };
-        });
-        this.clues_bottom = new CluesGroup(this, {
-          id: CLUES_BOTTOM,
-          title: '<b>Down</b>',
-          clues: downClueList,
-          words_ids: Object.keys(puzzle.down_clues).map(function (key) {
-            return (downClueWordIdBase + parseInt(key)).toString();
-          }),
-        });
-
-        var wordCellRanges = {};
-        for (var x = 0; x < puzzle.width; x++) {
-          for (var y = 0; y < puzzle.height; y++) {
-            var acrossWordNumber = puzzle.acrossWordNbrs[y * puzzle.width + x];
-            if (acrossWordNumber != 0) {
-              if (!wordCellRanges[acrossClueWordIdBase + acrossWordNumber]) {
-                wordCellRanges[acrossClueWordIdBase + acrossWordNumber] = [];
-              }
-              wordCellRanges[acrossClueWordIdBase + acrossWordNumber].push({
-                x: (x + 1).toString(),
-                y: (y + 1).toString(),
-              });
-            }
-
-            var downWordNumber = puzzle.downWordNbrs[y * puzzle.width + x];
-            if (downWordNumber != 0) {
-              if (!wordCellRanges[downClueWordIdBase + downWordNumber]) {
-                wordCellRanges[downClueWordIdBase + downWordNumber] = [];
-              }
-              wordCellRanges[downClueWordIdBase + downWordNumber].push({
-                x: (x + 1).toString(),
-                y: (y + 1).toString(),
-              });
-            }
-          }
-        }
-        this.words = {};
-        for (var i = 0; i < puzzle.acrossSqNbrs.length; i++) {
-          var id = (acrossClueWordIdBase + puzzle.acrossSqNbrs[i]).toString();
-          this.words[id] = new Word(this, {
-            id: id,
-            cell_ranges: wordCellRanges[id],
-            clue: acrossClueList[i],
-          });
-        }
-        for (var i = 0; i < puzzle.downSqNbrs.length; i++) {
-          var id = (downClueWordIdBase + puzzle.downSqNbrs[i]).toString();
-          this.words[id] = new Word(this, {
-            id: id,
-            cell_ranges: wordCellRanges[id],
-            clue: downClueList[i],
-          });
-        }
-
-        this.completeLoad();
-      }
-
-      parseJPZPuzzle(xmlDoc) {
-        var crossword, puzzle, metadata, title, creator, copyright;
-        puzzle = xmlDoc.getElementsByTagName('rectangular-puzzle');
-        if (!puzzle.length) {
-          this.error(ERR_PARSE_JPZ);
-          return;
-        }
-        // determine the type of the crossword
-        for (var _i = 0; _i < CROSSWORD_TYPES.length; _i++) {
-          this.crossword_type = CROSSWORD_TYPES[_i];
-          crossword = xmlDoc.getElementsByTagName(this.crossword_type);
-          if (crossword.length > 0) {
-            break;
-          }
-        }
         // determine whether we should autofill
         if (
           this.crossword_type == 'acrostic' ||
@@ -755,234 +515,86 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           this.is_autofill = true;
         }
 
-        if (!crossword.length) {
-          this.error(ERR_NOT_CROSSWORD);
-          return;
+        this.notepad = puzzle.metadata.description || '';
+        this.grid_width = puzzle.metadata.width;
+        this.grid_height = puzzle.metadata.height;
+        if (puzzle.metadata.has_reveal === false) {
+          this.has_reveal = false;
+          $('.cw-reveal').css({ display: 'none' });
         }
-
-        metadata = puzzle[0].getElementsByTagName('metadata');
-        if (!metadata.length) {
-          this.error(ERR_PARSE_JPZ);
-          return;
-        }
-
-        // Check for applet settings
-        var applet_settings = xmlDoc.getElementsByTagName('applet-settings');
-
-        if (applet_settings.length) {
-          var hidden_reveal_count = 0;
-          // If we have applet settings, we try to respect them
-          var all_settings = [
-            ['reveal-word', 'div.cw-reveal-word'],
-            ['reveal-letter', 'div.cw-reveal-letter'],
-            ['solution', 'div.cw-reveal-puzzle'],
-          ];
-
-          var i;
-          var items = $();
-          for (i = 0; i < all_settings.length; i++) {
-            var elt = applet_settings[0].getElementsByTagName(
-              all_settings[i][0]
-            );
-            if (!elt.length) {
-              hidden_reveal_count = hidden_reveal_count + 1;
-              var mydiv = all_settings[i][1];
-              items = items.add(mydiv);
-            }
+        this.msg_solved = puzzle.metadata.completion_message || MSG_SOLVED;
+        /* cells */
+        this.cells = {};
+        for (var i=0; i < puzzle.cells.length; i++) {
+          var c = { ...puzzle.cells[i]}; // make a copy
+          c.x = c.x + 1;
+          c.y = c.y + 1;
+          if (!this.cells[c.x]) {
+            this.cells[c.x] = {};
           }
-          items.css({ display: 'none' });
-          // Hide the reveal itself if we're hiding all its subelements
-          if (hidden_reveal_count == 3) {
-            $('.cw-reveal').css({ display: 'none' });
-          }
-        }
-
-        title = metadata[0].getElementsByTagName('title');
-        creator = metadata[0].getElementsByTagName('creator');
-        copyright = metadata[0].getElementsByTagName('copyright');
-
-        this.title = '';
-        this.author = '';
-        this.copyright = '';
-
-        if (title.length) {
-          this.title = XMLElementToString(title[0]);
-          if (creator.length) {
-            this.author = XMLElementToString(creator[0]);
-          }
-          if (copyright.length) {
-            this.copyright = XMLElementToString(copyright[0]);
-          }
-        }
-
-        var description = metadata[0].getElementsByTagName('description');
-        if (description.length) {
-          description = XMLElementToString(description[0]);
-        } else {
-          description = '';
-        }
-
-        // solved message
-        var completion = xmlDoc.getElementsByTagName('completion');
-        if (completion.length) {
-          this.msg_solved = XMLElementToString(completion[0]);
-        }
-
-        this.parseJPZCrossWord(crossword[0], description);
-      }
-
-      // parses crossword element from JPZ file and creates needed objects
-      parseJPZCrossWord(crossword, description) {
-        var i,
-          cell,
-          word,
-          clues_block,
-          grid = crossword.getElementsByTagName('grid')[0],
-          grid_look = grid.getElementsByTagName('grid-look')[0],
-          xml_cells = grid.getElementsByTagName('cell'),
-          xml_words = crossword.getElementsByTagName('word'),
-          xml_clues = crossword.getElementsByTagName('clues');
-
-        this.grid_width = Number(grid.getAttribute('width'));
-        this.grid_height = Number(grid.getAttribute('height'));
-        this.cell_size = grid_look.getAttribute('cell-size-in-pixels');
-
-        // Handle the notepad
-        this.notepad = description;
-
-        // parse cells
-        for (i = 0; (cell = xml_cells[i]); i++) {
-          var new_cell = {
-            x: Number(cell.getAttribute('x')),
-            y: Number(cell.getAttribute('y')),
-            solution: cell.getAttribute('solution'),
-            number: cell.getAttribute('number'),
-            color: cell.getAttribute('background-color'),
-            shape: cell.getAttribute('background-shape'),
-            empty:
-              cell.getAttribute('type') === 'block' ||
-              cell.getAttribute('type') === 'void' ||
-              cell.getAttribute('type') === 'clue',
-            letter: cell.getAttribute('solve-state'),
-            top_right_number: cell.getAttribute('top-right-number'),
-            is_void: cell.getAttribute('type') === 'void',
-            clue: cell.getAttribute('type') === 'clue',
-            value: cell.textContent,
+          c.empty = (c.type === 'block' || c.type === 'void' || c.type === 'clue');
+          c.clue = (c.type === 'clue');
+          c.bar = {
+            top: c['top-bar'] === true,
+            bottom: c['bottom-bar'] === true,
+            left: c['left-bar'] === true,
+            right: c['right-bar'] === true,
           };
-
-          // maintain the mapping of number -> cells
-          if (!this.number_to_cells[new_cell.number]) {
-            this.number_to_cells[new_cell.number] = [new_cell];
-          } else {
-            this.number_to_cells[new_cell.number].push(new_cell);
-          }
-
-          // for barred puzzles
-          if (
-            cell.getAttribute('top-bar') ||
-            cell.getAttribute('bottom-bar') ||
-            cell.getAttribute('left-bar') ||
-            cell.getAttribute('right-bar')
-          ) {
-            new_cell.bar = {
-              top: cell.getAttribute('top-bar') === 'true',
-              bottom: cell.getAttribute('bottom-bar') === 'true',
-              left: cell.getAttribute('left-bar') === 'true',
-              right: cell.getAttribute('right-bar') === 'true',
-            };
-          }
-
-          if (!this.cells[new_cell.x]) {
-            this.cells[new_cell.x] = {};
-          }
-          this.cells[new_cell.x][new_cell.y] = new_cell;
+          c.color = c['background-color'];
+          c.shape = c['background-shape'];
+          this.cells[c.x][c.y] = c;
         }
-
-        // parse words
-        for (i = 0; (word = xml_words[i]); i++) {
-          var new_word = new Word(this);
-          new_word.fromJPZ(word);
-          this.words[new_word.id] = new_word;
-        }
-
-        // parse clues
-        // We handle them differently for coded crosswords
-        if (this.crossword_type == 'coded') {
-          var across_group = new CluesGroup(this, {
-            id: CLUES_TOP,
-            title: 'ACROSS',
-            clues: [],
-            words_ids: [],
+        /* clues */
+        // we need to keep a mapping of word ID to clue
+        var clueMapping = {};
+        puzzle.clues[0].clue.forEach( function (clue) {
+          clueMapping[clue.word] = clue;
+        });
+        var words_ids_top = puzzle.clues[0].clue.map(function (key) {
+          return key.word;
+        });
+        this.clues_top = new CluesGroup(this, {
+          id: CLUES_TOP,
+          title: puzzle.clues[0]['title'],
+          clues: puzzle.clues[0].clue,
+          words_ids: words_ids_top
+        });
+        // only do a second clue list if we have one
+        if (puzzle.clues.length > 1) {
+          puzzle.clues[1].clue.forEach( function (clue) {
+            clueMapping[clue.word] = clue;
           });
-          var down_group = new CluesGroup(this, {
+          this.clues_bottom = new CluesGroup(this, {
             id: CLUES_BOTTOM,
-            title: 'DOWN',
-            clues: [],
-            words_ids: [],
+            title: puzzle.clues[1]['title'],
+            clues: puzzle.clues[1].clue,
+            words_ids: puzzle.clues[1].clue.map(function (key) {
+              return key.word;
+            })
           });
-
-          for (i = 0; (word = xml_words[i]); i++) {
-            let id = word.getAttribute('id');
-            let y = word.getAttribute('y');
-            if (y.indexOf('-') == -1) {
-              // Across clue
-              // We need words_ids and clues
-              across_group.clues.push({
-                word: id,
-                number: id,
-                text: '--',
-              });
-              across_group.words_ids.push(id);
-            } else {
-              // Down clue
-              down_group.clues.push({
-                word: id,
-                number: id,
-                text: '--',
-              });
-              down_group.words_ids.push(id);
-            }
-          }
-
-          this.clues_top = across_group;
-          this.clues_bottom = down_group;
-          // Also, in a coded crossword, there's no reason to show the clues
-          $('div.cw-clues-holder').css({ display: 'none' });
-          $('div.cw-top-text-wrapper').css({ display: 'none' });
-          // Add some padding to the buttons holder
-          $('div.cw-buttons-holder').css({ padding: '0 10px' });
         } else {
-          // not a coded crossword
-          var clues_length = xml_clues.length;
-          if (clues_length == 1) {
-            // hide the bottom clues
-            $('div.cw-clues-bottom').css({
-              display: 'none',
-            });
-            // Make the top clues take up the whole pane
-            $('div.cw-clues-top').css({
-              bottom: '0%',
-            });
-          }
-
-          if (xml_clues.length > MAX_CLUES_LENGTH) {
-            this.error(ERR_CLUES_GROUPS);
-            return;
-          }
-          for (i = 0; (clues_block = xml_clues[i]); i++) {
-            var group = new CluesGroup(this);
-            group.fromJPZ(clues_block);
-            if (!this.clues_top) {
-              group.id = CLUES_TOP;
-              this.clues_top = group;
-            } else {
-              group.id = CLUES_BOTTOM;
-              this.clues_bottom = group;
-            }
-          }
+          // hide the bottom clues
+          $('div.cw-clues-bottom').css({
+            display: 'none',
+          });
         }
+        /* words */
+        this.words = {};
+        for (var i=0; i<puzzle.words.length; i++) {
+          var word = puzzle.words[i];
+          this.words[word.id] = new Word(this, {
+            id: word.id,
+            cell_ranges: word.cells.map(function (c) {
+              var obj = {x: (c[0] + 1).toString(), y: (c[1] + 1).toString()};
+              return obj;
+            }),
+            clue: clueMapping[word.id]
+          });
+        }
+        console.log(this);
 
         this.completeLoad();
+
       }
 
       completeLoad() {
@@ -1480,7 +1092,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     this.context.beginPath();
                     this.context.moveTo(bar_start[key][0], bar_start[key][1]);
                     this.context.lineTo(bar_end[key][0], bar_end[key][1]);
-                    this.context.lineWidth = 5;
+                    this.context.lineWidth = 3;
                     this.context.stroke();
                     this.context.lineWidth = 1;
                   }
@@ -2223,578 +1835,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       printPuzzle(e) {
-        if (typeof jsPDF === 'undefined') {
-          alert(
-            'Printing is disabled.  jsPDF is not defined.  Contact the webmaster.'
-          );
-
-          return;
-        }
-        // else
-        var filename = 'puzzle.pdf';
-        if (this.title) {
-          filename =
-            this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf';
-        }
-        var options = {
-          margin: 40,
-          title_pt: 12,
-          author_pt: 12,
-          copyright_pt: 12,
-          num_columns: null,
-          num_full_columns: null,
-          column_padding: 10,
-          gray: 0.4,
-          under_title_spacing: 20,
-          max_clue_pt: 16,
-          min_clue_pt: 5,
-          grid_padding: 5,
-          outfile: filename,
-          line_width: 0.3,
-          bar_width: 2,
-          vertical_separator: 10,
-        };
-
-        // If options.num_columns is null, we determine it ourselves
-        if (options.num_columns === null || options.num_full_columns === null) {
-          var word_count = Object.keys(this.words).length;
-          if (this.grid_height > 2 * this.grid_width) {
-            options.num_columns = 5;
-            options.num_full_columns = 3;
-          }
-
-          // handle puzzles with very few words as well
-          else if (word_count <= 30) {
-            options.num_columns = Math.ceil(word_count / 10);
-            options.num_full_columns = 0;
-          } else if (this.grid_height > 17) {
-            options.num_columns = 5;
-            options.num_full_columns = 2;
-          } else if (this.grid_width >= 17) {
-            options.num_columns = 4;
-            options.num_full_columns = 1;
-          } else if (this.grid_height <= 11) {
-            options.num_columns = 3;
-            options.num_full_columns = 0;
-          } else {
-            options.num_columns = 3;
-            options.num_full_columns = 1;
-          }
-        }
-
-        // The maximum font size of title and author
-        var max_title_author_pt = Math.max(options.title_pt, options.author_pt);
-
-        var PTS_PER_IN = 72;
-        var DOC_WIDTH = 8.5 * PTS_PER_IN;
-        var DOC_HEIGHT = 11 * PTS_PER_IN;
-
-        var margin = options.margin;
-
-        var doc;
-
-        // create the clue strings and clue arrays
-        var across_clues = [];
-        for (var i in this.clues_top.clues) {
-          if (this.clues_top.clues.hasOwnProperty(i)) {
-            var num = this.clues_top.clues[i].number.toString();
-            var clue = this.clues_top.clues[i].text.trim();
-            var this_clue_string = `${num}. ${clue}`;
-            if (i == 0) {
-              var clues_top_title = this.clues_top.title
-                .replace(/(<([^>]+)>)/gi, '')
-                .trim();
-              across_clues.push(`${clues_top_title}\n${this_clue_string}`);
-            } else {
-              across_clues.push(this_clue_string);
-            }
-          }
-        }
-        // For space between clue lists
-        across_clues.push('');
-
-        var down_clues = [];
-        if (this.clues_bottom) {
-          for (var i in this.clues_bottom.clues) {
-            if (this.clues_bottom.clues.hasOwnProperty(i)) {
-              var num = this.clues_bottom.clues[i].number.toString();
-              var clue = this.clues_bottom.clues[i].text.trim();
-              var this_clue_string = `${num}. ${clue}`;
-              if (i == 0) {
-                var clues_bottom_title = this.clues_bottom.title
-                  .replace(/(<([^>]+)>)/gi, '')
-                  .trim();
-                down_clues.push(`${clues_bottom_title}\n${this_clue_string}`);
-              } else {
-                down_clues.push(this_clue_string);
-              }
-            }
-          }
-        }
-
-        // size of columns
-        var col_width =
-          (DOC_WIDTH -
-            2 * margin -
-            (options.num_columns - 1) * options.column_padding) /
-          options.num_columns;
-
-        // The grid is under all but the first few columns
-        var grid_width =
-          DOC_WIDTH -
-          2 * margin -
-          options.num_full_columns * (col_width + options.column_padding);
-        var grid_height = (grid_width / this.grid_width) * this.grid_height;
-
-        // We change the grid width and height if num_full_columns == 0
-        // This is because we don't want it to take up too much space
-        if (options.num_full_columns === 0) {
-          // set the height to be (about) half of the available area
-          grid_height = (DOC_HEIGHT * 4) / 9;
-          grid_width = (grid_height / this.grid_height) * this.grid_width;
-          // however! if this is bigger than allowable, re-calibrate
-          if (grid_width > DOC_WIDTH - 2 * margin) {
-            grid_width = DOC_WIDTH - 2 * margin;
-            grid_height = (grid_width / this.grid_width) * this.grid_height;
-          }
-        }
-        // x and y position of grid
-        var grid_xpos = DOC_WIDTH - margin - grid_width;
-        var grid_ypos =
-          DOC_HEIGHT -
-          margin -
-          options.copyright_pt -
-          options.vertical_separator * 2 -
-          grid_height;
-
-        // we change the x position of the grid if there are no full columns
-        // specifically, we want to center it.
-        if (options.num_full_columns == 0) {
-          grid_xpos = (DOC_WIDTH - grid_width) / 2;
-        }
-
-        // Functions to help with bold/italicized clues
-        // function to traverse DOM tree
-        function traverseTree(htmlDoc, agg = []) {
-          if (htmlDoc.nodeName == '#text') {
-            // if we have a text element we can add it
-            var thisTag = htmlDoc.parentNode.tagName;
-            var is_bold = thisTag == 'B';
-            var is_italic = thisTag == 'I';
-            htmlDoc.textContent.split('').forEach((char) => {
-              agg.push({
-                char: char,
-                is_bold: is_bold,
-                is_italic: is_italic,
-              });
-            });
-          }
-          for (var i = 0; i < htmlDoc.childNodes.length; i++) {
-            agg = traverseTree(htmlDoc.childNodes[i], (agg = agg));
-          }
-          return agg;
-        }
-
-        // helper function for bold and italic clues
-        function split_text_to_size_bi(clue, col_width, doc) {
-          // get the clue with HTML stripped out
-          var el = document.createElement('html');
-          el.innerHTML = clue;
-          var clean_clue = el.innerText;
-          // split the clue
-          var lines1 = doc.splitTextToSize(clean_clue, col_width);
-
-          // if there's no <B> or <I> in the clue just return lines1
-          if (
-            clue.toUpperCase().indexOf('<B>') == -1 &&
-            clue.toUpperCase().indexOf('<I>') == -1
-          ) {
-            return lines1;
-          }
-
-          // parse the clue into a tree
-          var myClueArr = [];
-          var parser = new DOMParser();
-          var htmlDoc = parser.parseFromString(clue, 'text/html');
-          var split_clue = traverseTree(htmlDoc);
-
-          // Make a new "lines1" with all bold splits
-          doc.setFontType('bold');
-          lines1 = doc.splitTextToSize(clean_clue, col_width);
-          doc.setFontType('normal');
-
-          // split this like we did the "lines1"
-          var lines = [];
-          var ctr = 0;
-          lines1.forEach((line) => {
-            var thisLine = [];
-            var myLen = line.length;
-            for (var i = 0; i < myLen; i++) {
-              thisLine.push(split_clue[ctr++]);
-            }
-            // skip the next char if it's a space
-            if (split_clue[ctr]) {
-              if (split_clue[ctr].char == ' ' || split_clue[ctr].char == '\n') {
-                ctr = ctr + 1;
-              }
-            }
-            lines.push(thisLine);
-          });
-          return lines;
-        }
-
-        // Print a line of text that may be bolded or italicized
-        const printCharacters = (doc, textObject, startY, startX, fontSize) => {
-          if (!textObject.length) {
-            return;
-          }
-
-          if (typeof textObject == 'string') {
-            doc.text(startX, startY, line);
-          } else {
-            textObject.map((row) => {
-              if (row.is_bold) {
-                doc.setFontType('bold');
-              } else if (row.is_italic) {
-                doc.setFontType('italic');
-              } else {
-                doc.setFontType('normal');
-              }
-
-              doc.text(row.char, startX, startY);
-              startX = startX + doc.getStringUnitWidth(row.char) * fontSize;
-              doc.setFontType('normal');
-            });
-          }
-        };
-
-        // Loop through and write to PDF if we find a good fit
-        // Find an appropriate font size
-        var clue_pt = options.max_clue_pt;
-        var finding_font = true;
-        while (finding_font) {
-          doc = new jsPDF('portrait', 'pt', 'letter');
-          var clue_padding = clue_pt / 3;
-          doc.setFontSize(clue_pt);
-
-          doc.setLineWidth(options.line_width);
-
-          // Print the clues
-          var line_xpos = margin;
-          var top_line_ypos =
-            margin + // top margin
-            max_title_author_pt + // title
-            options.vertical_separator * 2 + // padding
-            clue_pt +
-            clue_padding; // first clue
-          var line_ypos = top_line_ypos;
-          var my_column = 0;
-          var clue_arrays = [across_clues, down_clues];
-          for (var k = 0; k < clue_arrays.length; k++) {
-            var clues = clue_arrays[k];
-            for (var i = 0; i < clues.length; i++) {
-              var clue = clues[i];
-              // check to see if we need to wrap
-              var max_line_ypos;
-              if (my_column < options.num_full_columns) {
-                max_line_ypos =
-                  DOC_HEIGHT -
-                  margin -
-                  options.copyright_pt -
-                  2 * options.vertical_separator;
-              } else {
-                max_line_ypos = grid_ypos - options.grid_padding;
-              }
-
-              // Split our clue
-              var lines = split_text_to_size_bi(clue, col_width, doc);
-
-              if (
-                line_ypos + (lines.length - 1) * (clue_pt + clue_padding) >
-                max_line_ypos
-              ) {
-                // move to new column
-                my_column += 1;
-                line_xpos =
-                  margin + my_column * (col_width + options.column_padding);
-                line_ypos = top_line_ypos;
-                // if we're at the top of a line we don't print a blank clue
-                if (clue == '') {
-                  continue;
-                }
-              }
-
-              for (var j = 0; j < lines.length; j++) {
-                // Set the font to bold for the title
-                if (i == 0 && j == 0) {
-                  doc.setFontType('bold');
-                } else {
-                  doc.setFontType('normal');
-                }
-                var line = lines[j];
-                // print the text
-                //doc.text(line_xpos,line_ypos,line);
-                printCharacters(doc, line, line_ypos, line_xpos, clue_pt);
-
-                // set the y position for the next line
-                line_ypos += clue_pt + clue_padding;
-              }
-            }
-          }
-
-          // let's not let the font get ridiculously tiny
-          if (clue_pt == options.min_clue_pt) {
-            finding_font = false;
-          } else if (my_column > options.num_columns - 1) {
-            clue_pt -= 0.1;
-          } else {
-            finding_font = false;
-          }
-        }
-        /***********************/
-        // If title_pt or author_pt are null, we determine them
-        var DEFAULT_TITLE_PT = 12;
-        if (!options.author_pt) options.author_pt = options.title_pt;
-        if (!options.title_pt) {
-          options.title_pt = DEFAULT_TITLE_PT;
-          var finding_title_pt = true;
-          while (finding_title_pt) {
-            var title_author = this.title;
-            doc.setFontSize(options.title_pt).setFontType('bold');
-            var lines = doc.splitTextToSize(title_author, DOC_WIDTH);
-            if (lines.length == 1) {
-              finding_title_pt = false;
-            } else {
-              options.title_pt -= 1;
-            }
-          }
-          options.author_pt = options.title_pt;
-        }
-
-        /* Render title and author */
-        var title_xpos = margin;
-        var author_xpos = DOC_WIDTH - margin;
-        var title_author_ypos = margin + max_title_author_pt;
-
-        //title
-        doc.setFontSize(options.title_pt);
-        doc.setFontType('bold');
-        doc.text(title_xpos, title_author_ypos, this.title);
-
-        // Draw a line under the headers
-        var line_x1 = margin;
-        var line_x2 = DOC_WIDTH - margin;
-        var line_y = title_author_ypos + options.vertical_separator;
-        doc.line(line_x1, line_y, line_x2, line_y);
-
-        /* Render copyright */
-        var copyright_xpos = DOC_WIDTH - margin;
-        var copyright_ypos = DOC_HEIGHT - margin;
-        doc.setFontSize(options.copyright_pt);
-        doc.setFontType('normal');
-        doc.text(
-          copyright_xpos,
-          copyright_ypos,
-          this.copyright,
-          null,
-          null,
-          'right'
-        );
-
-        /* Render author */
-        var author_xpos = margin;
-        var author_ypos = copyright_ypos;
-        doc.setFontSize(options.copyright_pt);
-        doc.setFontType('normal');
-        doc.text(author_xpos, author_ypos, this.author);
-
-        /* Draw a line above the copyright */
-        var line2_x1 = line_x1;
-        var line2_x2 = line_x2;
-        var line2_y =
-          copyright_ypos - options.copyright_pt - options.vertical_separator;
-        doc.line(line2_x1, line2_y, line2_x2, line2_y);
-
-        /* Draw grid */
-        var grid_options = {
-          grid_letters: true,
-          grid_numbers: true,
-          x0: grid_xpos,
-          y0: grid_ypos,
-          cell_size: grid_width / this.grid_width,
-          gray: options.gray,
-        };
-
-        var PTS_TO_IN = 72;
-        var max_dimension = Math.max(this.grid_width, this.grid_height);
-        var cell_size = grid_options.cell_size;
-
-        /** Function to draw a square **/
-        function draw_square(
-          doc,
-          x1,
-          y1,
-          cell_size,
-          number,
-          letter,
-          filled,
-          cell
-        ) {
-          // thank you https://stackoverflow.com/a/5624139
-          function hexToRgb(hex) {
-            // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-            var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-            hex = hex.replace(shorthandRegex, function (m, r, g, b) {
-              return r + r + g + g + b + b;
-            });
-
-            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result
-              ? {
-                  r: parseInt(result[1], 16),
-                  g: parseInt(result[2], 16),
-                  b: parseInt(result[3], 16),
-                }
-              : null;
-          }
-
-          var MIN_NUMBER_SIZE = 5.5;
-          const NUMBER_SIZE_DIV = 3.5;
-
-          var filled_string = filled ? 'F' : '';
-          var number_offset = cell_size / 20;
-          var number_size =
-            cell_size / NUMBER_SIZE_DIV < MIN_NUMBER_SIZE
-              ? MIN_NUMBER_SIZE
-              : cell_size / NUMBER_SIZE_DIV;
-          //var letter_size = cell_size/1.5;
-          var letter_pct_down = 4 / 5;
-          if (cell.color) {
-            var filled_string = 'F';
-            var rgb = hexToRgb(cell.color);
-            doc.setFillColor(rgb.r, rgb.g, rgb.b);
-            doc.setDrawColor(options.gray.toString());
-            // Draw one filled square and then one unfilled
-            doc.rect(x1, y1, cell_size, cell_size, filled_string);
-            doc.rect(x1, y1, cell_size, cell_size, '');
-          } else {
-            doc.setFillColor(grid_options.gray.toString());
-            doc.setDrawColor(options.gray.toString());
-            // We draw the bounding box for all squares except "clue" squares
-            if (!cell.clue) {
-              doc.rect(x1, y1, cell_size, cell_size, '');
-              doc.rect(x1, y1, cell_size, cell_size, filled_string);
-            }
-          }
-
-          //numbers
-          if (!number) {
-            number = '';
-          }
-          doc.setFontSize(number_size);
-          doc.text(x1 + number_offset, y1 + number_size, number);
-          //top right numbers
-          var top_right_number = cell.top_right_number
-            ? cell.top_right_number
-            : '';
-          doc.setFontSize(number_size);
-          doc.text(
-            x1 + cell_size - number_size,
-            y1 + number_size,
-            top_right_number
-          );
-
-          // letters
-          if (!letter) {
-            letter = '';
-          }
-          var letter_length = letter.length;
-          //doc.setFontSize(letter_size);
-          doc.setFontSize(cell_size / (1.5 + 0.5 * letter_length));
-          doc.text(
-            x1 + cell_size / 2,
-            y1 + cell_size * letter_pct_down,
-            letter,
-            null,
-            null,
-            'center'
-          );
-          // circles
-          if (cell.shape) {
-            doc.circle(x1 + cell_size / 2, y1 + cell_size / 2, cell_size / 2);
-          }
-          // bars
-          if (cell.bar) {
-            var bar = cell.bar;
-            var bar_start = {
-              top: [x1, y1],
-              left: [x1, y1],
-              right: [x1 + cell_size, y1 + cell_size],
-              bottom: [x1 + cell_size, y1 + cell_size],
-            };
-            var bar_end = {
-              top: [x1 + cell_size, y1],
-              left: [x1, y1 + cell_size],
-              right: [x1 + cell_size, y1],
-              bottom: [x1, y1 + cell_size],
-            };
-            for (var key in bar) {
-              if (bar.hasOwnProperty(key)) {
-                if (bar[key]) {
-                  doc.setLineWidth(options.bar_width);
-                  doc.line(
-                    bar_start[key][0],
-                    bar_start[key][1],
-                    bar_end[key][0],
-                    bar_end[key][1]
-                  );
-                  doc.setLineWidth(options.line_width);
-                }
-              }
-            }
-          }
-        }
-
-        for (var x in this.cells) {
-          for (var y in this.cells[x]) {
-            var cell = this.cells[x][y];
-            // don't draw a square if we have a void
-            if (cell.is_void || (cell.empty && cell.color == '#FFFFFF')) {
-              continue;
-            }
-            var i = y - 1;
-            var j = x - 1;
-            var x_pos = grid_options.x0 + j * cell_size;
-            var y_pos = grid_options.y0 + i * cell_size;
-            var grid_index = j + i * this.grid_width;
-            var filled = false;
-            // Letters
-            var letter = cell.letter || cell.value;
-            if (cell.empty && !cell.clue) {
-              filled = true;
-              letter = '';
-            }
-            if (!grid_options.grid_letters) {
-              letter = '';
-            }
-            // Numbers
-            var number = cell.number;
-            if (!grid_options.grid_numbers) {
-              number = '';
-            }
-            draw_square(
-              doc,
-              x_pos,
-              y_pos,
-              cell_size,
-              number,
-              letter,
-              filled,
-              cell
-            );
-          }
-        }
-        doc.save(options.outfile);
+        jscrossword_to_pdf(this.jsxw);
       }
 
       toggleTimer() {
@@ -2861,27 +1902,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           } else {
             load_error = true;
           }
-        }
-      }
-
-      // parses xml and fills properties
-      fromJPZ(xml_data) {
-        var k,
-          clue,
-          title_el = xml_data.getElementsByTagName('title')[0],
-          clues_el = xml_data.getElementsByTagName('clue');
-        this.title = XMLElementToString(title_el);
-        for (k = 0; (clue = clues_el[k]); k++) {
-          var word_id = clue.getAttribute('word'),
-            word = this.crossword.words[word_id],
-            new_clue = {
-              word: word_id,
-              number: clue.getAttribute('number'),
-              text: XMLElementToString(clue),
-            };
-          this.clues.push(new_clue);
-          word.clue = new_clue;
-          this.words_ids.push(word_id);
         }
       }
 
@@ -3026,37 +2046,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           } else {
             load_error = true;
           }
-        }
-      }
-
-      // parses XML
-      fromJPZ(xml_data) {
-        if (xml_data) {
-          var i,
-            cell,
-            id = xml_data.getAttribute('id'),
-            x = xml_data.getAttribute('x'),
-            y = xml_data.getAttribute('y');
-
-          this.id = id;
-
-          if (x && y) {
-            this.cell_ranges.push({
-              x: x,
-              y: y,
-            });
-          } else {
-            var word_cells = xml_data.getElementsByTagName('cells');
-            for (i = 0; (cell = word_cells[i]); i++) {
-              x = cell.getAttribute('x');
-              y = cell.getAttribute('y');
-              this.cell_ranges.push({
-                x: x,
-                y: y,
-              });
-            }
-          }
-          this.parseRanges();
         }
       }
 
