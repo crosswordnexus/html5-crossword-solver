@@ -298,7 +298,7 @@ input.cw-hidden-input {
 
 .modal-close:hover,
 .modal-close:focus {
-    color: #999999;
+    color: #333333;
     text-decoration: none;
     cursor: pointer;
 }
@@ -533,6 +533,7 @@ input.cw-hidden-input {
     padding: 5px 10px;
     position: relative;
     text-transform: uppercase;
+    font-weight: bold;
 }
 .cw-clue {
     padding: 5px 10px;
