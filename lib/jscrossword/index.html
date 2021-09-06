@@ -2,7 +2,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <script src="jscrossword_combined.js"></script>
 </head>
 
 <body>
@@ -36,8 +35,7 @@ function handleFileSelect(evt) {
                     var xw;
                     xw = xw_constructor.fromData(contents);
                     console.log(xw);
-                    //xw.from(contents);
-                    //jscrossword_to_pdf(xw);
+                    jscrossword_to_nyt(xw);
                     //var jpz_str = xw.toJPZString();
                     //file_download(jpz_str, 'test.jpz', 'text/xml');
                     MY_GLOBAL = xw;
