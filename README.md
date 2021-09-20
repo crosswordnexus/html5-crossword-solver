@@ -47,7 +47,7 @@ CrossWord.remove();
 | Param  | Description     |
 | ------ | --------------- |
 | url    | Puzzle file url |
-| type   | Type of puzzle file. Currently only .JPZ/.PUZ puzzles supported |
+| type   | Type of puzzle file. Currently .JPZ/.PUZ/.IPUZ puzzles supported |
 | name   | Puzzle name. Optional for puzzle_file parameter |
 
 With cell_size == 0, crossword will never be bigger than parent.
