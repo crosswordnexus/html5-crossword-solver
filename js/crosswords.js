@@ -120,6 +120,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 </button>
                 <div class="cw-menu">
                   <button class="cw-menu-item cw-file-info">Info</button>
+                  <button class="cw-menu-item cw-file-notepad">Notepad</button>
                   <button class="cw-menu-item cw-file-print">Print</button>
                 </div>
               </div>
@@ -406,6 +407,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         this.info_btn = this.root.find('.cw-file-info');
         this.print_btn = this.root.find('.cw-file-print');
+
+        // Notepad button is hidden by default
+        this.notepad_btn = this.root.find('.cw-file-notepad');
+        this.notepad_btn.hide();
 
         this.timer_button = this.root.find('.cw-button-timer');
         this.xw_timer_seconds = 0;
@@ -718,6 +723,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.settings_btn.off('click');
 
         this.info_btn.off('click');
+        this.notepad_btn.off('click');
         this.notepad_icon.off('click');
 
         this.hidden_input.off('input');
@@ -796,7 +802,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // NOTEPAD
         if (this.notepad) {
           this.notepad_icon.on('click', $.proxy(this.showNotepad, this));
+          this.notepad_btn.show();
         }
+        this.notepad_btn.on('click', $.proxy(this.showNotepad, this));
 
         this.hidden_input.on(
           'input',
