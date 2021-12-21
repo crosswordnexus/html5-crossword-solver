@@ -269,6 +269,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
     // Return the first element of a string -- if it's null return null
     function firstChar(str) {
+      console.log(str);
       if (str == null) {
         return null;
       } else {
