@@ -267,13 +267,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
     }
 
-    // Return the first element of a string -- if it's null return null
-    function firstChar(str) {
-      console.log(str);
-      if (str == null) {
-        return null;
-      } else {
-        return str.charAt(0);
+    // Function to check if a cell is solved correctly
+    function isCorrect(entry, solution) {
+      // if we have a rebus or non-alpha solution, accept anything
+      if (solution.length > 1 || /[^A-Za-z]/.test(solution)) {
+        return true;
+      }
+      // otherwise, only mark as okay if we have an exact match
+      else {
+        return entry == solution;
       }
     }
 
@@ -1463,8 +1465,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             // if found cell without letter or with incorrect letter - return
             if (
               !cell.empty &&
-              (!cell.letter ||
-                firstChar(cell.letter) != firstChar(cell.solution))
+              (!cell.letter || !isCorrect(cell.letter, cell.solution))
             ) {
               return;
             }
@@ -1876,8 +1877,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
 
         for (var i = 0; i < my_cells.length; i++) {
+          if (!my_cells[i].solution) {
+            continue;
+          }
           if (
-            firstChar(my_cells[i].letter) != firstChar(my_cells[i].solution)
+            !isCorrect(my_cells[i].letter, my_cells[i].solution)
           ) {
             if (reveal_or_check == 'reveal') {
               my_cells[i].letter = my_cells[i].solution;
