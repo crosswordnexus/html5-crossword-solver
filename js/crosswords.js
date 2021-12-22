@@ -124,7 +124,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                   <button class="cw-menu-item cw-file-print">Print</button>
                 </div>
               </div>
-              <div class="cw-menu-container">
+              <div class="cw-menu-container cw-check">
                 <button type="button" class="cw-button">
                   <span class="cw-button-icon">🔍</span> Check
                   <span class="cw-arrow"></span>
