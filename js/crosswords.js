@@ -124,7 +124,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                   <button class="cw-menu-item cw-file-print">Print</button>
                 </div>
               </div>
-              <div class="cw-menu-container">
+              <div class="cw-menu-container cw-check">
                 <button type="button" class="cw-button">
                   <span class="cw-button-icon">🔍</span> Check
                   <span class="cw-arrow"></span>
@@ -505,7 +505,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       /** Parse a puzzle using JSCrossword **/
       parsePuzzle(string) {
         var xw_constructor = new JSCrossword();
-        //var puzzle = xw_constructor.fromData(string);
         var puzzle = xw_constructor.fromData(string);
         // we keep the original JSCrossword object as well
         this.jsxw = puzzle;
@@ -526,9 +525,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.notepad = puzzle.metadata.description || '';
         this.grid_width = puzzle.metadata.width;
         this.grid_height = puzzle.metadata.height;
+        // disable check and reveal in certain cases
         if (puzzle.metadata.has_reveal === false) {
           this.has_reveal = false;
           $('.cw-reveal').css({ display: 'none' });
+        }
+        if (puzzle.metadata.has_check === false) {
+          this.has_check = false;
+          $('.cw-check').css({ display: 'none' });
         }
         this.msg_solved = puzzle.metadata.completion_message || MSG_SOLVED;
         /* cells */
