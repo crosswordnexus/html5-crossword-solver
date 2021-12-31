@@ -270,7 +270,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     // Function to check if a cell is solved correctly
     function isCorrect(entry, solution) {
       // if we have a rebus or non-alpha solution, accept anything
-      if (solution.length > 1 || /[^A-Za-z]/.test(solution)) {
+      if (entry && (solution.length > 1 || /[^A-Za-z]/.test(solution))) {
         return true;
       }
       // otherwise, only mark as okay if we have an exact match
