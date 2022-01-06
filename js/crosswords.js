@@ -583,7 +583,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           });
           // Determine which word is an across and which is a down
           // We do this by comparing the entry to the set of across entries
-          var thisGrid = new xwGrid(puzzle.get_solution_array(), null);
+          var thisGrid = new xwGrid(puzzle.cells);
           var acrossEntries = thisGrid.acrossEntries();
           var acrossEntries = thisGrid.acrossEntries();
           var acrossSet = new Set(Object.keys(acrossEntries).map(function (x) {return acrossEntries[x].word;}))
