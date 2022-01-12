@@ -41,6 +41,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       space_bar: 'space_clear',
       savegame_name: '',
       filled_clue_color: '#999999',
+      timer_autostart: false,
     };
 
     // constants
@@ -345,6 +346,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
           }
         }
+
         this.cell_size = 40;
         //this.top_text_height = 0;
         //this.bottom_text_height = 0;
@@ -696,6 +698,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         var first_word = this.active_clues.getFirstWord();
         this.setActiveWord(first_word);
         this.setActiveCell(first_word.getFirstCell());
+
+        // Start the timer if necessary
+        if (this.config.timer_autostart) {
+          this.toggleTimer();
+        }
+
         //this.adjustPaddings();
         this.renderCells();
       }
@@ -1792,6 +1800,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               </label>
             </div>
           </div>
+
+          <!-- Timer -->
+          <div class="settings-setting">
+            <div class="settings-description">
+              Timer
+            </div>
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="timer_autostart" checked="" type="checkbox" name="timer_autostart" class="settings-changer">
+                  Start timer on puzzle open
+                </input>
+              </label>
+            </div>
+          </div>
+
         </div>
         `;
         this.createModalBox('Settings', settingsHTML);
