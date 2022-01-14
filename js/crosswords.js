@@ -32,6 +32,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       color_hilite: '#fff5d7',
       color_none: '#FFFFFF',
       background_color_clue: '#666666',
+      default_background_color: '#c2ed7e',
       font_color_clue: '#FFFFFF',
       color_block: '#000000',
       puzzle_file: null,
@@ -555,6 +556,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             right: c['right-bar'] === true,
           };
           c.color = c['background-color'];
+          // if they tried to define a color but did it badly, use the default
+          if (c.color && !c.color.match('^#[A-Za-z0-9]{6}$')) {
+            c.color = this.default_background_color;
+            c['background-color'] = this.default_background_color;
+          }
           c.shape = c['background-shape'];
           this.cells[c.x][c.y] = c;
 
