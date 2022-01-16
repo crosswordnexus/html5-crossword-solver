@@ -103,10 +103,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               Open puzzle file
             </button>
             <div class="cw-open-puzzle-formats">
-              <b>Accepted formats:</b> PUZ, JPZ, XML, and iPUZ (partial)
+              <b>Accepted formats:</b> PUZ, JPZ, XML, CFP, and iPUZ (partial)
             </div>
           </div>
-          <input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz,.xpz,.ipuz">
+          <input type="file" class="cw-open-jpz" accept=".puz,.xml,.jpz,.xpz,.ipuz,.cfp">
         </div>
         <!-- End overlay -->
         <header class="cw-header"></header>
