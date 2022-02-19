@@ -1,0 +1,3 @@
+[submodule "lib/crossword-tools"]
+	path = lib/crossword-tools
+	url = https://github.com/crosswordnexus/crossword-tools
