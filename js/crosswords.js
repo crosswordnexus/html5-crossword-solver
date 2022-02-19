@@ -29,7 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       color_hover: '#FFFFAA',
       color_selected: '#FF4136',
       color_word: '#FEE300',
-      color_hilite: '#fff5d7',
+      color_hilite: '#F8E473',
       color_none: '#FFFFFF',
       background_color_clue: '#666666',
       default_background_color: '#c2ed7e',
@@ -1042,7 +1042,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 this.hilited_word &&
                 this.hilited_word.hasCell(cell.x, cell.y)
               ) {
-                color = this.config.color_hilite;
+                //color = this.config.color_hilite;
               }
               if (
                 this.selected_word &&
