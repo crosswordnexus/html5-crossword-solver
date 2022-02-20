@@ -548,6 +548,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.cells[c.x] = {};
           }
           c.empty = (c.type === 'block' || c.type === 'void' || c.type === 'clue');
+          // add a solution if there isn't one
+          if (!c.empty && !c.solution) {
+            c.solution = '*';
+          }
           c.clue = (c.type === 'clue');
           c.bar = {
             top: c['top-bar'] === true,
