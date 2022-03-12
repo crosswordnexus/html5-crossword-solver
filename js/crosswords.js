@@ -43,6 +43,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       savegame_name: '',
       filled_clue_color: '#999999',
       timer_autostart: false,
+      tab_key: 'tab_noskip'
     };
 
     // constants
@@ -1567,29 +1568,30 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
       }
 
-      moveToNextWord(to_previous) {
-        if (this.selected_word) {
-          var next_word = null;
-          if (to_previous) {
-            next_word = this.active_clues.getPreviousWord(this.selected_word);
-            if (!next_word) {
-              this.changeActiveClues();
-              next_word = this.active_clues.getLastWord();
-            }
-          } else {
-            next_word = this.active_clues.getNextWord(this.selected_word);
-            if (!next_word) {
-              this.changeActiveClues();
-              next_word = this.active_clues.getFirstWord();
-            }
+      moveToNextWord(to_previous, skip_filled_words=false) {
+        if (!this.selected_word) {
+          return;
+        }
+        var next_word = null;
+        if (to_previous) {
+          next_word = this.active_clues.getPreviousWord(this.selected_word);
+          if (!next_word) {
+            this.changeActiveClues();
+            next_word = this.active_clues.getLastWord();
           }
-          var cell;
-          if (next_word) {
-            cell = next_word.getFirstEmptyCell() || next_word.getFirstCell();
-            this.setActiveWord(next_word);
-            this.setActiveCell(cell);
-            this.renderCells();
+        } else {
+          next_word = this.active_clues.getNextWord(this.selected_word);
+          if (!next_word) {
+            this.changeActiveClues();
+            next_word = this.active_clues.getFirstWord();
           }
+        }
+        var cell;
+        if (next_word) {
+          cell = next_word.getFirstEmptyCell() || next_word.getFirstCell();
+          this.setActiveWord(next_word);
+          this.setActiveCell(cell);
+          this.renderCells();
         }
       }
 
@@ -1807,6 +1809,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               <label class="settings-label">
                 <input id="space_switch" checked="" type="radio" name="space_bar" class="settings-changer">
                   Switch directions
+                </input>
+              </label>
+            </div>
+          </div>
+
+          <!-- Tab key -->
+          <div class="settings-setting">
+            <div class="settings-description">
+              When tabbing
+            </div>
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="tab_noskip" checked="" type="radio" name="tab_key" class="settings-changer">
+                  Move to the next word
+                </input>
+              </label class="settings-label">
+              <label class="settings-label">
+                <input id="tab_skip" checked="" type="radio" name="tab_key" class="settings-changer">
+                  Move to the next unfilled word
                 </input>
               </label>
             </div>
