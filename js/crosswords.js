@@ -1406,17 +1406,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             this.renderCells();
             break;
           case 9: // tab
+            var skip_filled_words = this.config.tab_key === 'tab_skip';
             if (e.shiftKey) {
-              this.moveToNextWord(true);
+              this.moveToNextWord(true, skip_filled_words);
             } else {
-              this.moveToNextWord(false);
+              this.moveToNextWord(false, skip_filled_words);
             }
             break;
           case 13: // enter key -- same as tab
             if (e.shiftKey) {
-              this.moveToNextWord(true);
+              this.moveToNextWord(true, skip_filled_words);
             } else {
-              this.moveToNextWord(false);
+              this.moveToNextWord(false, skip_filled_words);
             }
             break;
         }
@@ -1573,17 +1574,30 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           return;
         }
         var next_word = null;
+        var this_word = this.selected_word;
         if (to_previous) {
-          next_word = this.active_clues.getPreviousWord(this.selected_word);
-          if (!next_word) {
-            this.changeActiveClues();
-            next_word = this.active_clues.getLastWord();
+          while (next_word !== this.selected_word) {
+            next_word = this.active_clues.getPreviousWord(this_word);
+            if (!next_word) {
+              this.changeActiveClues();
+              next_word = this.active_clues.getLastWord();
+            }
+            if (!skip_filled_words || !next_word.isFilled()) {
+              break;
+            }
+            this_word = next_word;
           }
         } else {
-          next_word = this.active_clues.getNextWord(this.selected_word);
-          if (!next_word) {
-            this.changeActiveClues();
-            next_word = this.active_clues.getFirstWord();
+          while (next_word !== this.selected_word) {
+            next_word = this.active_clues.getNextWord(this_word);
+            if (!next_word) {
+              this.changeActiveClues();
+              next_word = this.active_clues.getFirstWord();
+            }
+            if (!skip_filled_words || !next_word.isFilled()) {
+              break;
+            }
+            this_word = next_word;
           }
         }
         var cell;
