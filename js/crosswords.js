@@ -1354,8 +1354,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                     true
                   );
                 if (selectedCellInactiveWord) {
-                  this.setActiveWord(selectedCellInactiveWord);
                   this.changeActiveClues();
+                  this.setActiveWord(selectedCellInactiveWord);
+                  this.setActiveCell(this.getCell(this.selected_cell.x, this.selected_cell.y));
                 }
               } else {
                 this.selected_cell.letter = '';
