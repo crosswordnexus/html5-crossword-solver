@@ -1576,31 +1576,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
         var next_word = null;
         var this_word = this.selected_word;
-        if (to_previous) {
-          while (next_word !== this.selected_word) {
-            next_word = this.active_clues.getPreviousWord(this_word);
-            if (!next_word) {
-              this.changeActiveClues();
-              next_word = this.active_clues.getLastWord();
-            }
-            if (!skip_filled_words || !next_word.isFilled()) {
-              break;
-            }
-            this_word = next_word;
+        //if (to_previous) {
+        while (next_word !== this.selected_word) {
+          next_word = (to_previous ? this.active_clues.getPreviousWord(this_word) : this.active_clues.getNextWord(this_word));
+          if (!next_word) {
+            this.changeActiveClues();
+            next_word = (to_previous ? this.active_clues.getLastWord() : this.active_clues.getFirstWord());
           }
-        } else {
-          while (next_word !== this.selected_word) {
-            next_word = this.active_clues.getNextWord(this_word);
-            if (!next_word) {
-              this.changeActiveClues();
-              next_word = this.active_clues.getFirstWord();
-            }
-            if (!skip_filled_words || !next_word.isFilled()) {
-              break;
-            }
-            this_word = next_word;
+          if (!skip_filled_words || !next_word.isFilled()) {
+            break;
           }
+          this_word = next_word;
         }
+
         var cell;
         if (next_word) {
           cell = next_word.getFirstEmptyCell() || next_word.getFirstCell();
