@@ -1414,6 +1414,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
             break;
           case 13: // enter key -- same as tab
+            var skip_filled_words = this.config.tab_key === 'tab_skip';
             if (e.shiftKey) {
               this.moveToNextWord(true, skip_filled_words);
             } else {
