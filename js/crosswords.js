@@ -1042,7 +1042,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               cell_y = (y - 1) * this.cell_size + 1;
             if (!cell.empty) {
               // detect cell color
-              var color = cell.color || this.config.color_none;
+              var color = cell.color;
               if (
                 this.hilited_word &&
                 this.hilited_word.hasCell(cell.x, cell.y)
@@ -1083,12 +1083,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
               this.context.fillStyle = color;
 
-              this.context.fillRect(
-                cell_x,
-                cell_y,
-                this.cell_size,
-                this.cell_size
-              );
+              // Don't bother filling if there's no color
+              if (color) {
+                this.context.fillRect(
+                  cell_x,
+                  cell_y,
+                  this.cell_size,
+                  this.cell_size
+                );
+              }
               this.context.fillStyle = this.config.color_block;
 
               // draw bounding box
