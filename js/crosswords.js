@@ -30,6 +30,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       color_selected: '#FF4136',
       color_word: '#FEE300',
       color_hilite: '#F8E473',
+      color_word_shade: '#BAAB56',
       color_none: '#FFFFFF',
       background_color_clue: '#666666',
       default_background_color: '#c2ed7e',
@@ -1053,7 +1054,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 this.selected_word &&
                 this.selected_word.hasCell(cell.x, cell.y)
               ) {
-                color = this.config.color_word;
+                // two cases here, depending on whether the cell is shaded
+                if (cell.color === this.config.color_none || !cell.color) {
+                  color = this.config.color_word;
+                } else {
+                  color = this.config.color_word_shade;
+                }
               }
               if (
                 this.config.hover_enabled &&
