@@ -568,6 +568,46 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             c['background-color'] = this.default_background_color;
           }
           c.shape = c['background-shape'];
+
+          /* set a "shade_highlight" color */
+          // hex string to RGB array and vice versa
+          // thanks https://stackoverflow.com/a/39077686
+          const hexToRgb = hex =>
+            hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
+                       ,(m, r, g, b) => '#' + r + r + g + g + b + b)
+              .substring(1).match(/.{2}/g)
+              .map(x => parseInt(x, 16));
+
+          const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
+            const hex = x.toString(16)
+            return hex.length === 1 ? '0' + hex : hex
+          }).join('');
+
+          // Helper function for a single component
+          function componentAvg(c1, c2, weight) {
+            //return Math.floor(Math.sqrt(weight * c1**2 + (1 - weight) * c2**2));
+            return Math.floor(weight * c1 + (1 - weight) * c2)
+          }
+          // helper function to take the "average" of two RGB strings
+          // thanks https://stackoverflow.com/a/29576746
+          function averageColors(c1, c2, weight=0.5) {
+            var r1 = hexToRgb(c1);
+            var r2 = hexToRgb(c2);
+            var newColor = [componentAvg(r1[0], r2[0], weight),
+              componentAvg(r1[1], r2[1], weight),
+              componentAvg(r1[2], r2[2], weight)]
+            return rgbToHex(newColor[0], newColor[1], newColor[2]);
+          }
+          // via
+          function adjustColor(color, amount) {
+            return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+          }
+          if (c.color) {
+            //c.shade_highlight_color = averageColors(this.config.color_word, c.color);
+            c.shade_highlight_color = averageColors(this.config.color_word, adjustColor(c.color, -50));
+            //c.shade_highlight_color = adjustColor(c.color, -30);
+          }
+
           this.cells[c.x][c.y] = c;
 
           // maintain the mapping of number -> cells
@@ -1055,11 +1095,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 this.selected_word.hasCell(cell.x, cell.y)
               ) {
                 // two cases here, depending on whether the cell is shaded
-                if (cell.color === this.config.color_none || !cell.color) {
-                  color = this.config.color_word;
-                } else {
-                  color = this.config.color_word_shade;
-                }
+                color = cell.shade_highlight_color || this.config.color_word;
               }
               if (
                 this.config.hover_enabled &&
