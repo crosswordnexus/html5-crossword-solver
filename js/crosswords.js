@@ -1528,7 +1528,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.hidden_input.val('');
       }
 
-      checkIfSolved() {
+      checkIfSolved(do_reveal=true) {
         var i, j, cell;
         for (i in this.cells) {
           for (j in this.cells[i]) {
@@ -1542,12 +1542,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             }
           }
         }
-        // Puzzle is solved!  Stop the timer and show a message.
+        // Puzzle is solved!
+        // stop the timer
         if (this.timer_running) {
           clearTimeout(xw_timer);
           this.timer_button.removeClass('running');
           this.timer_running = false;
         }
+        // reveal all (in case there were rebuses)
+        if (do_reveal) {
+          this.check_reveal('puzzle', 'reveal');
+        }
+        // show completion message
         var solvedMessage = escape(this.msg_solved).replaceAll('\n', '<br />');
         this.createModalBox('🎉🎉🎉', solvedMessage);
       }
@@ -1997,12 +2003,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             } else if (reveal_or_check == 'check') {
               my_cells[i].checked = true;
             }
+          } else if (reveal_or_check == 'reveal' && isCorrect(my_cells[i].letter, my_cells[i].solution) && my_cells[i].letter !== my_cells[i].solution) {
+            // i.e. the solution is "correct" but the letter doesn't match up
+            my_cells[i].letter = my_cells[i].solution;
           }
         }
         this.renderCells();
 
         if (reveal_or_check == 'reveal') {
-          this.checkIfSolved();
+          this.checkIfSolved(false);
         }
         this.hidden_input.focus();
       }
