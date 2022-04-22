@@ -602,7 +602,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           function adjustColor(color, amount) {
             return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
           }
-          if (c.color) {
+          if (c.color && c.color != this.config.color_none) {
             //c.shade_highlight_color = averageColors(this.config.color_word, c.color);
             c.shade_highlight_color = averageColors(this.config.color_word, adjustColor(c.color, -50));
             //c.shade_highlight_color = adjustColor(c.color, -30);
