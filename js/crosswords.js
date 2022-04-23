@@ -1952,6 +1952,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         );
       }
 
+      /* Save the game to local storage */
+      saveGame() {
+        // fill jsxw
+
+
+      }
+
       check_reveal(to_solve, reveal_or_check, e) {
         var my_cells = [],
           cell;
@@ -2026,6 +2033,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       printPuzzle(e) {
+        // fill JSXW
+        this.fillJsXw();
         jscrossword_to_pdf(this.jsxw);
       }
 
