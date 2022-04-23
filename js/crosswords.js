@@ -125,8 +125,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 <div class="cw-menu">
                   <button class="cw-menu-item cw-file-download">Export JPZ</button>
                   <button class="cw-menu-item cw-file-info">Info</button>
+                  <button class="cw-menu-item cw-file-load">Load</button>
                   <button class="cw-menu-item cw-file-notepad">Notepad</button>
                   <button class="cw-menu-item cw-file-print">Print</button>
+                  <button class="cw-menu-item cw-file-save">Save Progress</button>
                 </div>
               </div>
               <div class="cw-menu-container cw-check">
@@ -415,7 +417,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.check_puzzle = this.root.find('.cw-check-puzzle');
 
         this.info_btn = this.root.find('.cw-file-info');
+        this.load_btn = this.root.find('.cw-file-load');
         this.print_btn = this.root.find('.cw-file-print');
+        this.save_btn = this.root.find('.cw-file-save');
         this.download_btn = this.root.find('.cw-file-download');
 
         // Notepad button is hidden by default
@@ -511,8 +515,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       /** Parse a puzzle using JSCrossword **/
       parsePuzzle(string) {
-        var xw_constructor = new JSCrossword();
-        var puzzle = xw_constructor.fromData(string);
+        // if "string" is actually an object assume it's already a jsxw
+        var puzzle;
+        if (typeof(string) == "object") {
+          puzzle = string;
+        } else {
+          var xw_constructor = new JSCrossword();
+          puzzle = xw_constructor.fromData(string);
+        }
         // we keep the original JSCrossword object as well
         this.jsxw = puzzle;
         // metadata
@@ -787,6 +797,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.check_puzzle.off('click');
 
         this.print_btn.off('click');
+        this.load_btn.off('click');
+        this.save_btn.off('click');
         this.download_btn.off('click');
         this.timer_button.off('click');
 
@@ -863,6 +875,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.print_btn.on('click', $.proxy(this.printPuzzle, this));
         // DOWNLOAD
         this.download_btn.on('click', $.proxy(this.exportJPZ, this));
+        // SAVE
+        this.save_btn.on('click', $.proxy(this.saveGame, this));
+        // LOAD
+        this.load_btn.on('click', $.proxy(this.loadGame, this));
         // TIMER
         this.timer_button.on('click', $.proxy(this.toggleTimer, this));
         // SETTINGS
@@ -1966,6 +1982,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // savegame name will just be STORAGE_KEY + title + ' • ' + author
         const savegame_name = STORAGE_KEY + this.title + ' • ' + this.author;
         localStorage.setItem(savegame_name, jsxw_str);
+      }
+
+      /* Load a game from local storage */
+      //loadGame(savegame_name) {
+      loadGame() {
+        var savegame_name = 'crossword_nexus_savegameTest 3x3 • Alex Boisvert';
+        var jsxw = JSON.parse(localStorage.getItem(savegame_name));
+        this.parsePuzzle(jsxw);
       }
 
       /* Export a JPZ */
