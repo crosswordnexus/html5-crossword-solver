@@ -1931,6 +1931,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           });
       }
 
+      fillJsXw() {
+        // update this.jsxw with the currently filled letters
+        var cells = this.cells;
+        this.jsxw.cells.forEach(function(c) {
+          var x = c['x']; var y = c['y'];
+          c['letter'] = cells[x+1][y+1]['letter'];
+        });
+      }
+
       saveSettings() {
         // make a copy of the config
         var savedSettings = { ...this.config };
