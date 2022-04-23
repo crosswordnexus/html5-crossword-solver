@@ -123,7 +123,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                   <span class="cw-arrow"></span>
                 </button>
                 <div class="cw-menu">
-                  <button class="cw-menu-item cw-file-download">Download</button>
+                  <button class="cw-menu-item cw-file-download">Export JPZ</button>
                   <button class="cw-menu-item cw-file-info">Info</button>
                   <button class="cw-menu-item cw-file-notepad">Notepad</button>
                   <button class="cw-menu-item cw-file-print">Print</button>
