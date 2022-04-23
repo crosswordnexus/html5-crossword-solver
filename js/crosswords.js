@@ -1955,8 +1955,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       /* Save the game to local storage */
       saveGame() {
         // fill jsxw
-
-
+        this.fillJsXw();
+        // stringify
+        const jsxw_str = JSON.stringify(this.jsxw);
+        // savegame name will just be STORAGE_KEY + title + ' • ' + author
+        const savegame_name = STORAGE_KEY + this.title + ' • ' + this.author;
+        localStorage.setItem(savegame_name, jsxw_str);
       }
 
       check_reveal(to_solve, reveal_or_check, e) {
