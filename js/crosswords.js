@@ -123,6 +123,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                   <span class="cw-arrow"></span>
                 </button>
                 <div class="cw-menu">
+                  <button class="cw-menu-item cw-file-download">Download</button>
                   <button class="cw-menu-item cw-file-info">Info</button>
                   <button class="cw-menu-item cw-file-notepad">Notepad</button>
                   <button class="cw-menu-item cw-file-print">Print</button>
@@ -415,6 +416,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         this.info_btn = this.root.find('.cw-file-info');
         this.print_btn = this.root.find('.cw-file-print');
+        this.download_btn = this.root.find('.cw-file-download');
 
         // Notepad button is hidden by default
         this.notepad_btn = this.root.find('.cw-file-notepad');
@@ -785,6 +787,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.check_puzzle.off('click');
 
         this.print_btn.off('click');
+        this.download_btn.off('click');
         this.timer_button.off('click');
 
         this.settings_btn.off('click');
@@ -858,6 +861,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         // PRINTER
         this.print_btn.on('click', $.proxy(this.printPuzzle, this));
+        // DOWNLOAD
+        this.download_btn.on('click', $.proxy(this.exportJPZ, this));
         // TIMER
         this.timer_button.on('click', $.proxy(this.toggleTimer, this));
         // SETTINGS
@@ -1961,6 +1966,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // savegame name will just be STORAGE_KEY + title + ' • ' + author
         const savegame_name = STORAGE_KEY + this.title + ' • ' + this.author;
         localStorage.setItem(savegame_name, jsxw_str);
+      }
+
+      /* Export a JPZ */
+      exportJPZ() {
+        // fill jsxw
+        this.fillJsXw();
+        const jpz_str = this.jsxw.toJPZString();
+        // set filename
+        var filename = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.jpz';
+        // Initiate download
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jpz_str));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+        document.body.removeChild(element);
       }
 
       check_reveal(to_solve, reveal_or_check, e) {
