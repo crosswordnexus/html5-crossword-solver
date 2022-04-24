@@ -125,7 +125,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 <div class="cw-menu">
                   <button class="cw-menu-item cw-file-download">Export JPZ</button>
                   <button class="cw-menu-item cw-file-info">Info</button>
-                  <button class="cw-menu-item cw-file-load">Load</button>
+                  <button class="cw-menu-item cw-file-load">Load Last Save</button>
                   <button class="cw-menu-item cw-file-notepad">Notepad</button>
                   <button class="cw-menu-item cw-file-print">Print</button>
                   <button class="cw-menu-item cw-file-save">Save Progress</button>
@@ -1980,14 +1980,47 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // stringify
         const jsxw_str = JSON.stringify(this.jsxw);
         // savegame name will just be STORAGE_KEY + title + ' • ' + author
-        const savegame_name = STORAGE_KEY + this.title + ' • ' + this.author;
+        //const savegame_name = STORAGE_KEY + this.title + ' • ' + this.author;
+        const savegame_name = STORAGE_KEY;
         localStorage.setItem(savegame_name, jsxw_str);
       }
 
+      /* Show "load game" menu" */
+      loadGameMenu() {
+        // Find all the savegames
+        var innerHTML = '';
+        for (var i = 0; i < localStorage.length; i++){
+          var thisKey = localStorage.key(i);
+          if (thisKey.startsWith(STORAGE_KEY)) {
+            var thisJsXw = JSON.parse(localStorage.getItem(localStorage.key(i)));
+            var thisDisplay = thisKey.substr(STORAGE_KEY.length);
+            innerHTML += `
+            <label class="settings-label">
+              <input id="${thisKey}" checked="" type="radio" class="loadgame-changer">
+                ${thisDisplay}
+              </input>
+            </label>
+            `;
+          }
+        }
+        if (!innerHTML) {
+          innerHTML = 'No save games found.';
+        }
+
+        // Create a modal box
+        var loadgameHTML = `
+        <div class="loadgame-wrapper">
+          ${innerHTML}
+        </div>
+        `;
+        this.createModalBox('Load Game', loadgameHTML);
+      }
+
       /* Load a game from local storage */
-      //loadGame(savegame_name) {
       loadGame() {
-        var savegame_name = 'crossword_nexus_savegameTest 3x3 • Alex Boisvert';
+      //loadGame(savegame_name) {
+        //var savegame_name = 'crossword_nexus_savegameTest 3x3 • Alex Boisvert';
+        var savegame_name = STORAGE_KEY;
         var jsxw = JSON.parse(localStorage.getItem(savegame_name));
         this.removeListeners();
         this.parsePuzzle(jsxw);
