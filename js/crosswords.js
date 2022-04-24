@@ -1989,6 +1989,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       loadGame() {
         var savegame_name = 'crossword_nexus_savegameTest 3x3 • Alex Boisvert';
         var jsxw = JSON.parse(localStorage.getItem(savegame_name));
+        this.removeListeners();
         this.parsePuzzle(jsxw);
       }
 
