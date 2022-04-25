@@ -123,12 +123,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                   <span class="cw-arrow"></span>
                 </button>
                 <div class="cw-menu">
-                  <button class="cw-menu-item cw-file-download">Export JPZ</button>
                   <button class="cw-menu-item cw-file-info">Info</button>
-                  <button class="cw-menu-item cw-file-load">Load Last Save</button>
                   <button class="cw-menu-item cw-file-notepad">Notepad</button>
                   <button class="cw-menu-item cw-file-print">Print</button>
+                  <hr />
                   <button class="cw-menu-item cw-file-save">Save Progress</button>
+                  <button class="cw-menu-item cw-file-load">Load Progress</button>
+                  <hr />
+                  <button class="cw-menu-item cw-file-download">Export JPZ</button>
                 </div>
               </div>
               <div class="cw-menu-container cw-check">
@@ -1983,6 +1985,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         //const savegame_name = STORAGE_KEY + this.title + ' • ' + this.author;
         const savegame_name = STORAGE_KEY;
         localStorage.setItem(savegame_name, jsxw_str);
+        this.createModalBox('💾', 'Progress saved.');
       }
 
       /* Show "load game" menu" */
