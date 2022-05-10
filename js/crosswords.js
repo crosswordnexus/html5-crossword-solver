@@ -126,6 +126,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                   <button class="cw-menu-item cw-file-info">Info</button>
                   <button class="cw-menu-item cw-file-notepad">Notepad</button>
                   <button class="cw-menu-item cw-file-print">Print</button>
+                  <hr />
+                  <button class="cw-menu-item cw-file-save">Save Progress</button>
+                  <button class="cw-menu-item cw-file-load">Load Progress</button>
+                  <hr />
+                  <button class="cw-menu-item cw-file-download">Export JPZ</button>
                 </div>
               </div>
               <div class="cw-menu-container cw-check">
@@ -414,7 +419,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.check_puzzle = this.root.find('.cw-check-puzzle');
 
         this.info_btn = this.root.find('.cw-file-info');
+        this.load_btn = this.root.find('.cw-file-load');
         this.print_btn = this.root.find('.cw-file-print');
+        this.save_btn = this.root.find('.cw-file-save');
+        this.download_btn = this.root.find('.cw-file-download');
 
         // Notepad button is hidden by default
         this.notepad_btn = this.root.find('.cw-file-notepad');
@@ -509,8 +517,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       /** Parse a puzzle using JSCrossword **/
       parsePuzzle(string) {
-        var xw_constructor = new JSCrossword();
-        var puzzle = xw_constructor.fromData(string);
+        // if "string" is actually an object assume it's already a jsxw
+        var puzzle;
+        if (typeof(string) == "object") {
+          puzzle = string;
+        } else {
+          var xw_constructor = new JSCrossword();
+          puzzle = xw_constructor.fromData(string);
+        }
         // we keep the original JSCrossword object as well
         this.jsxw = puzzle;
         // metadata
@@ -785,6 +799,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.check_puzzle.off('click');
 
         this.print_btn.off('click');
+        this.load_btn.off('click');
+        this.save_btn.off('click');
+        this.download_btn.off('click');
         this.timer_button.off('click');
 
         this.settings_btn.off('click');
@@ -858,6 +875,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         // PRINTER
         this.print_btn.on('click', $.proxy(this.printPuzzle, this));
+        // DOWNLOAD
+        this.download_btn.on('click', $.proxy(this.exportJPZ, this));
+        // SAVE
+        this.save_btn.on('click', $.proxy(this.saveGame, this));
+        // LOAD
+        this.load_btn.on('click', $.proxy(this.loadGame, this));
         // TIMER
         this.timer_button.on('click', $.proxy(this.toggleTimer, this));
         // SETTINGS
@@ -1931,6 +1954,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           });
       }
 
+      fillJsXw() {
+        // update this.jsxw with the currently filled letters
+        var cells = this.cells;
+        this.jsxw.cells.forEach(function(c) {
+          var x = c['x']; var y = c['y'];
+          c['letter'] = cells[x+1][y+1]['letter'];
+        });
+      }
+
       saveSettings() {
         // make a copy of the config
         var savedSettings = { ...this.config };
@@ -1941,6 +1973,79 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           SETTINGS_STORAGE_KEY,
           JSON.stringify(savedSettings)
         );
+      }
+
+      /* Save the game to local storage */
+      saveGame() {
+        // fill jsxw
+        this.fillJsXw();
+        // stringify
+        const jsxw_str = JSON.stringify(this.jsxw);
+        // savegame name will just be STORAGE_KEY + title + ' • ' + author
+        //const savegame_name = STORAGE_KEY + this.title + ' • ' + this.author;
+        const savegame_name = STORAGE_KEY;
+        localStorage.setItem(savegame_name, jsxw_str);
+        this.createModalBox('💾', 'Progress saved.');
+      }
+
+      /* Show "load game" menu" */
+      loadGameMenu() {
+        // Find all the savegames
+        var innerHTML = '';
+        for (var i = 0; i < localStorage.length; i++){
+          var thisKey = localStorage.key(i);
+          if (thisKey.startsWith(STORAGE_KEY)) {
+            var thisJsXw = JSON.parse(localStorage.getItem(localStorage.key(i)));
+            var thisDisplay = thisKey.substr(STORAGE_KEY.length);
+            innerHTML += `
+            <label class="settings-label">
+              <input id="${thisKey}" checked="" type="radio" class="loadgame-changer">
+                ${thisDisplay}
+              </input>
+            </label>
+            `;
+          }
+        }
+        if (!innerHTML) {
+          innerHTML = 'No save games found.';
+        }
+
+        // Create a modal box
+        var loadgameHTML = `
+        <div class="loadgame-wrapper">
+          ${innerHTML}
+        </div>
+        `;
+        this.createModalBox('Load Game', loadgameHTML);
+      }
+
+      /* Load a game from local storage */
+      loadGame() {
+      //loadGame(savegame_name) {
+        //var savegame_name = 'crossword_nexus_savegameTest 3x3 • Alex Boisvert';
+        var savegame_name = STORAGE_KEY;
+        var jsxw = JSON.parse(localStorage.getItem(savegame_name));
+        this.removeListeners();
+        this.parsePuzzle(jsxw);
+      }
+
+      /* Export a JPZ */
+      exportJPZ() {
+        // fill jsxw
+        this.fillJsXw();
+        const jpz_str = this.jsxw.toJPZString();
+        // set filename
+        var filename = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.jpz';
+        // Initiate download
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jpz_str));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+        document.body.removeChild(element);
       }
 
       check_reveal(to_solve, reveal_or_check, e) {
@@ -2017,6 +2122,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       printPuzzle(e) {
+        // fill JSXW
+        this.fillJsXw();
         jscrossword_to_pdf(this.jsxw);
       }
 
