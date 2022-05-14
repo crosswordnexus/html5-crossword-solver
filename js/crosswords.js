@@ -1136,10 +1136,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               }
               //this.context.fillStyle = this.config.color_block;
               //this.context.fillRect(cell_x, cell_y, this.cell_size, this.cell_size);
-              // In an acrostic, highlight all other cells
+              // In an autofill puzzle (coded and acrostic), highlight all other cells
               // with the same number as the selected cell
               if (
-                this.crossword_type == 'acrostic' &&
+                this.is_autofill &&
                 cell.number == this.selected_cell.number &&
                 cell != this.selected_cell
               ) {
