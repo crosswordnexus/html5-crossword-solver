@@ -44,6 +44,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       savegame_name: '',
       filled_clue_color: '#999999',
       timer_autostart: false,
+      dark_mode_enabled: false,
       tab_key: 'tab_noskip'
     };
 
@@ -353,6 +354,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               this.config[i] = default_config[i];
             }
           }
+        }
+
+        /** enable dark mode if available **/
+        if (this.config.dark_mode_enabled && DarkReader) {
+          DarkReader.enable({
+            brightness: 100,
+            contrast: 90,
+            sepia: 10
+          });
         }
 
         this.cell_size = 40;
@@ -1924,6 +1934,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             </div>
           </div>
 
+          <!-- Dark Mode -->
+          <div class="settings-setting">
+            <div class="settings-description">
+              Dark Mode
+            </div>
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="dark_mode_enabled" checked="" type="checkbox" name="dark_mode_enabled" class="settings-changer">
+                  Enable dark mode
+                </input>
+              </label>
+            </div>
+          </div>
+
         </div>
         `;
         this.createModalBox('Settings', settingsHTML);
@@ -1946,6 +1970,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             if (event.target.className === 'settings-changer') {
               if (event.target.type === 'checkbox') {
                 this.config[event.target.name] = event.target.checked;
+                // need to add a special bit for darkmode
+                if (event.target.name == 'dark_mode_enabled' && DarkReader) {
+                  if (event.target.checked) {
+                    DarkReader.enable({
+                      brightness: 100,
+                      contrast: 90,
+                      sepia: 10
+                    });
+                  } else {
+                    DarkReader.disable();
+                  }
+                }
               } else if (event.target.type === 'radio') {
                 this.config[event.target.name] = event.target.id;
               }
