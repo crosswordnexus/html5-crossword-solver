@@ -455,7 +455,7 @@ input.cw-hidden-input {
     display: flex;
 }
 .cw-clue.active {
-    background: #fee300;
+    background: #ffeb3f;
 }
 .cw-clue.passive {
     background: #ddd;

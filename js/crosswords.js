@@ -361,7 +361,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           DarkReader.enable({
             brightness: 100,
             contrast: 90,
-            sepia: 10
+            sepia: 20
           });
         }
 
@@ -1970,13 +1970,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             if (event.target.className === 'settings-changer') {
               if (event.target.type === 'checkbox') {
                 this.config[event.target.name] = event.target.checked;
-                // need to add a special bit for darkmode
+                // need to add a special bit for dark mode
                 if (event.target.name == 'dark_mode_enabled' && DarkReader) {
                   if (event.target.checked) {
                     DarkReader.enable({
                       brightness: 100,
                       contrast: 90,
-                      sepia: 10
+                      sepia: 20
                     });
                   } else {
                     DarkReader.disable();
