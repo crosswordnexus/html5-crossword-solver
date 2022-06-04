@@ -1937,7 +1937,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           <!-- Dark Mode -->
           <div class="settings-setting">
             <div class="settings-description">
-              Dark Mode
+              Dark Mode (beta)
             </div>
             <div class="settings-option">
               <label class="settings-label">
