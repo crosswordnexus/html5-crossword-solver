@@ -12,6 +12,52 @@ Redistribution and use in source and binary forms, with or without modification,
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
+
+/**
+* Helper functions
+* mostly for colors
+**/
+
+// hex string to RGB array and vice versa
+// thanks https://stackoverflow.com/a/39077686
+const hexToRgb = hex =>
+  hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
+             ,(m, r, g, b) => '#' + r + r + g + g + b + b)
+    .substring(1).match(/.{2}/g)
+    .map(x => parseInt(x, 16));
+
+const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
+  const hex = x.toString(16)
+  return hex.length === 1 ? '0' + hex : hex
+}).join('');
+
+// perceived brightness of a color on a scale of 0-255
+// via wx-xword
+function getBrightness(hex) {
+  const rgb = hexToRgb(hex);
+  return Math.sqrt(0.299 * rgb[0]**2 + 0.587 * rgb[1]**2 + 0.114 * rgb[2]**2);
+}
+
+// Helper function for a single component
+function componentAvg(c1, c2, weight) {
+  //return Math.floor(Math.sqrt(weight * c1**2 + (1 - weight) * c2**2));
+  return Math.floor(weight * c1 + (1 - weight) * c2)
+}
+// helper function to take the "average" of two RGB strings
+// thanks https://stackoverflow.com/a/29576746
+function averageColors(c1, c2, weight=0.5) {
+  var r1 = hexToRgb(c1);
+  var r2 = hexToRgb(c2);
+  var newColor = [componentAvg(r1[0], r2[0], weight),
+    componentAvg(r1[1], r2[1], weight),
+    componentAvg(r1[2], r2[2], weight)]
+  return rgbToHex(newColor[0], newColor[1], newColor[2]);
+}
+
+function adjustColor(color, amount) {
+  return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+}
+
 // Main crossword javascript for the Crossword Nexus HTML5 Solver
 (function (global, factory) {
   if (typeof module === 'object' && typeof module.exports === 'object') {
@@ -35,6 +81,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       background_color_clue: '#666666',
       default_background_color: '#c2ed7e',
       font_color_clue: '#FFFFFF',
+      font_color_fill: '#000000',
       color_block: '#000000',
       puzzle_file: null,
       puzzles: null,
@@ -363,6 +410,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             contrast: 90,
             sepia: 20
           });
+          this.config.color_none = '#252624';
+          this.config.font_color_fill = '#ddd4c5';
         }
 
         this.cell_size = 40;
@@ -594,38 +643,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           c.shape = c['background-shape'];
 
           /* set a "shade_highlight" color */
-          // hex string to RGB array and vice versa
-          // thanks https://stackoverflow.com/a/39077686
-          const hexToRgb = hex =>
-            hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
-                       ,(m, r, g, b) => '#' + r + r + g + g + b + b)
-              .substring(1).match(/.{2}/g)
-              .map(x => parseInt(x, 16));
-
-          const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
-            const hex = x.toString(16)
-            return hex.length === 1 ? '0' + hex : hex
-          }).join('');
-
-          // Helper function for a single component
-          function componentAvg(c1, c2, weight) {
-            //return Math.floor(Math.sqrt(weight * c1**2 + (1 - weight) * c2**2));
-            return Math.floor(weight * c1 + (1 - weight) * c2)
-          }
-          // helper function to take the "average" of two RGB strings
-          // thanks https://stackoverflow.com/a/29576746
-          function averageColors(c1, c2, weight=0.5) {
-            var r1 = hexToRgb(c1);
-            var r2 = hexToRgb(c2);
-            var newColor = [componentAvg(r1[0], r2[0], weight),
-              componentAvg(r1[1], r2[1], weight),
-              componentAvg(r1[2], r2[2], weight)]
-            return rgbToHex(newColor[0], newColor[1], newColor[2]);
-          }
-          // via
-          function adjustColor(color, amount) {
-            return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
-          }
           if (c.color && c.color != this.config.color_none) {
             //c.shade_highlight_color = averageColors(this.config.color_word, c.color);
             c.shade_highlight_color = averageColors(this.config.color_word, adjustColor(c.color, -50));
@@ -1109,6 +1126,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         // set the fill style
         this.context.fillStyle = this.config.color_block;
 
+        var color;
         for (x in this.cells) {
           for (y in this.cells[x]) {
             var cell = this.cells[x][y],
@@ -1116,7 +1134,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               cell_y = (y - 1) * this.cell_size + 1;
             if (!cell.empty) {
               // detect cell color
-              var color = cell.color;
+              color = cell.color;
               if (
                 this.hilited_word &&
                 this.hilited_word.hasCell(cell.x, cell.y)
@@ -1264,6 +1282,26 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 }
               }
             }
+
+            /* letters and numbers and such */
+            // select the font color
+            if (cell.clue) {
+              // "clue" cells get their own color
+              this.context.fillStyle = this.config.font_color_clue;
+            } else {
+              // we determine color from the background color
+              this.context.fillStyle = this.config.font_color_fill;
+              // we need to invert the fill color if the brightness is wrong
+              var bgBrightness = getBrightness(color || this.config.color_none);
+              var fgBrightness = getBrightness(this.config.font_color_fill);
+              if (Math.abs(bgBrightness - fgBrightness) < 125) {
+                // invert
+                var thisRGB = hexToRgb(this.config.font_color_fill);
+                var invertedRGB = thisRGB.map(x => 255 - x);
+                this.context.fillStyle = rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
+              }
+            }
+
             const NUMBER_SIZE_DIV = 3.75;
             if (cell.number) {
               this.context.font =
@@ -1305,14 +1343,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                   cell_y + this.cell_size
                 );
                 //this.context.lineWidth = 5;
+                this.context.strokeStyle = this.context.fillStyle;
                 this.context.stroke();
+                this.context.strokeStyle = this.config.color_block;
               }
               this.context.textAlign = 'center';
               this.context.textBaseline = 'middle';
-              // change font color for clue cells
-              if (cell.clue) {
-                this.context.fillStyle = this.config.font_color_clue;
-              }
+
               // the y-offset changes if this is a "clue" block
               // normally we slide the letter down to fit with numbers
               // for "clue" blocks we can center it
@@ -1978,8 +2015,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                       contrast: 90,
                       sepia: 20
                     });
+                    this.config.color_none = '#252624';
+                    this.config.font_color_fill = '#ddd4c5';
+                    this.renderCells();
                   } else {
                     DarkReader.disable();
+                    this.config.color_none = default_config.color_none;
+                    this.config.font_color_fill = default_config.font_color_fill;
+                    this.renderCells();
                   }
                 }
               } else if (event.target.type === 'radio') {
