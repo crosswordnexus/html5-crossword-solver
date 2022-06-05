@@ -410,6 +410,8 @@ function adjustColor(color, amount) {
             contrast: 90,
             sepia: 20
           });
+          this.config.color_none = '#252624';
+          this.config.font_color_fill = '#ddd4c5';
         }
 
         this.cell_size = 40;
