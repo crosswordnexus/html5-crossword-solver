@@ -408,7 +408,7 @@ function adjustColor(color, amount) {
           DarkReader.enable({
             brightness: 100,
             contrast: 90,
-            sepia: 20
+            sepia: 10
           });
           this.config.color_none = '#252624';
           this.config.font_color_fill = '#ddd4c5';
@@ -2013,7 +2013,7 @@ function adjustColor(color, amount) {
                     DarkReader.enable({
                       brightness: 100,
                       contrast: 90,
-                      sepia: 20
+                      sepia: 10
                     });
                     this.config.color_none = '#252624';
                     this.config.font_color_fill = '#ddd4c5';
