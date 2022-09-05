@@ -1486,6 +1486,8 @@ function adjustColor(color, amount) {
               }
             }
             this.renderCells();
+            // Update this.isSolved
+            this.checkIfSolved();
             break;
           case 27: // escape -- pulls up a rebus entry
             if (this.selected_cell && this.selected_word) {
@@ -1506,6 +1508,8 @@ function adjustColor(color, amount) {
               this.autofill();
             }
             this.renderCells();
+            // Update this.isSolved
+            this.checkIfSolved();
             break;
           case 8: // backspace
             if (this.selected_cell && this.selected_word) {
@@ -1519,6 +1523,8 @@ function adjustColor(color, amount) {
               this.setActiveCell(prev_cell);
             }
             this.renderCells();
+            // Update this.isSolved
+            this.checkIfSolved();
             break;
           case 9: // tab
             var skip_filled_words = this.config.tab_key === 'tab_skip';
@@ -1599,6 +1605,7 @@ function adjustColor(color, amount) {
       }
 
       checkIfSolved(do_reveal=true) {
+        var wasSolved = this.isSolved;
         var i, j, cell;
         for (i in this.cells) {
           for (j in this.cells[i]) {
@@ -1608,11 +1615,13 @@ function adjustColor(color, amount) {
               !cell.empty &&
               (!cell.letter || !isCorrect(cell.letter, cell.solution))
             ) {
+              this.isSolved = false;
               return;
             }
           }
         }
         // Puzzle is solved!
+        this.isSolved = true;
         // stop the timer
         if (this.timer_running) {
           clearTimeout(xw_timer);
@@ -1623,9 +1632,11 @@ function adjustColor(color, amount) {
         if (do_reveal) {
           this.check_reveal('puzzle', 'reveal');
         }
-        // show completion message
-        var solvedMessage = escape(this.msg_solved).replaceAll('\n', '<br />');
-        this.createModalBox('🎉🎉🎉', solvedMessage);
+        // show completion message if newly solved
+        if (!wasSolved) {
+          var solvedMessage = escape(this.msg_solved).replaceAll('\n', '<br />');
+          this.createModalBox('🎉🎉🎉', solvedMessage);
+        }
       }
 
       // callback for shift+arrows
