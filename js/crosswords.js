@@ -326,8 +326,8 @@ function adjustColor(color, amount) {
 
     // Function to check if a cell is solved correctly
     function isCorrect(entry, solution) {
-      // if we have a rebus or non-alpha solution, accept anything
-      if (entry && (solution.length > 1 || /[^A-Za-z]/.test(solution))) {
+      // if we have a rebus or non-alpha solution or no solution, accept anything
+      if (entry && (!solution || solution.length > 1 || /[^A-Za-z]/.test(solution))) {
         return true;
       }
       // otherwise, only mark as okay if we have an exact match
@@ -623,10 +623,6 @@ function adjustColor(color, amount) {
             this.cells[c.x] = {};
           }
           c.empty = (c.type === 'block' || c.type === 'void' || c.type === 'clue');
-          // add a solution if there isn't one
-          if (!c.empty && !c.solution) {
-            c.solution = '*';
-          }
           c.clue = (c.type === 'clue');
           c.bar = {
             top: c['top-bar'] === true,
