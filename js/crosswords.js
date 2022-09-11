@@ -13,6 +13,16 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 
+// Settings that we can save
+const CONFIGURABLE_SETTINGS = [
+  "skip_filled_letters"
+, "arrow_direction"
+, "space_bar"
+, "tab_key"
+, "timer_autostart"
+, "dark_mode_enabled"
+];
+
 /**
 * Helper functions
 * mostly for colors
@@ -2050,11 +2060,13 @@ function adjustColor(color, amount) {
       }
 
       saveSettings() {
-        // make a copy of the config
-        var savedSettings = { ...this.config };
-        // We don't save "puzzle" keys
-        delete savedSettings.puzzle_file;
-        delete savedSettings.puzzles;
+        // we only save settings that are configurable
+        var ss1 = { ...this.config };
+        var savedSettings = {};
+        CONFIGURABLE_SETTINGS.forEach(function(x) {
+          savedSettings[x] = ss1[x];
+        })
+        //console.log(savedSettings);
         localStorage.setItem(
           SETTINGS_STORAGE_KEY,
           JSON.stringify(savedSettings)
@@ -2181,7 +2193,7 @@ function adjustColor(color, amount) {
         }
 
         for (var i = 0; i < my_cells.length; i++) {
-          if (!my_cells[i].solution) {
+          if (!my_cells[i].solution || my_cells[i].type === 'block') {
             continue;
           }
           if (
