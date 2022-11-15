@@ -1,14 +1,34 @@
 # Crossword Nexus HTML5 Solver
-### An HTML5 crossword solver that can handle JPZ/PUZ/iPUZ files in a browser.
+### An HTML5 crossword solver that can handle JPZ/PUZ/iPUZ/CFP files in a browser.
 
 ## Dependencies:
 #### jQuery
 #### jsPDF (optional) - https://github.com/MrRio/jsPDF
 #### JSCrossword tools - https://github.com/crosswordnexus/crossword-tools
 
-## Usage:
-### Basic usage example
+## Installation
+### Using git command line (preferred)
+Use the command `git clone --recurse-submodules https://github.com/crosswordnexus/html5-crossword-solver/` in whatever directory you'd like on your server. If you ever want to update you can run a simple `git pull` from the `html5-crossword-solver` directory.
 
+### Using a zip file
+Head over to https://github.com/crosswordnexus/html5-crossword-solver/releases and download the most recent `html5-crossword-solver.zip`. Unzip it and it will create a `html5-crossword-solver` directory.
+
+## Usage:
+
+### Basic usage
+You do not need to alter any files in order to create a fullscreen solving page. Simply create a URL like
+
+`https://YOUR.SITE/html5-crossword-solver/index.html?file=/PATH/TO/YOUR/FILE`
+
+where your file is a puzzle in puz, ipuz, jpz, or cfp format. You can then make an iframe to embed in another page if desired:
+```
+<iframe allowfullscreen="true" height="550" width="100%" style="border:none;width: 100% !important;position: static;display: block !important;margin: 0 !important;"
+ src="https://YOUR.SITE/html5-crossword-solver/index.html?file=/PATH/TO/YOUR/FILE">
+</iframe>
+```
+
+### Advanced usage
+You can change the code on any page to suit your needs.
 ```javascript
 var CrossWord = CrosswordNexus.createCrossword(parent, parameters);
 ```
