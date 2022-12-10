@@ -1629,7 +1629,17 @@ function adjustColor(color, amount) {
         // Puzzle is solved!
         this.isSolved = true;
         // stop the timer
+        var timerMessage = '';
         if (this.timer_running) {
+          // prepare message based on time
+          var display_seconds = xw_timer_seconds % 60;
+          var display_minutes = (xw_timer_seconds - display_seconds) / 60;
+          var minDisplay = display_minutes == 1 ? 'minute' : 'minutes';
+          var secDisplay = display_seconds == 1 ? 'second' : 'seconds';
+          var allMin = display_minutes > 0 ? `${display_minutes} ${minDisplay} ` : '';
+          timerMessage = `<br /><br />You solved the puzzle in ${allMin} ${display_seconds} ${secDisplay}.`;
+          
+          // stop the timer
           clearTimeout(xw_timer);
           this.timer_button.removeClass('running');
           this.timer_running = false;
@@ -1640,7 +1650,9 @@ function adjustColor(color, amount) {
         }
         // show completion message if newly solved
         if (!wasSolved) {
-          var solvedMessage = escape(this.msg_solved).replaceAll('\n', '<br />');
+          var solvedMessage = escape(this.msg_solved).trim().replaceAll('\n', '<br />');
+          solvedMessage += timerMessage;
+          
           this.createModalBox('🎉🎉🎉', solvedMessage);
         }
       }
