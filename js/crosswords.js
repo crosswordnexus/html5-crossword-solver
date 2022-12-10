@@ -90,6 +90,7 @@ function adjustColor(color, amount) {
       color_none: '#FFFFFF',
       background_color_clue: '#666666',
       default_background_color: '#c2ed7e',
+      color_secondary: '#fff7b7',
       font_color_clue: '#FFFFFF',
       font_color_fill: '#000000',
       color_block: '#000000',
@@ -750,6 +751,8 @@ function adjustColor(color, amount) {
           var word = puzzle.words[i];
           this.words[word.id] = new Word(this, {
             id: word.id,
+            dir: word.dir,
+            refs_raw: null,
             cell_ranges: word.cells.map(function (c) {
               var obj = {x: (c[0] + 1).toString(), y: (c[1] + 1).toString()};
               return obj;
@@ -1132,6 +1135,18 @@ function adjustColor(color, amount) {
         // set the fill style
         this.context.fillStyle = this.config.color_block;
 
+        // if the word has references to any others
+        if (this.selected_word.refs_raw) {
+          // only support one reference per clue for now
+          var search_num = this.selected_word.refs_raw[0].number;
+          var search_dir = this.selected_word.refs_raw[0].direction.toLowerCase();
+          for (var i in this.words) {
+            if (this.words[i].clue.number == search_num && this.words[i].dir == search_dir) {
+              var secondary_highlight_cells = this.words[i].cell_ranges;
+            }
+          }
+        }
+
         var color;
         for (x in this.cells) {
           for (y in this.cells[x]) {
@@ -1146,6 +1161,13 @@ function adjustColor(color, amount) {
                 this.hilited_word.hasCell(cell.x, cell.y)
               ) {
                 //color = this.config.color_hilite;
+              }
+              if (
+                secondary_highlight_cells &&
+                secondary_highlight_cells.some(c => c.x == cell.x) &&
+                secondary_highlight_cells.some(c => c.y == cell.y)
+              ) {
+                color = this.config.color_secondary;
               }
               if (
                 this.selected_word &&
@@ -2428,19 +2450,25 @@ function adjustColor(color, amount) {
     class Word {
       constructor(crossword, data) {
         this.id = '';
+        this.dir = '';
         this.cell_ranges = [];
         this.cells = [];
         this.clue = {};
+        this.refs_raw = [];
         this.crossword = crossword;
         if (data) {
           if (
             data.hasOwnProperty('id') &&
+            data.hasOwnProperty('dir') &&
             data.hasOwnProperty('cell_ranges') &&
-            data.hasOwnProperty('clue')
+            data.hasOwnProperty('clue') &&
+            data.hasOwnProperty('refs_raw')
           ) {
             this.id = data.id;
+            this.dir = data.dir;
             this.cell_ranges = data.cell_ranges;
             this.clue = data.clue;
+            this.refs_raw = data.clue.refs;
             this.parseRanges();
           } else {
             load_error = true;
