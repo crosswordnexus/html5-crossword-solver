@@ -1216,6 +1216,7 @@ function adjustColor(color, amount) {
               this.context.fillStyle = this.config.color_block;
 
               // draw bounding box
+              this.context.lineWidth = 1;
               this.context.strokeRect(
                 cell_x,
                 cell_y,
@@ -1237,6 +1238,7 @@ function adjustColor(color, amount) {
                   this.cell_size
                 );
                 // bounding box
+                this.context.lineWidth = 1;
                 this.context.strokeRect(
                   cell_x,
                   cell_y,
@@ -1259,6 +1261,7 @@ function adjustColor(color, amount) {
                   );
                   // we want a bounding box for blocks
                   if (cell.color != this.config.color_none) {
+                    this.context.lineWidth = 1;
                     this.context.strokeRect(
                       cell_x,
                       cell_y,
