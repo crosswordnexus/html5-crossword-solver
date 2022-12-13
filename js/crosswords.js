@@ -1303,9 +1303,10 @@ function adjustColor(color, amount) {
                     this.context.beginPath();
                     this.context.moveTo(bar_start[key][0], bar_start[key][1]);
                     this.context.lineTo(bar_end[key][0], bar_end[key][1]);
-                    this.context.lineWidth = 3;
+                    const eps = Math.random()/10000;
+                    this.context.lineWidth = 3 + eps;
                     this.context.stroke();
-                    this.context.lineWidth = 1;
+                    this.context.lineWidth = 1 + eps;
                   }
                 }
               }
