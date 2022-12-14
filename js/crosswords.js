@@ -1136,6 +1136,8 @@ function adjustColor(color, amount) {
         this.context.fillStyle = this.config.color_block;
 
         // if the word has references to any others
+        var secondary_highlight_cells = [];
+        /**
         if (this.selected_word.refs_raw) {
           // only support one reference per clue for now
           var search_num = this.selected_word.refs_raw[0].number;
@@ -1146,6 +1148,7 @@ function adjustColor(color, amount) {
             }
           }
         }
+        **/
 
         var color;
         for (x in this.cells) {
