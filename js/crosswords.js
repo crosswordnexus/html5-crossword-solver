@@ -99,7 +99,6 @@ function adjustColor(color, amount) {
       skip_filled_letters: true,
       arrow_direction: 'arrow_move_filled',
       space_bar: 'space_clear',
-      savegame_name: '',
       filled_clue_color: '#999999',
       timer_autostart: false,
       dark_mode_enabled: false,
@@ -185,9 +184,6 @@ function adjustColor(color, amount) {
                   <button class="cw-menu-item cw-file-info">Info</button>
                   <button class="cw-menu-item cw-file-notepad">Notepad</button>
                   <button class="cw-menu-item cw-file-print">Print</button>
-                  <hr />
-                  <button class="cw-menu-item cw-file-save">Save Progress</button>
-                  <button class="cw-menu-item cw-file-load">Load Progress</button>
                   <hr />
                   <button class="cw-menu-item cw-file-download">Export JPZ</button>
                 </div>
@@ -597,6 +593,19 @@ function adjustColor(color, amount) {
         }
         // we keep the original JSCrossword object as well
         this.jsxw = puzzle;
+        // set the savegame_name
+        const simpleHash=t=>{let e=0;for(let r=0;r<t.length;r++){e=(e<<5)-e+t.charCodeAt(r),e&=e}return new Uint32Array([e])[0].toString(36)};
+        const myHash = simpleHash(JSON.stringify(this.jsxw));
+        this.savegame_name = STORAGE_KEY + '_' + myHash;
+
+        // if this savegame name exists, load it
+        var jsxw2_cells = this.loadGame();
+        if (jsxw2_cells) {
+          console.log('Loading puzzle from localStorage');
+          this.jsxw.cells = jsxw2_cells;
+          puzzle.cells = jsxw2_cells;
+        }
+
         // metadata
         this.title = puzzle.metadata.title || '';
         this.author = puzzle.metadata.author || '';
@@ -686,7 +695,6 @@ function adjustColor(color, amount) {
           // Determine which word is an across and which is a down
           // We do this by comparing the entry to the set of across entries
           var thisGrid = new xwGrid(puzzle.cells);
-          var acrossEntries = thisGrid.acrossEntries();
           var acrossEntries = thisGrid.acrossEntries();
           var acrossSet = new Set(Object.keys(acrossEntries).map(function (x) {return acrossEntries[x].word;}))
           var entry_mapping = puzzle.get_entry_mapping();
@@ -808,6 +816,7 @@ function adjustColor(color, amount) {
 
         //this.adjustPaddings();
         this.renderCells();
+
       }
 
       remove() {
@@ -913,10 +922,13 @@ function adjustColor(color, amount) {
         this.print_btn.on('click', $.proxy(this.printPuzzle, this));
         // DOWNLOAD
         this.download_btn.on('click', $.proxy(this.exportJPZ, this));
+
+        /** We're disabling save and load buttons **/
         // SAVE
-        this.save_btn.on('click', $.proxy(this.saveGame, this));
+        //this.save_btn.on('click', $.proxy(this.saveGame, this));
         // LOAD
-        this.load_btn.on('click', $.proxy(this.loadGame, this));
+        //this.load_btn.on('click', $.proxy(this.loadGame, this));
+
         // TIMER
         this.timer_button.on('click', $.proxy(this.toggleTimer, this));
         // SETTINGS
@@ -1582,6 +1594,8 @@ function adjustColor(color, amount) {
       }
 
       autofill() {
+        // save progress
+        this.saveGame();
         if (this.is_autofill) {
           var my_number = this.selected_cell.number;
           var same_number_cells = this.number_to_cells[my_number] || [];
@@ -1664,7 +1678,7 @@ function adjustColor(color, amount) {
           var secDisplay = display_seconds == 1 ? 'second' : 'seconds';
           var allMin = display_minutes > 0 ? `${display_minutes} ${minDisplay} ` : '';
           timerMessage = `<br /><br />You solved the puzzle in ${allMin} ${display_seconds} ${secDisplay}.`;
-          
+
           // stop the timer
           clearTimeout(xw_timer);
           this.timer_button.removeClass('running');
@@ -1678,7 +1692,7 @@ function adjustColor(color, amount) {
         if (!wasSolved) {
           var solvedMessage = escape(this.msg_solved).trim().replaceAll('\n', '<br />');
           solvedMessage += timerMessage;
-          
+
           this.createModalBox('🎉🎉🎉', solvedMessage);
         }
       }
@@ -2116,12 +2130,9 @@ function adjustColor(color, amount) {
         // fill jsxw
         this.fillJsXw();
         // stringify
-        const jsxw_str = JSON.stringify(this.jsxw);
-        // savegame name will just be STORAGE_KEY + title + ' • ' + author
-        //const savegame_name = STORAGE_KEY + this.title + ' • ' + this.author;
-        const savegame_name = STORAGE_KEY;
-        localStorage.setItem(savegame_name, jsxw_str);
-        this.createModalBox('💾', 'Progress saved.');
+        const jsxw_str = JSON.stringify(this.jsxw.cells);
+        localStorage.setItem(this.savegame_name, jsxw_str);
+        //this.createModalBox('💾', 'Progress saved.');
       }
 
       /* Show "load game" menu" */
@@ -2157,12 +2168,13 @@ function adjustColor(color, amount) {
 
       /* Load a game from local storage */
       loadGame() {
-      //loadGame(savegame_name) {
-        //var savegame_name = 'crossword_nexus_savegameTest 3x3 • Alex Boisvert';
-        var savegame_name = STORAGE_KEY;
-        var jsxw = JSON.parse(localStorage.getItem(savegame_name));
-        this.removeListeners();
-        this.parsePuzzle(jsxw);
+        var jsxw_cells = JSON.parse(localStorage.getItem(this.savegame_name));
+        // don't actually *load* it, just return the jsxw
+        return jsxw_cells;
+        //if (jsxw) {
+        //  this.removeListeners();
+        //  this.parsePuzzle(jsxw);
+        //}
       }
 
       /* Export a JPZ */
