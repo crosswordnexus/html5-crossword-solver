@@ -1319,7 +1319,7 @@ function adjustColor(color, amount) {
                     this.context.moveTo(bar_start[key][0], bar_start[key][1]);
                     this.context.lineTo(bar_end[key][0], bar_end[key][1]);
                     const eps = Math.random()/10000;
-                    this.context.lineWidth = 3.9 + eps;
+                    this.context.lineWidth = 4.5 + eps;
                     this.context.stroke();
                     this.context.lineWidth = 1 + eps;
                   }
