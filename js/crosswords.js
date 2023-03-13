@@ -397,10 +397,12 @@ function adjustColor(color, amount) {
           console.log(error);
         }
         var i;
+        var configurable_settings_set = new Set(CONFIGURABLE_SETTINGS);
         for (i in default_config) {
           if (default_config.hasOwnProperty(i)) {
             // Check saved settings before "user" settings
-            if (saved_settings && saved_settings.hasOwnProperty(i)) {
+            // only configurable settings can be loaded
+            if (saved_settings && saved_settings.hasOwnProperty(i) && configurable_settings_set.has(i)) {
               this.config[i] = saved_settings[i];
             } else if (user_config && user_config.hasOwnProperty(i)) {
               this.config[i] = user_config[i];
