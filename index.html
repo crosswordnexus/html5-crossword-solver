@@ -41,6 +41,7 @@
         var url = new URL(window.location.href);
         var puzzle = url.searchParams.get("puzzle");
         if (!puzzle) puzzle = url.searchParams.get("file");
+        var b64config = url.searchParams.get("config");
         var params = {};
         if (puzzle) {
             params = {
@@ -50,6 +51,11 @@
                 }
             };
         }
+        if (b64config) {
+            var config = JSON.parse(atob(b64config));
+            params = Object.assign(params, config);
+        }
+        console.log(params);
         CrosswordNexus.createCrossword($('div.crossword'), params);
     })();
 </script>
