@@ -102,7 +102,8 @@ function adjustColor(color, amount) {
       filled_clue_color: '#999999',
       timer_autostart: false,
       dark_mode_enabled: false,
-      tab_key: 'tab_noskip'
+      tab_key: 'tab_noskip',
+      bar_linewidth: 3.5
     };
 
     // constants
@@ -613,6 +614,11 @@ function adjustColor(color, amount) {
         this.author = puzzle.metadata.author || '';
         this.copyright = puzzle.metadata.copyright || '';
         this.crossword_type = puzzle.metadata.crossword_type;
+
+        // Change document title if necessary
+        if (this.title) {
+          document.title = this.title + ' | ' + document.title;
+        }
 
         // determine whether we should autofill
         if (
@@ -1299,36 +1305,6 @@ function adjustColor(color, amount) {
               this.context.stroke();
             }
 
-            if (cell.bar) {
-              var bar_start = {
-                top: [cell_x, cell_y],
-                left: [cell_x, cell_y],
-                right: [cell_x + this.cell_size, cell_y + this.cell_size],
-                bottom: [cell_x + this.cell_size, cell_y + this.cell_size],
-              };
-              var bar_end = {
-                top: [cell_x + this.cell_size, cell_y],
-                left: [cell_x, cell_y + this.cell_size],
-                right: [cell_x + this.cell_size, cell_y],
-                bottom: [cell_x, cell_y + this.cell_size],
-              };
-              for (var key in cell.bar) {
-                if (cell.bar.hasOwnProperty(key)) {
-                  // key is top, bottom, etc.
-                  // cell.bar[key] is true or false
-                  if (cell.bar[key]) {
-                    this.context.beginPath();
-                    this.context.moveTo(bar_start[key][0], bar_start[key][1]);
-                    this.context.lineTo(bar_end[key][0], bar_end[key][1]);
-                    const eps = Math.random()/10000;
-                    this.context.lineWidth = 5.1 + eps;
-                    this.context.stroke();
-                    this.context.lineWidth = 1 + eps;
-                  }
-                }
-              }
-            }
-
             /* letters and numbers and such */
             // select the font color
             if (cell.clue) {
@@ -1345,6 +1321,37 @@ function adjustColor(color, amount) {
                 var thisRGB = hexToRgb(this.config.font_color_fill);
                 var invertedRGB = thisRGB.map(x => 255 - x);
                 this.context.fillStyle = rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
+              }
+            }
+
+            // bars
+            if (cell.bar) {
+              var bar_start = {
+                top: [cell_x, cell_y + this.config.bar_linewidth/2],
+                left: [cell_x + this.config.bar_linewidth/2, cell_y],
+                right: [cell_x + this.cell_size - this.config.bar_linewidth/2, cell_y + this.cell_size],
+                bottom: [cell_x + this.cell_size, cell_y + this.cell_size - this.config.bar_linewidth/2],
+              };
+              var bar_end = {
+                top: [cell_x + this.cell_size, cell_y + this.config.bar_linewidth/2],
+                left: [cell_x + this.config.bar_linewidth/2, cell_y + this.cell_size],
+                right: [cell_x - this.config.bar_linewidth/2 + this.cell_size, cell_y],
+                bottom: [cell_x, cell_y + this.cell_size - this.config.bar_linewidth/2],
+              };
+              for (var key in cell.bar) {
+                if (cell.bar.hasOwnProperty(key)) {
+                  // key is top, bottom, etc.
+                  // cell.bar[key] is true or false
+                  if (cell.bar[key]) {
+                    this.context.beginPath();
+                    this.context.moveTo(bar_start[key][0], bar_start[key][1]);
+                    this.context.lineTo(bar_end[key][0], bar_end[key][1]);
+                    const eps = Math.random()/10000;
+                    this.context.lineWidth = this.config.bar_linewidth + eps;
+                    this.context.stroke();
+                    this.context.lineWidth = 1 + eps;
+                  }
+                }
               }
             }
 
