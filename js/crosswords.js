@@ -186,6 +186,8 @@ function adjustColor(color, amount) {
                   <button class="cw-menu-item cw-file-notepad">Notepad</button>
                   <button class="cw-menu-item cw-file-print">Print</button>
                   <hr />
+                  <button class="cw-menu-item cw-file-clear">Clear</button>
+                  <hr />
                   <button class="cw-menu-item cw-file-download">Export JPZ</button>
                 </div>
               </div>
@@ -490,6 +492,7 @@ function adjustColor(color, amount) {
         this.info_btn = this.root.find('.cw-file-info');
         this.load_btn = this.root.find('.cw-file-load');
         this.print_btn = this.root.find('.cw-file-print');
+        this.clear_btn = this.root.find('.cw-file-clear');
         this.save_btn = this.root.find('.cw-file-save');
         this.download_btn = this.root.find('.cw-file-download');
 
@@ -852,6 +855,7 @@ function adjustColor(color, amount) {
         this.check_puzzle.off('click');
 
         this.print_btn.off('click');
+        this.clear_btn.off('click');
         this.load_btn.off('click');
         this.save_btn.off('click');
         this.download_btn.off('click');
@@ -928,6 +932,13 @@ function adjustColor(color, amount) {
 
         // PRINTER
         this.print_btn.on('click', $.proxy(this.printPuzzle, this));
+
+        // CLEAR
+        this.clear_btn.on(
+          'click',
+          $.proxy(this.check_reveal, this, 'puzzle', 'clear')
+        );
+
         // DOWNLOAD
         this.download_btn.on('click', $.proxy(this.exportJPZ, this));
 
@@ -2254,6 +2265,9 @@ function adjustColor(color, amount) {
         for (var i = 0; i < my_cells.length; i++) {
           if (!my_cells[i].solution || my_cells[i].type === 'block') {
             continue;
+          }
+          if (reveal_or_check == 'clear' && !my_cells[i].type) {
+            my_cells[i].letter = '';
           }
           if (
             !isCorrect(my_cells[i].letter, my_cells[i].solution)
