@@ -23,6 +23,9 @@ const CONFIGURABLE_SETTINGS = [
 , "dark_mode_enabled"
 ];
 
+// Since DarkReader is an external library, make sure it exists
+try {DarkReader} catch {DarkReader = false;}
+
 /**
 * Helper functions
 * mostly for colors
@@ -381,6 +384,7 @@ function adjustColor(color, amount) {
           crossword = new CrossWord(parent, user_config);
         } catch (e) {
           alert(e.message);
+          console.log(e);
         }
         return crossword;
       },
@@ -2063,7 +2067,7 @@ function adjustColor(color, amount) {
           <!-- Dark Mode -->
           <div class="settings-setting">
             <div class="settings-description">
-              Dark Mode (beta)
+              Dark Mode
             </div>
             <div class="settings-option">
               <label class="settings-label">
