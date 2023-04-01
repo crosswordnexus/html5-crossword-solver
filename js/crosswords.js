@@ -829,6 +829,11 @@ function adjustColor(color, amount) {
           this.toggleTimer();
         }
 
+        // If there's an intro, show it
+        if (this.jsxw.metadata.intro) {
+          this.createModalBox('Intro', this.jsxw.metadata.intro);
+        }
+
         //this.adjustPaddings();
         this.renderCells();
 
@@ -993,6 +998,15 @@ function adjustColor(color, amount) {
 
       // Create a generic modal box with content
       createModalBox(title, content, button_text = 'Close') {
+        // pause the timer if it was running
+        const timer_was_running = this.timer_running;
+        console.log(timer_was_running);
+
+        if (timer_was_running) {
+          this.toggleTimer();
+        }
+        console.log(timer_was_running);
+
         // Set the contents of the modal box
         const modalContent = `
         <div class="modal-content">
@@ -1016,17 +1030,26 @@ function adjustColor(color, amount) {
 
         // Allow user to close the div
         const this_hidden_input = this.hidden_input;
+        const _this = this;
         var span = this.root.find('.modal-close').get(0);
         // When the user clicks on <span> (x), close the modal
         span.onclick = function () {
           modal.style.display = 'none';
           this_hidden_input.focus();
+          console.log(timer_was_running);
+          if (timer_was_running) {
+            _this.toggleTimer();
+          }
         };
         // When the user clicks anywhere outside of the modal, close it
         window.onclick = function (event) {
           if (event.target == modal) {
             modal.style.display = 'none';
             this_hidden_input.focus();
+            console.log(timer_was_running);
+            if (timer_was_running) {
+              this_toggle_timer();
+            }
           }
         };
         // Clicking the button should close the modal
@@ -1034,6 +1057,10 @@ function adjustColor(color, amount) {
         modalButton.onclick = function () {
           modal.style.display = 'none';
           this_hidden_input.focus();
+          console.log(timer_was_running);
+          if (timer_was_running) {
+            this_toggle_timer();
+          }
         };
       }
 
