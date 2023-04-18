@@ -106,7 +106,8 @@ function adjustColor(color, amount) {
       timer_autostart: false,
       dark_mode_enabled: false,
       tab_key: 'tab_noskip',
-      bar_linewidth: 3.5
+      bar_linewidth: 3.5,
+      avcx:null
     };
 
     // constants
@@ -245,6 +246,25 @@ function adjustColor(color, amount) {
           </div>
         </div>
       </div>`;
+
+    function loadAvcxFile(username, token, puzzleId, attachmentId) {
+      var xhr = new XMLHttpRequest(),
+        deferred = $.Deferred();
+      const path = `https://api.avxwords.com/puzzles/${puzzleId}/subscriber_attachments/${attachmentId}`;
+      xhr.open('GET', path);
+      xhr.responseType = 'blob';
+      xhr.setRequestHeader( 'X-Auth-Key', username);
+	    xhr.setRequestHeader( 'X-Auth-Token', token);
+      xhr.onload = function () {
+        if (xhr.status == 200) {
+          loadFromFile(xhr.response, type, deferred);
+        } else {
+          deferred.reject(ERR_FILE_LOAD);
+        }
+      };
+      xhr.send();
+      return deferred;
+    }
 
     // returns deferred object
     function loadFileFromServer(path, type) {
@@ -514,7 +534,6 @@ function adjustColor(color, amount) {
               error_callback
             );
         }
-
         // preload one puzzle
         if (
           this.config.puzzle_file &&
@@ -527,6 +546,12 @@ function adjustColor(color, amount) {
               this.config.puzzle_file.url,
               this.config.puzzle_file.type
             ).then(loaded_callback, error_callback);
+        } else if (this.config.avcx) {
+          console.log(1);
+          loadAvcxFile(
+            this.config.avcx.user, this.config.avcx.token,
+            this.config.avcx.puzzleId, this.config.avcx.attachmentId
+          ).then(loaded_callback, error_callback);
         } else {
           // shows open button
           var i, puzzle_file, el;
