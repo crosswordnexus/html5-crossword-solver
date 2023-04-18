@@ -4,7 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
     <meta name="HandheldFriendly" content="True">
-    
+
     <title>AVCX Puzzle Selector</title>
 
     <!-- jQuery -->
@@ -60,7 +60,12 @@ $(document).ready(function () {
       .then(function success(data) {
         // populate dictionary
         var avcx_data = JSON.parse(data);
-        console.log(avcx_data);
+        window.avcx_data = avcx_data;
+
+        // Create a list of authors
+        window.avcx_authors = [...new Set(window.avcx_data.map(x=>x.author).flat())];
+
+        //console.log(avcx_data);
         // hide and show
         $('#myclass').show();
         $('#loading').hide();
@@ -72,17 +77,13 @@ $(document).ready(function () {
           var applicationId = x['attachment_id'];
           var puzzleId = x['puzzle_id'];
           var title = x['title'];
-          console.log(x);
           if (applicationId) {
             var config = make_config(user, token, puzzleId, applicationId);
             var t = `<a href="index.html?config=${config}">${title}</a><br />\n`;
             html += t;
           }
         });
-        //$('#myclass').text(html);
-        document.getElementById('myclass').innerHTML = html;
-        console.log(html);
-
+        $('#myclass').html(html);
 
       }, function error(e) {
         alert(e);
