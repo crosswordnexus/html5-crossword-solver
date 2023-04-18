@@ -257,7 +257,8 @@ function adjustColor(color, amount) {
 	    xhr.setRequestHeader( 'X-Auth-Token', token);
       xhr.onload = function () {
         if (xhr.status == 200) {
-          loadFromFile(xhr.response, type, deferred);
+          loadFromFile(xhr.response, 'puz', deferred);
+          console.log('loaded');
         } else {
           deferred.reject(ERR_FILE_LOAD);
         }
@@ -547,7 +548,8 @@ function adjustColor(color, amount) {
               this.config.puzzle_file.type
             ).then(loaded_callback, error_callback);
         } else if (this.config.avcx) {
-          console.log(1);
+          this.root.addClass('loading');
+          var loaded_callback = parsePUZZLE_callback;
           loadAvcxFile(
             this.config.avcx.user, this.config.avcx.token,
             this.config.avcx.puzzleId, this.config.avcx.attachmentId
