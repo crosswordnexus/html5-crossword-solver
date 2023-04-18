@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
+    <meta name="HandheldFriendly" content="True">
+    <title>Crossword Nexus Solver</title>
+    <link href="css/crosswordnexus.css" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="lib/jquery.js"></script>
+
+    <!-- JSZip -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- for printing -->
+    <script src="lib/crossword-tools/pdf_create/jspdf.min.js"></script>
+    <script src="lib/crossword-tools/pdf_create/xw_pdf.js"></script>
+
+    <!-- for dark mode -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/darkreader/4.9.51/darkreader.js" integrity="sha512-ZPM2N2jy+xyiZTw79N8gO1fznPeY8HN+53ddx+PqOJ0+WRYBdsKNhtLtecl1/+tGvV9MclzopGNm4AXb/azn2Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <style>
+        html, body {
+            /* height: 100%; */
+            margin: 0;
+            background-color: white;
+        }
+        div.crossword { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+    <div id="loading">Loading ...</div>
+    <div class="myclass" id="myclass"></div>
+
+<script>
+
+function make_config(user, token, puzzleId, applicationId) {
+  var puzzleId_str = '' + puzzleId;
+  var applicationId_str = '' + applicationId;
+  var j = {"avcx": {"user": user, "token": token, "puzzleId": puzzleId_str, "attachmentId": applicationId_str}};
+  var j_str = JSON.stringify(j);
+  return encodeURI(btoa(j_str));
+}
+
+$(document).ready(function () {
+    // hide and show relevant sections
+    $('#myclass').hide();
+    $('#loading').show();
+    // fetch the data
+    if(typeof window.fetch === "function") {
+      fetch('/avcx_metadata.zip')
+      .then(function (response) {
+        if (response.status === 200 || response.status === 0) {
+          return Promise.resolve(response.arrayBuffer())
+        } else {
+          return Promise.reject(new Error(response.statusText))
+        }
+      })
+      .then(JSZip.loadAsync)
+      .then(function (zip) {
+        return zip.file("avcx_metadata.json").async("string");
+      })
+      .then(function success(data) {
+        // populate dictionary
+        var avcx_data = JSON.parse(data);
+        console.log(avcx_data);
+        // hide and show
+        $('#myclass').show();
+        $('#loading').hide();
+
+        var html = '';
+        var user = 'XXXX';
+        var token = 'XXXX';
+        avcx_data.slice(-30, -20).forEach(function (x) {
+          var applicationId = x['attachment_id'];
+          var puzzleId = x['puzzle_id'];
+          var title = x['title'];
+          console.log(x);
+          if (applicationId) {
+            var config = make_config(user, token, puzzleId, applicationId);
+            var t = `<a href="index.html?config=${config}">${title}</a><br />\n`;
+            html += t;
+          }
+        });
+        //$('#myclass').text(html);
+        document.getElementById('myclass').innerHTML = html;
+        console.log(html);
+
+
+      }, function error(e) {
+        alert(e);
+      });
+    } else {
+      $('#loading').text('This browser does not support the Fetch API.  Please use Firefox or Chrome to use this page.');
+    }
+  });
+</script>
+
+</body>
+</html>
