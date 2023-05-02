@@ -48,7 +48,8 @@ const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
 // via wx-xword
 function getBrightness(hex) {
   const rgb = hexToRgb(hex);
-  return Math.sqrt(0.299 * rgb[0]**2 + 0.587 * rgb[1]**2 + 0.114 * rgb[2]**2);
+  //return Math.sqrt(0.299 * rgb[0]**2 + 0.587 * rgb[1]**2 + 0.114 * rgb[2]**2);
+  return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
 }
 
 // Helper function for a single component
