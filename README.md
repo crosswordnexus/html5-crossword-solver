@@ -49,25 +49,13 @@ CrossWord.remove();
 
 ### Available parameters
 
-| Name              | Default   | Description  |
-| ----------------- | --------- | ------------ |
-| hover_enabled     | false     | enables or disables cell hover effect |
-| settings_enabled  | true      | enables or disables settings menu |
-| color_hover       | #FFFFAA   | color for hovered cell |
-| color_selected    | #FFA500   | color for selected cell |
-| color_word        | #FFFF00   | color for selected word |
-| color_hilite      | #FFFCA5   | color for hilited word (when mouse over clue) |
-| cell_size         | null      | (int) cell size in px. null or anything, that converts to 0, means 'auto' |
-| puzzle_file       | null      | puzzle file to preload. If file set - list of puzzles and open button will not be shown |
-| puzzles           | null      | array of puzzle_files, user will be able to load |
-| savegame_name     | ''        | name of saved game, blank name is global to whole site |
-| skip_filled_letters | true    | enables or disables skipping filled-in letters when filling grid |
+For a list of available parameters and what they control, see lines 87-119 in crosswords.js. Note that some color settings are configurable via CSS.
 
 ### Each puzzle file must be object with 3 parameters:
 | Param  | Description     |
 | ------ | --------------- |
 | url    | Puzzle file url |
-| type   | Type of puzzle file. Currently .JPZ/.PUZ/.IPUZ puzzles supported |
+| type   | Type of puzzle file. Currently .JPZ/.PUZ/.IPUZ/.CFP puzzles supported. This is optional. |
 | name   | Puzzle name. Optional for puzzle_file parameter |
 
 With cell_size == 0, crossword will never be bigger than parent.
