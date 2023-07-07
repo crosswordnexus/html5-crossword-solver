@@ -581,9 +581,7 @@ input.cw-hidden-input {
 .cw-max-width-600 .cw-top-text {
     padding: 3px 5px 3px 5px;
 }
-.cw-max-width-600 .cw-clues-holder {
-    display: none;
-}
+
 .cw-max-width-600 .cw-header {
     display: none;
 }
@@ -593,6 +591,10 @@ input.cw-hidden-input {
 }
 .cw-max-width-600 .cw-top-text-wrapper {
     height: 40px;
+}
+
+.cw-max-width-420 .cw-clues-holder {
+    display: none;
 }
 
 .cw-max-width-420 .cw-button-icon {
