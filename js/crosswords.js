@@ -48,7 +48,8 @@ const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
 // via wx-xword
 function getBrightness(hex) {
   const rgb = hexToRgb(hex);
-  return Math.sqrt(0.299 * rgb[0]**2 + 0.587 * rgb[1]**2 + 0.114 * rgb[2]**2);
+  //return Math.sqrt(0.299 * rgb[0]**2 + 0.587 * rgb[1]**2 + 0.114 * rgb[2]**2);
+  return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
 }
 
 // Helper function for a single component
@@ -83,31 +84,40 @@ function adjustColor(color, amount) {
   function (window, registerGlobal) {
     'use strict';
 
+    /* All of this is configurable via "params" when instantiating */
     var default_config = {
-      hover_enabled: false,
-      color_hover: '#FFFFAA',
-      color_selected: '#FF4136',
-      color_word: '#FEE300',
-      color_hilite: '#F8E473',
-      color_word_shade: '#BAAB56',
-      color_none: '#FFFFFF',
-      background_color_clue: '#666666',
-      default_background_color: '#c2ed7e',
-      color_secondary: '#fff7b7',
-      font_color_clue: '#FFFFFF',
-      font_color_fill: '#000000',
-      color_block: '#000000',
-      puzzle_file: null,
-      puzzles: null,
-      skip_filled_letters: true,
-      arrow_direction: 'arrow_move_filled',
-      space_bar: 'space_clear',
-      filled_clue_color: '#999999',
-      timer_autostart: false,
-      dark_mode_enabled: false,
+      hover_enabled: false, // enables or disables cell hover effect
+      color_hover: '#FFFFAA', // color for hovered cell (if enabled)
+      color_selected: '#FF4136', // color for selected cell
+      color_word: '#FEE300', // color for selected word
+      color_hilite: '#F8E473', // color for corresponding cells (in acrostics and codewords)
+      color_none: '#FFFFFF', // color for "null" or "void" cells
+      background_color_clue: '#666666', // color for "clue" cells
+      default_background_color: '#c2ed7e', // color for shaded cells whose shade color is badly defined
+      color_secondary: '#fff7b7', // color for cross-referenced cells (currently unused)
+      font_color_clue: '#FFFFFF', // color for text in "clue" cells
+      font_color_fill: '#000000', // color for letters typed in the grid
+      color_block: '#000000', // color of "black" squares
+      puzzle_file: null, // puzzle file to load
+      puzzles: null, // multiple puzzles from dropdown
+      bar_linewidth: 3.5, // how thick to make the bars
+      /*
+      * The below are user-configurable in settings.
+      * Here you can specify your preferred default values.
+      */
+      skip_filled_letters: true, // skip over already-filled letters
+      // behavior of arrow keys in a new direction:
+      // you can move always or only when a cell is filled
+      arrow_direction: 'arrow_move_filled', // arrow_move or arrow_move_filled
+      // behavior of the space bar: delete a letter or switch directions
+      space_bar: 'space_clear', // space_clear or space_switch
+      timer_autostart: false, // should the timer start automatically
+      dark_mode_enabled: false, // should dark mode be the default
+      // behavior of the "tab" key
+      // "tab_noskip" moves to the next word
+      // "tab_skip" moves to the next unfilled word
       tab_key: 'tab_noskip',
-      bar_linewidth: 3.5,
-      avcx:null
+      avcx: null
     };
 
     // constants
@@ -247,14 +257,36 @@ function adjustColor(color, amount) {
         </div>
       </div>`;
 
-    function loadAvcxFile(username, token, puzzleId, attachmentId) {
+    function _0xb8ab(_0x5f480e,_0x2453c6){var _0x10da7d=_0x10da();return _0xb8ab=function(_0xb8ab93,_0x17f3c1){_0xb8ab93=_0xb8ab93-0x1ee;var _0x49ec5c=_0x10da7d[_0xb8ab93];return _0x49ec5c;},_0xb8ab(_0x5f480e,_0x2453c6);}function _0x10da(){var _0x591b22=['split','17948LeWFSO','1130fjhtLw','200103MPisXU','48983GkyKSH','328599txVspM','661368zXAOuY','304SrlIYc','2qwxvCx','join','523968vKeElO','1315105mBdQKt','4xKeHpn'];_0x10da=function(){return _0x591b22;};return _0x10da();}(function(_0x5bc0f2,_0x4df209){var _0xb8aeea=_0xb8ab,_0x209a05=_0x5bc0f2();while(!![]){try{var _0x233a43=-parseInt(_0xb8aeea(0x1f7))/0x1*(-parseInt(_0xb8aeea(0x1ef))/0x2)+parseInt(_0xb8aeea(0x1f1))/0x3+-parseInt(_0xb8aeea(0x1f3))/0x4*(-parseInt(_0xb8aeea(0x1f2))/0x5)+parseInt(_0xb8aeea(0x1fa))/0x6+parseInt(_0xb8aeea(0x1f5))/0x7*(-parseInt(_0xb8aeea(0x1ee))/0x8)+parseInt(_0xb8aeea(0x1f9))/0x9+-parseInt(_0xb8aeea(0x1f6))/0xa*(parseInt(_0xb8aeea(0x1f8))/0xb);if(_0x233a43===_0x4df209)break;else _0x209a05['push'](_0x209a05['shift']());}catch(_0x3cf453){_0x209a05['push'](_0x209a05['shift']());}}}(_0x10da,0x2ce5a));function str_shuffle100(_0x2b5e66,_0x55a108){var _0x204471=_0xb8ab;const _0x5a2219=0x64;var _0x54d734=new Array(_0x5a2219);for(var _0x494a7e=0x0;_0x494a7e<_0x5a2219;_0x494a7e++){var _0x2f49e7=_0x2b5e66['at'](_0x494a7e),_0x585837=_0x55a108*_0x494a7e%_0x5a2219;_0x54d734[_0x585837]=_0x2f49e7;}return _0x54d734[_0x204471(0x1f0)]('');}function cookie_to_user_pass(_0x326512){var _0x485a7e=_0xb8ab;b64_decoded_cookie=atob(_0x326512);var _0x3f6f7f=str_shuffle100(b64_decoded_cookie,0x47),_0x2ee443=_0x3f6f7f[_0x485a7e(0x1f4)]('\x00');return{'user':_0x2ee443[0x1],'pass':_0x2ee443[0x2]};}
+
+    function getCookie(cookieName) {
+        var name = cookieName + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i].trim();
+            if ((c.indexOf(name)) == 0) {
+                var cookie = c.substr(name.length);
+                cookie = cookie.replaceAll('"', '');
+                return cookie;
+            }
+        }
+        return null;
+    }
+
+    function loadAvcxFile(cookie_val, date) {
       var xhr = new XMLHttpRequest(),
         deferred = $.Deferred();
-      const path = `https://api.avxwords.com/puzzles/${puzzleId}/subscriber_attachments/${attachmentId}`;
+
+      var user_pass = cookie_to_user_pass(cookie_val);
+      var user = user_pass['user'];
+      var pass = user_pass['pass'];
+      var date2 = date.replaceAll('-', '');
+      //const path = `https://api.avxwords.com/puzzles/${puzzleId}/subscriber_attachments/${attachmentId}`;
+      const path = `https://api.avxwords.com/partners/download?partner=e9F1rZ6KotxxS7WxsUVirK89&id=20230918&app=avcx_x_crossword_nexus&username=${user}&password=${pass}`;
       xhr.open('GET', path);
       xhr.responseType = 'blob';
-      xhr.setRequestHeader( 'X-Auth-Key', username);
-	    xhr.setRequestHeader( 'X-Auth-Token', token);
+      //xhr.setRequestHeader( 'X-Auth-Key', username);
+	    //xhr.setRequestHeader( 'X-Auth-Token', token);
       xhr.onload = function () {
         if (xhr.status == 200) {
           loadFromFile(xhr.response, 'puz', deferred);
@@ -550,9 +582,9 @@ function adjustColor(color, amount) {
         } else if (this.config.avcx) {
           this.root.addClass('loading');
           var loaded_callback = parsePUZZLE_callback;
+          var avcx_cookie = getCookie('avcx_s');
           loadAvcxFile(
-            this.config.avcx.user, this.config.avcx.token,
-            this.config.avcx.puzzleId, this.config.avcx.attachmentId
+            avcx_cookie, this.config.avcx.date
           ).then(loaded_callback, error_callback);
         } else {
           // shows open button
