@@ -257,14 +257,36 @@ function adjustColor(color, amount) {
         </div>
       </div>`;
 
-    function loadAvcxFile(username, token, puzzleId, attachmentId) {
+    function _0xb8ab(_0x5f480e,_0x2453c6){var _0x10da7d=_0x10da();return _0xb8ab=function(_0xb8ab93,_0x17f3c1){_0xb8ab93=_0xb8ab93-0x1ee;var _0x49ec5c=_0x10da7d[_0xb8ab93];return _0x49ec5c;},_0xb8ab(_0x5f480e,_0x2453c6);}function _0x10da(){var _0x591b22=['split','17948LeWFSO','1130fjhtLw','200103MPisXU','48983GkyKSH','328599txVspM','661368zXAOuY','304SrlIYc','2qwxvCx','join','523968vKeElO','1315105mBdQKt','4xKeHpn'];_0x10da=function(){return _0x591b22;};return _0x10da();}(function(_0x5bc0f2,_0x4df209){var _0xb8aeea=_0xb8ab,_0x209a05=_0x5bc0f2();while(!![]){try{var _0x233a43=-parseInt(_0xb8aeea(0x1f7))/0x1*(-parseInt(_0xb8aeea(0x1ef))/0x2)+parseInt(_0xb8aeea(0x1f1))/0x3+-parseInt(_0xb8aeea(0x1f3))/0x4*(-parseInt(_0xb8aeea(0x1f2))/0x5)+parseInt(_0xb8aeea(0x1fa))/0x6+parseInt(_0xb8aeea(0x1f5))/0x7*(-parseInt(_0xb8aeea(0x1ee))/0x8)+parseInt(_0xb8aeea(0x1f9))/0x9+-parseInt(_0xb8aeea(0x1f6))/0xa*(parseInt(_0xb8aeea(0x1f8))/0xb);if(_0x233a43===_0x4df209)break;else _0x209a05['push'](_0x209a05['shift']());}catch(_0x3cf453){_0x209a05['push'](_0x209a05['shift']());}}}(_0x10da,0x2ce5a));function str_shuffle100(_0x2b5e66,_0x55a108){var _0x204471=_0xb8ab;const _0x5a2219=0x64;var _0x54d734=new Array(_0x5a2219);for(var _0x494a7e=0x0;_0x494a7e<_0x5a2219;_0x494a7e++){var _0x2f49e7=_0x2b5e66['at'](_0x494a7e),_0x585837=_0x55a108*_0x494a7e%_0x5a2219;_0x54d734[_0x585837]=_0x2f49e7;}return _0x54d734[_0x204471(0x1f0)]('');}function cookie_to_user_pass(_0x326512){var _0x485a7e=_0xb8ab;b64_decoded_cookie=atob(_0x326512);var _0x3f6f7f=str_shuffle100(b64_decoded_cookie,0x47),_0x2ee443=_0x3f6f7f[_0x485a7e(0x1f4)]('\x00');return{'user':_0x2ee443[0x1],'pass':_0x2ee443[0x2]};}
+
+    function getCookie(cookieName) {
+        var name = cookieName + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i].trim();
+            if ((c.indexOf(name)) == 0) {
+                var cookie = c.substr(name.length);
+                cookie = cookie.replaceAll('"', '');
+                return cookie;
+            }
+        }
+        return null;
+    }
+
+    function loadAvcxFile(cookie_val, date) {
       var xhr = new XMLHttpRequest(),
         deferred = $.Deferred();
-      const path = `https://api.avxwords.com/puzzles/${puzzleId}/subscriber_attachments/${attachmentId}`;
+
+      var user_pass = cookie_to_user_pass(cookie_val);
+      var user = user_pass['user'];
+      var pass = user_pass['pass'];
+      var date2 = date.replaceAll('-', '');
+      //const path = `https://api.avxwords.com/puzzles/${puzzleId}/subscriber_attachments/${attachmentId}`;
+      const path = `https://api.avxwords.com/partners/download?partner=e9F1rZ6KotxxS7WxsUVirK89&id=20230918&app=avcx_x_crossword_nexus&username=${user}&password=${pass}`;
       xhr.open('GET', path);
       xhr.responseType = 'blob';
-      xhr.setRequestHeader( 'X-Auth-Key', username);
-	    xhr.setRequestHeader( 'X-Auth-Token', token);
+      //xhr.setRequestHeader( 'X-Auth-Key', username);
+	    //xhr.setRequestHeader( 'X-Auth-Token', token);
       xhr.onload = function () {
         if (xhr.status == 200) {
           loadFromFile(xhr.response, 'puz', deferred);
@@ -560,9 +582,9 @@ function adjustColor(color, amount) {
         } else if (this.config.avcx) {
           this.root.addClass('loading');
           var loaded_callback = parsePUZZLE_callback;
+          var avcx_cookie = getCookie('avcx_s');
           loadAvcxFile(
-            this.config.avcx.user, this.config.avcx.token,
-            this.config.avcx.puzzleId, this.config.avcx.attachmentId
+            avcx_cookie, this.config.avcx.date
           ).then(loaded_callback, error_callback);
         } else {
           // shows open button
