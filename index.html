@@ -33,6 +33,7 @@
     </style>
 </head>
 <body>
+    <!-- The div in which the crossword will be created -->
     <div class="crossword"></div>
 
 <script>
@@ -41,21 +42,26 @@
         var url = new URL(window.location.href);
         var puzzle = url.searchParams.get("puzzle");
         if (!puzzle) puzzle = url.searchParams.get("file");
-        var b64config = url.searchParams.get("config");
+
+        // optional puzzle parameters
+        // for options, see line 87 in crosswords.js.
         var params = {};
         if (puzzle) {
-            params = {
-                puzzle_file: {
-                    url: puzzle,
-                    type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
-                }
+            params['puzzle_file'] = {
+                url: puzzle,
+                type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
             };
         }
+
+        // you can also set parameters in the URL
+        // as a base64-encoded JSON blob
+        var b64config = url.searchParams.get("config");
         if (b64config) {
             var config = JSON.parse(atob(b64config));
             params = Object.assign(params, config);
         }
-        console.log(params);
+
+        // Create the crossword
         CrosswordNexus.createCrossword($('div.crossword'), params);
     })();
 </script>

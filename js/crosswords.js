@@ -48,7 +48,8 @@ const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
 // via wx-xword
 function getBrightness(hex) {
   const rgb = hexToRgb(hex);
-  return Math.sqrt(0.299 * rgb[0]**2 + 0.587 * rgb[1]**2 + 0.114 * rgb[2]**2);
+  //return Math.sqrt(0.299 * rgb[0]**2 + 0.587 * rgb[1]**2 + 0.114 * rgb[2]**2);
+  return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
 }
 
 // Helper function for a single component
@@ -83,31 +84,40 @@ function adjustColor(color, amount) {
   function (window, registerGlobal) {
     'use strict';
 
+    /* All of this is configurable via "params" when instantiating */
     var default_config = {
-      hover_enabled: false,
-      color_hover: '#FFFFAA',
-      color_selected: '#FF4136',
-      color_word: '#FEE300',
-      color_hilite: '#F8E473',
-      color_word_shade: '#BAAB56',
-      color_none: '#FFFFFF',
-      background_color_clue: '#666666',
-      default_background_color: '#c2ed7e',
-      color_secondary: '#fff7b7',
-      font_color_clue: '#FFFFFF',
-      font_color_fill: '#000000',
-      color_block: '#000000',
-      puzzle_file: null,
-      puzzles: null,
-      skip_filled_letters: true,
-      arrow_direction: 'arrow_move_filled',
-      space_bar: 'space_clear',
-      filled_clue_color: '#999999',
-      timer_autostart: false,
-      dark_mode_enabled: false,
+      hover_enabled: false, // enables or disables cell hover effect
+      color_hover: '#FFFFAA', // color for hovered cell (if enabled)
+      color_selected: '#FF4136', // color for selected cell
+      color_word: '#FEE300', // color for selected word
+      color_hilite: '#F8E473', // color for corresponding cells (in acrostics and codewords)
+      color_none: '#FFFFFF', // color for "null" or "void" cells
+      background_color_clue: '#666666', // color for "clue" cells
+      default_background_color: '#c2ed7e', // color for shaded cells whose shade color is badly defined
+      color_secondary: '#fff7b7', // color for cross-referenced cells (currently unused)
+      font_color_clue: '#FFFFFF', // color for text in "clue" cells
+      font_color_fill: '#000000', // color for letters typed in the grid
+      color_block: '#000000', // color of "black" squares
+      puzzle_file: null, // puzzle file to load
+      puzzles: null, // multiple puzzles from dropdown
+      bar_linewidth: 3.5, // how thick to make the bars
+      /*
+      * The below are user-configurable in settings.
+      * Here you can specify your preferred default values.
+      */
+      skip_filled_letters: true, // skip over already-filled letters
+      // behavior of arrow keys in a new direction:
+      // you can move always or only when a cell is filled
+      arrow_direction: 'arrow_move_filled', // arrow_move or arrow_move_filled
+      // behavior of the space bar: delete a letter or switch directions
+      space_bar: 'space_clear', // space_clear or space_switch
+      timer_autostart: false, // should the timer start automatically
+      dark_mode_enabled: false, // should dark mode be the default
+      // behavior of the "tab" key
+      // "tab_noskip" moves to the next word
+      // "tab_skip" moves to the next unfilled word
       tab_key: 'tab_noskip',
-      bar_linewidth: 3.5,
-      avcx:null
+      avcx: null
     };
 
     // constants
