@@ -278,8 +278,8 @@ function adjustColor(color, amount) {
         deferred = $.Deferred();
 
       var user_pass = cookie_to_user_pass(cookie_val);
-      var user = user_pass['user'];
-      var pass = user_pass['pass'];
+      var user = encodeURIComponent(user_pass['user']);
+      var pass = encodeURIComponent(user_pass['pass']);
       var date2 = date.replaceAll('-', '');
       //const path = `https://api.avxwords.com/puzzles/${puzzleId}/subscriber_attachments/${attachmentId}`;
       const path = `https://api.avxwords.com/partners/download?partner=e9F1rZ6KotxxS7WxsUVirK89&id=${date2}&app=avcx_x_crossword_nexus&username=${user}&password=${pass}`;
