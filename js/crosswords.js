@@ -120,7 +120,7 @@ function adjustColor(color, amount) {
       // "tab_noskip" moves to the next word
       // "tab_skip" moves to the next unfilled word
       tab_key: 'tab_noskip',
-      confetti: true
+      confetti_enabled: true
     };
 
     // constants
@@ -1732,7 +1732,7 @@ function adjustColor(color, amount) {
           solvedMessage += timerMessage;
 
           this.createModalBox('🎉🎉🎉', solvedMessage);
-          if (this.config.confetti) {
+          if (this.config.confetti_enabled) {
             confetti.start();
             setTimeout(function() {
                 confetti.stop()
@@ -2070,10 +2070,10 @@ function adjustColor(color, amount) {
             </div>
           </div>
 
-          <!-- Timer -->
+          <!-- Miscellaneous -->
           <div class="settings-setting">
             <div class="settings-description">
-              Timer
+              Miscellaneous
             </div>
             <div class="settings-option">
               <label class="settings-label">
@@ -2082,17 +2082,17 @@ function adjustColor(color, amount) {
                 </input>
               </label>
             </div>
-          </div>
-
-          <!-- Dark Mode -->
-          <div class="settings-setting">
-            <div class="settings-description">
-              Dark Mode
-            </div>
             <div class="settings-option">
               <label class="settings-label">
                 <input id="dark_mode_enabled" checked="" type="checkbox" name="dark_mode_enabled" class="settings-changer">
-                  Enable dark mode
+                  Dark mode
+                </input>
+              </label>
+            </div>
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="confetti_enabled" checked="checked" type="checkbox" name="confetti_enabled" class="settings-changer">
+                  Confetti on solve
                 </input>
               </label>
             </div>
