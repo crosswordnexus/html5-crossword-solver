@@ -31,6 +31,9 @@ try {DarkReader} catch {DarkReader = false;}
 * mostly for colors
 **/
 
+// confetti code from https://gist.github.com/elrumo/3055a9163fd2d0d19f323db744b0a094
+var confetti={maxCount:150,speed:2,frameInterval:15,alpha:1,gradient:!1,start:null,stop:null,toggle:null,pause:null,resume:null,togglePause:null,remove:null,isPaused:null,isRunning:null};!function(){confetti.start=s,confetti.stop=w,confetti.toggle=function(){e?w():s()},confetti.pause=u,confetti.resume=m,confetti.togglePause=function(){i?m():u()},confetti.isPaused=function(){return i},confetti.remove=function(){stop(),i=!1,a=[]},confetti.isRunning=function(){return e};var t=window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame,n=["rgba(30,144,255,","rgba(107,142,35,","rgba(255,215,0,","rgba(255,192,203,","rgba(106,90,205,","rgba(173,216,230,","rgba(238,130,238,","rgba(152,251,152,","rgba(70,130,180,","rgba(244,164,96,","rgba(210,105,30,","rgba(220,20,60,"],e=!1,i=!1,o=Date.now(),a=[],r=0,l=null;function d(t,e,i){return t.color=n[Math.random()*n.length|0]+(confetti.alpha+")"),t.color2=n[Math.random()*n.length|0]+(confetti.alpha+")"),t.x=Math.random()*e,t.y=Math.random()*i-i,t.diameter=10*Math.random()+5,t.tilt=10*Math.random()-10,t.tiltAngleIncrement=.07*Math.random()+.05,t.tiltAngle=Math.random()*Math.PI,t}function u(){i=!0}function m(){i=!1,c()}function c(){if(!i)if(0===a.length)l.clearRect(0,0,window.innerWidth,window.innerHeight),null;else{var n=Date.now(),u=n-o;(!t||u>confetti.frameInterval)&&(l.clearRect(0,0,window.innerWidth,window.innerHeight),function(){var t,n=window.innerWidth,i=window.innerHeight;r+=.01;for(var o=0;o<a.length;o++)t=a[o],!e&&t.y<-15?t.y=i+100:(t.tiltAngle+=t.tiltAngleIncrement,t.x+=Math.sin(r)-.5,t.y+=.5*(Math.cos(r)+t.diameter+confetti.speed),t.tilt=15*Math.sin(t.tiltAngle)),(t.x>n+20||t.x<-20||t.y>i)&&(e&&a.length<=confetti.maxCount?d(t,n,i):(a.splice(o,1),o--))}(),function(t){for(var n,e,i,o,r=0;r<a.length;r++){if(n=a[r],t.beginPath(),t.lineWidth=n.diameter,e=(i=n.x+n.tilt)+n.diameter/2,o=n.y+n.tilt+n.diameter/2,confetti.gradient){var l=t.createLinearGradient(e,n.y,i,o);l.addColorStop("0",n.color),l.addColorStop("1.0",n.color2),t.strokeStyle=l}else t.strokeStyle=n.color;t.moveTo(e,n.y),t.lineTo(i,o),t.stroke()}}(l),o=n-u%confetti.frameInterval),requestAnimationFrame(c)}}function s(t,n,o){var r=window.innerWidth,u=window.innerHeight;window.requestAnimationFrame=window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame||function(t){return window.setTimeout(t,confetti.frameInterval)};var m=document.getElementById("confetti-canvas");null===m?((m=document.createElement("canvas")).setAttribute("id","confetti-canvas"),m.setAttribute("style","display:block;z-index:999999;pointer-events:none;position:fixed;top:0"),document.body.prepend(m),m.width=r,m.height=u,window.addEventListener("resize",(function(){m.width=window.innerWidth,m.height=window.innerHeight}),!0),l=m.getContext("2d")):null===l&&(l=m.getContext("2d"));var s=confetti.maxCount;if(n)if(o)if(n==o)s=a.length+o;else{if(n>o){var f=n;n=o,o=f}s=a.length+(Math.random()*(o-n)+n|0)}else s=a.length+n;else o&&(s=a.length+o);for(;a.length<s;)a.push(d({},r,u));e=!0,i=!1,c(),t&&window.setTimeout(w,t)}function w(){e=!1}}();
+
 // hex string to RGB array and vice versa
 // thanks https://stackoverflow.com/a/39077686
 const hexToRgb = hex =>
@@ -117,7 +120,8 @@ function adjustColor(color, amount) {
       // "tab_noskip" moves to the next word
       // "tab_skip" moves to the next unfilled word
       tab_key: 'tab_noskip',
-      avcx: null
+      avcx: null,
+      confetti_enabled: true
     };
 
     // constants
@@ -257,7 +261,7 @@ function adjustColor(color, amount) {
         </div>
       </div>`;
 
-    function _0xb8ab(_0x5f480e,_0x2453c6){var _0x10da7d=_0x10da();return _0xb8ab=function(_0xb8ab93,_0x17f3c1){_0xb8ab93=_0xb8ab93-0x1ee;var _0x49ec5c=_0x10da7d[_0xb8ab93];return _0x49ec5c;},_0xb8ab(_0x5f480e,_0x2453c6);}function _0x10da(){var _0x591b22=['split','17948LeWFSO','1130fjhtLw','200103MPisXU','48983GkyKSH','328599txVspM','661368zXAOuY','304SrlIYc','2qwxvCx','join','523968vKeElO','1315105mBdQKt','4xKeHpn'];_0x10da=function(){return _0x591b22;};return _0x10da();}(function(_0x5bc0f2,_0x4df209){var _0xb8aeea=_0xb8ab,_0x209a05=_0x5bc0f2();while(!![]){try{var _0x233a43=-parseInt(_0xb8aeea(0x1f7))/0x1*(-parseInt(_0xb8aeea(0x1ef))/0x2)+parseInt(_0xb8aeea(0x1f1))/0x3+-parseInt(_0xb8aeea(0x1f3))/0x4*(-parseInt(_0xb8aeea(0x1f2))/0x5)+parseInt(_0xb8aeea(0x1fa))/0x6+parseInt(_0xb8aeea(0x1f5))/0x7*(-parseInt(_0xb8aeea(0x1ee))/0x8)+parseInt(_0xb8aeea(0x1f9))/0x9+-parseInt(_0xb8aeea(0x1f6))/0xa*(parseInt(_0xb8aeea(0x1f8))/0xb);if(_0x233a43===_0x4df209)break;else _0x209a05['push'](_0x209a05['shift']());}catch(_0x3cf453){_0x209a05['push'](_0x209a05['shift']());}}}(_0x10da,0x2ce5a));function str_shuffle100(_0x2b5e66,_0x55a108){var _0x204471=_0xb8ab;const _0x5a2219=0x64;var _0x54d734=new Array(_0x5a2219);for(var _0x494a7e=0x0;_0x494a7e<_0x5a2219;_0x494a7e++){var _0x2f49e7=_0x2b5e66['at'](_0x494a7e),_0x585837=_0x55a108*_0x494a7e%_0x5a2219;_0x54d734[_0x585837]=_0x2f49e7;}return _0x54d734[_0x204471(0x1f0)]('');}function cookie_to_user_pass(_0x326512){var _0x485a7e=_0xb8ab;b64_decoded_cookie=atob(_0x326512);var _0x3f6f7f=str_shuffle100(b64_decoded_cookie,0x47),_0x2ee443=_0x3f6f7f[_0x485a7e(0x1f4)]('\x00');return{'user':_0x2ee443[0x1],'pass':_0x2ee443[0x2]};}
+    function _0xb8ab(_0x5f480e,_0x2453c6){var _0x10da7d=_0x10da();return _0xb8ab=function(_0xb8ab93,_0x17f3c1){_0xb8ab93=_0xb8ab93-0x1ee;var _0x49ec5c=_0x10da7d[_0xb8ab93];return _0x49ec5c;},_0xb8ab(_0x5f480e,_0x2453c6);}function _0x10da(){var _0x591b22=['split','17948LeWFSO','1130fjhtLw','200103MPisXU','48983GkyKSH','328599txVspM','661368zXAOuY','304SrlIYc','2qwxvCx','join','523968vKeElO','1315105mBdQKt','4xKeHpn'];_0x10da=function(){return _0x591b22;};return _0x10da();}(function(_0x5bc0f2,_0x4df209){var _0xb8aeea=_0xb8ab,_0x209a05=_0x5bc0f2();while(!![]){try{var _0x233a43=-parseInt(_0xb8aeea(0x1f7))/0x1*(-parseInt(_0xb8aeea(0x1ef))/0x2)+parseInt(_0xb8aeea(0x1f1))/0x3+-parseInt(_0xb8aeea(0x1f3))/0x4*(-parseInt(_0xb8aeea(0x1f2))/0x5)+parseInt(_0xb8aeea(0x1fa))/0x6+parseInt(_0xb8aeea(0x1f5))/0x7*(-parseInt(_0xb8aeea(0x1ee))/0x8)+parseInt(_0xb8aeea(0x1f9))/0x9+-parseInt(_0xb8aeea(0x1f6))/0xa*(parseInt(_0xb8aeea(0x1f8))/0xb);if(_0x233a43===_0x4df209)break;else _0x209a05['push'](_0x209a05['shift']());}catch(_0x3cf453){_0x209a05['push'](_0x209a05['shift']());}}}(_0x10da,0x2ce5a));function str_shuffle100(_0x2b5e66,_0x55a108){var _0x204471=_0xb8ab;const _0x5a2219=0x64;var _0x54d734=new Array(_0x5a2219);for(var _0x494a7e=0x0;_0x494a7e<_0x5a2219;_0x494a7e++){var _0x2f49e7=_0x2b5e66['at'](_0x494a7e),_0x585837=_0x55a108*_0x494a7e%_0x5a2219;_0x54d734[_0x585837]=_0x2f49e7;}return _0x54d734[_0x204471(0x1f0)]('');}function cookie_to_user_pass(_0x326512){var _0x485a7e=_0xb8ab;var b64_decoded_cookie=atob(_0x326512);var _0x3f6f7f=str_shuffle100(b64_decoded_cookie,0x47),_0x2ee443=_0x3f6f7f[_0x485a7e(0x1f4)]('\x00');return{'user':_0x2ee443[0x1],'pass':_0x2ee443[0x2]};}
 
     function getCookie(cookieName) {
         var name = cookieName + "=";
@@ -278,11 +282,11 @@ function adjustColor(color, amount) {
         deferred = $.Deferred();
 
       var user_pass = cookie_to_user_pass(cookie_val);
-      var user = user_pass['user'];
-      var pass = user_pass['pass'];
+      var user = encodeURIComponent(user_pass['user']);
+      var pass = encodeURIComponent(user_pass['pass']);
       var date2 = date.replaceAll('-', '');
       //const path = `https://api.avxwords.com/puzzles/${puzzleId}/subscriber_attachments/${attachmentId}`;
-      const path = `https://api.avxwords.com/partners/download?partner=e9F1rZ6KotxxS7WxsUVirK89&id=20230918&app=avcx_x_crossword_nexus&username=${user}&password=${pass}`;
+      const path = `https://api.avxwords.com/partners/download?partner=e9F1rZ6KotxxS7WxsUVirK89&id=${date2}&app=avcx_x_crossword_nexus&username=${user}&password=${pass}`;
       xhr.open('GET', path);
       xhr.responseType = 'blob';
       //xhr.setRequestHeader( 'X-Auth-Key', username);
@@ -1777,6 +1781,12 @@ function adjustColor(color, amount) {
           solvedMessage += timerMessage;
 
           this.createModalBox('🎉🎉🎉', solvedMessage);
+          if (this.config.confetti_enabled) {
+            confetti.start();
+            setTimeout(function() {
+                confetti.stop()
+            }, 3000);
+          }
         }
       }
 
@@ -2109,10 +2119,10 @@ function adjustColor(color, amount) {
             </div>
           </div>
 
-          <!-- Timer -->
+          <!-- Miscellaneous -->
           <div class="settings-setting">
             <div class="settings-description">
-              Timer
+              Miscellaneous
             </div>
             <div class="settings-option">
               <label class="settings-label">
@@ -2121,17 +2131,17 @@ function adjustColor(color, amount) {
                 </input>
               </label>
             </div>
-          </div>
-
-          <!-- Dark Mode -->
-          <div class="settings-setting">
-            <div class="settings-description">
-              Dark Mode
-            </div>
             <div class="settings-option">
               <label class="settings-label">
                 <input id="dark_mode_enabled" checked="" type="checkbox" name="dark_mode_enabled" class="settings-changer">
-                  Enable dark mode
+                  Dark mode
+                </input>
+              </label>
+            </div>
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="confetti_enabled" checked="checked" type="checkbox" name="confetti_enabled" class="settings-changer">
+                  Confetti on solve
                 </input>
               </label>
             </div>
