@@ -440,7 +440,7 @@ function adjustColor(color, amount) {
             contrast: 90,
             sepia: 10
           });
-          this.config.color_none = '#454644';
+          this.config.color_none = '#404040';
           this.config.font_color_fill = '#ddd4c5';
         }
 
