@@ -1485,7 +1485,7 @@ function adjustColor(color, amount) {
           this.setActiveWord(
             this.active_clues.getMatchingWord(index_x, index_y, true)
           );
-        } else {
+        } else if (this.inactive_clues.getMatchingWord(index_x, index_y, true)){
           this.setActiveWord(
             this.inactive_clues.getMatchingWord(index_x, index_y, true)
           );
@@ -1931,7 +1931,13 @@ function adjustColor(color, amount) {
               new_cell.y,
               true
             );
-            if (!newCellActiveWord) {
+            // we also check if the new cell has a word in the other direction
+            var newCellInactiveWord = this.inactive_clues.getMatchingWord(
+              new_cell.x,
+              new_cell.y,
+              true
+            );
+            if (!newCellActiveWord && newCellInactiveWord) {
               this.changeActiveClues();
             }
             // In any case we change the active word
