@@ -31,6 +31,9 @@ try {DarkReader} catch {DarkReader = false;}
 * mostly for colors
 **/
 
+// confetti code from https://gist.github.com/elrumo/3055a9163fd2d0d19f323db744b0a094
+var confetti={maxCount:150,speed:2,frameInterval:15,alpha:1,gradient:!1,start:null,stop:null,toggle:null,pause:null,resume:null,togglePause:null,remove:null,isPaused:null,isRunning:null};!function(){confetti.start=s,confetti.stop=w,confetti.toggle=function(){e?w():s()},confetti.pause=u,confetti.resume=m,confetti.togglePause=function(){i?m():u()},confetti.isPaused=function(){return i},confetti.remove=function(){stop(),i=!1,a=[]},confetti.isRunning=function(){return e};var t=window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame,n=["rgba(30,144,255,","rgba(107,142,35,","rgba(255,215,0,","rgba(255,192,203,","rgba(106,90,205,","rgba(173,216,230,","rgba(238,130,238,","rgba(152,251,152,","rgba(70,130,180,","rgba(244,164,96,","rgba(210,105,30,","rgba(220,20,60,"],e=!1,i=!1,o=Date.now(),a=[],r=0,l=null;function d(t,e,i){return t.color=n[Math.random()*n.length|0]+(confetti.alpha+")"),t.color2=n[Math.random()*n.length|0]+(confetti.alpha+")"),t.x=Math.random()*e,t.y=Math.random()*i-i,t.diameter=10*Math.random()+5,t.tilt=10*Math.random()-10,t.tiltAngleIncrement=.07*Math.random()+.05,t.tiltAngle=Math.random()*Math.PI,t}function u(){i=!0}function m(){i=!1,c()}function c(){if(!i)if(0===a.length)l.clearRect(0,0,window.innerWidth,window.innerHeight),null;else{var n=Date.now(),u=n-o;(!t||u>confetti.frameInterval)&&(l.clearRect(0,0,window.innerWidth,window.innerHeight),function(){var t,n=window.innerWidth,i=window.innerHeight;r+=.01;for(var o=0;o<a.length;o++)t=a[o],!e&&t.y<-15?t.y=i+100:(t.tiltAngle+=t.tiltAngleIncrement,t.x+=Math.sin(r)-.5,t.y+=.5*(Math.cos(r)+t.diameter+confetti.speed),t.tilt=15*Math.sin(t.tiltAngle)),(t.x>n+20||t.x<-20||t.y>i)&&(e&&a.length<=confetti.maxCount?d(t,n,i):(a.splice(o,1),o--))}(),function(t){for(var n,e,i,o,r=0;r<a.length;r++){if(n=a[r],t.beginPath(),t.lineWidth=n.diameter,e=(i=n.x+n.tilt)+n.diameter/2,o=n.y+n.tilt+n.diameter/2,confetti.gradient){var l=t.createLinearGradient(e,n.y,i,o);l.addColorStop("0",n.color),l.addColorStop("1.0",n.color2),t.strokeStyle=l}else t.strokeStyle=n.color;t.moveTo(e,n.y),t.lineTo(i,o),t.stroke()}}(l),o=n-u%confetti.frameInterval),requestAnimationFrame(c)}}function s(t,n,o){var r=window.innerWidth,u=window.innerHeight;window.requestAnimationFrame=window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame||function(t){return window.setTimeout(t,confetti.frameInterval)};var m=document.getElementById("confetti-canvas");null===m?((m=document.createElement("canvas")).setAttribute("id","confetti-canvas"),m.setAttribute("style","display:block;z-index:999999;pointer-events:none;position:fixed;top:0"),document.body.prepend(m),m.width=r,m.height=u,window.addEventListener("resize",(function(){m.width=window.innerWidth,m.height=window.innerHeight}),!0),l=m.getContext("2d")):null===l&&(l=m.getContext("2d"));var s=confetti.maxCount;if(n)if(o)if(n==o)s=a.length+o;else{if(n>o){var f=n;n=o,o=f}s=a.length+(Math.random()*(o-n)+n|0)}else s=a.length+n;else o&&(s=a.length+o);for(;a.length<s;)a.push(d({},r,u));e=!0,i=!1,c(),t&&window.setTimeout(w,t)}function w(){e=!1}}();
+
 // hex string to RGB array and vice versa
 // thanks https://stackoverflow.com/a/39077686
 const hexToRgb = hex =>
@@ -48,7 +51,8 @@ const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
 // via wx-xword
 function getBrightness(hex) {
   const rgb = hexToRgb(hex);
-  return Math.sqrt(0.299 * rgb[0]**2 + 0.587 * rgb[1]**2 + 0.114 * rgb[2]**2);
+  //return Math.sqrt(0.299 * rgb[0]**2 + 0.587 * rgb[1]**2 + 0.114 * rgb[2]**2);
+  return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
 }
 
 // Helper function for a single component
@@ -83,30 +87,40 @@ function adjustColor(color, amount) {
   function (window, registerGlobal) {
     'use strict';
 
+    /* All of this is configurable via "params" when instantiating */
     var default_config = {
-      hover_enabled: false,
-      color_hover: '#FFFFAA',
-      color_selected: '#FF4136',
-      color_word: '#FEE300',
-      color_hilite: '#F8E473',
-      color_word_shade: '#BAAB56',
-      color_none: '#FFFFFF',
-      background_color_clue: '#666666',
-      default_background_color: '#c2ed7e',
-      color_secondary: '#fff7b7',
-      font_color_clue: '#FFFFFF',
-      font_color_fill: '#000000',
-      color_block: '#000000',
-      puzzle_file: null,
-      puzzles: null,
-      skip_filled_letters: true,
-      arrow_direction: 'arrow_move_filled',
-      space_bar: 'space_clear',
-      filled_clue_color: '#999999',
-      timer_autostart: false,
-      dark_mode_enabled: false,
+      hover_enabled: false, // enables or disables cell hover effect
+      color_hover: '#FFFFAA', // color for hovered cell (if enabled)
+      color_selected: '#FF4136', // color for selected cell
+      color_word: '#FEE300', // color for selected word
+      color_hilite: '#F8E473', // color for corresponding cells (in acrostics and codewords)
+      color_none: '#FFFFFF', // color for "null" or "void" cells
+      background_color_clue: '#666666', // color for "clue" cells
+      default_background_color: '#c2ed7e', // color for shaded cells whose shade color is badly defined
+      color_secondary: '#fff7b7', // color for cross-referenced cells (currently unused)
+      font_color_clue: '#FFFFFF', // color for text in "clue" cells
+      font_color_fill: '#000000', // color for letters typed in the grid
+      color_block: '#000000', // color of "black" squares
+      puzzle_file: null, // puzzle file to load
+      puzzles: null, // multiple puzzles from dropdown
+      bar_linewidth: 3.5, // how thick to make the bars
+      /*
+      * The below are user-configurable in settings.
+      * Here you can specify your preferred default values.
+      */
+      skip_filled_letters: true, // skip over already-filled letters
+      // behavior of arrow keys in a new direction:
+      // you can move always or only when a cell is filled
+      arrow_direction: 'arrow_move_filled', // arrow_move or arrow_move_filled
+      // behavior of the space bar: delete a letter or switch directions
+      space_bar: 'space_clear', // space_clear or space_switch
+      timer_autostart: false, // should the timer start automatically
+      dark_mode_enabled: false, // should dark mode be the default
+      // behavior of the "tab" key
+      // "tab_noskip" moves to the next word
+      // "tab_skip" moves to the next unfilled word
       tab_key: 'tab_noskip',
-      bar_linewidth: 3.5
+      confetti_enabled: true
     };
 
     // constants
@@ -224,8 +238,8 @@ function adjustColor(color, amount) {
             </div>
             <div class="cw-top-text-wrapper">
               <div class="cw-top-text">
-                <span class="cw-clue-number">1</span>
-                <span class="cw-clue-text">Clue</span>
+                <span class="cw-clue-number"></span>
+                <span class="cw-clue-text"></span>
               </div>
             </div>
             <input type="text" class="cw-hidden-input">
@@ -426,7 +440,7 @@ function adjustColor(color, amount) {
             contrast: 90,
             sepia: 10
           });
-          this.config.color_none = '#252624';
+          this.config.color_none = '#404040';
           this.config.font_color_fill = '#ddd4c5';
         }
 
@@ -499,6 +513,8 @@ function adjustColor(color, amount) {
         this.clear_btn = this.root.find('.cw-file-clear');
         this.save_btn = this.root.find('.cw-file-save');
         this.download_btn = this.root.find('.cw-file-download');
+
+        this.notes = new Map();
 
         // Notepad button is hidden by default
         this.notepad_btn = this.root.find('.cw-file-notepad');
@@ -621,6 +637,12 @@ function adjustColor(color, amount) {
         this.author = puzzle.metadata.author || '';
         this.copyright = puzzle.metadata.copyright || '';
         this.crossword_type = puzzle.metadata.crossword_type;
+        this.fakeclues = puzzle.metadata.fakeclues || false;
+
+        // don't show the top text if fakeclues
+        if (this.fakeclues) {
+          $('div.cw-top-text-wrapper').css({ display: 'none' });
+        }
 
         // Change document title if necessary
         if (this.title) {
@@ -690,11 +712,10 @@ function adjustColor(color, amount) {
           }
         }
 
-        /* clues */
-        var clueMapping = {};
-        // we handle them differently for coded crosswords
-        if (this.crossword_type === 'coded') {
+        // helper function for coded and fakeclues puzzles
+        this.make_fake_clues = function(puzzle) {
           // initialize the across and down groups
+          var clueMapping = {};
           var across_group = new CluesGroup(this, {
             id: CLUES_TOP,
             title: 'ACROSS',
@@ -726,8 +747,17 @@ function adjustColor(color, amount) {
               clueMapping[id] = thisClue;
             }
           });
-          this.clues_top = across_group;
-          this.clues_bottom = down_group;
+          return {'across_group': across_group, 'down_group': down_group, 'clue_mapping': clueMapping};
+        }
+
+        /* clues */
+        var clueMapping = {};
+        // we handle them differently for coded crosswords
+        if (this.crossword_type === 'coded') {
+          var fake_clue_obj = this.make_fake_clues(puzzle);
+          this.clues_top = fake_clue_obj.across_group;
+          this.clues_bottom = fake_clue_obj.down_group;
+          clueMapping = fake_clue_obj.clue_mapping;
           // Also, in a coded crossword, there's no reason to show the clues
           $('div.cw-clues-holder').css({ display: 'none' });
           $('div.cw-top-text-wrapper').css({ display: 'none' });
@@ -768,6 +798,20 @@ function adjustColor(color, amount) {
             });
           }
         }
+
+        // If "fakeclues" and the number of words and clues don't match
+        // we need to make special "display" clues
+        var num_words = puzzle.words.length;
+        var num_clues = puzzle.clues.map(x=>x.clue).flat().length;
+        if (this.fakeclues && num_words != num_clues) {
+          this.display_clues_top = this.clues_top;
+          this.display_clues_bottom = this.clues_bottom;
+          var fake_clue_obj = this.make_fake_clues(puzzle);
+          this.clues_top = fake_clue_obj.across_group;
+          this.clues_bottom = fake_clue_obj.down_group;
+          clueMapping = fake_clue_obj.clue_mapping;
+        }
+
         /* words */
         this.words = {};
         for (var i=0; i<puzzle.words.length; i++) {
@@ -809,11 +853,11 @@ function adjustColor(color, amount) {
 
         this.changeActiveClues();
 
-        if (this.clues_top) {
-          this.renderClues(this.clues_top, this.clues_top_container);
+        if (this.display_clues_top || this.clues_top) {
+          this.renderClues(this.display_clues_top || this.clues_top, this.clues_top_container);
         }
-        if (this.clues_bottom) {
-          this.renderClues(this.clues_bottom, this.clues_bottom_container);
+        if (this.display_clues_bottom || this.clues_bottom) {
+          this.renderClues(this.display_clues_bottom || this.clues_bottom, this.clues_bottom_container);
         }
         this.addListeners();
 
@@ -1097,12 +1141,20 @@ function adjustColor(color, amount) {
       setActiveWord(word) {
         if (word) {
           this.selected_word = word;
+          if (this.fakeclues) {
+            return;
+          }
           this.top_text.html(`
             <span class="cw-clue-number">
               ${escape(word.clue.number)}
             </span>
             <span class="cw-clue-text">
               ${escape(word.clue.text)}
+              <div class="cw-edit-container" style="display: none;">
+                <input class="cw-input note-style" type="text">
+              </div>
+              <span class="cw-cluenote-button" style="display: none;" />
+              </span>
             </span>
           `);
           resizeText(this.root, this.top_text);
@@ -1115,8 +1167,8 @@ function adjustColor(color, amount) {
           input_left;
         if (cell && !cell.empty) {
           this.selected_cell = cell;
-          this.inactive_clues.markActive(cell.x, cell.y, true);
-          this.active_clues.markActive(cell.x, cell.y, false);
+          this.inactive_clues.markActive(cell.x, cell.y, true, this.fakeclues);
+          this.active_clues.markActive(cell.x, cell.y, false, this.fakeclues);
 
           input_top = offset.top + (cell.y - 1) * this.cell_size;
           input_left = offset.left + (cell.x - 1) * this.cell_size;
@@ -1132,18 +1184,31 @@ function adjustColor(color, amount) {
           clue_el,
           title = clues_container.find('div.cw-clues-title'),
           items = clues_container.find('div.cw-clues-items');
+        let notes = this.notes;
         items.find('div.cw-clue').remove();
         for (i = 0; (clue = clues_group.clues[i]); i++) {
           clue_el = $(`
-            <div>
+            <div style="position: relative">
               <span class="cw-clue-number">
                 ${escape(clue.number)}
               </span>
               <span class="cw-clue-text">
                 ${escape(clue.text)}
+                <div class="cw-edit-container" style="display: none;">
+                  <input class="cw-input note-style" type="text">
+                </div>
+                <span class="cw-cluenote-button" style="display: none;" />
               </span>
             </div>
           `);
+
+          // if there's any saved notes add them to their section
+          let clueNote = notes.get(clue.word);
+          if (clueNote!==undefined) {
+            clue_el.find('.cw-input').val(clueNote);
+            clue_el.find('.cw-edit-container').show();
+          }
+
           clue_el.data('word', clue.word);
           clue_el.data('number', clue.number);
           clue_el.data('clues', clues_group.id);
@@ -1153,6 +1218,52 @@ function adjustColor(color, amount) {
         }
         title.html(escape(clues_group.title));
         clues_group.clues_container = items;
+
+        // Add event listeners for editing
+        items.find('.cw-clue').on('mouseenter', function() {
+          var clueElement = $(this).closest('.cw-clue');
+          if (clueElement.find('.cw-input').val().trim().length === 0) {
+            $(this).find('.cw-cluenote-button').show();
+          }
+        });
+
+        items.find('.cw-clue').on('mouseleave', function() {
+          $(this).find('.cw-cluenote-button').hide();
+        });
+
+        items.find('.cw-input').on('click', function(event) {
+          event.stopPropagation();
+        });
+
+        var save = ()=>this.saveGame();
+
+        items.find('.cw-cluenote-button').on('click', function(event) {
+          event.stopPropagation();
+          var clueElement = $(this).closest('.cw-clue');
+          clueElement.find('.cw-edit-container').show();
+          clueElement.find('.cw-input').focus();
+          $(this).hide();
+        });
+
+        items.find('.cw-input').on('blur', function() {
+          var clueElement = $(this).closest('.cw-clue');
+          var newText = clueElement.find('.cw-input').val().trim();
+          if (newText.length > 0) {
+            notes.set(clueElement.data('word'),newText);
+          } else {
+            clueElement.find('.cw-edit-container').hide();
+            notes.delete(clueElement.data('word'));
+          }
+          save()
+        });
+
+        items.find('.cw-input').on('keydown', function(event) {
+          if (event.keyCode === 13) { // Enter key
+            var clueElement = $(this).closest('.cw-clue');
+            clueElement.find('.cw-input').blur();
+          }
+        });
+
       }
 
       // Clears canvas and re-renders all cells
@@ -1498,7 +1609,7 @@ function adjustColor(color, amount) {
           this.setActiveWord(
             this.active_clues.getMatchingWord(index_x, index_y, true)
           );
-        } else {
+        } else if (this.inactive_clues.getMatchingWord(index_x, index_y, true)){
           this.setActiveWord(
             this.inactive_clues.getMatchingWord(index_x, index_y, true)
           );
@@ -1745,6 +1856,12 @@ function adjustColor(color, amount) {
           solvedMessage += timerMessage;
 
           this.createModalBox('🎉🎉🎉', solvedMessage);
+          if (this.config.confetti_enabled) {
+            confetti.start();
+            setTimeout(function() {
+                confetti.stop()
+            }, 3000);
+          }
         }
       }
 
@@ -1938,7 +2055,13 @@ function adjustColor(color, amount) {
               new_cell.y,
               true
             );
-            if (!newCellActiveWord) {
+            // we also check if the new cell has a word in the other direction
+            var newCellInactiveWord = this.inactive_clues.getMatchingWord(
+              new_cell.x,
+              new_cell.y,
+              true
+            );
+            if (!newCellActiveWord && newCellInactiveWord) {
               this.changeActiveClues();
             }
             // In any case we change the active word
@@ -1968,7 +2091,11 @@ function adjustColor(color, amount) {
         this.renderCells();
       }
 
+      // callback for clicking a clue in the sidebar
       clueClicked(e) {
+        if (this.fakeclues) {
+          return;
+        }
         var target = $(e.currentTarget),
           word = this.words[target.data('word')],
           cell = word.getFirstEmptyCell() || word.getFirstCell();
@@ -2077,10 +2204,10 @@ function adjustColor(color, amount) {
             </div>
           </div>
 
-          <!-- Timer -->
+          <!-- Miscellaneous -->
           <div class="settings-setting">
             <div class="settings-description">
-              Timer
+              Miscellaneous
             </div>
             <div class="settings-option">
               <label class="settings-label">
@@ -2089,17 +2216,17 @@ function adjustColor(color, amount) {
                 </input>
               </label>
             </div>
-          </div>
-
-          <!-- Dark Mode -->
-          <div class="settings-setting">
-            <div class="settings-description">
-              Dark Mode
-            </div>
             <div class="settings-option">
               <label class="settings-label">
                 <input id="dark_mode_enabled" checked="" type="checkbox" name="dark_mode_enabled" class="settings-changer">
-                  Enable dark mode
+                  Dark mode
+                </input>
+              </label>
+            </div>
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="confetti_enabled" checked="checked" type="checkbox" name="confetti_enabled" class="settings-changer">
+                  Confetti on solve
                 </input>
               </label>
             </div>
@@ -2456,7 +2583,11 @@ function adjustColor(color, amount) {
       }
 
       // in clues list, marks clue for word that has cell with given coordinates
-      markActive(x, y, is_passive) {
+      markActive(x, y, is_passive, fakeclues=false) {
+        // don't mark anything as active if fake clues
+        if (fakeclues) {
+          return;
+        }
         var classname = is_passive ? 'passive' : 'active',
           word = this.getMatchingWord(x, y),
           clue_el,
@@ -2538,7 +2669,8 @@ function adjustColor(color, amount) {
             this.dir = data.dir;
             this.cell_ranges = data.cell_ranges;
             this.clue = data.clue;
-            this.refs_raw = data.clue.refs;
+            // don't bother with references
+            //this.refs_raw = data.clue.refs || [];
             this.parseRanges();
           } else {
             load_error = true;
