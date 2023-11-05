@@ -238,8 +238,8 @@ function adjustColor(color, amount) {
             </div>
             <div class="cw-top-text-wrapper">
               <div class="cw-top-text">
-                <span class="cw-clue-number">1</span>
-                <span class="cw-clue-text">Clue</span>
+                <span class="cw-clue-number"></span>
+                <span class="cw-clue-text"></span>
               </div>
             </div>
             <input type="text" class="cw-hidden-input">
@@ -514,6 +514,8 @@ function adjustColor(color, amount) {
         this.save_btn = this.root.find('.cw-file-save');
         this.download_btn = this.root.find('.cw-file-download');
 
+        this.notes = new Map();
+
         // Notepad button is hidden by default
         this.notepad_btn = this.root.find('.cw-file-notepad');
         this.notepad_btn.hide();
@@ -635,6 +637,12 @@ function adjustColor(color, amount) {
         this.author = puzzle.metadata.author || '';
         this.copyright = puzzle.metadata.copyright || '';
         this.crossword_type = puzzle.metadata.crossword_type;
+        this.fakeclues = puzzle.metadata.fakeclues || false;
+
+        // don't show the top text if fakeclues
+        if (this.fakeclues) {
+          $('div.cw-top-text-wrapper').css({ display: 'none' });
+        }
 
         // Change document title if necessary
         if (this.title) {
@@ -704,11 +712,10 @@ function adjustColor(color, amount) {
           }
         }
 
-        /* clues */
-        var clueMapping = {};
-        // we handle them differently for coded crosswords
-        if (this.crossword_type === 'coded') {
+        // helper function for coded and fakeclues puzzles
+        this.make_fake_clues = function(puzzle) {
           // initialize the across and down groups
+          var clueMapping = {};
           var across_group = new CluesGroup(this, {
             id: CLUES_TOP,
             title: 'ACROSS',
@@ -740,8 +747,17 @@ function adjustColor(color, amount) {
               clueMapping[id] = thisClue;
             }
           });
-          this.clues_top = across_group;
-          this.clues_bottom = down_group;
+          return {'across_group': across_group, 'down_group': down_group, 'clue_mapping': clueMapping};
+        }
+
+        /* clues */
+        var clueMapping = {};
+        // we handle them differently for coded crosswords
+        if (this.crossword_type === 'coded') {
+          var fake_clue_obj = this.make_fake_clues(puzzle);
+          this.clues_top = fake_clue_obj.across_group;
+          this.clues_bottom = fake_clue_obj.down_group;
+          clueMapping = fake_clue_obj.clue_mapping;
           // Also, in a coded crossword, there's no reason to show the clues
           $('div.cw-clues-holder').css({ display: 'none' });
           $('div.cw-top-text-wrapper').css({ display: 'none' });
@@ -782,6 +798,20 @@ function adjustColor(color, amount) {
             });
           }
         }
+
+        // If "fakeclues" and the number of words and clues don't match
+        // we need to make special "display" clues
+        var num_words = puzzle.words.length;
+        var num_clues = puzzle.clues.map(x=>x.clue).flat().length;
+        if (this.fakeclues && num_words != num_clues) {
+          this.display_clues_top = this.clues_top;
+          this.display_clues_bottom = this.clues_bottom;
+          var fake_clue_obj = this.make_fake_clues(puzzle);
+          this.clues_top = fake_clue_obj.across_group;
+          this.clues_bottom = fake_clue_obj.down_group;
+          clueMapping = fake_clue_obj.clue_mapping;
+        }
+
         /* words */
         this.words = {};
         for (var i=0; i<puzzle.words.length; i++) {
@@ -823,11 +853,11 @@ function adjustColor(color, amount) {
 
         this.changeActiveClues();
 
-        if (this.clues_top) {
-          this.renderClues(this.clues_top, this.clues_top_container);
+        if (this.display_clues_top || this.clues_top) {
+          this.renderClues(this.display_clues_top || this.clues_top, this.clues_top_container);
         }
-        if (this.clues_bottom) {
-          this.renderClues(this.clues_bottom, this.clues_bottom_container);
+        if (this.display_clues_bottom || this.clues_bottom) {
+          this.renderClues(this.display_clues_bottom || this.clues_bottom, this.clues_bottom_container);
         }
         this.addListeners();
 
@@ -1084,12 +1114,20 @@ function adjustColor(color, amount) {
       setActiveWord(word) {
         if (word) {
           this.selected_word = word;
+          if (this.fakeclues) {
+            return;
+          }
           this.top_text.html(`
             <span class="cw-clue-number">
               ${escape(word.clue.number)}
             </span>
             <span class="cw-clue-text">
               ${escape(word.clue.text)}
+              <div class="cw-edit-container" style="display: none;">
+                <input class="cw-input note-style" type="text">
+              </div>
+              <span class="cw-cluenote-button" style="display: none;" />
+              </span>
             </span>
           `);
           resizeText(this.root, this.top_text);
@@ -1102,8 +1140,8 @@ function adjustColor(color, amount) {
           input_left;
         if (cell && !cell.empty) {
           this.selected_cell = cell;
-          this.inactive_clues.markActive(cell.x, cell.y, true);
-          this.active_clues.markActive(cell.x, cell.y, false);
+          this.inactive_clues.markActive(cell.x, cell.y, true, this.fakeclues);
+          this.active_clues.markActive(cell.x, cell.y, false, this.fakeclues);
 
           input_top = offset.top + (cell.y - 1) * this.cell_size;
           input_left = offset.left + (cell.x - 1) * this.cell_size;
@@ -1119,18 +1157,31 @@ function adjustColor(color, amount) {
           clue_el,
           title = clues_container.find('div.cw-clues-title'),
           items = clues_container.find('div.cw-clues-items');
+        let notes = this.notes;
         items.find('div.cw-clue').remove();
         for (i = 0; (clue = clues_group.clues[i]); i++) {
           clue_el = $(`
-            <div>
+            <div style="position: relative">
               <span class="cw-clue-number">
                 ${escape(clue.number)}
               </span>
               <span class="cw-clue-text">
                 ${escape(clue.text)}
+                <div class="cw-edit-container" style="display: none;">
+                  <input class="cw-input note-style" type="text">
+                </div>
+                <span class="cw-cluenote-button" style="display: none;" />
               </span>
             </div>
           `);
+
+          // if there's any saved notes add them to their section
+          let clueNote = notes.get(clue.word);
+          if (clueNote!==undefined) {
+            clue_el.find('.cw-input').val(clueNote);
+            clue_el.find('.cw-edit-container').show();
+          }
+
           clue_el.data('word', clue.word);
           clue_el.data('number', clue.number);
           clue_el.data('clues', clues_group.id);
@@ -1140,6 +1191,52 @@ function adjustColor(color, amount) {
         }
         title.html(escape(clues_group.title));
         clues_group.clues_container = items;
+
+        // Add event listeners for editing
+        items.find('.cw-clue').on('mouseenter', function() {
+          var clueElement = $(this).closest('.cw-clue');
+          if (clueElement.find('.cw-input').val().trim().length === 0) {
+            $(this).find('.cw-cluenote-button').show();
+          }
+        });
+
+        items.find('.cw-clue').on('mouseleave', function() {
+          $(this).find('.cw-cluenote-button').hide();
+        });
+
+        items.find('.cw-input').on('click', function(event) {
+          event.stopPropagation();
+        });
+
+        var save = ()=>this.saveGame();
+
+        items.find('.cw-cluenote-button').on('click', function(event) {
+          event.stopPropagation();
+          var clueElement = $(this).closest('.cw-clue');
+          clueElement.find('.cw-edit-container').show();
+          clueElement.find('.cw-input').focus();
+          $(this).hide();
+        });
+
+        items.find('.cw-input').on('blur', function() {
+          var clueElement = $(this).closest('.cw-clue');
+          var newText = clueElement.find('.cw-input').val().trim();
+          if (newText.length > 0) {
+            notes.set(clueElement.data('word'),newText);
+          } else {
+            clueElement.find('.cw-edit-container').hide();
+            notes.delete(clueElement.data('word'));
+          }
+          save()
+        });
+
+        items.find('.cw-input').on('keydown', function(event) {
+          if (event.keyCode === 13) { // Enter key
+            var clueElement = $(this).closest('.cw-clue');
+            clueElement.find('.cw-input').blur();
+          }
+        });
+
       }
 
       // Clears canvas and re-renders all cells
@@ -1967,7 +2064,11 @@ function adjustColor(color, amount) {
         this.renderCells();
       }
 
+      // callback for clicking a clue in the sidebar
       clueClicked(e) {
+        if (this.fakeclues) {
+          return;
+        }
         var target = $(e.currentTarget),
           word = this.words[target.data('word')],
           cell = word.getFirstEmptyCell() || word.getFirstCell();
@@ -2455,7 +2556,11 @@ function adjustColor(color, amount) {
       }
 
       // in clues list, marks clue for word that has cell with given coordinates
-      markActive(x, y, is_passive) {
+      markActive(x, y, is_passive, fakeclues=false) {
+        // don't mark anything as active if fake clues
+        if (fakeclues) {
+          return;
+        }
         var classname = is_passive ? 'passive' : 'active',
           word = this.getMatchingWord(x, y),
           clue_el,
@@ -2537,7 +2642,8 @@ function adjustColor(color, amount) {
             this.dir = data.dir;
             this.cell_ranges = data.cell_ranges;
             this.clue = data.clue;
-            this.refs_raw = data.clue.refs;
+            // don't bother with references
+            //this.refs_raw = data.clue.refs || [];
             this.parseRanges();
           } else {
             load_error = true;
