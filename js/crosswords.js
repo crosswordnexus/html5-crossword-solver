@@ -514,6 +514,8 @@ function adjustColor(color, amount) {
         this.save_btn = this.root.find('.cw-file-save');
         this.download_btn = this.root.find('.cw-file-download');
 
+        this.notes = new Map();
+
         // Notepad button is hidden by default
         this.notepad_btn = this.root.find('.cw-file-notepad');
         this.notepad_btn.hide();
@@ -1121,6 +1123,11 @@ function adjustColor(color, amount) {
             </span>
             <span class="cw-clue-text">
               ${escape(word.clue.text)}
+              <div class="cw-edit-container" style="display: none;">
+                <input class="cw-input note-style" type="text">
+              </div>
+              <span class="cw-cluenote-button" style="display: none;" />
+              </span>
             </span>
           `);
           resizeText(this.root, this.top_text);
@@ -1150,18 +1157,31 @@ function adjustColor(color, amount) {
           clue_el,
           title = clues_container.find('div.cw-clues-title'),
           items = clues_container.find('div.cw-clues-items');
+        let notes = this.notes;
         items.find('div.cw-clue').remove();
         for (i = 0; (clue = clues_group.clues[i]); i++) {
           clue_el = $(`
-            <div>
+            <div style="position: relative">
               <span class="cw-clue-number">
                 ${escape(clue.number)}
               </span>
               <span class="cw-clue-text">
                 ${escape(clue.text)}
+                <div class="cw-edit-container" style="display: none;">
+                  <input class="cw-input note-style" type="text">
+                </div>
+                <span class="cw-cluenote-button" style="display: none;" />
               </span>
             </div>
           `);
+
+          // if there's any saved notes add them to their section
+          let clueNote = notes.get(clue.word);
+          if (clueNote!==undefined) {
+            clue_el.find('.cw-input').val(clueNote);
+            clue_el.find('.cw-edit-container').show();
+          }
+
           clue_el.data('word', clue.word);
           clue_el.data('number', clue.number);
           clue_el.data('clues', clues_group.id);
@@ -1171,6 +1191,52 @@ function adjustColor(color, amount) {
         }
         title.html(escape(clues_group.title));
         clues_group.clues_container = items;
+
+        // Add event listeners for editing
+        items.find('.cw-clue').on('mouseenter', function() {
+          var clueElement = $(this).closest('.cw-clue');
+          if (clueElement.find('.cw-input').val().trim().length === 0) {
+            $(this).find('.cw-cluenote-button').show();
+          }
+        });
+
+        items.find('.cw-clue').on('mouseleave', function() {
+          $(this).find('.cw-cluenote-button').hide();
+        });
+
+        items.find('.cw-input').on('click', function(event) {
+          event.stopPropagation();
+        });
+
+        var save = ()=>this.saveGame();
+
+        items.find('.cw-cluenote-button').on('click', function(event) {
+          event.stopPropagation();
+          var clueElement = $(this).closest('.cw-clue');
+          clueElement.find('.cw-edit-container').show();
+          clueElement.find('.cw-input').focus();
+          $(this).hide();
+        });
+
+        items.find('.cw-input').on('blur', function() {
+          var clueElement = $(this).closest('.cw-clue');
+          var newText = clueElement.find('.cw-input').val().trim();
+          if (newText.length > 0) {
+            notes.set(clueElement.data('word'),newText);
+          } else {
+            clueElement.find('.cw-edit-container').hide();
+            notes.delete(clueElement.data('word'));
+          }
+          save()
+        });
+
+        items.find('.cw-input').on('keydown', function(event) {
+          if (event.keyCode === 13) { // Enter key
+            var clueElement = $(this).closest('.cw-clue');
+            clueElement.find('.cw-input').blur();
+          }
+        });
+
       }
 
       // Clears canvas and re-renders all cells
