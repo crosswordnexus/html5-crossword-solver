@@ -411,9 +411,7 @@ function adjustColor(color, amount) {
         // Load solver config
         var saved_settings = {};
         try {
-          saved_settings = JSON.parse(
-            localStorage.getItem(SETTINGS_STORAGE_KEY)
-          );
+          saved_settings = lscache.get(SETTINGS_STORAGE_KEY);
         } catch (error) {
           console.log(error);
         }
@@ -627,7 +625,7 @@ function adjustColor(color, amount) {
         // if this savegame name exists, load it
         var jsxw2_cells = this.loadGame();
         if (jsxw2_cells) {
-          console.log('Loading puzzle from localStorage');
+          console.log('Loading puzzle from local storage');
           this.jsxw.cells = jsxw2_cells;
           puzzle.cells = jsxw2_cells;
         }
@@ -2270,9 +2268,9 @@ function adjustColor(color, amount) {
           savedSettings[x] = ss1[x];
         })
         //console.log(savedSettings);
-        localStorage.setItem(
+        lscache.set(
           SETTINGS_STORAGE_KEY,
-          JSON.stringify(savedSettings)
+          savedSettings
         );
       }
 
@@ -2282,50 +2280,16 @@ function adjustColor(color, amount) {
         this.fillJsXw();
         // stringify
         const jsxw_str = JSON.stringify(this.jsxw.cells);
-        localStorage.setItem(this.savegame_name, jsxw_str);
+        // We set this to expire in about 7 days
+        lscache.set(this.savegame_name, this.jsxw.cells, 10000);
         //this.createModalBox('💾', 'Progress saved.');
-      }
-
-      /* Show "load game" menu" */
-      loadGameMenu() {
-        // Find all the savegames
-        var innerHTML = '';
-        for (var i = 0; i < localStorage.length; i++){
-          var thisKey = localStorage.key(i);
-          if (thisKey.startsWith(STORAGE_KEY)) {
-            var thisJsXw = JSON.parse(localStorage.getItem(localStorage.key(i)));
-            var thisDisplay = thisKey.substr(STORAGE_KEY.length);
-            innerHTML += `
-            <label class="settings-label">
-              <input id="${thisKey}" checked="" type="radio" class="loadgame-changer">
-                ${thisDisplay}
-              </input>
-            </label>
-            `;
-          }
-        }
-        if (!innerHTML) {
-          innerHTML = 'No save games found.';
-        }
-
-        // Create a modal box
-        var loadgameHTML = `
-        <div class="loadgame-wrapper">
-          ${innerHTML}
-        </div>
-        `;
-        this.createModalBox('Load Game', loadgameHTML);
       }
 
       /* Load a game from local storage */
       loadGame() {
-        var jsxw_cells = JSON.parse(localStorage.getItem(this.savegame_name));
+        var jsxw_cells = lscache.get(this.savegame_name);
         // don't actually *load* it, just return the jsxw
         return jsxw_cells;
-        //if (jsxw) {
-        //  this.removeListeners();
-        //  this.parsePuzzle(jsxw);
-        //}
       }
 
       /* Export a JPZ */
