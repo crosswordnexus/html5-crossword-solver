@@ -5,6 +5,7 @@
 #### jQuery
 #### jsPDF (optional) - https://github.com/MrRio/jsPDF
 #### JSCrossword tools - https://github.com/crosswordnexus/crossword-tools
+#### lscache - https://github.com/pamelafox/lscache/
 
 ## Installation
 ### Using git command line (preferred)
