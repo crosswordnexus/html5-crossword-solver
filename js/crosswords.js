@@ -655,7 +655,7 @@ function adjustColor(color, amount) {
           this.is_autofill = true;
         }
 
-        this.notepad = puzzle.metadata.description || '';
+        this.notepad = puzzle.metadata.description || puzzle.metadata.intro || '';
         this.grid_width = puzzle.metadata.width;
         this.grid_height = puzzle.metadata.height;
         // disable check and reveal in certain cases
