@@ -1042,12 +1042,9 @@ function adjustColor(color, amount) {
       createModalBox(title, content, button_text = 'Close') {
         // pause the timer if it was running
         const timer_was_running = this.timer_running;
-        console.log(timer_was_running);
-
         if (timer_was_running) {
           this.toggleTimer();
         }
-        console.log(timer_was_running);
 
         // Set the contents of the modal box
         const modalContent = `
@@ -1072,15 +1069,15 @@ function adjustColor(color, amount) {
 
         // Allow user to close the div
         const this_hidden_input = this.hidden_input;
-        const _this = this;
         var span = this.root.find('.modal-close').get(0);
+
         // When the user clicks on <span> (x), close the modal
+        var toggleTimerBound = this.toggleTimer.bind(this);
         span.onclick = function () {
           modal.style.display = 'none';
           this_hidden_input.focus();
-          console.log(timer_was_running);
           if (timer_was_running) {
-            _this.toggleTimer();
+            toggleTimerBound();
           }
         };
         // When the user clicks anywhere outside of the modal, close it
@@ -1088,20 +1085,19 @@ function adjustColor(color, amount) {
           if (event.target == modal) {
             modal.style.display = 'none';
             this_hidden_input.focus();
-            console.log(timer_was_running);
             if (timer_was_running) {
-              this_toggle_timer();
+              toggleTimerBound();
             }
           }
         };
+
         // Clicking the button should close the modal
         var modalButton = document.getElementById('modal-button');
         modalButton.onclick = function () {
           modal.style.display = 'none';
           this_hidden_input.focus();
-          console.log(timer_was_running);
           if (timer_was_running) {
-            this_toggle_timer();
+            toggleTimerBound();
           }
         };
       }
