@@ -277,7 +277,7 @@ function adjustColor(color, amount) {
         return null;
     }
 
-    function loadAvcxFile(cookie_val, date) {
+    function loadAvcxFile(cookie_val, date, has_jpz) {
       var xhr = new XMLHttpRequest(),
         deferred = $.Deferred();
 
@@ -289,11 +289,14 @@ function adjustColor(color, amount) {
       const path = `https://api.avxwords.com/partners/download?partner=e9F1rZ6KotxxS7WxsUVirK89&id=${date2}&app=avcx_x_crossword_nexus&username=${user}&password=${pass}`;
       xhr.open('GET', path);
       xhr.responseType = 'blob';
-      //xhr.setRequestHeader( 'X-Auth-Key', username);
-	    //xhr.setRequestHeader( 'X-Auth-Token', token);
+      var file_type = 'puz';
+      if (has_jpz) {
+        xhr.setRequestHeader('Content-Type', 'application/jpz');
+        file_type = 'jpz';
+      }
       xhr.onload = function () {
         if (xhr.status == 200) {
-          loadFromFile(xhr.response, 'puz', deferred);
+          loadFromFile(xhr.response, file_type, deferred);
           console.log('loaded');
         } else {
           deferred.reject(ERR_FILE_LOAD);
@@ -588,7 +591,7 @@ function adjustColor(color, amount) {
           var loaded_callback = parsePUZZLE_callback;
           var avcx_cookie = getCookie('avcx_s');
           loadAvcxFile(
-            avcx_cookie, this.config.avcx.date
+            avcx_cookie, this.config.avcx.date, this.config.avcx.has_jpz
           ).then(loaded_callback, error_callback);
         } else {
           // shows open button
