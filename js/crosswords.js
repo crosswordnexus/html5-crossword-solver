@@ -1742,9 +1742,14 @@ function adjustColor(color, amount) {
             this.checkIfSolved();
             break;
           case 27: // escape -- pulls up a rebus entry
-            if (this.selected_cell && this.selected_word) {
-              var rebus_entry = prompt('Rebus entry', '');
-              this.hiddenInputChanged(rebus_entry);
+            if (e.shiftKey) {
+              e.preventDefault();
+              this.toggleTimer();
+            } else {
+              if (this.selected_cell && this.selected_word) {
+                var rebus_entry = prompt('Rebus entry', '');
+                this.hiddenInputChanged(rebus_entry);
+              }
             }
             break;
           case 45: // insert -- same as escape
