@@ -473,6 +473,38 @@ input.cw-hidden-input {
     word-wrap: break-word;
 }
 
+/* Clue Notes */
+.cw-cluenote-button {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 16px;
+    height: 16px;
+    padding: 4px 4px;
+    border-radius: 4px;
+    background-color: none;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAXAAAAFwBhyfMcAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAACXSURBVDiNzdI9CsJQEEXhzyI7CP5sxYXYuA4t3JO9XbS21ARBXILgAoRYJA9CiOElNh6YZuDcO8UwjBkyPLEZ6EpwQdmYbayc1gFrvBsBrxh5iiv2HSFZrBwaQ8iq3i+GyO2QpE+eo+iQy3qfjmkucRt79p/LCfIvcqF6316WY5sDu19kOLTkPObswAQP3HHCEWfVr0fxAbSiWClHz+v4AAAAAElFTkSuQmCC');
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.cw-cluenote-button:hover {
+    background-color: var(--main-hilite-color);
+}
+
+.cw-input {
+    outline: 1px solid var(--clue-hover-color);
+    border: none;
+    display: inline-flex;
+    width: 90%;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin-top: 4px;
+    font-size: 90%;
+    font-weight: 600;
+    left: 5px;
+    opacity: .8;
+}
+
 /* Settings */
 .settings-setting {
     padding-top: 5px;
