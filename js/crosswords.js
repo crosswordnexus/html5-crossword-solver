@@ -878,6 +878,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
         console.log(this);
 
+        // Hide the "loading" overlay
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.style.visibility = 'hidden';
+        }
+
         this.completeLoad();
 
       }
