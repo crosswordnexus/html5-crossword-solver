@@ -1814,8 +1814,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       autofill() {
-        // save progress
-        this.saveGame();
         if (this.is_autofill) {
           var my_number = this.selected_cell.number;
           var same_number_cells = this.number_to_cells[my_number] || [];
@@ -1825,6 +1823,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             cell.checked = this.selected_cell.checked;
           }
         }
+        // save progress
+        this.saveGame();
       }
 
       // Detects user inputs to hidden input element
@@ -2469,6 +2469,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
         }
         this.renderCells();
+        this.saveGame();
 
         if (reveal_or_check == 'reveal') {
           this.checkIfSolved(false);
