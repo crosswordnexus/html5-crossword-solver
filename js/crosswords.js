@@ -760,11 +760,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           $('div.cw-top-text-wrapper').css({ display: 'none' });
         }
 
-        // Change document title if necessary
-        if (this.title) {
-          document.title = this.title + ' | ' + document.title;
-        }
-
         // determine whether we should autofill
         if (
           this.crossword_type == 'acrostic' ||
@@ -964,6 +959,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           <span class="cw-flex-spacer"></span>
           <span class="cw-copyright">${sanitizeHTML(this.copyright)}</span>
         `);
+
+        // Change document title if necessary
+        if (this.title) {
+          document.title = $('.cw-title').text() + ' | ' + document.title;
+        }
 
         this.notepad_icon = this.root.find('.cw-button-notepad');
 
