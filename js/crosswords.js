@@ -2362,7 +2362,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       /* Save the game to local storage */
-      saveGame() {
+      async saveGame() {
         // fill jsxw
         this.fillJsXw();
         // stringify
