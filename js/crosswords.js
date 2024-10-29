@@ -2362,14 +2362,16 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       /* Save the game to local storage */
-      async saveGame() {
-        // fill jsxw
-        this.fillJsXw();
-        // stringify
-        const jsxw_str = JSON.stringify(this.jsxw.cells);
-        // We set this to expire in about 7 days
-        lscache.set(this.savegame_name, this.jsxw.cells, 10000);
-        //this.createModalBox('💾', 'Progress saved.');
+      saveGame() {
+        // use setTimeout to avoid blocking
+        setTimeout(() => {
+          // fill jsxw
+          this.fillJsXw();
+          // stringify
+          const jsxw_str = JSON.stringify(this.jsxw.cells);
+          // We set this to expire in about 7 days
+          lscache.set(this.savegame_name, this.jsxw.cells, 10000);
+        }, 0);
       }
 
       /* Load a game from local storage */
