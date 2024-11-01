@@ -414,29 +414,96 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
     }
 
-    /**
-     * Sanitize HTML in the given string, except the simplest no-attribute
-     * formatting tags.
-     */
-    const entityMap = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;',
-      '/': '&#x2F;',
-      '`': '&#x60;',
-      '=': '&#x3D;',
-    };
-    const escapeRegex = new RegExp(
-      `</?(i|b|em|strong|span|br|p)>|[&<>"'\`=\\/]`,
-      'g'
-    );
-    function escape(string) {
-      //return String(string).replace(escapeRegex, (s) =>
-      //  s.length > 1 ? s : entityMap[s]
-      //);
-      return string;
+    /** Sanitize an HTML string so it is safe to add it to the DOM. */
+    function sanitizeHTML(html) {
+      const unsanitized = new DOMParser().parseFromString(html, "text/html");
+      const div = document.createElement("div");
+      div.appendChild(sanitizeChildNodes(unsanitized.body));
+      return div.innerHTML;
+    }
+
+    function sanitizeChildNodes(node) {
+      const sanitized = document.createDocumentFragment();
+      for (const child of node.childNodes) {
+        if (child.nodeType === Node.ELEMENT_NODE) {
+          sanitized.appendChild(sanitizeElement(child));
+        } else if (child.nodeType === Node.TEXT_NODE) {
+          sanitized.appendChild(document.createTextNode(child.nodeValue));
+        }
+      }
+      return sanitized;
+    }
+
+    function sanitizeElement(element) {
+      if (isValidElement(element)) {
+        const sanitized = document.createElementNS(element.namespaceURI, element.nodeName);
+        for (const attribute of element.attributes) {
+          if (isValidAttribute(element.namespaceURI, attribute)) {
+            sanitized.setAttribute(attribute.name, attribute.value);
+          }
+        }
+        sanitized.appendChild(sanitizeChildNodes(element));
+        return sanitized;
+      } else {
+        return document.createDocumentFragment();
+      }
+    }
+
+    function isValidElement(element) {
+      switch (element.namespaceURI) {
+        case "http://www.w3.org/1999/xhtml":
+          return [
+            "A", "ABBR", "ADDRESS", "AREA", "ARTICLE", "ASIDE", "AUDIO", "B", "BDI", "BDO",
+            "BLOCKQUOTE", "BR", "CAPTION", "CITE", "CODE", "COL", "COLGROUP", "DATA", "DD", "DEL",
+            "DETAILS", "DFN", "DIV", "DL", "DT", "EM", "FIELDSET", "FIGCAPTION", "FIGURE", "FOOTER",
+            "H1", "H2", "H3", "H4", "H5", "H6", "HEADER", "HGROUP", "HR", "I",
+            "IMG", "INS", "KBD", "LABEL", "LEGEND", "LI", "MAIN", "MAP", "MARK", "MENU",
+            "METER", "NAV", "OL", "P", "PICTURE", "PRE", "PROGRESS", "Q", "RP", "RT",
+            "RUBY", "S", "SAMP", "SECTION", "SMALL", "SOURCE", "SPAN", "STRONG", "SUB", "SUMMARY",
+            "SUP", "TABLE", "TBODY", "TD", "TFOOT", "TH", "THEAD", "TIME", "TR", "TRACK",
+            "U", "UL", "VAR", "VIDEO", "WBR"
+          ].includes(element.tagName);
+
+        case "http://www.w3.org/1998/Math/MathML":
+          return [
+            "annotation", "annotation-xml", "math", "merror", "mfrac", "mi", "mmultiscripts", "mn", "mo", "mover",
+            "mpadded", "mphantom", "mprescripts", "mroot", "mrow", "ms", "mspace", "msqrt", "mstyle", "msub",
+            "msubsup", "msup", "mtable", "mtd", "mtext", "mtr", "munder", "munderover", "semantics"
+          ].includes(element.tagName);
+
+        default:
+          return false;
+        }
+      }
+
+    function isValidAttribute(namespaceURI, attribute) {
+      if (attribute.name === "href") {
+        return !!attribute.value.match(/^(?:https?|mailto):/);
+      }
+      if (attribute.name.startsWith("aria-")) {
+        return true;
+      }
+      switch (namespaceURI) {
+        case "http://www.w3.org/1999/xhtml":
+          return [
+            "abbr", "alt", "autoplay", "cite", "colspan", "controls", "controlslist", "coords", "datetime", "decoding",
+            "default", "dir", "disablepictureinpicture", "disableremoteplayback", "download", "elementtiming", "fetchpriority", "for", "headers", "height",
+            "high", "hreflang", "ismap", "kind", "label", "lang", "loading", "loop", "low", "max",
+            "media", "min", "muted", "name", "open", "optimum", "playsinline", "poster", "preload", "referrerpolicy",
+            "rel", "reversed", "role", "rowspan", "scope", "shape", "sizes", "span", "src", "srclang",
+            "srcset", "start", "style", "title", "translate", "type", "usemap", "value", "width"
+          ].includes(attribute.name);
+
+        case "http://www.w3.org/1998/Math/MathML":
+          return [
+            "accent", "accentunder", "columnspan", "depth", "dir", "display", "displaystyle", "encoding", "fence", "form",
+            "height", "largeop", "linethickness", "lspace", "mathbackground", "mathcolor", "mathsize", "mathvariant", "maxsize", "minsize",
+            "movablelimits", "rowspan", "rspace", "scriptlevel", "separator", "stretchy", "style", "symmetric", "voffset", "width"
+          ].includes(attribute.name);
+
+        default:
+          return false;
+      }
     }
 
     var CrosswordNexus = {
@@ -693,11 +760,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           $('div.cw-top-text-wrapper').css({ display: 'none' });
         }
 
-        // Change document title if necessary
-        if (this.title) {
-          document.title = this.title + ' | ' + document.title;
-        }
-
         // determine whether we should autofill
         if (
           this.crossword_type == 'acrostic' ||
@@ -884,9 +946,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
       completeLoad() {
         $('.cw-header').html(`
-          <span class="cw-title">${escape(this.title)}</span>
+          <span class="cw-title">${sanitizeHTML(this.title)}</span>
           <span class="cw-header-separator">&nbsp;•&nbsp;</span>
-          <span class="cw-author">${escape(this.author)}</span>
+          <span class="cw-author">${sanitizeHTML(this.author)}</span>
           ${
             this.notepad
               ? `<button class="cw-button cw-button-notepad">
@@ -895,8 +957,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               : ''
           }
           <span class="cw-flex-spacer"></span>
-          <span class="cw-copyright">${escape(this.copyright)}</span>
+          <span class="cw-copyright">${sanitizeHTML(this.copyright)}</span>
         `);
+
+        // Change document title if necessary
+        if (this.title) {
+          document.title = $('.cw-title').text() + ' | ' + document.title;
+        }
 
         this.notepad_icon = this.root.find('.cw-button-notepad');
 
@@ -924,7 +991,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         // If there's an intro, show it
         if (this.jsxw.metadata.intro) {
-          this.createModalBox('Intro', this.jsxw.metadata.intro);
+          this.createModalBox('Intro', sanitizeHTML(this.jsxw.metadata.intro));
         }
 
         //this.adjustPaddings();
@@ -1191,10 +1258,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
           this.top_text.html(`
             <span class="cw-clue-number">
-              ${escape(word.clue.number)}
+              ${sanitizeHTML(word.clue.number)}
             </span>
             <span class="cw-clue-text">
-              ${escape(word.clue.text)}
+              ${sanitizeHTML(word.clue.text)}
               <div class="cw-edit-container" style="display: none;">
                 <input class="cw-input note-style" type="text">
               </div>
@@ -1235,10 +1302,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           clue_el = $(`
             <div style="position: relative">
               <span class="cw-clue-number">
-                ${escape(clue.number)}
+                ${sanitizeHTML(clue.number)}
               </span>
               <span class="cw-clue-text">
-                ${escape(clue.text)}
+                ${sanitizeHTML(clue.text)}
                 <div class="cw-edit-container" style="display: none;">
                   <input class="cw-input note-style" type="text">
                 </div>
@@ -1261,7 +1328,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           clue_el.addClass('word-' + clue.word);
           items.append(clue_el);
         }
-        title.html(escape(clues_group.title));
+        title.html(sanitizeHTML(clues_group.title));
         clues_group.clues_container = items;
 
         // Add event listeners for editing
@@ -1814,8 +1881,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       autofill() {
-        // save progress
-        this.saveGame();
         if (this.is_autofill) {
           var my_number = this.selected_cell.number;
           var same_number_cells = this.number_to_cells[my_number] || [];
@@ -1825,6 +1890,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             cell.checked = this.selected_cell.checked;
           }
         }
+        // save progress
+        this.saveGame();
       }
 
       // Detects user inputs to hidden input element
@@ -1910,7 +1977,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
         // show completion message if newly solved
         if (!wasSolved) {
-          var solvedMessage = escape(this.msg_solved).trim().replaceAll('\n', '<br />');
+          var solvedMessage = sanitizeHTML(this.msg_solved).trim().replaceAll('\n', '<br />');
           solvedMessage += timerMessage;
 
           this.createModalBox('🎉🎉🎉', solvedMessage);
@@ -2171,15 +2238,15 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.createModalBox(
           'Info',
           `
-            <p><b>${escape(this.title)}</b></p>
-            <p>${escape(this.author)}</p>
-            <p><i>${escape(this.copyright)}</i></p>
+            <p><b>${sanitizeHTML(this.title)}</b></p>
+            <p>${sanitizeHTML(this.author)}</p>
+            <p><i>${sanitizeHTML(this.copyright)}</i></p>
           `
         );
       }
 
       showNotepad() {
-        this.createModalBox('Notes', escape(this.notepad));
+        this.createModalBox('Notes', sanitizeHTML(this.notepad));
       }
 
       openSettings() {
@@ -2469,6 +2536,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
         }
         this.renderCells();
+        this.saveGame();
 
         if (reveal_or_check == 'reveal') {
           this.checkIfSolved(false);
