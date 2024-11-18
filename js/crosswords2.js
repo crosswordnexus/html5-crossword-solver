@@ -3,7 +3,7 @@
 // list of sources that are easy to identify
 const SOURCES = ['NY Times', 'LA Times', 'USA Today', "Jonesin'",
   "Universal", "Universal Sunday", "AVCX", "Newsday", "Boston Globe",
-  "The Atlantic", "New Yorker", "MGWCC"
+  "The Atlantic", "New Yorker", "MGWCC", "BEQ", "Crossword Nexus"
 ];
 
 function metadataToSource(author, copyright) {

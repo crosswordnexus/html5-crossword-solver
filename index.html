@@ -75,7 +75,7 @@
         const datalist = document.getElementById('puzzle-sources');
 
         // Populate the datalist dynamically
-        SOURCES.forEach(source => {
+        SOURCES.sort().forEach(source => {
             const option = document.createElement('option');
             option.value = source;
             datalist.appendChild(option);
