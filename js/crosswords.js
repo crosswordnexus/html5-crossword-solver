@@ -769,6 +769,17 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
 
         this.notepad = puzzle.metadata.description || puzzle.metadata.intro || '';
+        // make an intro if it doesn't exist
+        this.intro = puzzle.metadata.intro;
+        if (!this.intro) {
+          this.intro = `
+            <p><b>${sanitizeHTML(this.title)}</b></p>
+            <p>${sanitizeHTML(this.author)}</p>
+            <p><i>${sanitizeHTML(this.copyright)}</i></p>
+          `;
+        }
+
+
         this.grid_width = puzzle.metadata.width;
         this.grid_height = puzzle.metadata.height;
         // disable check and reveal in certain cases
@@ -989,10 +1000,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.toggleTimer();
         }
 
-        // If there's an intro, show it
-        if (this.jsxw.metadata.intro) {
-          this.createModalBox('Intro', sanitizeHTML(this.jsxw.metadata.intro));
-        }
+        // Show the intro
+        this.createModalBox('Puzzle Info', sanitizeHTML(this.intro));
 
         //this.adjustPaddings();
         this.renderCells();
