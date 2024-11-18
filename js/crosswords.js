@@ -1999,17 +1999,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           ];
 
           this.createModalBox('🎉🎉🎉', solvedMessage, buttons);
-          // Initialize the autocomplete widget
-          $("#sourceInput").autocomplete({
-              source: SOURCES
-          });
 
-          // Initialize the Datepicker
-          $("#datepicker").datepicker({
-              dateFormat: "mm/dd/yy", // Format the date as MM/DD/YYYY
-              defaultDate: new Date() // Default to today's date
-          });
-          $("#datepicker").datepicker("setDate", new Date());
+          // set datepicker to today
+          const today = new Date().toISOString().split('T')[0];
+          document.getElementById('datepicker').value = today;
 
           if (this.config.confetti_enabled) {
             confetti.start();

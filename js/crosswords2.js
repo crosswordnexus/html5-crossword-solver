@@ -22,11 +22,11 @@ function solveInputs(display_minutes, display_seconds) {
     <div class="form-row">
         <div>
             <label for="sourceInput">Puzzle Source:</label>
-            <input type="text" id="sourceInput" placeholder="Enter source">
+            <input type="text" id="sourceInput" list="puzzle-sources">
         </div>
         <div>
             <label for="datepicker">Puzzle Date:</label>
-            <input type="text" id="datepicker">
+            <input type="date" id="datepicker">
         </div>
     </div>
 

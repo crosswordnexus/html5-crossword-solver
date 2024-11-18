@@ -18,10 +18,6 @@
     <!-- jQuery -->
     <script src="lib/jquery.js"></script>
 
-    <!-- jQuery UI for autocomplete -->
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-
     <!-- for loading crosswords -->
     <script src="lib/jscrossword_combined.js"></script>
 
@@ -45,6 +41,8 @@
     </style>
 </head>
 <body>
+    <!-- data list for the source dropdown -->
+    <datalist id="puzzle-sources"></datalist>
     <!-- The div in which the crossword will be created -->
     <div class="crossword"></div>
 
@@ -72,6 +70,16 @@
             var config = JSON.parse(atob(b64config));
             params = Object.assign(params, config);
         }
+
+        // populate the datalist
+        const datalist = document.getElementById('puzzle-sources');
+
+        // Populate the datalist dynamically
+        SOURCES.forEach(source => {
+            const option = document.createElement('option');
+            option.value = source;
+            datalist.appendChild(option);
+        });
 
         // Create the crossword
         CrosswordNexus.createCrossword($('div.crossword'), params);
