@@ -1,0 +1,56 @@
+/** Autocomplete boxes **/
+
+#suggestionBox {
+    border: 1px solid #ccc;
+    max-width: 300px;
+    position: absolute;
+    background-color: #fff;
+    z-index: 1000;
+    display: none;
+}
+.suggestion {
+    padding: 8px;
+    cursor: pointer;
+}
+.suggestion:hover {
+    background-color: #f0f0f0;
+}
+
+/* Scoped styles for the solve submission form */
+   .custom-form {
+       display: flex;
+       flex-direction: column;
+       gap: 20px;
+       max-width: 400px;
+       margin: auto;
+       font-family: Arial, sans-serif;
+   }
+
+   .custom-form .form-row {
+       display: flex;
+       justify-content: space-between;
+       gap: 10px;
+   }
+
+   .custom-form label {
+       display: inline-block;
+       min-width: 100px;
+   }
+
+   .custom-form input[type="text"],
+   .custom-form input[type="number"] {
+       flex: 1;
+       padding: 5px;
+       border: 1px solid #ccc;
+       border-radius: 5px;
+   }
+
+   .custom-form input[type="number"] {
+       max-width: 60px;
+   }
+
+/** Because modal buttons can be next to each other **/
+.modal-button {
+  margin-left: 2px;
+  margin-right: 2px;
+}

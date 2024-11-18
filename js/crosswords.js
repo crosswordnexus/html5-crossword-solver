@@ -165,7 +165,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       arrow_direction: 'arrow_move_filled', // arrow_move or arrow_move_filled
       // behavior of the space bar: delete a letter or switch directions
       space_bar: 'space_clear', // space_clear or space_switch
-      timer_autostart: false, // should the timer start automatically
+      timer_autostart: true, // should the timer start automatically
       dark_mode_enabled: false, // should dark mode be the default
       // behavior of the "tab" key
       // "tab_noskip" moves to the next word
@@ -1157,12 +1157,21 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       // Create a generic modal box with content
-      createModalBox(title, content, button_text = 'Close') {
+      createModalBox(title, content, buttons = null) {
         // pause the timer if it was running
         const timer_was_running = this.timer_running;
         if (timer_was_running) {
           this.toggleTimer();
         }
+
+        if (!buttons) {
+          buttons = [{"buttonId": "modal-button", "buttonText": "Close"}];
+        }
+
+        let buttonHTML = '';
+        buttons.forEach(x => {
+          buttonHTML += `<button class="cw-button modal-button" id="${x['buttonId']}">${x['buttonText']}</button>\n`;
+        });
 
         // Set the contents of the modal box
         const modalContent = `
@@ -1175,7 +1184,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             ${content}
           </div>
           <div class="modal-footer">
-            <button class="cw-button" id="modal-button">${button_text}</button>
+            ${buttonHTML}
           </div>
         </div>`;
         // Set this to be the contents of the container modal div
@@ -1980,7 +1989,28 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           var solvedMessage = sanitizeHTML(this.msg_solved).trim().replaceAll('\n', '<br />');
           solvedMessage += timerMessage;
 
-          this.createModalBox('🎉🎉🎉', solvedMessage);
+          // Add in drop boxes for source, puzzle date, solve time
+          solvedMessage += solveInputs(display_minutes, display_seconds);
+
+          // buttons to display on solve
+          const buttons = [
+            {"buttonId": "solve-submit-button", "buttonText": "Submit Solve"}
+          , {"buttonId": "modal-button", "buttonText": "Close Without Submitting"}
+          ];
+
+          this.createModalBox('🎉🎉🎉', solvedMessage, buttons);
+          // Initialize the autocomplete widget
+          $("#sourceInput").autocomplete({
+              source: SOURCES
+          });
+
+          // Initialize the Datepicker
+          $("#datepicker").datepicker({
+              dateFormat: "mm/dd/yy", // Format the date as MM/DD/YYYY
+              defaultDate: new Date() // Default to today's date
+          });
+          $("#datepicker").datepicker("setDate", new Date());
+
           if (this.config.confetti_enabled) {
             confetti.start();
             setTimeout(function() {
