@@ -6,9 +6,14 @@
     <meta name="HandheldFriendly" content="True">
     <title>Crossword Nexus Solver</title>
     <link href="css/crosswordnexus.css" rel="stylesheet">
+    <!-- additional styles for solve tracker -->
+    <link href="css/styles2.css" rel="stylesheet">
 
     <!-- the main crossword JavaScript -->
     <script src="js/crosswords.js"></script>
+
+    <!-- Auxiliary JS for solve tracker -->
+    <script src="js/crosswords2.js"></script>
 
     <!-- jQuery -->
     <script src="lib/jquery.js"></script>
@@ -36,6 +41,8 @@
     </style>
 </head>
 <body>
+    <!-- data list for the source dropdown -->
+    <datalist id="puzzle-sources"></datalist>
     <!-- The div in which the crossword will be created -->
     <div class="crossword"></div>
 
@@ -63,6 +70,16 @@
             var config = JSON.parse(atob(b64config));
             params = Object.assign(params, config);
         }
+
+        // populate the datalist
+        const datalist = document.getElementById('puzzle-sources');
+
+        // Populate the datalist dynamically
+        SOURCES.sort().forEach(source => {
+            const option = document.createElement('option');
+            option.value = source;
+            datalist.appendChild(option);
+        });
 
         // Create the crossword
         CrosswordNexus.createCrossword($('div.crossword'), params);

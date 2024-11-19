@@ -165,7 +165,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       arrow_direction: 'arrow_move_filled', // arrow_move or arrow_move_filled
       // behavior of the space bar: delete a letter or switch directions
       space_bar: 'space_clear', // space_clear or space_switch
-      timer_autostart: false, // should the timer start automatically
+      timer_autostart: true, // should the timer start automatically
       dark_mode_enabled: false, // should dark mode be the default
       // behavior of the "tab" key
       // "tab_noskip" moves to the next word
@@ -769,6 +769,17 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
 
         this.notepad = puzzle.metadata.description || puzzle.metadata.intro || '';
+        // make an intro if it doesn't exist
+        this.intro = puzzle.metadata.intro;
+        if (!this.intro) {
+          this.intro = `
+            <p><b>${sanitizeHTML(this.title)}</b></p>
+            <p>${sanitizeHTML(this.author)}</p>
+            <p><i>${sanitizeHTML(this.copyright)}</i></p>
+          `;
+        }
+
+
         this.grid_width = puzzle.metadata.width;
         this.grid_height = puzzle.metadata.height;
         // disable check and reveal in certain cases
@@ -989,10 +1000,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.toggleTimer();
         }
 
-        // If there's an intro, show it
-        if (this.jsxw.metadata.intro) {
-          this.createModalBox('Intro', sanitizeHTML(this.jsxw.metadata.intro));
-        }
+        // Show the intro
+        this.createModalBox('Puzzle Info', sanitizeHTML(this.intro));
 
         //this.adjustPaddings();
         this.renderCells();
@@ -1157,12 +1166,21 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       // Create a generic modal box with content
-      createModalBox(title, content, button_text = 'Close', solved_msg = false) {
+      createModalBox(title, content, buttons = null, solved_msg = false) {
         // pause the timer if it was running
         const timer_was_running = this.timer_running;
         if (timer_was_running) {
           this.toggleTimer();
         }
+
+        if (!buttons) {
+          buttons = [{"buttonId": "modal-button", "buttonText": "Close"}];
+        }
+
+        let buttonHTML = '';
+        buttons.forEach(x => {
+          buttonHTML += `<button class="cw-button modal-button" id="${x['buttonId']}">${x['buttonText']}</button>\n`;
+        });
 
         // Set the contents of the modal box
         const modalContent = `
@@ -1175,7 +1193,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             ${content}
           </div>
           <div class="modal-footer">
-            <button class="cw-button" id="modal-button">${button_text}</button>
+            ${buttonHTML}
           </div>
         </div>`;
         // Set this to be the contents of the container modal div
@@ -1991,7 +2009,26 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           var solvedMessage = sanitizeHTML(this.msg_solved).trim().replaceAll('\n', '<br />');
           solvedMessage += timerMessage;
 
-          this.createModalBox('🎉🎉🎉', solvedMessage, 'Close', true);
+          // Add in drop boxes for source, puzzle date, solve time
+          solvedMessage += solveInputs(display_minutes, display_seconds);
+
+          // buttons to display on solve
+          const buttons = [
+            {"buttonId": "solve-submit-button", "buttonText": "Submit Solve"}
+          , {"buttonId": "modal-button", "buttonText": "Close Without Submitting"}
+          ];
+
+          this.createModalBox('🎉🎉🎉', solvedMessage, buttons, true);
+
+          // functionality for the submit button
+          document.getElementById('solve-submit-button').addEventListener('click', function() {
+            sendData();
+          });
+
+          // set datepicker to today
+          const today = new Date().toISOString().split('T')[0];
+          document.getElementById('datepicker').value = today;
+
           if (this.config.confetti_enabled) {
             confetti.start();
             setTimeout(function() {
