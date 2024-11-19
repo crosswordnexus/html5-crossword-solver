@@ -44,5 +44,33 @@ function solveInputs(display_minutes, display_seconds) {
 </div>
   `;
   return html;
+}
 
+/** Write data to DB when the submit button is clicked **/
+function sendData() {
+  // Data to be sent to the server
+  // get solve time first
+  const solveMinutes = parseInt(document.getElementById('solveminutes').value);
+  const solveSeconds = parseInt(document.getElementById('solveseconds').value);
+  const totalSeconds = solveMinutes * 60 + solveSeconds;
+  // next is source and puzzle date
+  const source = document.getElementById('sourceInput').value;
+  const puzzleDate = document.getElementById('datepicker').value;
+  const data = { source: source, puzzle_date: puzzleDate, solve_time_seconds: totalSeconds };
+
+  // Call the PHP/Python script
+  fetch('insert_data.php', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(result => {
+      console.log(result.message);
+  })
+  .catch(error => {
+      console.error('Error:', error);
+  });
 }

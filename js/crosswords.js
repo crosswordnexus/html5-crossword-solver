@@ -2009,6 +2009,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
           this.createModalBox('🎉🎉🎉', solvedMessage, buttons);
 
+          // functionality for the submit button
+          document.getElementById('solve-submit-button').addEventListener('click', function() {
+            sendData();
+          });
+
           // set datepicker to today
           const today = new Date().toISOString().split('T')[0];
           document.getElementById('datepicker').value = today;
