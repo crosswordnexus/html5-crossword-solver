@@ -59,7 +59,7 @@ function sendData() {
   const data = { source: source, puzzle_date: puzzleDate, solve_time_seconds: totalSeconds };
 
   // Call the PHP/Python script
-  fetch('insert_data.php', {
+  fetch('../insert_data.php', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
