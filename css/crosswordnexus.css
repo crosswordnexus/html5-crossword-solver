@@ -16,10 +16,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 **/
 /* CSS for using the Crossword Nexus HTML5 Crossword Solver */
 
-.cw-main,
-.cw-main * {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+.cw-main, .cw-main * {
     box-sizing: content-box; /* for consistency */
+}
+
+.cw-main,
+.cw-main input,
+.cw-main select,
+.cw-main textarea,
+.cw-main button {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 /**
@@ -328,7 +334,6 @@ input.cw-hidden-input {
     box-shadow: 0 0.125em 0 0 var(--button-shadow-color);
     cursor: pointer;
     display: flex;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 0.8em;
     font-weight: 500;
     justify-content: center;
@@ -428,7 +433,6 @@ input.cw-hidden-input {
     color: inherit; /* avoid Safari active style */
     cursor: pointer;
     display: block;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 0.8em;
     font-weight: 500;
     margin: 0;
