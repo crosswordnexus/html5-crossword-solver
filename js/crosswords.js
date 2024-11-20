@@ -1192,6 +1192,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           <div class="modal-body">
             ${content}
           </div>
+          <div id="feedbackMessage" style="display: none;"></div> <!-- Feedback message -->
           <div class="modal-footer">
             ${buttonHTML}
           </div>
