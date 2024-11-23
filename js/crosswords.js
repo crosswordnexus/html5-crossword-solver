@@ -19,7 +19,6 @@ const CONFIGURABLE_SETTINGS = [
 , "arrow_direction"
 , "space_bar"
 , "tab_key"
-, "timer_autostart"
 , "dark_mode_enabled"
 ];
 
@@ -2016,7 +2015,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           // buttons to display on solve
           const buttons = [
             {"buttonId": "solve-submit-button", "buttonText": "Submit Solve"}
-          , {"buttonId": "modal-button", "buttonText": "Close Without Submitting"}
+          , {"buttonId": "modal-button", "buttonText": "Close"}
           ];
 
           this.createModalBox('🎉🎉🎉', solvedMessage, buttons, true);
@@ -2026,9 +2025,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             sendData();
           });
 
-          // set datepicker to today
-          const today = new Date().toISOString().split('T')[0];
-          document.getElementById('datepicker').value = today;
+          // set elements
+          const srcDt = metadataToSourceDate(this.jsxw);
+          document.getElementById('sourceInput').value = srcDt.source;
+          document.getElementById('datepicker').value = srcDt.date;
 
           if (this.config.confetti_enabled) {
             confetti.start();
@@ -2385,9 +2385,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             </div>
             <div class="settings-option">
               <label class="settings-label">
-                <input id="timer_autostart" checked="" type="checkbox" name="timer_autostart" class="settings-changer">
-                  Start timer on puzzle open
-                </input>
               </label>
             </div>
             <div class="settings-option">
