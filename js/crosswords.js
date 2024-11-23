@@ -2025,9 +2025,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             sendData();
           });
 
-          // set datepicker to today
-          const today = new Date().toISOString().split('T')[0];
-          document.getElementById('datepicker').value = today;
+          // set elements
+          const srcDt = metadataToSourceDate(this.jsxw);
+          document.getElementById('sourceInput').value = srcDt.source;
+          document.getElementById('datepicker').value = srcDt.date;
 
           if (this.config.confetti_enabled) {
             confetti.start();

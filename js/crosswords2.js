@@ -8,8 +8,26 @@ const SOURCES = ['New York Times', 'LA Times', 'USA Today', "Jonesin'",
 ];
 
 function metadataToSourceDate(jsxw) {
-  if (jsxw.config.source && jsxw.config.date) {
-    return {source: jsxw.config.source, date: jsxw.config.date};
+  // today
+  const TODAY = new Date().toISOString().substr(0, 10);
+  // Passing in a config
+  if (jsxw.config) {
+    if (jsxw.config.source && jsxw.config.date) {
+      return {source: jsxw.config.source, date: jsxw.config.date};
+    }
+  }
+  // LA Times
+  else if (jsxw.metadata.title.includes("LA Times")) {
+    let dt = new Date(jsxw.metadata.title).toISOString().substr(0, 10);
+    return {source: "LA Times", date: dt};
+  }
+  // WSJ
+  else if (jsxw.metadata.copyright.includes("Wall Street Journal")) {
+    return {source: "WSJ", date: TODAY};
+  }
+  // otherwise return "", TODAY
+  else {
+    return {source: "", date: TODAY};
   }
 }
 
@@ -23,7 +41,8 @@ function solveInputs(display_minutes, display_seconds) {
     <div class="form-row">
         <div>
             <label for="sourceInput">Puzzle Source:</label>
-            <input type="text" id="sourceInput" list="puzzle-sources">
+            <input type="text" id="sourceInput"
+              placeholder="Type source here" list="puzzle-sources">
         </div>
         <div>
             <label for="datepicker">Puzzle Date:</label>
