@@ -2016,7 +2016,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           // buttons to display on solve
           const buttons = [
             {"buttonId": "solve-submit-button", "buttonText": "Submit Solve"}
-          , {"buttonId": "modal-button", "buttonText": "Close Without Submitting"}
+          , {"buttonId": "modal-button", "buttonText": "Close"}
           ];
 
           this.createModalBox('🎉🎉🎉', solvedMessage, buttons, true);

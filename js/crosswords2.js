@@ -1,15 +1,15 @@
 /* Auxiliary functions for the solve tracker */
 
 // list of sources that are easy to identify
-const SOURCES = ['NY Times', 'LA Times', 'USA Today', "Jonesin'",
+const SOURCES = ['New York Times', 'LA Times', 'USA Today', "Jonesin'",
   "Universal", "Universal Sunday", "AVCX", "Newsday", "Boston Globe",
   "The Atlantic", "New Yorker", "MGWCC", "BEQ", "Crossword Nexus", "WSJ",
-  "Washington Post"
+  "Washington Post", "Club 72"
 ];
 
-function metadataToSource(author, copyright) {
-  if (copyright.includes('Matt Jones')) {
-    return "Jonesin'";
+function metadataToSourceDate(jsxw) {
+  if (jsxw.config.source && jsxw.config.date) {
+    return {source: jsxw.config.source, date: jsxw.config.date};
   }
 }
 
