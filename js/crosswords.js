@@ -19,7 +19,6 @@ const CONFIGURABLE_SETTINGS = [
 , "arrow_direction"
 , "space_bar"
 , "tab_key"
-, "timer_autostart"
 , "dark_mode_enabled"
 ];
 
@@ -2385,9 +2384,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             </div>
             <div class="settings-option">
               <label class="settings-label">
-                <input id="timer_autostart" checked="" type="checkbox" name="timer_autostart" class="settings-changer">
-                  Start timer on puzzle open
-                </input>
               </label>
             </div>
             <div class="settings-option">
