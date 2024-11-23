@@ -7,14 +7,12 @@ const SOURCES = ['New York Times', 'LA Times', 'USA Today', "Jonesin'",
   "Washington Post", "Club 72"
 ];
 
-function metadataToSourceDate(jsxw) {
+function metadataToSourceDate(jsxw, config) {
   // today
   const TODAY = new Date().toISOString().substr(0, 10);
   // Passing in a config
-  if (jsxw.config) {
-    if (jsxw.config.source && jsxw.config.date) {
-      return {source: jsxw.config.source, date: jsxw.config.date};
-    }
+  if (config.source && config.date) {
+    return {source: config.source, date: config.date};
   }
   // LA Times
   else if (jsxw.metadata.title.includes("LA Times")) {
