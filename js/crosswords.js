@@ -20,6 +20,7 @@ const CONFIGURABLE_SETTINGS = [
 , "space_bar"
 , "tab_key"
 , "dark_mode_enabled"
+, "date", "source"
 ];
 
 // Since DarkReader is an external library, make sure it exists
@@ -170,6 +171,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       // "tab_noskip" moves to the next word
       // "tab_skip" moves to the next unfilled word
       tab_key: 'tab_noskip',
+      // solve-tracker specifics
+      source: null, date: null,
       confetti_enabled: true
     };
 
@@ -2026,7 +2029,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           });
 
           // set elements
-          const srcDt = metadataToSourceDate(this.jsxw);
+          const srcDt = metadataToSourceDate(this.jsxw, this.config);
           document.getElementById('sourceInput').value = srcDt.source;
           document.getElementById('datepicker').value = srcDt.date;
 
