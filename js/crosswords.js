@@ -712,7 +712,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           var loaded_callback = parsePUZZLE_callback;
           var avcx_cookie = getCookie('avcx_s');
           loadAvcxFile(
-            avcx_cookie, this.config.avcx.date, this.config.avcx.has_jpz, this.config.has_ipuz
+            avcx_cookie, this.config.avcx.date, this.config.avcx.has_jpz, this.config.avcx.has_ipuz
           ).then(loaded_callback, error_callback);
         } else {
           // shows open button
