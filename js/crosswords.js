@@ -328,7 +328,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         return null;
     }
 
-    function loadAvcxFile(cookie_val, date, has_jpz) {
+    function loadAvcxFile(cookie_val, date, has_jpz, has_ipuz) {
       var xhr = new XMLHttpRequest(),
         deferred = $.Deferred();
 
@@ -344,6 +344,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       if (has_jpz) {
         xhr.setRequestHeader('Content-Type', 'application/jpz');
         file_type = 'jpz';
+      } else if (has_ipuz) {
+        xhr.setRequestHeader('Content-Type', 'application/x-ipuz');
+        file_type = 'ipuz';
       }
       xhr.onload = function () {
         if (xhr.status == 200) {
@@ -709,7 +712,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           var loaded_callback = parsePUZZLE_callback;
           var avcx_cookie = getCookie('avcx_s');
           loadAvcxFile(
-            avcx_cookie, this.config.avcx.date, this.config.avcx.has_jpz
+            avcx_cookie, this.config.avcx.date, this.config.avcx.has_jpz, this.config.has_ipuz
           ).then(loaded_callback, error_callback);
         } else {
           // shows open button
