@@ -328,7 +328,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         return null;
     }
 
-    function loadAvcxFile(cookie_val, date, has_jpz) {
+    function loadAvcxFile(cookie_val, date, has_jpz, has_ipuz) {
       var xhr = new XMLHttpRequest(),
         deferred = $.Deferred();
 
@@ -344,6 +344,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       if (has_jpz) {
         xhr.setRequestHeader('Content-Type', 'application/jpz');
         file_type = 'jpz';
+      } else if (has_ipuz) {
+        xhr.setRequestHeader('Content-Type', 'application/x-ipuz');
+        file_type = 'ipuz';
       }
       xhr.onload = function () {
         if (xhr.status == 200) {
@@ -622,7 +625,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.selected_word = null;
         this.hilited_word = null;
         this.selected_cell = null;
-        this.settings_open = false;
+        this.solved_open = false;
         // TIMER
         this.timer_running = false;
 
@@ -709,7 +712,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           var loaded_callback = parsePUZZLE_callback;
           var avcx_cookie = getCookie('avcx_s');
           loadAvcxFile(
-            avcx_cookie, this.config.avcx.date, this.config.avcx.has_jpz
+            avcx_cookie, this.config.avcx.date, this.config.avcx.has_jpz, this.config.has_ipuz
           ).then(loaded_callback, error_callback);
         } else {
           // shows open button
@@ -1209,7 +1212,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       // Create a generic modal box with content
-      createModalBox(title, content, button_text = 'Close') {
+      createModalBox(title, content, button_text = 'Close', solved_msg = false) {
         // pause the timer if it was running
         const timer_was_running = this.timer_running;
         if (timer_was_running) {
@@ -1232,6 +1235,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         </div>`;
         // Set this to be the contents of the container modal div
         this.root.find('.cw-modal').html(modalContent);
+
+        // turn "solved_open" to true if necessary
+        if (solved_msg) {
+          this.solved_open = true;
+        }
 
         // Show the div
         var modal = this.root.find('.cw-modal').get(0);
@@ -1792,7 +1800,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       keyPressed(e) {
-        if (this.settings_open) {
+        if (this.solved_open) {
+          // close the modal
+          let modal = this.root.find('.cw-modal').get(0);
+          modal.style.display = 'none';
+          const this_hidden_input = this.hidden_input;
+          this_hidden_input.focus();
+          this.solved_open = false;
           return;
         }
 
@@ -2032,7 +2046,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           var solvedMessage = sanitizeHTML(this.msg_solved).trim().replaceAll('\n', '<br />');
           solvedMessage += timerMessage;
 
-          this.createModalBox('🎉🎉🎉', solvedMessage);
+          this.createModalBox('🎉🎉🎉', solvedMessage, 'Close', true);
           if (this.config.confetti_enabled) {
             confetti.start();
             setTimeout(function() {
