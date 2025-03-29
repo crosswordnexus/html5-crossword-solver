@@ -167,6 +167,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       space_bar: 'space_clear', // space_clear or space_switch
       timer_autostart: false, // should the timer start automatically
       dark_mode_enabled: false, // should dark mode be the default
+      strike_completed_clues: true, // whether to gray out completed clues
       // behavior of the "tab" key
       // "tab_noskip" moves to the next word
       // "tab_skip" moves to the next unfilled word
@@ -1697,6 +1698,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
           }
         }
+        // update clue appearance (for grayed out clues)
+        for (const wordId in this.words) {
+          this.updateClueAppearance(this.words[wordId]);
+        }
+
       }
 
       mouseMoved(e) {
@@ -2276,6 +2282,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 </input>
               </label>
             </div>
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="strike_completed_clues" type="checkbox" name="strike_completed_clues" class="settings-changer">
+                  Grey out clues for completed words
+                </input>
+              </label>
+            </div>
           </div>
 
           <!-- When changing direction with arrow keys -->
@@ -2390,6 +2403,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             if (event.target.className === 'settings-changer') {
               if (event.target.type === 'checkbox') {
                 this.config[event.target.name] = event.target.checked;
+
+                // If the toggled setting is strike_completed_clues, re-render clues immediately
+                if(event.target.name === 'strike_completed_clues') {
+                  for (const wordId in this.words) {
+                    this.updateClueAppearance(this.words[wordId]);
+                  }
+                }
+
                 // need to add a special bit for dark mode
                 if (event.target.name == 'dark_mode_enabled' && DarkReader) {
                   if (event.target.checked) {
@@ -2560,6 +2581,29 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.fillJsXw();
         jscrossword_to_pdf(this.jsxw);
       }
+
+      updateClueAppearance(word) {
+        // Grey out completed clues
+        const clueEl = this.clues_holder.find(`.cw-clue.word-${word.id} .cw-clue-text`);
+
+        if (!this.config.strike_completed_clues) {
+           // Reset clue styling if the setting is turned off
+           clueEl.css({
+             "color": ""
+           });
+           return;
+        }
+
+        if (word.isFilled()) {
+           clueEl.css({
+             "color": "#aaa"
+           });
+         } else {
+           clueEl.css({
+             "color": ""
+           });
+         }
+       }
 
       toggleTimer() {
         var display_seconds, display_minutes;
