@@ -167,7 +167,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       space_bar: 'space_clear', // space_clear or space_switch
       timer_autostart: false, // should the timer start automatically
       dark_mode_enabled: false, // should dark mode be the default
-      strike_completed_clues: true, // whether to gray out completed clues
+      strike_completed_clues: true, // whether to grey out completed clues
       // behavior of the "tab" key
       // "tab_noskip" moves to the next word
       // "tab_skip" moves to the next unfilled word
@@ -1698,7 +1698,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
           }
         }
-        // update clue appearance (for grayed out clues)
+        // update clue appearance (for greyed out clues)
         for (const wordId in this.words) {
           this.updateClueAppearance(this.words[wordId]);
         }
@@ -2584,6 +2584,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
       updateClueAppearance(word) {
         // Grey out completed clues
+
+        if (this.fakeclues) return;
+
         const clueEl = this.clues_holder.find(`.cw-clue.word-${word.id} .cw-clue-text`);
 
         if (!this.config.strike_completed_clues) {
