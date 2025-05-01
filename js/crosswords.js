@@ -755,6 +755,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.copyright = puzzle.metadata.copyright || '';
         this.crossword_type = puzzle.metadata.crossword_type;
         this.fakeclues = puzzle.metadata.fakeclues || false;
+        this.realwords = puzzle.metadata.realwords || false;
 
         // don't show the top text if fakeclues
         if (this.fakeclues) {
@@ -825,7 +826,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
 
         // helper function for coded and fakeclues puzzles
-        this.make_fake_clues = function(puzzle) {
+        this.make_fake_clues = function(puzzle, clue_mapping) {
+
           // initialize the across and down groups
           var clueMapping = {};
           var across_group = new CluesGroup(this, {
@@ -840,25 +842,36 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             clues: [],
             words_ids: [],
           });
-          // Determine which word is an across and which is a down
-          // We do this by comparing the entry to the set of across entries
-          var thisGrid = new xwGrid(puzzle.cells);
-          var acrossEntries = thisGrid.acrossEntries();
-          var acrossSet = new Set(Object.keys(acrossEntries).map(function (x) {return acrossEntries[x].word;}))
-          var entry_mapping = puzzle.get_entry_mapping();
-          Object.keys(entry_mapping).forEach(function (id) {
-            var thisClue = {word: id, number: id, text: '--'};
-            var entry = entry_mapping[id];
-            if (acrossSet.has(entry)) {
-              across_group.clues.push(thisClue);
-              across_group.words_ids.push(id);
-              clueMapping[id] = thisClue;
-            } else {
-              down_group.clues.push(thisClue);
-              down_group.words_ids.push(id);
-              clueMapping[id] = thisClue;
-            }
-          });
+
+          // Case 1: we don't use the word locations from the puzzle
+          if (!this.realwords) {
+            // Determine which word is an across and which is a down
+            // We do this by comparing the entry to the set of across entries
+            var thisGrid = new xwGrid(puzzle.cells);
+            var acrossEntries = thisGrid.acrossEntries();
+            var acrossSet = new Set(Object.keys(acrossEntries).map(function (x) {return acrossEntries[x].word;}))
+            var entry_mapping = puzzle.get_entry_mapping();
+            Object.keys(entry_mapping).forEach(function (id) {
+              var thisClue = {word: id, number: id, text: '--'};
+              var entry = entry_mapping[id];
+              if (acrossSet.has(entry)) {
+                across_group.clues.push(thisClue);
+                across_group.words_ids.push(id);
+                clueMapping[id] = thisClue;
+              } else {
+                down_group.clues.push(thisClue);
+                down_group.words_ids.push(id);
+                clueMapping[id] = thisClue;
+              }
+            });
+          } else {
+
+            // case 2: we use the word locations from the puzzle
+            console.log(this.clues_top);
+            across_group = this.clues_top;
+            down_group = this.clues_bottom;
+            clueMapping = clue_mapping;
+          }
           return {'across_group': across_group, 'down_group': down_group, 'clue_mapping': clueMapping};
         }
 
@@ -866,7 +879,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         var clueMapping = {};
         // we handle them differently for coded crosswords
         if (this.crossword_type === 'coded') {
-          var fake_clue_obj = this.make_fake_clues(puzzle);
+          var fake_clue_obj = this.make_fake_clues(puzzle, {});
           this.clues_top = fake_clue_obj.across_group;
           this.clues_bottom = fake_clue_obj.down_group;
           clueMapping = fake_clue_obj.clue_mapping;
@@ -911,14 +924,15 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
         }
 
-        // If "fakeclues" and the number of words and clues don't match
+        // If "fakeclues" and the number of words is mismatched
         // we need to make special "display" clues
+
         var num_words = puzzle.words.length;
         var num_clues = puzzle.clues.map(x=>x.clue).flat().length;
         if (this.fakeclues && num_words != num_clues) {
           this.display_clues_top = this.clues_top;
           this.display_clues_bottom = this.clues_bottom;
-          var fake_clue_obj = this.make_fake_clues(puzzle);
+          var fake_clue_obj = this.make_fake_clues(puzzle, clueMapping);
           this.clues_top = fake_clue_obj.across_group;
           this.clues_bottom = fake_clue_obj.down_group;
           clueMapping = fake_clue_obj.clue_mapping;
