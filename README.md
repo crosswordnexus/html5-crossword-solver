@@ -50,7 +50,7 @@ CrossWord.remove();
 
 ### Available parameters
 
-For a list of available parameters and what they control, see lines 87-119 in crosswords.js. Note that some color settings are configurable via CSS.
+For a list of available parameters and what they control, see lines 141-174 in crosswords.js. Note that some color settings are configurable via CSS.
 
 ### Each puzzle file must be object with 3 parameters:
 | Param  | Description     |
