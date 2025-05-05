@@ -167,6 +167,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       space_bar: 'space_clear', // space_clear or space_switch
       timer_autostart: false, // should the timer start automatically
       dark_mode_enabled: false, // should dark mode be the default
+      strike_completed_clues: true, // whether to grey out completed clues
       // behavior of the "tab" key
       // "tab_noskip" moves to the next word
       // "tab_skip" moves to the next unfilled word
@@ -414,29 +415,96 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
     }
 
-    /**
-     * Sanitize HTML in the given string, except the simplest no-attribute
-     * formatting tags.
-     */
-    const entityMap = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;',
-      '/': '&#x2F;',
-      '`': '&#x60;',
-      '=': '&#x3D;',
-    };
-    const escapeRegex = new RegExp(
-      `</?(i|b|em|strong|span|br|p)>|[&<>"'\`=\\/]`,
-      'g'
-    );
-    function escape(string) {
-      //return String(string).replace(escapeRegex, (s) =>
-      //  s.length > 1 ? s : entityMap[s]
-      //);
-      return string;
+    /** Sanitize an HTML string so it is safe to add it to the DOM. */
+    function sanitizeHTML(html) {
+      const unsanitized = new DOMParser().parseFromString(html, "text/html");
+      const div = document.createElement("div");
+      div.appendChild(sanitizeChildNodes(unsanitized.body));
+      return div.innerHTML;
+    }
+
+    function sanitizeChildNodes(node) {
+      const sanitized = document.createDocumentFragment();
+      for (const child of node.childNodes) {
+        if (child.nodeType === Node.ELEMENT_NODE) {
+          sanitized.appendChild(sanitizeElement(child));
+        } else if (child.nodeType === Node.TEXT_NODE) {
+          sanitized.appendChild(document.createTextNode(child.nodeValue));
+        }
+      }
+      return sanitized;
+    }
+
+    function sanitizeElement(element) {
+      if (isValidElement(element)) {
+        const sanitized = document.createElementNS(element.namespaceURI, element.nodeName);
+        for (const attribute of element.attributes) {
+          if (isValidAttribute(element.namespaceURI, attribute)) {
+            sanitized.setAttribute(attribute.name, attribute.value);
+          }
+        }
+        sanitized.appendChild(sanitizeChildNodes(element));
+        return sanitized;
+      } else {
+        return document.createDocumentFragment();
+      }
+    }
+
+    function isValidElement(element) {
+      switch (element.namespaceURI) {
+        case "http://www.w3.org/1999/xhtml":
+          return [
+            "A", "ABBR", "ADDRESS", "AREA", "ARTICLE", "ASIDE", "AUDIO", "B", "BDI", "BDO",
+            "BLOCKQUOTE", "BR", "CAPTION", "CITE", "CODE", "COL", "COLGROUP", "DATA", "DD", "DEL",
+            "DETAILS", "DFN", "DIV", "DL", "DT", "EM", "FIELDSET", "FIGCAPTION", "FIGURE", "FOOTER",
+            "H1", "H2", "H3", "H4", "H5", "H6", "HEADER", "HGROUP", "HR", "I",
+            "IMG", "INS", "KBD", "LABEL", "LEGEND", "LI", "MAIN", "MAP", "MARK", "MENU",
+            "METER", "NAV", "OL", "P", "PICTURE", "PRE", "PROGRESS", "Q", "RP", "RT",
+            "RUBY", "S", "SAMP", "SECTION", "SMALL", "SOURCE", "SPAN", "STRONG", "SUB", "SUMMARY",
+            "SUP", "TABLE", "TBODY", "TD", "TFOOT", "TH", "THEAD", "TIME", "TR", "TRACK",
+            "U", "UL", "VAR", "VIDEO", "WBR"
+          ].includes(element.tagName);
+
+        case "http://www.w3.org/1998/Math/MathML":
+          return [
+            "annotation", "annotation-xml", "math", "merror", "mfrac", "mi", "mmultiscripts", "mn", "mo", "mover",
+            "mpadded", "mphantom", "mprescripts", "mroot", "mrow", "ms", "mspace", "msqrt", "mstyle", "msub",
+            "msubsup", "msup", "mtable", "mtd", "mtext", "mtr", "munder", "munderover", "semantics"
+          ].includes(element.tagName);
+
+        default:
+          return false;
+        }
+      }
+
+    function isValidAttribute(namespaceURI, attribute) {
+      if (attribute.name === "href") {
+        return !!attribute.value.match(/^(?:https?|mailto):/);
+      }
+      if (attribute.name.startsWith("aria-")) {
+        return true;
+      }
+      switch (namespaceURI) {
+        case "http://www.w3.org/1999/xhtml":
+          return [
+            "abbr", "alt", "autoplay", "cite", "colspan", "controls", "controlslist", "coords", "datetime", "decoding",
+            "default", "dir", "disablepictureinpicture", "disableremoteplayback", "download", "elementtiming", "fetchpriority", "for", "headers", "height",
+            "high", "hreflang", "ismap", "kind", "label", "lang", "loading", "loop", "low", "max",
+            "media", "min", "muted", "name", "open", "optimum", "playsinline", "poster", "preload", "referrerpolicy",
+            "rel", "reversed", "role", "rowspan", "scope", "shape", "sizes", "span", "src", "srclang",
+            "srcset", "start", "style", "title", "translate", "type", "usemap", "value", "width"
+          ].includes(attribute.name);
+
+        case "http://www.w3.org/1998/Math/MathML":
+          return [
+            "accent", "accentunder", "columnspan", "depth", "dir", "display", "displaystyle", "encoding", "fence", "form",
+            "height", "largeop", "linethickness", "lspace", "mathbackground", "mathcolor", "mathsize", "mathvariant", "maxsize", "minsize",
+            "movablelimits", "rowspan", "rspace", "scriptlevel", "separator", "stretchy", "style", "symmetric", "voffset", "width"
+          ].includes(attribute.name);
+
+        default:
+          return false;
+      }
     }
 
     var CrosswordNexus = {
@@ -509,7 +577,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.selected_word = null;
         this.hilited_word = null;
         this.selected_cell = null;
-        this.settings_open = false;
+        this.solved_open = false;
         // TIMER
         this.timer_running = false;
 
@@ -687,15 +755,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.copyright = puzzle.metadata.copyright || '';
         this.crossword_type = puzzle.metadata.crossword_type;
         this.fakeclues = puzzle.metadata.fakeclues || false;
+        this.realwords = puzzle.metadata.realwords || false;
 
         // don't show the top text if fakeclues
         if (this.fakeclues) {
           $('div.cw-top-text-wrapper').css({ display: 'none' });
-        }
-
-        // Change document title if necessary
-        if (this.title) {
-          document.title = this.title + ' | ' + document.title;
         }
 
         // determine whether we should autofill
@@ -762,7 +826,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
 
         // helper function for coded and fakeclues puzzles
-        this.make_fake_clues = function(puzzle) {
+        this.make_fake_clues = function(puzzle, clue_mapping) {
+
           // initialize the across and down groups
           var clueMapping = {};
           var across_group = new CluesGroup(this, {
@@ -777,25 +842,36 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             clues: [],
             words_ids: [],
           });
-          // Determine which word is an across and which is a down
-          // We do this by comparing the entry to the set of across entries
-          var thisGrid = new xwGrid(puzzle.cells);
-          var acrossEntries = thisGrid.acrossEntries();
-          var acrossSet = new Set(Object.keys(acrossEntries).map(function (x) {return acrossEntries[x].word;}))
-          var entry_mapping = puzzle.get_entry_mapping();
-          Object.keys(entry_mapping).forEach(function (id) {
-            var thisClue = {word: id, number: id, text: '--'};
-            var entry = entry_mapping[id];
-            if (acrossSet.has(entry)) {
-              across_group.clues.push(thisClue);
-              across_group.words_ids.push(id);
-              clueMapping[id] = thisClue;
-            } else {
-              down_group.clues.push(thisClue);
-              down_group.words_ids.push(id);
-              clueMapping[id] = thisClue;
-            }
-          });
+
+          // Case 1: we don't use the word locations from the puzzle
+          if (!this.realwords) {
+            // Determine which word is an across and which is a down
+            // We do this by comparing the entry to the set of across entries
+            var thisGrid = new xwGrid(puzzle.cells);
+            var acrossEntries = thisGrid.acrossEntries();
+            var acrossSet = new Set(Object.keys(acrossEntries).map(function (x) {return acrossEntries[x].word;}))
+            var entry_mapping = puzzle.get_entry_mapping();
+            Object.keys(entry_mapping).forEach(function (id) {
+              var thisClue = {word: id, number: id, text: '--'};
+              var entry = entry_mapping[id];
+              if (acrossSet.has(entry)) {
+                across_group.clues.push(thisClue);
+                across_group.words_ids.push(id);
+                clueMapping[id] = thisClue;
+              } else {
+                down_group.clues.push(thisClue);
+                down_group.words_ids.push(id);
+                clueMapping[id] = thisClue;
+              }
+            });
+          } else {
+
+            // case 2: we use the word locations from the puzzle
+            console.log(this.clues_top);
+            across_group = this.clues_top;
+            down_group = this.clues_bottom;
+            clueMapping = clue_mapping;
+          }
           return {'across_group': across_group, 'down_group': down_group, 'clue_mapping': clueMapping};
         }
 
@@ -803,7 +879,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         var clueMapping = {};
         // we handle them differently for coded crosswords
         if (this.crossword_type === 'coded') {
-          var fake_clue_obj = this.make_fake_clues(puzzle);
+          var fake_clue_obj = this.make_fake_clues(puzzle, {});
           this.clues_top = fake_clue_obj.across_group;
           this.clues_bottom = fake_clue_obj.down_group;
           clueMapping = fake_clue_obj.clue_mapping;
@@ -848,14 +924,15 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
         }
 
-        // If "fakeclues" and the number of words and clues don't match
+        // If "fakeclues" and the number of words is mismatched
         // we need to make special "display" clues
+
         var num_words = puzzle.words.length;
         var num_clues = puzzle.clues.map(x=>x.clue).flat().length;
         if (this.fakeclues && num_words != num_clues) {
           this.display_clues_top = this.clues_top;
           this.display_clues_bottom = this.clues_bottom;
-          var fake_clue_obj = this.make_fake_clues(puzzle);
+          var fake_clue_obj = this.make_fake_clues(puzzle, clueMapping);
           this.clues_top = fake_clue_obj.across_group;
           this.clues_bottom = fake_clue_obj.down_group;
           clueMapping = fake_clue_obj.clue_mapping;
@@ -890,9 +967,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
       completeLoad() {
         $('.cw-header').html(`
-          <span class="cw-title">${escape(this.title)}</span>
+          <span class="cw-title">${sanitizeHTML(this.title)}</span>
           <span class="cw-header-separator">&nbsp;•&nbsp;</span>
-          <span class="cw-author">${escape(this.author)}</span>
+          <span class="cw-author">${sanitizeHTML(this.author)}</span>
           ${
             this.notepad
               ? `<button class="cw-button cw-button-notepad">
@@ -901,8 +978,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               : ''
           }
           <span class="cw-flex-spacer"></span>
-          <span class="cw-copyright">${escape(this.copyright)}</span>
+          <span class="cw-copyright">${sanitizeHTML(this.copyright)}</span>
         `);
+
+        // Change document title if necessary
+        if (this.title) {
+          document.title = $('.cw-title').text() + ' | ' + document.title;
+        }
 
         this.notepad_icon = this.root.find('.cw-button-notepad');
 
@@ -930,7 +1012,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         // If there's an intro, show it
         if (this.jsxw.metadata.intro) {
-          this.createModalBox('Intro', this.jsxw.metadata.intro);
+          this.createModalBox('Intro', sanitizeHTML(this.jsxw.metadata.intro));
         }
 
         //this.adjustPaddings();
@@ -1096,7 +1178,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       // Create a generic modal box with content
-      createModalBox(title, content, button_text = 'Close') {
+      createModalBox(title, content, button_text = 'Close', solved_msg = false) {
         // pause the timer if it was running
         const timer_was_running = this.timer_running;
         if (timer_was_running) {
@@ -1119,6 +1201,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         </div>`;
         // Set this to be the contents of the container modal div
         this.root.find('.cw-modal').html(modalContent);
+
+        // turn "solved_open" to true if necessary
+        if (solved_msg) {
+          this.solved_open = true;
+        }
 
         // Show the div
         var modal = this.root.find('.cw-modal').get(0);
@@ -1197,10 +1284,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
           this.top_text.html(`
             <span class="cw-clue-number">
-              ${escape(word.clue.number)}
+              ${sanitizeHTML(word.clue.number)}
             </span>
             <span class="cw-clue-text">
-              ${escape(word.clue.text)}
+              ${sanitizeHTML(word.clue.text)}
               <div class="cw-edit-container" style="display: none;">
                 <input class="cw-input note-style" type="text">
               </div>
@@ -1241,10 +1328,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           clue_el = $(`
             <div style="position: relative">
               <span class="cw-clue-number">
-                ${escape(clue.number)}
+                ${sanitizeHTML(clue.number)}
               </span>
               <span class="cw-clue-text">
-                ${escape(clue.text)}
+                ${sanitizeHTML(clue.text)}
                 <div class="cw-edit-container" style="display: none;">
                   <input class="cw-input note-style" type="text">
                 </div>
@@ -1267,7 +1354,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           clue_el.addClass('word-' + clue.word);
           items.append(clue_el);
         }
-        title.html(escape(clues_group.title));
+        title.html(sanitizeHTML(clues_group.title));
         clues_group.clues_container = items;
 
         // Add event listeners for editing
@@ -1631,6 +1718,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
           }
         }
+        // update clue appearance (for greyed out clues)
+        for (const wordId in this.words) {
+          this.updateClueAppearance(this.words[wordId]);
+        }
+
       }
 
       mouseMoved(e) {
@@ -1679,7 +1771,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       keyPressed(e) {
-        if (this.settings_open) {
+        if (this.solved_open) {
+          // close the modal
+          let modal = this.root.find('.cw-modal').get(0);
+          modal.style.display = 'none';
+          const this_hidden_input = this.hidden_input;
+          this_hidden_input.focus();
+          this.solved_open = false;
           return;
         }
 
@@ -1820,8 +1918,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       autofill() {
-        // save progress
-        this.saveGame();
         if (this.is_autofill) {
           var my_number = this.selected_cell.number;
           var same_number_cells = this.number_to_cells[my_number] || [];
@@ -1831,6 +1927,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             cell.checked = this.selected_cell.checked;
           }
         }
+        // save progress
+        this.saveGame();
       }
 
       // Detects user inputs to hidden input element
@@ -1916,10 +2014,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
         // show completion message if newly solved
         if (!wasSolved) {
-          var solvedMessage = escape(this.msg_solved).trim().replaceAll('\n', '<br />');
+          var solvedMessage = sanitizeHTML(this.msg_solved).trim().replaceAll('\n', '<br />');
           solvedMessage += timerMessage;
 
-          this.createModalBox('🎉🎉🎉', solvedMessage);
+          this.createModalBox('🎉🎉🎉', solvedMessage, 'Close', true);
           if (this.config.confetti_enabled) {
             confetti.start();
             setTimeout(function() {
@@ -2177,15 +2275,15 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.createModalBox(
           'Info',
           `
-            <p><b>${escape(this.title)}</b></p>
-            <p>${escape(this.author)}</p>
-            <p><i>${escape(this.copyright)}</i></p>
+            <p><b>${sanitizeHTML(this.title)}</b></p>
+            <p>${sanitizeHTML(this.author)}</p>
+            <p><i>${sanitizeHTML(this.copyright)}</i></p>
           `
         );
       }
 
       showNotepad() {
-        this.createModalBox('Notes', escape(this.notepad));
+        this.createModalBox('Notes', sanitizeHTML(this.notepad));
       }
 
       openSettings() {
@@ -2201,6 +2299,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               <label class="settings-label">
                 <input id="skip_filled_letters" checked="checked" type="checkbox" name="skip_filled_letters" class="settings-changer">
                   Skip over filled letters
+                </input>
+              </label>
+            </div>
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="strike_completed_clues" type="checkbox" name="strike_completed_clues" class="settings-changer">
+                  Grey out clues for completed words
                 </input>
               </label>
             </div>
@@ -2318,6 +2423,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             if (event.target.className === 'settings-changer') {
               if (event.target.type === 'checkbox') {
                 this.config[event.target.name] = event.target.checked;
+
+                // If the toggled setting is strike_completed_clues, re-render clues immediately
+                if(event.target.name === 'strike_completed_clues') {
+                  for (const wordId in this.words) {
+                    this.updateClueAppearance(this.words[wordId]);
+                  }
+                }
+
                 // need to add a special bit for dark mode
                 if (event.target.name == 'dark_mode_enabled' && DarkReader) {
                   if (event.target.checked) {
@@ -2369,13 +2482,15 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
       /* Save the game to local storage */
       saveGame() {
-        // fill jsxw
-        this.fillJsXw();
-        // stringify
-        const jsxw_str = JSON.stringify(this.jsxw.cells);
-        // We set this to expire in about 7 days
-        lscache.set(this.savegame_name, this.jsxw.cells, 10000);
-        //this.createModalBox('💾', 'Progress saved.');
+        // use setTimeout to avoid blocking
+        setTimeout(() => {
+          // fill jsxw
+          this.fillJsXw();
+          // stringify
+          const jsxw_str = JSON.stringify(this.jsxw.cells);
+          // We set this to expire in about 7 days
+          lscache.set(this.savegame_name, this.jsxw.cells, 10000);
+        }, 0);
       }
 
       /* Load a game from local storage */
@@ -2473,6 +2588,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
         }
         this.renderCells();
+        this.saveGame();
 
         if (reveal_or_check == 'reveal') {
           this.checkIfSolved(false);
@@ -2485,6 +2601,32 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.fillJsXw();
         jscrossword_to_pdf(this.jsxw);
       }
+
+      updateClueAppearance(word) {
+        // Grey out completed clues
+
+        if (this.fakeclues) return;
+
+        const clueEl = this.clues_holder.find(`.cw-clue.word-${word.id} .cw-clue-text`);
+
+        if (!this.config.strike_completed_clues) {
+           // Reset clue styling if the setting is turned off
+           clueEl.css({
+             "color": ""
+           });
+           return;
+        }
+
+        if (word.isFilled()) {
+           clueEl.css({
+             "color": "#aaa"
+           });
+         } else {
+           clueEl.css({
+             "color": ""
+           });
+         }
+       }
 
       toggleTimer() {
         var display_seconds, display_minutes;
