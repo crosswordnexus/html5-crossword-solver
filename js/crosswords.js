@@ -404,9 +404,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     }
 
     // Function to check if a cell is solved correctly
-    function isCorrect(entry, solution) {
+    function isCorrect(entry, solution, strictRebus) {
+      // if strictRebus and the string is alpha, the entry and solution must match
+      if (strictRebus && /^[A-Za-z]+$/.test(solution) ) {
+        return entry == solution;
+      }
       // if we have a rebus or non-alpha solution or no solution, accept anything
-      if (entry && (!solution || solution.length > 1 || /[^A-Za-z]/.test(solution))) {
+      else if (entry && (!solution || solution.length > 1 || /[^A-Za-z]/.test(solution))) {
         return true;
       }
       // otherwise, only mark as okay if we have an exact match
@@ -824,6 +828,26 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             this.number_to_cells[c.number].push(c);
           }
         }
+
+        /* determine if we should do strict rebus checking */
+        // flatten the cells
+        const cells1 = Object.values(this.cells).flatMap(row => Object.values(row));
+
+        // get the total number of cells with a solution
+        // and the number that have more than one character
+        const { total, long } = cells1.reduce(
+          (acc, c) => {
+            if (c.solution != null) {
+              acc.total++;
+              if (c.solution.length > 1) acc.long++;
+            }
+            return acc;
+          },
+          { total: 0, long: 0 }
+        );
+
+        // do strict rebus checking if 1/3 or more cells are "long"
+        this.strictRebus = total === 0 ? false : long * 3 >= total;
 
         // helper function for coded and fakeclues puzzles
         this.make_fake_clues = function(puzzle, clue_mapping) {
@@ -1983,7 +2007,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             // if found cell without letter or with incorrect letter - return
             if (
               !cell.empty &&
-              (!cell.letter || !isCorrect(cell.letter, cell.solution))
+              (!cell.letter || !isCorrect(cell.letter, cell.solution, this.strictRebus))
             ) {
               this.isSolved = false;
               return;
@@ -2573,7 +2597,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             my_cells[i].letter = '';
           }
           if (
-            !isCorrect(my_cells[i].letter, my_cells[i].solution)
+            !isCorrect(my_cells[i].letter, my_cells[i].solution, this.strictRebus)
           ) {
             if (reveal_or_check == 'reveal') {
               my_cells[i].letter = my_cells[i].solution;
@@ -2582,7 +2606,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             } else if (reveal_or_check == 'check') {
               my_cells[i].checked = true;
             }
-          } else if (reveal_or_check == 'reveal' && isCorrect(my_cells[i].letter, my_cells[i].solution) && my_cells[i].letter !== my_cells[i].solution) {
+          } else if (
+            reveal_or_check == 'reveal'
+            && isCorrect(my_cells[i].letter, my_cells[i].solution, this.strictRebus)
+            && my_cells[i].letter !== my_cells[i].solution
+          ) {
             // i.e. the solution is "correct" but the letter doesn't match up
             my_cells[i].letter = my_cells[i].solution;
           }
