@@ -1196,72 +1196,69 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       // Create a generic modal box with content
-      createModalBox(title, content, button_text = 'Close', solved_msg = false) {
-        // pause the timer if it was running
+      createModalBox(title, content, button_text = 'Close', solved_msg = false, options = {}) {
+        const { showInput = false, inputPlaceholder = '', onSubmit = null } = options;
+
         const timer_was_running = this.timer_running;
-        if (timer_was_running) {
-          this.toggleTimer();
-        }
+        if (timer_was_running) this.toggleTimer();
 
-        // Set the contents of the modal box
+        const inputHTML = showInput
+          ? `<input type="text" id="modal-text-input" class="cw-input" placeholder="${inputPlaceholder}" style="width: 100%; margin-top: 1em;">`
+          : '';
+
         const modalContent = `
-        <div class="modal-content">
-          <div class="modal-header">
-            <span class="modal-close">&times;</span>
-            <span class="modal-title">${title}</span>
-          </div>
-          <div class="modal-body">
-            ${content}
-          </div>
-          <div class="modal-footer">
-            <button class="cw-button" id="modal-button">${button_text}</button>
-          </div>
-        </div>`;
-        // Set this to be the contents of the container modal div
-        this.root.find('.cw-modal').html(modalContent);
+          <div class="modal-content">
+            <div class="modal-header">
+              <span class="modal-close">&times;</span>
+              <span class="modal-title">${title}</span>
+            </div>
+            <div class="modal-body">
+              ${content}
+              ${inputHTML}
+            </div>
+            <div class="modal-footer">
+              <button class="cw-button" id="modal-button">${button_text}</button>
+            </div>
+          </div>`;
 
-        // turn "solved_open" to true if necessary
-        if (solved_msg) {
-          this.solved_open = true;
-        }
-
-        // Show the div
-        var modal = this.root.find('.cw-modal').get(0);
+        const modalElem = this.root.find('.cw-modal');
+        modalElem.html(modalContent);
+        const modal = modalElem.get(0);
         modal.style.display = 'block';
 
-        // Allow user to close the div
+        if (solved_msg) this.solved_open = true;
+
         const this_hidden_input = this.hidden_input;
-        var span = this.root.find('.modal-close').get(0);
+        const toggleTimerBound = this.toggleTimer.bind(this);
 
-        // When the user clicks on <span> (x), close the modal
-        var toggleTimerBound = this.toggleTimer.bind(this);
-        span.onclick = function () {
+        const closeModal = () => {
           modal.style.display = 'none';
           this_hidden_input.focus();
-          if (timer_was_running) {
-            toggleTimerBound();
-          }
+          if (timer_was_running) toggleTimerBound();
         };
-        // When the user clicks anywhere outside of the modal, close it
+
+        modal.querySelector('.modal-close').onclick = closeModal;
         window.onclick = function (event) {
-          if (event.target == modal) {
-            modal.style.display = 'none';
-            this_hidden_input.focus();
-            if (timer_was_running) {
-              toggleTimerBound();
-            }
-          }
+          if (event.target == modal) closeModal();
         };
 
-        // Clicking the button should close the modal
-        var modalButton = document.getElementById('modal-button');
+        const modalButton = modal.querySelector('#modal-button');
         modalButton.onclick = function () {
-          modal.style.display = 'none';
-          this_hidden_input.focus();
-          if (timer_was_running) {
-            toggleTimerBound();
-          }
+          const inputValue = showInput ? modal.querySelector('#modal-text-input').value : null;
+          closeModal();
+          if (onSubmit) onSubmit(inputValue);
         };
+
+        if (showInput) {
+          const inputField = modal.querySelector('#modal-text-input');
+          inputField.focus();
+
+          inputField.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+              modalButton.click();
+            }
+          });
+        }
       }
 
       // Function to switch the clues, generally from "ACROSS" to "DOWN"
@@ -1876,15 +1873,25 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               this.toggleTimer();
             } else {
               if (this.selected_cell && this.selected_word) {
-                var rebus_entry = prompt('Rebus entry', '');
-                this.hiddenInputChanged(rebus_entry);
+                this.createModalBox("Rebus Entry", "Enter a rebus entry below:", "OK", false, {
+                  showInput: true,
+                  inputPlaceholder: "Type here...",
+                  onSubmit: (value) => {
+                    if (value != null) this.hiddenInputChanged(value);
+                  }
+                });
               }
             }
             break;
           case 45: // insert -- same as escape
             if (this.selected_cell && this.selected_word) {
-              var rebus_entry = prompt('Rebus entry', '');
-              this.hiddenInputChanged(rebus_entry);
+              this.createModalBox("Rebus Entry", "Enter a rebus entry below:", "OK", false, {
+                showInput: true,
+                inputPlaceholder: "Type here...",
+                onSubmit: (value) => {
+                  if (value != null) this.hiddenInputChanged(value);
+                }
+              });
             }
             break;
           case 46: // delete
