@@ -2628,7 +2628,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       printPuzzle(e) {
         // fill JSXW
         this.fillJsXw();
-        jscrossword_to_pdf(this.jsxw);
+        jscrossword_to_pdf(this.jsxw, {"print": true});
       }
 
       updateClueAppearance(word) {
