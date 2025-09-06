@@ -1,5 +1,5 @@
 /**
-Copyright (c) 2015-2021, Crossword Nexus
+Copyright (c) 2015-2025, Crossword Nexus
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -12,6 +12,26 @@ Redistribution and use in source and binary forms, with or without modification,
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
+
+/**
+ * Crossword Nexus HTML5 Solver
+ *
+ * This script provides a full crossword puzzle solver UI:
+ * - Loads puzzle files (.puz, .jpz, .ipuz, etc.) using JSCrossword
+ * - Renders a resizable grid on <canvas>
+ * - Displays clues in interactive lists (across/down)
+ * - Handles keyboard/mouse/touch input for filling the grid
+ * - Supports features like check/reveal, notepad, timer, dark mode
+ * - Saves/restores progress via local storage
+ *
+ * Main components:
+ *   CrossWord  → core class, orchestrates puzzle loading, rendering, and input
+ *   CluesGroup → container for one clue list (across or down)
+ *   Word       → representation of a single crossword answer
+ *
+ * External dependencies: jQuery, JSCrossword, lscache, DarkReader, jscrossword_to_pdf
+ */
+
 
 // Settings that we can save
 const CONFIGURABLE_SETTINGS = [
@@ -34,21 +54,28 @@ try {DarkReader} catch {DarkReader = false;}
 // confetti code from https://gist.github.com/elrumo/3055a9163fd2d0d19f323db744b0a094
 var confetti={maxCount:150,speed:2,frameInterval:15,alpha:1,gradient:!1,start:null,stop:null,toggle:null,pause:null,resume:null,togglePause:null,remove:null,isPaused:null,isRunning:null};!function(){confetti.start=s,confetti.stop=w,confetti.toggle=function(){e?w():s()},confetti.pause=u,confetti.resume=m,confetti.togglePause=function(){i?m():u()},confetti.isPaused=function(){return i},confetti.remove=function(){stop(),i=!1,a=[]},confetti.isRunning=function(){return e};var t=window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame,n=["rgba(30,144,255,","rgba(107,142,35,","rgba(255,215,0,","rgba(255,192,203,","rgba(106,90,205,","rgba(173,216,230,","rgba(238,130,238,","rgba(152,251,152,","rgba(70,130,180,","rgba(244,164,96,","rgba(210,105,30,","rgba(220,20,60,"],e=!1,i=!1,o=Date.now(),a=[],r=0,l=null;function d(t,e,i){return t.color=n[Math.random()*n.length|0]+(confetti.alpha+")"),t.color2=n[Math.random()*n.length|0]+(confetti.alpha+")"),t.x=Math.random()*e,t.y=Math.random()*i-i,t.diameter=10*Math.random()+5,t.tilt=10*Math.random()-10,t.tiltAngleIncrement=.07*Math.random()+.05,t.tiltAngle=Math.random()*Math.PI,t}function u(){i=!0}function m(){i=!1,c()}function c(){if(!i)if(0===a.length)l.clearRect(0,0,window.innerWidth,window.innerHeight),null;else{var n=Date.now(),u=n-o;(!t||u>confetti.frameInterval)&&(l.clearRect(0,0,window.innerWidth,window.innerHeight),function(){var t,n=window.innerWidth,i=window.innerHeight;r+=.01;for(var o=0;o<a.length;o++)t=a[o],!e&&t.y<-15?t.y=i+100:(t.tiltAngle+=t.tiltAngleIncrement,t.x+=Math.sin(r)-.5,t.y+=.5*(Math.cos(r)+t.diameter+confetti.speed),t.tilt=15*Math.sin(t.tiltAngle)),(t.x>n+20||t.x<-20||t.y>i)&&(e&&a.length<=confetti.maxCount?d(t,n,i):(a.splice(o,1),o--))}(),function(t){for(var n,e,i,o,r=0;r<a.length;r++){if(n=a[r],t.beginPath(),t.lineWidth=n.diameter,e=(i=n.x+n.tilt)+n.diameter/2,o=n.y+n.tilt+n.diameter/2,confetti.gradient){var l=t.createLinearGradient(e,n.y,i,o);l.addColorStop("0",n.color),l.addColorStop("1.0",n.color2),t.strokeStyle=l}else t.strokeStyle=n.color;t.moveTo(e,n.y),t.lineTo(i,o),t.stroke()}}(l),o=n-u%confetti.frameInterval),requestAnimationFrame(c)}}function s(t,n,o){var r=window.innerWidth,u=window.innerHeight;window.requestAnimationFrame=window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame||function(t){return window.setTimeout(t,confetti.frameInterval)};var m=document.getElementById("confetti-canvas");null===m?((m=document.createElement("canvas")).setAttribute("id","confetti-canvas"),m.setAttribute("style","display:block;z-index:999999;pointer-events:none;position:fixed;top:0"),document.body.prepend(m),m.width=r,m.height=u,window.addEventListener("resize",(function(){m.width=window.innerWidth,m.height=window.innerHeight}),!0),l=m.getContext("2d")):null===l&&(l=m.getContext("2d"));var s=confetti.maxCount;if(n)if(o)if(n==o)s=a.length+o;else{if(n>o){var f=n;n=o,o=f}s=a.length+(Math.random()*(o-n)+n|0)}else s=a.length+n;else o&&(s=a.length+o);for(;a.length<s;)a.push(d({},r,u));e=!0,i=!1,c(),t&&window.setTimeout(w,t)}function w(){e=!1}}();
 
-// hex string to RGB array and vice versa
-// thanks https://stackoverflow.com/a/39077686
+/**
+ * Convert a hex color string to an RGB array.
+ * Handles shorthand (#abc → #aabbcc).
+ * Credit goes to https://stackoverflow.com/a/39077686
+ */
 const hexToRgb = hex =>
   hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
              ,(m, r, g, b) => '#' + r + r + g + g + b + b)
     .substring(1).match(/.{2}/g)
     .map(x => parseInt(x, 16));
 
+/**
+ * Convert an RGB triplet into a hex color string.
+ */
 const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
   const hex = x.toString(16)
   return hex.length === 1 ? '0' + hex : hex
 }).join('');
 
-// perceived brightness of a color on a scale of 0-255
-// via wx-xword
+/**
+ * Compute the perceived brightness (0–255) of a hex color.
+ */
 function getBrightness(hex) {
   const rgb = hexToRgb(hex);
   //return Math.sqrt(0.299 * rgb[0]**2 + 0.587 * rgb[1]**2 + 0.114 * rgb[2]**2);
@@ -60,8 +87,12 @@ function componentAvg(c1, c2, weight) {
   //return Math.floor(Math.sqrt(weight * c1**2 + (1 - weight) * c2**2));
   return Math.floor(weight * c1 + (1 - weight) * c2)
 }
-// helper function to take the "average" of two RGB strings
-// thanks https://stackoverflow.com/a/29576746
+
+/**
+ * Average two colors by weight (default 0.5).
+ * Returns a new hex string.
+ * Credit: https://stackoverflow.com/a/29576746
+ */
 function averageColors(c1, c2, weight=0.5) {
   var r1 = hexToRgb(c1);
   var r2 = hexToRgb(c2);
@@ -357,7 +388,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       [Infinity, 19],
     ];
 
-    /** Function to resize text **/
+    /**
+     * Dynamically resize text so it fits within its parent container.
+     *
+     * Increases font size from minSize until the element would overflow,
+     * then backs off one step. Used for clue text resizing based on viewport.
+     */
     function resizeText(rootElement, nodeList) {
       const minSize = 9;
       const rootWidth = rootElement.width();
@@ -403,7 +439,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
     }
 
-    // Function to check if a cell is solved correctly
+    /**
+     * Determine if a user's entry matches the solution.
+     *
+     * - Strict rebus mode: exact match required
+     * - Rebus or non-alpha solution: accept anything non-empty.
+     * - Normal single-letter cells: require exact match.
+     */
     function isCorrect(entry, solution, strictRebus) {
       // if strictRebus and the string is alpha, the entry and solution must match
       if (strictRebus && /^[A-Za-z]+$/.test(solution) ) {
@@ -419,7 +461,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
     }
 
-    /** Sanitize an HTML string so it is safe to add it to the DOM. */
+    /**
+     * Sanitize an HTML string by stripping disallowed tags/attributes.
+     * Only whitelisted HTML/MathML elements and attributes are preserved.
+     * Prevents unsafe content from puzzle metadata or notes.
+     */
     function sanitizeHTML(html) {
       const unsanitized = new DOMParser().parseFromString(html, "text/html");
       const div = document.createElement("div");
@@ -527,6 +573,19 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       },
     };
 
+    /**
+     * CrossWord
+     *
+     * Core solver class. Manages puzzle state, rendering, and user input.
+     *
+     * Responsibilities:
+     * - Load puzzles (via JSCrossword) and parse metadata, grid, and clues
+     * - Track user configuration (dark mode, skip letters, tab behavior, etc.)
+     * - Render cells and clues, update on resize or selection change
+     * - Handle keyboard/mouse input (typing, arrow keys, check/reveal, etc.)
+     * - Manage game state (save/load to local storage)
+     * - Provide UI dialogs (modal boxes, settings, info, notes)
+     */
     class CrossWord {
       constructor(parent, user_config) {
         this.parent = parent;
@@ -728,7 +787,15 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         alert(message);
       }
 
-      /** Parse a puzzle using JSCrossword **/
+      /**
+     * Parse puzzle data into CrossWord structures.
+     *
+     * - Accepts either a JSCrossword object or raw string data.
+     * - Normalizes coordinates (shift +1 to be 1-indexed).
+     * - Detects puzzle type (crossword, acrostic, coded).
+     * - Initializes cells, words, and clues (real or fake).
+     * - Enables autofill for acrostic/coded puzzles.
+     */
       parsePuzzle(string) {
         // if "string" is actually an object assume it's already a jsxw
         var puzzle;
@@ -742,6 +809,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.jsxw = puzzle;
         // set the savegame_name
         const simpleHash=t=>{let e=0;for(let r=0;r<t.length;r++){e=(e<<5)-e+t.charCodeAt(r),e&=e}return new Uint32Array([e])[0].toString(36)};
+        // Use puzzle hash to generate a unique storage key, so saves don’t collide.
         const myHash = simpleHash(JSON.stringify(this.jsxw));
         this.savegame_name = STORAGE_KEY + '_' + myHash;
 
@@ -846,7 +914,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           { total: 0, long: 0 }
         );
 
-        // do strict rebus checking if 1/3 or more cells are "long"
+        // Enable strict rebus mode if >=1/3 of solution cells contain multi-char entries.
         this.strictRebus = total === 0 ? false : long * 3 >= total;
 
         // helper function for coded and fakeclues puzzles
@@ -1660,6 +1728,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                     this.context.beginPath();
                     this.context.moveTo(bar_start[key][0], bar_start[key][1]);
                     this.context.lineTo(bar_end[key][0], bar_end[key][1]);
+                    // Tiny random epsilon added for reasons I don't remember
                     const eps = Math.random()/10000;
                     this.context.lineWidth = this.config.bar_linewidth + eps;
                     this.context.stroke();
@@ -1868,7 +1937,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             this.checkIfSolved();
             break;
           case 27: // escape -- pulls up a rebus entry
-            if (e.shiftKey) {
+            if (e.shiftKey) { // Shift+Esc toggles timer
               e.preventDefault();
               this.toggleTimer();
             } else {
