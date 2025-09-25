@@ -1,0 +1,1269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<crossword-compiler-applet xmlns="http://crossword.info/xml/crossword-compiler-applet">
+    <applet-settings cursor-color="#00b100" selected-cells-color="#80ff80">
+        <completion only-if-correct="true">kelsey dixon, clue for "hesse"
+
+i'd love to provide you with a clue about this german novelist-and-nobelist whose work "explores an individual's search for authenticity, self-knowledge and spirituality" but i have a mental block against anything that makes me question my own place in my own life</completion>
+        <actions buttons-layout="left">
+            <reveal-word label="Reveal Word"/>
+            <reveal-letter label="Reveal Letter"/>
+            <check label="Check"/>
+            <solution label="Solution"/>
+            <pencil label="Pencil"/>
+        </actions>
+    </applet-settings>
+    <rectangular-puzzle xmlns="http://crossword.info/xml/rectangular-puzzle">
+        <metadata>
+            <title>dupe! there it is</title>
+            <creator>Kelsey Dixon and Alex Boisvert</creator>
+            <copyright>© 2023 Crossword Nexus. CC BY 4.0 License.</copyright>
+        </metadata>
+        <acrostic>
+            <grid width="35" height="21">
+                <grid-look numbering-scheme="normal"/>
+                <cell x="1" y="1" solution="I" number="1" top-right-number="D"/>
+                <cell x="2" y="1" solution="'" type="clue" solve-state="'"/>
+                <cell x="3" y="1" solution="D" number="2" top-right-number="G"/>
+                <cell x="4" y="1" type="block"/>
+                <cell x="5" y="1" solution="L" number="3" top-right-number="H"/>
+                <cell x="6" y="1" solution="O" number="4" top-right-number="R"/>
+                <cell x="7" y="1" solution="V" number="5" top-right-number="R"/>
+                <cell x="8" y="1" solution="E" number="6" top-right-number="P"/>
+                <cell x="9" y="1" type="block"/>
+                <cell x="10" y="1" solution="T" number="7" top-right-number="R"/>
+                <cell x="11" y="1" solution="O" number="8" top-right-number="N"/>
+                <cell x="12" y="1" type="block"/>
+                <cell x="13" y="1" solution="P" number="9" top-right-number="C"/>
+                <cell x="14" y="1" solution="R" number="10" top-right-number="B"/>
+                <cell x="15" y="1" solution="O" number="11" top-right-number="V"/>
+                <cell x="16" y="1" solution="V" number="12" top-right-number="P"/>
+                <cell x="17" y="1" solution="I" number="13" top-right-number="R"/>
+                <cell x="18" y="1" solution="D" number="14" top-right-number="D"/>
+                <cell x="19" y="1" solution="E" number="15" top-right-number="O"/>
+                <cell x="20" y="1" type="block"/>
+                <cell x="21" y="1" solution="Y" number="16" top-right-number="T"/>
+                <cell x="22" y="1" solution="O" number="17" top-right-number="P"/>
+                <cell x="23" y="1" solution="U" number="18" top-right-number="H"/>
+                <cell x="24" y="1" type="block"/>
+                <cell x="25" y="1" solution="W" number="19" top-right-number="H"/>
+                <cell x="26" y="1" solution="I" number="20" top-right-number="J"/>
+                <cell x="27" y="1" solution="T" number="21" top-right-number="S"/>
+                <cell x="28" y="1" solution="H" number="22" top-right-number="T"/>
+                <cell x="29" y="1" type="block"/>
+                <cell x="30" y="1" solution="A" number="23" top-right-number="J"/>
+                <cell x="31" y="1" type="block"/>
+                <cell x="32" y="1" solution="C" number="24" top-right-number="C"/>
+                <cell x="33" y="1" solution="L" number="25" top-right-number="L"/>
+                <cell x="34" y="1" solution="U" number="26" top-right-number="N"/>
+                <cell x="35" y="1" solution="E" number="27" top-right-number="B"/>
+                <cell x="1" y="2" type="block"/>
+                <cell x="2" y="2" solution="A" number="28" top-right-number="S"/>
+                <cell x="3" y="2" solution="B" number="29" top-right-number="G"/>
+                <cell x="4" y="2" solution="O" number="30" top-right-number="J"/>
+                <cell x="5" y="2" solution="U" number="31" top-right-number="W"/>
+                <cell x="6" y="2" solution="T" number="32" top-right-number="A"/>
+                <cell x="7" y="2" type="block"/>
+                <cell x="8" y="2" solution="T" number="33" top-right-number="V"/>
+                <cell x="9" y="2" solution="H" number="34" top-right-number="B"/>
+                <cell x="10" y="2" solution="I" number="35" top-right-number="A"/>
+                <cell x="11" y="2" solution="S" number="36" top-right-number="F"/>
+                <cell x="12" y="2" type="block"/>
+                <cell x="13" y="2" solution="G" number="37" top-right-number="E"/>
+                <cell x="14" y="2" solution="E" number="38" top-right-number="P"/>
+                <cell x="15" y="2" solution="R" number="39" top-right-number="K"/>
+                <cell x="16" y="2" solution="M" number="40" top-right-number="E"/>
+                <cell x="17" y="2" solution="A" number="41" top-right-number="I"/>
+                <cell x="18" y="2" solution="N" number="42" top-right-number="U"/>
+                <cell x="19" y="2" type="block"/>
+                <cell x="20" y="2" solution="N" number="43" top-right-number="K"/>
+                <cell x="21" y="2" solution="O" number="44" top-right-number="R"/>
+                <cell x="22" y="2" solution="V" number="45" top-right-number="H"/>
+                <cell x="23" y="2" solution="E" number="46" top-right-number="P"/>
+                <cell x="24" y="2" solution="L" number="47" top-right-number="J"/>
+                <cell x="25" y="2" solution="I" number="48" top-right-number="W"/>
+                <cell x="26" y="2" solution="S" number="49" top-right-number="D"/>
+                <cell x="27" y="2" solution="T" number="50" top-right-number="V"/>
+                <cell x="28" y="2" solution="–" type="clue" solve-state="–"/>
+                <cell x="29" y="2" solution="A" number="51" top-right-number="T"/>
+                <cell x="30" y="2" solution="N" number="52" top-right-number="L"/>
+                <cell x="31" y="2" solution="D" number="53" top-right-number="W"/>
+                <cell x="32" y="2" solution="–" type="clue" solve-state="–"/>
+                <cell x="33" y="2" solution="N" number="54" top-right-number="I"/>
+                <cell x="34" y="2" solution="O" number="55" top-right-number="U"/>
+                <cell x="35" y="2" solution="B" number="56" top-right-number="G"/>
+                <cell x="1" y="3" solution="E" number="57" top-right-number="E"/>
+                <cell x="2" y="3" solution="L" number="58" top-right-number="M"/>
+                <cell x="3" y="3" solution="I" number="59" top-right-number="C"/>
+                <cell x="4" y="3" solution="S" number="60" top-right-number="U"/>
+                <cell x="5" y="3" solution="T" number="61" top-right-number="U"/>
+                <cell x="6" y="3" type="block"/>
+                <cell x="7" y="3" solution="W" number="62" top-right-number="Q"/>
+                <cell x="8" y="3" solution="H" number="63" top-right-number="A"/>
+                <cell x="9" y="3" solution="O" number="64" top-right-number="G"/>
+                <cell x="10" y="3" solution="S" number="65" top-right-number="H"/>
+                <cell x="11" y="3" solution="E" number="66" top-right-number="S"/>
+                <cell x="12" y="3" type="block"/>
+                <cell x="13" y="3" solution="W" number="67" top-right-number="G"/>
+                <cell x="14" y="3" solution="O" number="68" top-right-number="Q"/>
+                <cell x="15" y="3" solution="R" number="69" top-right-number="R"/>
+                <cell x="16" y="3" solution="K" number="70" top-right-number="Q"/>
+                <cell x="17" y="3" type="block"/>
+                <cell x="18" y="3" solution="&quot;" type="clue" solve-state="&quot;"/>
+                <cell x="19" y="3" solution="E" number="71" top-right-number="B"/>
+                <cell x="20" y="3" solution="X" number="72" top-right-number="I"/>
+                <cell x="21" y="3" solution="P" number="73" top-right-number="L"/>
+                <cell x="22" y="3" solution="L" number="74" top-right-number="H"/>
+                <cell x="23" y="3" solution="O" number="75" top-right-number="W"/>
+                <cell x="24" y="3" solution="R" number="76" top-right-number="S"/>
+                <cell x="25" y="3" solution="E" number="77" top-right-number="T"/>
+                <cell x="26" y="3" solution="S" number="78" top-right-number="C"/>
+                <cell x="27" y="3" type="block"/>
+                <cell x="28" y="3" solution="A" number="79" top-right-number="U"/>
+                <cell x="29" y="3" solution="N" number="80" top-right-number="A"/>
+                <cell x="30" y="3" type="block"/>
+                <cell x="31" y="3" solution="I" number="81" top-right-number="F"/>
+                <cell x="32" y="3" solution="N" number="82" top-right-number="G"/>
+                <cell x="33" y="3" solution="D" number="83" top-right-number="D"/>
+                <cell x="34" y="3" solution="I" number="84" top-right-number="H"/>
+                <cell x="35" y="3" solution="V" number="85" top-right-number="J"/>
+                <cell x="1" y="4" solution="I" number="86" top-right-number="U"/>
+                <cell x="2" y="4" solution="D" number="87" top-right-number="O"/>
+                <cell x="3" y="4" solution="U" number="88" top-right-number="C"/>
+                <cell x="4" y="4" solution="A" number="89" top-right-number="M"/>
+                <cell x="5" y="4" solution="L" number="90" top-right-number="I"/>
+                <cell x="6" y="4" solution="'" type="clue" solve-state="'"/>
+                <cell x="7" y="4" solution="S" number="91" top-right-number="U"/>
+                <cell x="8" y="4" type="block"/>
+                <cell x="9" y="4" solution="S" number="92" top-right-number="O"/>
+                <cell x="10" y="4" solution="E" number="93" top-right-number="R"/>
+                <cell x="11" y="4" solution="A" number="94" top-right-number="M"/>
+                <cell x="12" y="4" solution="R" number="95" top-right-number="N"/>
+                <cell x="13" y="4" solution="C" number="96" top-right-number="E"/>
+                <cell x="14" y="4" solution="H" number="97" top-right-number="F"/>
+                <cell x="15" y="4" type="block"/>
+                <cell x="16" y="4" solution="F" number="98" top-right-number="P"/>
+                <cell x="17" y="4" solution="O" number="99" top-right-number="A"/>
+                <cell x="18" y="4" solution="R" number="100" top-right-number="H"/>
+                <cell x="19" y="4" type="block"/>
+                <cell x="20" y="4" solution="A" number="101" top-right-number="S"/>
+                <cell x="21" y="4" solution="U" number="102" top-right-number="E"/>
+                <cell x="22" y="4" solution="T" number="103" top-right-number="F"/>
+                <cell x="23" y="4" solution="H" number="104" top-right-number="R"/>
+                <cell x="24" y="4" solution="E" number="105" top-right-number="B"/>
+                <cell x="25" y="4" solution="N" number="106" top-right-number="C"/>
+                <cell x="26" y="4" solution="T" number="107" top-right-number="N"/>
+                <cell x="27" y="4" solution="I" number="108" top-right-number="K"/>
+                <cell x="28" y="4" solution="C" number="109" top-right-number="L"/>
+                <cell x="29" y="4" solution="I" number="110" top-right-number="H"/>
+                <cell x="30" y="4" solution="T" number="111" top-right-number="O"/>
+                <cell x="31" y="4" solution="Y" number="112" top-right-number="G"/>
+                <cell x="32" y="4" solution="," type="clue" solve-state=","/>
+                <cell x="33" y="4" type="block"/>
+                <cell x="34" y="4" solution="S" number="113" top-right-number="T"/>
+                <cell x="35" y="4" solution="E" number="114" top-right-number="L"/>
+                <cell x="1" y="5" solution="L" number="115" top-right-number="Q"/>
+                <cell x="2" y="5" solution="F" number="116" top-right-number="E"/>
+                <cell x="3" y="5" solution="–" type="clue" solve-state="–"/>
+                <cell x="4" y="5" solution="K" number="117" top-right-number="D"/>
+                <cell x="5" y="5" solution="N" number="118" top-right-number="O"/>
+                <cell x="6" y="5" solution="O" number="119" top-right-number="C"/>
+                <cell x="7" y="5" solution="W" number="120" top-right-number="A"/>
+                <cell x="8" y="5" solution="L" number="121" top-right-number="P"/>
+                <cell x="9" y="5" solution="E" number="122" top-right-number="I"/>
+                <cell x="10" y="5" solution="D" number="123" top-right-number="K"/>
+                <cell x="11" y="5" solution="G" number="124" top-right-number="E"/>
+                <cell x="12" y="5" solution="E" number="125" top-right-number="G"/>
+                <cell x="13" y="5" type="block"/>
+                <cell x="14" y="5" solution="A" number="126" top-right-number="S"/>
+                <cell x="15" y="5" solution="N" number="127" top-right-number="A"/>
+                <cell x="16" y="5" solution="D" number="128" top-right-number="D"/>
+                <cell x="17" y="5" type="block"/>
+                <cell x="18" y="5" solution="S" number="129" top-right-number="K"/>
+                <cell x="19" y="5" solution="P" number="130" top-right-number="I"/>
+                <cell x="20" y="5" solution="I" number="131" top-right-number="E"/>
+                <cell x="21" y="5" solution="R" number="132" top-right-number="P"/>
+                <cell x="22" y="5" solution="I" number="133" top-right-number="O"/>
+                <cell x="23" y="5" solution="T" number="134" top-right-number="C"/>
+                <cell x="24" y="5" solution="U" number="135" top-right-number="V"/>
+                <cell x="25" y="5" solution="A" number="136" top-right-number="Q"/>
+                <cell x="26" y="5" solution="L" number="137" top-right-number="T"/>
+                <cell x="27" y="5" solution="I" number="138" top-right-number="J"/>
+                <cell x="28" y="5" solution="T" number="139" top-right-number="G"/>
+                <cell x="29" y="5" solution="Y" number="140" top-right-number="F"/>
+                <cell x="30" y="5" solution="&quot;" type="clue" solve-state="&quot;"/>
+                <cell x="31" y="5" type="block"/>
+                <cell x="32" y="5" solution="B" number="141" top-right-number="M"/>
+                <cell x="33" y="5" solution="U" number="142" top-right-number="V"/>
+                <cell x="34" y="5" solution="T" number="143" top-right-number="B"/>
+                <cell x="35" y="5" type="block"/>
+                <cell x="1" y="6" solution="I" number="144" top-right-number="K"/>
+                <cell x="2" y="6" type="block"/>
+                <cell x="3" y="6" solution="H" number="145" top-right-number="L"/>
+                <cell x="4" y="6" solution="A" number="146" top-right-number="M"/>
+                <cell x="5" y="6" solution="V" number="147" top-right-number="H"/>
+                <cell x="6" y="6" solution="E" number="148" top-right-number="W"/>
+                <cell x="7" y="6" type="block"/>
+                <cell x="8" y="6" solution="A" number="149" top-right-number="K"/>
+                <cell x="9" y="6" type="block"/>
+                <cell x="10" y="6" solution="M" number="150" top-right-number="M"/>
+                <cell x="11" y="6" solution="E" number="151" top-right-number="F"/>
+                <cell x="12" y="6" solution="N" number="152" top-right-number="K"/>
+                <cell x="13" y="6" solution="T" number="153" top-right-number="R"/>
+                <cell x="14" y="6" solution="A" number="154" top-right-number="O"/>
+                <cell x="15" y="6" solution="L" number="155" top-right-number="U"/>
+                <cell x="16" y="6" type="block"/>
+                <cell x="17" y="6" solution="B" number="156" top-right-number="M"/>
+                <cell x="18" y="6" solution="L" number="157" top-right-number="B"/>
+                <cell x="19" y="6" solution="O" number="158" top-right-number="G"/>
+                <cell x="20" y="6" solution="C" number="159" top-right-number="S"/>
+                <cell x="21" y="6" solution="K" number="160" top-right-number="A"/>
+                <cell x="22" y="6" type="block"/>
+                <cell x="23" y="6" solution="A" number="161" top-right-number="J"/>
+                <cell x="24" y="6" solution="G" number="162" top-right-number="R"/>
+                <cell x="25" y="6" solution="A" number="163" top-right-number="G"/>
+                <cell x="26" y="6" solution="I" number="164" top-right-number="C"/>
+                <cell x="27" y="6" solution="N" number="165" top-right-number="A"/>
+                <cell x="28" y="6" solution="S" number="166" top-right-number="F"/>
+                <cell x="29" y="6" solution="T" number="167" top-right-number="S"/>
+                <cell x="30" y="6" type="block"/>
+                <cell x="31" y="6" solution="A" number="168" top-right-number="V"/>
+                <cell x="32" y="6" solution="N" number="169" top-right-number="G"/>
+                <cell x="33" y="6" solution="Y" number="170" top-right-number="K"/>
+                <cell x="34" y="6" solution="T" number="171" top-right-number="W"/>
+                <cell x="35" y="6" solution="H" number="172" top-right-number="N"/>
+                <cell x="1" y="7" solution="I" number="173" top-right-number="H"/>
+                <cell x="2" y="7" solution="N" number="174" top-right-number="Q"/>
+                <cell x="3" y="7" solution="G" number="175" top-right-number="A"/>
+                <cell x="4" y="7" type="block"/>
+                <cell x="5" y="7" solution="T" number="176" top-right-number="R"/>
+                <cell x="6" y="7" solution="H" number="177" top-right-number="S"/>
+                <cell x="7" y="7" solution="A" number="178" top-right-number="B"/>
+                <cell x="8" y="7" solution="T" number="179" top-right-number="W"/>
+                <cell x="9" y="7" type="block"/>
+                <cell x="10" y="7" solution="M" number="180" top-right-number="J"/>
+                <cell x="11" y="7" solution="A" number="181" top-right-number="K"/>
+                <cell x="12" y="7" solution="K" number="182" top-right-number="S"/>
+                <cell x="13" y="7" solution="E" number="183" top-right-number="L"/>
+                <cell x="14" y="7" solution="S" number="184" top-right-number="V"/>
+                <cell x="15" y="7" type="block"/>
+                <cell x="16" y="7" solution="M" number="185" top-right-number="E"/>
+                <cell x="17" y="7" solution="E" number="186" top-right-number="D"/>
+                <cell x="18" y="7" type="block"/>
+                <cell x="19" y="7" solution="Q" number="187" top-right-number="V"/>
+                <cell x="20" y="7" solution="U" number="188" top-right-number="U"/>
+                <cell x="21" y="7" solution="E" number="189" top-right-number="H"/>
+                <cell x="22" y="7" solution="S" number="190" top-right-number="V"/>
+                <cell x="23" y="7" solution="T" number="191" top-right-number="S"/>
+                <cell x="24" y="7" solution="I" number="192" top-right-number="L"/>
+                <cell x="25" y="7" solution="O" number="193" top-right-number="A"/>
+                <cell x="26" y="7" solution="N" number="194" top-right-number="K"/>
+                <cell x="27" y="7" type="block"/>
+                <cell x="28" y="7" solution="M" number="195" top-right-number="B"/>
+                <cell x="29" y="7" solution="Y" number="196" top-right-number="I"/>
+                <cell x="30" y="7" type="block"/>
+                <cell x="31" y="7" solution="O" number="197" top-right-number="C"/>
+                <cell x="32" y="7" solution="W" number="198" top-right-number="O"/>
+                <cell x="33" y="7" solution="N" number="199" top-right-number="B"/>
+                <cell x="34" y="7" type="block"/>
+                <cell x="35" y="7" solution="P" number="200" top-right-number="N"/>
+                <cell x="1" y="8" solution="L" number="201" top-right-number="C"/>
+                <cell x="2" y="8" solution="A" number="202" top-right-number="Q"/>
+                <cell x="3" y="8" solution="C" number="203" top-right-number="J"/>
+                <cell x="4" y="8" solution="E" number="204" top-right-number="K"/>
+                <cell x="5" y="8" type="block"/>
+                <cell x="6" y="8" solution="I" number="205" top-right-number="L"/>
+                <cell x="7" y="8" solution="N" number="206" top-right-number="J"/>
+                <cell x="8" y="8" type="block"/>
+                <cell x="9" y="8" solution="M" number="207" top-right-number="B"/>
+                <cell x="10" y="8" solution="Y" number="208" top-right-number="N"/>
+                <cell x="11" y="8" type="block"/>
+                <cell x="12" y="8" solution="O" number="209" top-right-number="J"/>
+                <cell x="13" y="8" solution="W" number="210" top-right-number="N"/>
+                <cell x="14" y="8" solution="N" number="211" top-right-number="E"/>
+                <cell x="15" y="8" type="block"/>
+                <cell x="16" y="8" solution="L" number="212" top-right-number="J"/>
+                <cell x="17" y="8" solution="I" number="213" top-right-number="U"/>
+                <cell x="18" y="8" solution="F" number="214" top-right-number="E"/>
+                <cell x="19" y="8" solution="E" number="215" top-right-number="T"/>
+                <cell x="20" y="8" type="void"/>
+                <cell x="21" y="8" type="void"/>
+                <cell x="22" y="8" type="void"/>
+                <cell x="23" y="8" type="void"/>
+                <cell x="24" y="8" type="void"/>
+                <cell x="25" y="8" type="void"/>
+                <cell x="26" y="8" type="void"/>
+                <cell x="27" y="8" type="void"/>
+                <cell x="28" y="8" type="void"/>
+                <cell x="29" y="8" type="void"/>
+                <cell x="30" y="8" type="void"/>
+                <cell x="31" y="8" type="void"/>
+                <cell x="32" y="8" type="void"/>
+                <cell x="33" y="8" type="void"/>
+                <cell x="34" y="8" type="void"/>
+                <cell x="35" y="8" type="void"/>
+                <cell x="1" y="9" type="void"/>
+                <cell x="2" y="9" type="void"/>
+                <cell x="3" y="9" type="void"/>
+                <cell x="4" y="9" type="void"/>
+                <cell x="5" y="9" type="void"/>
+                <cell x="6" y="9" type="void"/>
+                <cell x="7" y="9" type="void"/>
+                <cell x="8" y="9" type="void"/>
+                <cell x="9" y="9" type="void"/>
+                <cell x="10" y="9" type="void"/>
+                <cell x="11" y="9" type="void"/>
+                <cell x="12" y="9" type="void"/>
+                <cell x="13" y="9" type="void"/>
+                <cell x="14" y="9" type="void"/>
+                <cell x="15" y="9" type="void"/>
+                <cell x="16" y="9" type="void"/>
+                <cell x="17" y="9" type="void"/>
+                <cell x="18" y="9" type="void"/>
+                <cell x="19" y="9" type="void"/>
+                <cell x="20" y="9" type="void"/>
+                <cell x="21" y="9" type="void"/>
+                <cell x="22" y="9" type="void"/>
+                <cell x="23" y="9" type="void"/>
+                <cell x="24" y="9" type="void"/>
+                <cell x="25" y="9" type="void"/>
+                <cell x="26" y="9" type="void"/>
+                <cell x="27" y="9" type="void"/>
+                <cell x="28" y="9" type="void"/>
+                <cell x="29" y="9" type="void"/>
+                <cell x="30" y="9" type="void"/>
+                <cell x="31" y="9" type="void"/>
+                <cell x="32" y="9" type="void"/>
+                <cell x="33" y="9" type="void"/>
+                <cell x="34" y="9" type="void"/>
+                <cell x="35" y="9" type="void"/>
+                <cell x="1" y="10" solution="A" type="clue" solve-state="A"/>
+                <cell x="2" y="10" solution="K" number="160"/>
+                <cell x="3" y="10" solution="N" number="127"/>
+                <cell x="4" y="10" solution="O" number="193"/>
+                <cell x="5" y="10" solution="W" number="120"/>
+                <cell x="6" y="10" solution="N" number="165"/>
+                <cell x="7" y="10" solution="O" number="99"/>
+                <cell x="8" y="10" solution="T" number="32"/>
+                <cell x="9" y="10" solution="H" number="63"/>
+                <cell x="10" y="10" solution="I" number="35"/>
+                <cell x="11" y="10" solution="N" number="80"/>
+                <cell x="12" y="10" solution="G" number="175"/>
+                <cell x="13" y="10" type="void"/>
+                <cell x="14" y="10" type="void"/>
+                <cell x="15" y="10" type="void"/>
+                <cell x="16" y="10" type="void"/>
+                <cell x="17" y="10" type="void"/>
+                <cell x="18" y="10" solution="M" type="clue" solve-state="M"/>
+                <cell x="19" y="10" solution="L" number="58"/>
+                <cell x="20" y="10" solution="A" number="89"/>
+                <cell x="21" y="10" solution="B" number="156"/>
+                <cell x="22" y="10" solution="A" number="94"/>
+                <cell x="23" y="10" solution="M" number="150"/>
+                <cell x="24" y="10" solution="B" number="141"/>
+                <cell x="25" y="10" solution="A" number="146"/>
+                <cell x="26" y="10" type="void"/>
+                <cell x="27" y="10" type="void"/>
+                <cell x="28" y="10" type="void"/>
+                <cell x="29" y="10" type="void"/>
+                <cell x="30" y="10" type="void"/>
+                <cell x="31" y="10" type="void"/>
+                <cell x="32" y="10" type="void"/>
+                <cell x="33" y="10" type="void"/>
+                <cell x="34" y="10" type="void"/>
+                <cell x="35" y="10" type="void"/>
+                <cell x="1" y="11" solution="B" type="clue" solve-state="B"/>
+                <cell x="2" y="11" solution="E" number="105"/>
+                <cell x="3" y="11" solution="T" number="143"/>
+                <cell x="4" y="11" solution="H" number="34"/>
+                <cell x="5" y="11" solution="E" number="71"/>
+                <cell x="6" y="11" solution="L" number="157"/>
+                <cell x="7" y="11" solution="M" number="195"/>
+                <cell x="8" y="11" solution="E" number="27"/>
+                <cell x="9" y="11" solution="R" number="10"/>
+                <cell x="10" y="11" solution="M" number="207"/>
+                <cell x="11" y="11" solution="A" number="178"/>
+                <cell x="12" y="11" solution="N" number="199"/>
+                <cell x="13" y="11" type="void"/>
+                <cell x="14" y="11" type="void"/>
+                <cell x="15" y="11" type="void"/>
+                <cell x="16" y="11" type="void"/>
+                <cell x="17" y="11" type="void"/>
+                <cell x="18" y="11" solution="N" type="clue" solve-state="N"/>
+                <cell x="19" y="11" solution="U" number="26"/>
+                <cell x="20" y="11" solution="P" number="200"/>
+                <cell x="21" y="11" solution="W" number="210"/>
+                <cell x="22" y="11" solution="O" number="8"/>
+                <cell x="23" y="11" solution="R" number="95"/>
+                <cell x="24" y="11" solution="T" number="107"/>
+                <cell x="25" y="11" solution="H" number="172"/>
+                <cell x="26" y="11" solution="Y" number="208"/>
+                <cell x="27" y="11" type="void"/>
+                <cell x="28" y="11" type="void"/>
+                <cell x="29" y="11" type="void"/>
+                <cell x="30" y="11" type="void"/>
+                <cell x="31" y="11" type="void"/>
+                <cell x="32" y="11" type="void"/>
+                <cell x="33" y="11" type="void"/>
+                <cell x="34" y="11" type="void"/>
+                <cell x="35" y="11" type="void"/>
+                <cell x="1" y="12" solution="C" type="clue" solve-state="C"/>
+                <cell x="2" y="12" solution="L" number="201"/>
+                <cell x="3" y="12" solution="I" number="164"/>
+                <cell x="4" y="12" solution="P" number="9"/>
+                <cell x="5" y="12" solution="O" number="119"/>
+                <cell x="6" y="12" solution="S" number="78"/>
+                <cell x="7" y="12" solution="U" number="88"/>
+                <cell x="8" y="12" solution="C" number="24"/>
+                <cell x="9" y="12" solution="T" number="134"/>
+                <cell x="10" y="12" solution="I" number="59"/>
+                <cell x="11" y="12" solution="O" number="197"/>
+                <cell x="12" y="12" solution="N" number="106"/>
+                <cell x="13" y="12" type="void"/>
+                <cell x="14" y="12" type="void"/>
+                <cell x="15" y="12" type="void"/>
+                <cell x="16" y="12" type="void"/>
+                <cell x="17" y="12" type="void"/>
+                <cell x="18" y="12" solution="O" type="clue" solve-state="O"/>
+                <cell x="19" y="12" solution="E" number="15"/>
+                <cell x="20" y="12" solution="A" number="154"/>
+                <cell x="21" y="12" solution="S" number="92"/>
+                <cell x="22" y="12" solution="T" number="111"/>
+                <cell x="23" y="12" solution="W" number="198"/>
+                <cell x="24" y="12" solution="I" number="133"/>
+                <cell x="25" y="12" solution="N" number="118"/>
+                <cell x="26" y="12" solution="D" number="87"/>
+                <cell x="27" y="12" type="void"/>
+                <cell x="28" y="12" type="void"/>
+                <cell x="29" y="12" type="void"/>
+                <cell x="30" y="12" type="void"/>
+                <cell x="31" y="12" type="void"/>
+                <cell x="32" y="12" type="void"/>
+                <cell x="33" y="12" type="void"/>
+                <cell x="34" y="12" type="void"/>
+                <cell x="35" y="12" type="void"/>
+                <cell x="1" y="13" solution="D" type="clue" solve-state="D"/>
+                <cell x="2" y="13" solution="S" number="49"/>
+                <cell x="3" y="13" solution="K" number="117"/>
+                <cell x="4" y="13" solution="I" number="1"/>
+                <cell x="5" y="13" solution="D" number="14"/>
+                <cell x="6" y="13" solution="D" number="128"/>
+                <cell x="7" y="13" solution="E" number="186"/>
+                <cell x="8" y="13" solution="D" number="83"/>
+                <cell x="9" y="13" type="void"/>
+                <cell x="10" y="13" type="void"/>
+                <cell x="11" y="13" type="void"/>
+                <cell x="12" y="13" type="void"/>
+                <cell x="13" y="13" type="void"/>
+                <cell x="14" y="13" type="void"/>
+                <cell x="15" y="13" type="void"/>
+                <cell x="16" y="13" type="void"/>
+                <cell x="17" y="13" type="void"/>
+                <cell x="18" y="13" solution="P" type="clue" solve-state="P"/>
+                <cell x="19" y="13" solution="F" number="98"/>
+                <cell x="20" y="13" solution="R" number="132"/>
+                <cell x="21" y="13" solution="E" number="6"/>
+                <cell x="22" y="13" solution="E" number="38"/>
+                <cell x="23" y="13" solution="L" number="121"/>
+                <cell x="24" y="13" solution="O" number="17"/>
+                <cell x="25" y="13" solution="V" number="12"/>
+                <cell x="26" y="13" solution="E" number="46"/>
+                <cell x="27" y="13" type="void"/>
+                <cell x="28" y="13" type="void"/>
+                <cell x="29" y="13" type="void"/>
+                <cell x="30" y="13" type="void"/>
+                <cell x="31" y="13" type="void"/>
+                <cell x="32" y="13" type="void"/>
+                <cell x="33" y="13" type="void"/>
+                <cell x="34" y="13" type="void"/>
+                <cell x="35" y="13" type="void"/>
+                <cell x="1" y="14" solution="E" type="clue" solve-state="E"/>
+                <cell x="2" y="14" solution="E" number="57"/>
+                <cell x="3" y="14" solution="G" number="37"/>
+                <cell x="4" y="14" solution="G" number="124"/>
+                <cell x="5" y="14" solution="M" number="185"/>
+                <cell x="6" y="14" solution="C" number="96"/>
+                <cell x="7" y="14" solution="M" number="40"/>
+                <cell x="8" y="14" solution="U" number="102"/>
+                <cell x="9" y="14" solution="F" number="214"/>
+                <cell x="10" y="14" solution="F" number="116"/>
+                <cell x="11" y="14" solution="I" number="131"/>
+                <cell x="12" y="14" solution="N" number="211"/>
+                <cell x="13" y="14" type="void"/>
+                <cell x="14" y="14" type="void"/>
+                <cell x="15" y="14" type="void"/>
+                <cell x="16" y="14" type="void"/>
+                <cell x="17" y="14" type="void"/>
+                <cell x="18" y="14" solution="Q" type="clue" solve-state="Q"/>
+                <cell x="19" y="14" solution="O" number="68"/>
+                <cell x="20" y="14" solution="A" number="202"/>
+                <cell x="21" y="14" solution="K" number="70"/>
+                <cell x="22" y="14" solution="L" number="115"/>
+                <cell x="23" y="14" solution="A" number="136"/>
+                <cell x="24" y="14" solution="W" number="62"/>
+                <cell x="25" y="14" solution="N" number="174"/>
+                <cell x="26" y="14" type="void"/>
+                <cell x="27" y="14" type="void"/>
+                <cell x="28" y="14" type="void"/>
+                <cell x="29" y="14" type="void"/>
+                <cell x="30" y="14" type="void"/>
+                <cell x="31" y="14" type="void"/>
+                <cell x="32" y="14" type="void"/>
+                <cell x="33" y="14" type="void"/>
+                <cell x="34" y="14" type="void"/>
+                <cell x="35" y="14" type="void"/>
+                <cell x="1" y="15" solution="F" type="clue" solve-state="F"/>
+                <cell x="2" y="15" solution="Y" number="140"/>
+                <cell x="3" y="15" solution="E" number="151"/>
+                <cell x="4" y="15" solution="S" number="36"/>
+                <cell x="5" y="15" solution="T" number="103"/>
+                <cell x="6" y="15" solution="H" number="97"/>
+                <cell x="7" y="15" solution="I" number="81"/>
+                <cell x="8" y="15" solution="S" number="166"/>
+                <cell x="9" y="15" type="void"/>
+                <cell x="10" y="15" type="void"/>
+                <cell x="11" y="15" type="void"/>
+                <cell x="12" y="15" type="void"/>
+                <cell x="13" y="15" type="void"/>
+                <cell x="14" y="15" type="void"/>
+                <cell x="15" y="15" type="void"/>
+                <cell x="16" y="15" type="void"/>
+                <cell x="17" y="15" type="void"/>
+                <cell x="18" y="15" solution="R" type="clue" solve-state="R"/>
+                <cell x="19" y="15" solution="R" number="69"/>
+                <cell x="20" y="15" solution="I" number="13"/>
+                <cell x="21" y="15" solution="G" number="162"/>
+                <cell x="22" y="15" solution="H" number="104"/>
+                <cell x="23" y="15" solution="T" number="176"/>
+                <cell x="24" y="15" solution="T" number="7"/>
+                <cell x="25" y="15" solution="O" number="4"/>
+                <cell x="26" y="15" solution="V" number="5"/>
+                <cell x="27" y="15" solution="O" number="44"/>
+                <cell x="28" y="15" solution="T" number="153"/>
+                <cell x="29" y="15" solution="E" number="93"/>
+                <cell x="30" y="15" type="void"/>
+                <cell x="31" y="15" type="void"/>
+                <cell x="32" y="15" type="void"/>
+                <cell x="33" y="15" type="void"/>
+                <cell x="34" y="15" type="void"/>
+                <cell x="35" y="15" type="void"/>
+                <cell x="1" y="16" solution="G" type="clue" solve-state="G"/>
+                <cell x="2" y="16" solution="D" number="2"/>
+                <cell x="3" y="16" solution="O" number="158"/>
+                <cell x="4" y="16" solution="W" number="67"/>
+                <cell x="5" y="16" solution="N" number="169"/>
+                <cell x="6" y="16" solution="T" number="139"/>
+                <cell x="7" y="16" solution="O" number="64"/>
+                <cell x="8" y="16" solution="N" number="82"/>
+                <cell x="9" y="16" solution="A" number="163"/>
+                <cell x="10" y="16" solution="B" number="29"/>
+                <cell x="11" y="16" solution="B" number="56"/>
+                <cell x="12" y="16" solution="E" number="125"/>
+                <cell x="13" y="16" solution="Y" number="112"/>
+                <cell x="14" y="16" type="void"/>
+                <cell x="15" y="16" type="void"/>
+                <cell x="16" y="16" type="void"/>
+                <cell x="17" y="16" type="void"/>
+                <cell x="18" y="16" solution="S" type="clue" solve-state="S"/>
+                <cell x="19" y="16" solution="H" number="177"/>
+                <cell x="20" y="16" solution="E" number="66"/>
+                <cell x="21" y="16" solution="A" number="101"/>
+                <cell x="22" y="16" solution="R" number="76"/>
+                <cell x="23" y="16" solution="T" number="21"/>
+                <cell x="24" y="16" solution="A" number="28"/>
+                <cell x="25" y="16" solution="T" number="191"/>
+                <cell x="26" y="16" solution="T" number="167"/>
+                <cell x="27" y="16" solution="A" number="126"/>
+                <cell x="28" y="16" solution="C" number="159"/>
+                <cell x="29" y="16" solution="K" number="182"/>
+                <cell x="30" y="16" type="void"/>
+                <cell x="31" y="16" type="void"/>
+                <cell x="32" y="16" type="void"/>
+                <cell x="33" y="16" type="void"/>
+                <cell x="34" y="16" type="void"/>
+                <cell x="35" y="16" type="void"/>
+                <cell x="1" y="17" solution="H" type="clue" solve-state="H"/>
+                <cell x="2" y="17" solution="I" number="173"/>
+                <cell x="3" y="17" solution="W" number="19"/>
+                <cell x="4" y="17" solution="I" number="110"/>
+                <cell x="5" y="17" solution="L" number="3"/>
+                <cell x="6" y="17" solution="L" number="74"/>
+                <cell x="7" y="17" solution="S" number="65"/>
+                <cell x="8" y="17" solution="U" number="18"/>
+                <cell x="9" y="17" solution="R" number="100"/>
+                <cell x="10" y="17" solution="V" number="147"/>
+                <cell x="11" y="17" solution="I" number="84"/>
+                <cell x="12" y="17" solution="V" number="45"/>
+                <cell x="13" y="17" solution="E" number="189"/>
+                <cell x="14" y="17" type="void"/>
+                <cell x="15" y="17" type="void"/>
+                <cell x="16" y="17" type="void"/>
+                <cell x="17" y="17" type="void"/>
+                <cell x="18" y="17" solution="T" type="clue" solve-state="T"/>
+                <cell x="19" y="17" solution="E" number="215"/>
+                <cell x="20" y="17" solution="Y" number="16"/>
+                <cell x="21" y="17" solution="E" number="77"/>
+                <cell x="22" y="17" solution="L" number="137"/>
+                <cell x="23" y="17" solution="A" number="51"/>
+                <cell x="24" y="17" solution="S" number="113"/>
+                <cell x="25" y="17" solution="H" number="22"/>
+                <cell x="26" y="17" type="void"/>
+                <cell x="27" y="17" type="void"/>
+                <cell x="28" y="17" type="void"/>
+                <cell x="29" y="17" type="void"/>
+                <cell x="30" y="17" type="void"/>
+                <cell x="31" y="17" type="void"/>
+                <cell x="32" y="17" type="void"/>
+                <cell x="33" y="17" type="void"/>
+                <cell x="34" y="17" type="void"/>
+                <cell x="35" y="17" type="void"/>
+                <cell x="1" y="18" solution="I" type="clue" solve-state="I"/>
+                <cell x="2" y="18" solution="X" number="72"/>
+                <cell x="3" y="18" solution="Y" number="196"/>
+                <cell x="4" y="18" solution="P" number="130"/>
+                <cell x="5" y="18" solution="L" number="90"/>
+                <cell x="6" y="18" solution="A" number="41"/>
+                <cell x="7" y="18" solution="N" number="54"/>
+                <cell x="8" y="18" solution="E" number="122"/>
+                <cell x="9" y="18" type="void"/>
+                <cell x="10" y="18" type="void"/>
+                <cell x="11" y="18" type="void"/>
+                <cell x="12" y="18" type="void"/>
+                <cell x="13" y="18" type="void"/>
+                <cell x="14" y="18" type="void"/>
+                <cell x="15" y="18" type="void"/>
+                <cell x="16" y="18" type="void"/>
+                <cell x="17" y="18" type="void"/>
+                <cell x="18" y="18" solution="U" type="clue" solve-state="U"/>
+                <cell x="19" y="18" solution="S" number="91"/>
+                <cell x="20" y="18" solution="A" number="79"/>
+                <cell x="21" y="18" solution="I" number="86"/>
+                <cell x="22" y="18" solution="N" number="42"/>
+                <cell x="23" y="18" solution="T" number="61"/>
+                <cell x="24" y="18" solution="L" number="155"/>
+                <cell x="25" y="18" solution="O" number="55"/>
+                <cell x="26" y="18" solution="U" number="188"/>
+                <cell x="27" y="18" solution="I" number="213"/>
+                <cell x="28" y="18" solution="S" number="60"/>
+                <cell x="29" y="18" type="void"/>
+                <cell x="30" y="18" type="void"/>
+                <cell x="31" y="18" type="void"/>
+                <cell x="32" y="18" type="void"/>
+                <cell x="33" y="18" type="void"/>
+                <cell x="34" y="18" type="void"/>
+                <cell x="35" y="18" type="void"/>
+                <cell x="1" y="19" solution="J" type="clue" solve-state="J"/>
+                <cell x="2" y="19" solution="O" number="30"/>
+                <cell x="3" y="19" solution="L" number="212"/>
+                <cell x="4" y="19" solution="I" number="138"/>
+                <cell x="5" y="19" solution="V" number="85"/>
+                <cell x="6" y="19" solution="I" number="20"/>
+                <cell x="7" y="19" solution="A" number="23"/>
+                <cell x="8" y="19" solution="C" number="203"/>
+                <cell x="9" y="19" solution="O" number="209"/>
+                <cell x="10" y="19" solution="L" number="47"/>
+                <cell x="11" y="19" solution="M" number="180"/>
+                <cell x="12" y="19" solution="A" number="161"/>
+                <cell x="13" y="19" solution="N" number="206"/>
+                <cell x="14" y="19" type="void"/>
+                <cell x="15" y="19" type="void"/>
+                <cell x="16" y="19" type="void"/>
+                <cell x="17" y="19" type="void"/>
+                <cell x="18" y="19" solution="V" type="clue" solve-state="V"/>
+                <cell x="19" y="19" solution="S" number="184"/>
+                <cell x="20" y="19" solution="T" number="50"/>
+                <cell x="21" y="19" solution="A" number="168"/>
+                <cell x="22" y="19" solution="T" number="33"/>
+                <cell x="23" y="19" solution="U" number="135"/>
+                <cell x="24" y="19" solution="S" number="190"/>
+                <cell x="25" y="19" solution="Q" number="187"/>
+                <cell x="26" y="19" solution="U" number="142"/>
+                <cell x="27" y="19" solution="O" number="11"/>
+                <cell x="28" y="19" type="void"/>
+                <cell x="29" y="19" type="void"/>
+                <cell x="30" y="19" type="void"/>
+                <cell x="31" y="19" type="void"/>
+                <cell x="32" y="19" type="void"/>
+                <cell x="33" y="19" type="void"/>
+                <cell x="34" y="19" type="void"/>
+                <cell x="35" y="19" type="void"/>
+                <cell x="1" y="20" solution="K" type="clue" solve-state="K"/>
+                <cell x="2" y="20" solution="N" number="194"/>
+                <cell x="3" y="20" solution="A" number="181"/>
+                <cell x="4" y="20" solution="N" number="152"/>
+                <cell x="5" y="20" solution="N" number="43"/>
+                <cell x="6" y="20" solution="Y" number="170"/>
+                <cell x="7" y="20" solution="D" number="123"/>
+                <cell x="8" y="20" solution="I" number="108"/>
+                <cell x="9" y="20" solution="A" number="149"/>
+                <cell x="10" y="20" solution="R" number="39"/>
+                <cell x="11" y="20" solution="I" number="144"/>
+                <cell x="12" y="20" solution="E" number="204"/>
+                <cell x="13" y="20" solution="S" number="129"/>
+                <cell x="14" y="20" type="void"/>
+                <cell x="15" y="20" type="void"/>
+                <cell x="16" y="20" type="void"/>
+                <cell x="17" y="20" type="void"/>
+                <cell x="18" y="20" solution="W" type="clue" solve-state="W"/>
+                <cell x="19" y="20" solution="E" number="148"/>
+                <cell x="20" y="20" solution="D" number="53"/>
+                <cell x="21" y="20" solution="I" number="48"/>
+                <cell x="22" y="20" solution="T" number="171"/>
+                <cell x="23" y="20" solution="O" number="75"/>
+                <cell x="24" y="20" solution="U" number="31"/>
+                <cell x="25" y="20" solution="T" number="179"/>
+                <cell x="26" y="20" type="void"/>
+                <cell x="27" y="20" type="void"/>
+                <cell x="28" y="20" type="void"/>
+                <cell x="29" y="20" type="void"/>
+                <cell x="30" y="20" type="void"/>
+                <cell x="31" y="20" type="void"/>
+                <cell x="32" y="20" type="void"/>
+                <cell x="33" y="20" type="void"/>
+                <cell x="34" y="20" type="void"/>
+                <cell x="35" y="20" type="void"/>
+                <cell x="1" y="21" solution="L" type="clue" solve-state="L"/>
+                <cell x="2" y="21" solution="C" number="109"/>
+                <cell x="3" y="21" solution="I" number="205"/>
+                <cell x="4" y="21" solution="N" number="52"/>
+                <cell x="5" y="21" solution="E" number="114"/>
+                <cell x="6" y="21" solution="P" number="73"/>
+                <cell x="7" y="21" solution="H" number="145"/>
+                <cell x="8" y="21" solution="I" number="192"/>
+                <cell x="9" y="21" solution="L" number="25"/>
+                <cell x="10" y="21" solution="E" number="183"/>
+                <cell x="11" y="21" type="void"/>
+                <cell x="12" y="21" type="void"/>
+                <cell x="13" y="21" type="void"/>
+                <cell x="14" y="21" type="void"/>
+                <cell x="15" y="21" type="void"/>
+                <cell x="16" y="21" type="void"/>
+                <cell x="17" y="21" type="void"/>
+                <cell x="18" y="21" type="void"/>
+                <cell x="19" y="21" type="void"/>
+                <cell x="20" y="21" type="void"/>
+                <cell x="21" y="21" type="void"/>
+                <cell x="22" y="21" type="void"/>
+                <cell x="23" y="21" type="void"/>
+                <cell x="24" y="21" type="void"/>
+                <cell x="25" y="21" type="void"/>
+                <cell x="26" y="21" type="void"/>
+                <cell x="27" y="21" type="void"/>
+                <cell x="28" y="21" type="void"/>
+                <cell x="29" y="21" type="void"/>
+                <cell x="30" y="21" type="void"/>
+                <cell x="31" y="21" type="void"/>
+                <cell x="32" y="21" type="void"/>
+                <cell x="33" y="21" type="void"/>
+                <cell x="34" y="21" type="void"/>
+                <cell x="35" y="21" type="void"/>
+            </grid>
+            <word id="1">
+                <cells x="2" y="10"/>
+                <cells x="3" y="10"/>
+                <cells x="4" y="10"/>
+                <cells x="5" y="10"/>
+                <cells x="6" y="10"/>
+                <cells x="7" y="10"/>
+                <cells x="8" y="10"/>
+                <cells x="9" y="10"/>
+                <cells x="10" y="10"/>
+                <cells x="11" y="10"/>
+                <cells x="12" y="10"/>
+            </word>
+            <word id="2">
+                <cells x="2" y="11"/>
+                <cells x="3" y="11"/>
+                <cells x="4" y="11"/>
+                <cells x="5" y="11"/>
+                <cells x="6" y="11"/>
+                <cells x="7" y="11"/>
+                <cells x="8" y="11"/>
+                <cells x="9" y="11"/>
+                <cells x="10" y="11"/>
+                <cells x="11" y="11"/>
+                <cells x="12" y="11"/>
+            </word>
+            <word id="3">
+                <cells x="2" y="12"/>
+                <cells x="3" y="12"/>
+                <cells x="4" y="12"/>
+                <cells x="5" y="12"/>
+                <cells x="6" y="12"/>
+                <cells x="7" y="12"/>
+                <cells x="8" y="12"/>
+                <cells x="9" y="12"/>
+                <cells x="10" y="12"/>
+                <cells x="11" y="12"/>
+                <cells x="12" y="12"/>
+            </word>
+            <word id="4">
+                <cells x="2" y="13"/>
+                <cells x="3" y="13"/>
+                <cells x="4" y="13"/>
+                <cells x="5" y="13"/>
+                <cells x="6" y="13"/>
+                <cells x="7" y="13"/>
+                <cells x="8" y="13"/>
+            </word>
+            <word id="5">
+                <cells x="2" y="14"/>
+                <cells x="3" y="14"/>
+                <cells x="4" y="14"/>
+                <cells x="5" y="14"/>
+                <cells x="6" y="14"/>
+                <cells x="7" y="14"/>
+                <cells x="8" y="14"/>
+                <cells x="9" y="14"/>
+                <cells x="10" y="14"/>
+                <cells x="11" y="14"/>
+                <cells x="12" y="14"/>
+            </word>
+            <word id="6">
+                <cells x="2" y="15"/>
+                <cells x="3" y="15"/>
+                <cells x="4" y="15"/>
+                <cells x="5" y="15"/>
+                <cells x="6" y="15"/>
+                <cells x="7" y="15"/>
+                <cells x="8" y="15"/>
+            </word>
+            <word id="7">
+                <cells x="2" y="16"/>
+                <cells x="3" y="16"/>
+                <cells x="4" y="16"/>
+                <cells x="5" y="16"/>
+                <cells x="6" y="16"/>
+                <cells x="7" y="16"/>
+                <cells x="8" y="16"/>
+                <cells x="9" y="16"/>
+                <cells x="10" y="16"/>
+                <cells x="11" y="16"/>
+                <cells x="12" y="16"/>
+                <cells x="13" y="16"/>
+            </word>
+            <word id="8">
+                <cells x="2" y="17"/>
+                <cells x="3" y="17"/>
+                <cells x="4" y="17"/>
+                <cells x="5" y="17"/>
+                <cells x="6" y="17"/>
+                <cells x="7" y="17"/>
+                <cells x="8" y="17"/>
+                <cells x="9" y="17"/>
+                <cells x="10" y="17"/>
+                <cells x="11" y="17"/>
+                <cells x="12" y="17"/>
+                <cells x="13" y="17"/>
+            </word>
+            <word id="9">
+                <cells x="2" y="18"/>
+                <cells x="3" y="18"/>
+                <cells x="4" y="18"/>
+                <cells x="5" y="18"/>
+                <cells x="6" y="18"/>
+                <cells x="7" y="18"/>
+                <cells x="8" y="18"/>
+            </word>
+            <word id="10">
+                <cells x="2" y="19"/>
+                <cells x="3" y="19"/>
+                <cells x="4" y="19"/>
+                <cells x="5" y="19"/>
+                <cells x="6" y="19"/>
+                <cells x="7" y="19"/>
+                <cells x="8" y="19"/>
+                <cells x="9" y="19"/>
+                <cells x="10" y="19"/>
+                <cells x="11" y="19"/>
+                <cells x="12" y="19"/>
+                <cells x="13" y="19"/>
+            </word>
+            <word id="11">
+                <cells x="2" y="20"/>
+                <cells x="3" y="20"/>
+                <cells x="4" y="20"/>
+                <cells x="5" y="20"/>
+                <cells x="6" y="20"/>
+                <cells x="7" y="20"/>
+                <cells x="8" y="20"/>
+                <cells x="9" y="20"/>
+                <cells x="10" y="20"/>
+                <cells x="11" y="20"/>
+                <cells x="12" y="20"/>
+                <cells x="13" y="20"/>
+            </word>
+            <word id="12">
+                <cells x="2" y="21"/>
+                <cells x="3" y="21"/>
+                <cells x="4" y="21"/>
+                <cells x="5" y="21"/>
+                <cells x="6" y="21"/>
+                <cells x="7" y="21"/>
+                <cells x="8" y="21"/>
+                <cells x="9" y="21"/>
+                <cells x="10" y="21"/>
+            </word>
+            <word id="13">
+                <cells x="19" y="10"/>
+                <cells x="20" y="10"/>
+                <cells x="21" y="10"/>
+                <cells x="22" y="10"/>
+                <cells x="23" y="10"/>
+                <cells x="24" y="10"/>
+                <cells x="25" y="10"/>
+            </word>
+            <word id="14">
+                <cells x="19" y="11"/>
+                <cells x="20" y="11"/>
+                <cells x="21" y="11"/>
+                <cells x="22" y="11"/>
+                <cells x="23" y="11"/>
+                <cells x="24" y="11"/>
+                <cells x="25" y="11"/>
+                <cells x="26" y="11"/>
+            </word>
+            <word id="15">
+                <cells x="19" y="12"/>
+                <cells x="20" y="12"/>
+                <cells x="21" y="12"/>
+                <cells x="22" y="12"/>
+                <cells x="23" y="12"/>
+                <cells x="24" y="12"/>
+                <cells x="25" y="12"/>
+                <cells x="26" y="12"/>
+            </word>
+            <word id="16">
+                <cells x="19" y="13"/>
+                <cells x="20" y="13"/>
+                <cells x="21" y="13"/>
+                <cells x="22" y="13"/>
+                <cells x="23" y="13"/>
+                <cells x="24" y="13"/>
+                <cells x="25" y="13"/>
+                <cells x="26" y="13"/>
+            </word>
+            <word id="17">
+                <cells x="19" y="14"/>
+                <cells x="20" y="14"/>
+                <cells x="21" y="14"/>
+                <cells x="22" y="14"/>
+                <cells x="23" y="14"/>
+                <cells x="24" y="14"/>
+                <cells x="25" y="14"/>
+            </word>
+            <word id="18">
+                <cells x="19" y="15"/>
+                <cells x="20" y="15"/>
+                <cells x="21" y="15"/>
+                <cells x="22" y="15"/>
+                <cells x="23" y="15"/>
+                <cells x="24" y="15"/>
+                <cells x="25" y="15"/>
+                <cells x="26" y="15"/>
+                <cells x="27" y="15"/>
+                <cells x="28" y="15"/>
+                <cells x="29" y="15"/>
+            </word>
+            <word id="19">
+                <cells x="19" y="16"/>
+                <cells x="20" y="16"/>
+                <cells x="21" y="16"/>
+                <cells x="22" y="16"/>
+                <cells x="23" y="16"/>
+                <cells x="24" y="16"/>
+                <cells x="25" y="16"/>
+                <cells x="26" y="16"/>
+                <cells x="27" y="16"/>
+                <cells x="28" y="16"/>
+                <cells x="29" y="16"/>
+            </word>
+            <word id="20">
+                <cells x="19" y="17"/>
+                <cells x="20" y="17"/>
+                <cells x="21" y="17"/>
+                <cells x="22" y="17"/>
+                <cells x="23" y="17"/>
+                <cells x="24" y="17"/>
+                <cells x="25" y="17"/>
+            </word>
+            <word id="21">
+                <cells x="19" y="18"/>
+                <cells x="20" y="18"/>
+                <cells x="21" y="18"/>
+                <cells x="22" y="18"/>
+                <cells x="23" y="18"/>
+                <cells x="24" y="18"/>
+                <cells x="25" y="18"/>
+                <cells x="26" y="18"/>
+                <cells x="27" y="18"/>
+                <cells x="28" y="18"/>
+            </word>
+            <word id="22">
+                <cells x="19" y="19"/>
+                <cells x="20" y="19"/>
+                <cells x="21" y="19"/>
+                <cells x="22" y="19"/>
+                <cells x="23" y="19"/>
+                <cells x="24" y="19"/>
+                <cells x="25" y="19"/>
+                <cells x="26" y="19"/>
+                <cells x="27" y="19"/>
+            </word>
+            <word id="23">
+                <cells x="19" y="20"/>
+                <cells x="20" y="20"/>
+                <cells x="21" y="20"/>
+                <cells x="22" y="20"/>
+                <cells x="23" y="20"/>
+                <cells x="24" y="20"/>
+                <cells x="25" y="20"/>
+            </word>
+            <word id="1000">
+                <cells x="1" y="1"/>
+                <cells x="3" y="1"/>
+                <cells x="5" y="1"/>
+                <cells x="6" y="1"/>
+                <cells x="7" y="1"/>
+                <cells x="8" y="1"/>
+                <cells x="10" y="1"/>
+                <cells x="11" y="1"/>
+                <cells x="13" y="1"/>
+                <cells x="14" y="1"/>
+                <cells x="15" y="1"/>
+                <cells x="16" y="1"/>
+                <cells x="17" y="1"/>
+                <cells x="18" y="1"/>
+                <cells x="19" y="1"/>
+                <cells x="21" y="1"/>
+                <cells x="22" y="1"/>
+                <cells x="23" y="1"/>
+                <cells x="25" y="1"/>
+                <cells x="26" y="1"/>
+                <cells x="27" y="1"/>
+                <cells x="28" y="1"/>
+                <cells x="30" y="1"/>
+                <cells x="32" y="1"/>
+                <cells x="33" y="1"/>
+                <cells x="34" y="1"/>
+                <cells x="35" y="1"/>
+                <cells x="2" y="2"/>
+                <cells x="3" y="2"/>
+                <cells x="4" y="2"/>
+                <cells x="5" y="2"/>
+                <cells x="6" y="2"/>
+                <cells x="8" y="2"/>
+                <cells x="9" y="2"/>
+                <cells x="10" y="2"/>
+                <cells x="11" y="2"/>
+                <cells x="13" y="2"/>
+                <cells x="14" y="2"/>
+                <cells x="15" y="2"/>
+                <cells x="16" y="2"/>
+                <cells x="17" y="2"/>
+                <cells x="18" y="2"/>
+                <cells x="20" y="2"/>
+                <cells x="21" y="2"/>
+                <cells x="22" y="2"/>
+                <cells x="23" y="2"/>
+                <cells x="24" y="2"/>
+                <cells x="25" y="2"/>
+                <cells x="26" y="2"/>
+                <cells x="27" y="2"/>
+                <cells x="29" y="2"/>
+                <cells x="30" y="2"/>
+                <cells x="31" y="2"/>
+                <cells x="33" y="2"/>
+                <cells x="34" y="2"/>
+                <cells x="35" y="2"/>
+                <cells x="1" y="3"/>
+                <cells x="2" y="3"/>
+                <cells x="3" y="3"/>
+                <cells x="4" y="3"/>
+                <cells x="5" y="3"/>
+                <cells x="7" y="3"/>
+                <cells x="8" y="3"/>
+                <cells x="9" y="3"/>
+                <cells x="10" y="3"/>
+                <cells x="11" y="3"/>
+                <cells x="13" y="3"/>
+                <cells x="14" y="3"/>
+                <cells x="15" y="3"/>
+                <cells x="16" y="3"/>
+                <cells x="19" y="3"/>
+                <cells x="20" y="3"/>
+                <cells x="21" y="3"/>
+                <cells x="22" y="3"/>
+                <cells x="23" y="3"/>
+                <cells x="24" y="3"/>
+                <cells x="25" y="3"/>
+                <cells x="26" y="3"/>
+                <cells x="28" y="3"/>
+                <cells x="29" y="3"/>
+                <cells x="31" y="3"/>
+                <cells x="32" y="3"/>
+                <cells x="33" y="3"/>
+                <cells x="34" y="3"/>
+                <cells x="35" y="3"/>
+                <cells x="1" y="4"/>
+                <cells x="2" y="4"/>
+                <cells x="3" y="4"/>
+                <cells x="4" y="4"/>
+                <cells x="5" y="4"/>
+                <cells x="7" y="4"/>
+                <cells x="9" y="4"/>
+                <cells x="10" y="4"/>
+                <cells x="11" y="4"/>
+                <cells x="12" y="4"/>
+                <cells x="13" y="4"/>
+                <cells x="14" y="4"/>
+                <cells x="16" y="4"/>
+                <cells x="17" y="4"/>
+                <cells x="18" y="4"/>
+                <cells x="20" y="4"/>
+                <cells x="21" y="4"/>
+                <cells x="22" y="4"/>
+                <cells x="23" y="4"/>
+                <cells x="24" y="4"/>
+                <cells x="25" y="4"/>
+                <cells x="26" y="4"/>
+                <cells x="27" y="4"/>
+                <cells x="28" y="4"/>
+                <cells x="29" y="4"/>
+                <cells x="30" y="4"/>
+                <cells x="31" y="4"/>
+                <cells x="34" y="4"/>
+                <cells x="35" y="4"/>
+                <cells x="1" y="5"/>
+                <cells x="2" y="5"/>
+                <cells x="4" y="5"/>
+                <cells x="5" y="5"/>
+                <cells x="6" y="5"/>
+                <cells x="7" y="5"/>
+                <cells x="8" y="5"/>
+                <cells x="9" y="5"/>
+                <cells x="10" y="5"/>
+                <cells x="11" y="5"/>
+                <cells x="12" y="5"/>
+                <cells x="14" y="5"/>
+                <cells x="15" y="5"/>
+                <cells x="16" y="5"/>
+                <cells x="18" y="5"/>
+                <cells x="19" y="5"/>
+                <cells x="20" y="5"/>
+                <cells x="21" y="5"/>
+                <cells x="22" y="5"/>
+                <cells x="23" y="5"/>
+                <cells x="24" y="5"/>
+                <cells x="25" y="5"/>
+                <cells x="26" y="5"/>
+                <cells x="27" y="5"/>
+                <cells x="28" y="5"/>
+                <cells x="29" y="5"/>
+                <cells x="32" y="5"/>
+                <cells x="33" y="5"/>
+                <cells x="34" y="5"/>
+                <cells x="1" y="6"/>
+                <cells x="3" y="6"/>
+                <cells x="4" y="6"/>
+                <cells x="5" y="6"/>
+                <cells x="6" y="6"/>
+                <cells x="8" y="6"/>
+                <cells x="10" y="6"/>
+                <cells x="11" y="6"/>
+                <cells x="12" y="6"/>
+                <cells x="13" y="6"/>
+                <cells x="14" y="6"/>
+                <cells x="15" y="6"/>
+                <cells x="17" y="6"/>
+                <cells x="18" y="6"/>
+                <cells x="19" y="6"/>
+                <cells x="20" y="6"/>
+                <cells x="21" y="6"/>
+                <cells x="23" y="6"/>
+                <cells x="24" y="6"/>
+                <cells x="25" y="6"/>
+                <cells x="26" y="6"/>
+                <cells x="27" y="6"/>
+                <cells x="28" y="6"/>
+                <cells x="29" y="6"/>
+                <cells x="31" y="6"/>
+                <cells x="32" y="6"/>
+                <cells x="33" y="6"/>
+                <cells x="34" y="6"/>
+                <cells x="35" y="6"/>
+                <cells x="1" y="7"/>
+                <cells x="2" y="7"/>
+                <cells x="3" y="7"/>
+                <cells x="5" y="7"/>
+                <cells x="6" y="7"/>
+                <cells x="7" y="7"/>
+                <cells x="8" y="7"/>
+                <cells x="10" y="7"/>
+                <cells x="11" y="7"/>
+                <cells x="12" y="7"/>
+                <cells x="13" y="7"/>
+                <cells x="14" y="7"/>
+                <cells x="16" y="7"/>
+                <cells x="17" y="7"/>
+                <cells x="19" y="7"/>
+                <cells x="20" y="7"/>
+                <cells x="21" y="7"/>
+                <cells x="22" y="7"/>
+                <cells x="23" y="7"/>
+                <cells x="24" y="7"/>
+                <cells x="25" y="7"/>
+                <cells x="26" y="7"/>
+                <cells x="28" y="7"/>
+                <cells x="29" y="7"/>
+                <cells x="31" y="7"/>
+                <cells x="32" y="7"/>
+                <cells x="33" y="7"/>
+                <cells x="35" y="7"/>
+                <cells x="1" y="8"/>
+                <cells x="2" y="8"/>
+                <cells x="3" y="8"/>
+                <cells x="4" y="8"/>
+                <cells x="6" y="8"/>
+                <cells x="7" y="8"/>
+                <cells x="9" y="8"/>
+                <cells x="10" y="8"/>
+                <cells x="12" y="8"/>
+                <cells x="13" y="8"/>
+                <cells x="14" y="8"/>
+                <cells x="16" y="8"/>
+                <cells x="17" y="8"/>
+                <cells x="18" y="8"/>
+                <cells x="19" y="8"/>
+            </word>
+            <clues>
+                <title>
+                    <b>Clues</b>
+                </title>
+                <clue word="1" number="A">political party whose whole thing was going, "who, me?! a xenophobe?! that doesn't sound right!" (this might be a dupe) (4-7)</clue>
+                <clue word="2" number="B">broadway star with a "profanity" sub-section on her wikipedia page (5, 6)</clue>
+                <clue word="3" number="C">good name for a cover band that only plays songs by lipps inc. and one direction (11)</clue>
+                <clue word="4" number="D">lost traction, as uggs on ice (7)</clue>
+                <clue word="5" number="E">breakfast item often copied on tiktok by people who clearly don't understand that sometimes a hockey puck of commercial, hard-scrambled protein just hits so hard (3, 8)</clue>
+                <clue word="6" number="F">"you get it! exactly!" (3, 4)</clue>
+                <clue word="7" number="G">masterpiece classic for which maggie smith phoned it in for six seasons and 3 emmys (7, 5)</clue>
+                <clue word="8" number="H">disco hit whose lyrics serve as a good pep talk before venturing into the big whole foods with all the escalators and the confusing olive bar (1, 4, 7)</clue>
+                <clue word="9" number="I">we don't know why you think this is a math thing, it's an aircraft for people born between 1965 and 1996 (2, 5)</clue>
+                <clue word="10" number="J">actress in <i>the father</i> and <i>the favourite</i> and <i>the crown</i> and <i>the lobster</i> and <i>the bear</i> (6, 6)</clue>
+                <clue word="11" number="K">"doctor strangelove or: how i learned to stop worrying and love the ___" (title of my rejected thesis about the nuclear family, gender roles, and childcare based on a scarlett johansson movie i, admittedly, did not actually watch) (5, 7)</clue>
+                <clue word="12" number="L">"i'm a bit of a ___, actually" (lie told by someone who didn't see <i>barbie</i>, the greatest movie of our time, probably) (9)</clue>
+                <clue word="13" number="M">"para bailar ___ / se necesita una poca de gracia" (2, 5)</clue>
+                <clue word="14" number="N"><span>internet content farm with "funny videos" like </span><i>checks notes</i><span> "dad accidentally tells mom their child has rabies"</span> (8)</clue>
+                <clue word="15" number="O">breeze personified by eurus in greek mythology (4, 4)</clue>
+                <clue word="16" number="P">60s social movement with a wikipedia page that is approximately 73% photos of people making out (4, 4)</clue>
+                <clue word="17" number="Q">chicago suburb that isn't oak brook, forest park, river forest, river grove, oak park, or park forest (this is a dupe) (3, 4)</clue>
+                <clue word="18" number="R">raison d'etre for a suffragette (5, 2, 4)</clue>
+                <clue word="19" number="S">"here’s how badly you need therapy based on the number of times you’ve googled 'panic attack or ___'" ("reductress" headline) (this is also a dupe) (5, 6)</clue>
+                <clue word="20" number="T">ball hair? (7)</clue>
+                <clue word="21" number="U">look, everyone talks about the julienned bagels but did you know they also deep-fry ravioli here? (5, 5)</clue>
+                <clue word="22" number="V">latin for "same shit, different day" (6, 3)</clue>
+                <clue word="23" number="W">remove in post, as the buttholes from <i>cats</i> (2019) (4, 3)</clue>
+                <clue word="1000" number="">[QUOTE]</clue>
+            </clues>
+        </acrostic>
+    </rectangular-puzzle>
+</crossword-compiler-applet>
