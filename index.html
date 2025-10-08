@@ -42,6 +42,9 @@
         var puzzle = url.searchParams.get("puzzle");
         if (!puzzle) puzzle = url.searchParams.get("file");
 
+        // optional LZ-string–encoded puzzle (compressed JSON)
+        const lzpuz = url.searchParams.get("lzpuz");
+
         // optional puzzle parameters
         // for options, see line 141 in crosswords.js.
         var params = {};
@@ -50,6 +53,15 @@
                 url: puzzle,
                 type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
             };
+        } else if (lzpuz) {
+          try {
+            console.log("[startup] Found lzpuz param — decompressing...");
+            const xw = JSCrossword.deserialize(lzpuz);
+            console.log("[startup] Loaded LZ puzzle:", xw.metadata.title, "by", xw.metadata.author);
+            params["puzzle_object"] = xw;
+          } catch (err) {
+            console.error("[startup] Failed to load lzpuz:", err);
+          }
         }
 
         // you can also set parameters in the URL

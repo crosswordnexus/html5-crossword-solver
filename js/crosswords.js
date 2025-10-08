@@ -184,6 +184,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       font_color_fill: '#000000', // color for letters typed in the grid
       color_block: '#000000', // color of "black" squares
       puzzle_file: null, // puzzle file to load
+      puzzle_object: null, // jsxw to load, if available
       puzzles: null, // multiple puzzles from dropdown
       bar_linewidth: 3.5, // how thick to make the bars
       /*
@@ -739,6 +740,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               this.config.puzzle_file.url,
               this.config.puzzle_file.type
             ).then(loaded_callback, error_callback);
+        } else if (this.config.puzzle_object) {
+          // Case 2: load from serialized (LZ) puzzle
+          console.log("[startup] Loading puzzle from lzpuz param");
+          const xw = this.config.puzzle_object;
+          console.log(xw);
+          Promise.resolve(xw).then(parsePUZZLE_callback, error_callback);
         } else {
           // shows open button
           var i, puzzle_file, el;
@@ -813,17 +820,18 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
      * - Enables autofill for acrostic/coded puzzles.
      */
      parsePuzzle(data) {
-       // if it's already a JSCrossword, return it as-is
-       var puzzle;
-       if (data instanceof JSCrossword) {
-         puzzle =  data;
-       }
-
-       // otherwise, parse it directly — JSCrossword handles the format detection
-       puzzle = JSCrossword.fromData(new Uint8Array(data));
+        // if it's already a JSCrossword, return it as-is
+        var puzzle;
+        if (data instanceof JSCrossword) {
+          puzzle = data;
+        } else {
+          // otherwise, parse it directly — JSCrossword handles the format detection
+          puzzle = JSCrossword.fromData(new Uint8Array(data));
+        }
 
         // we keep the original JSCrossword object as well
         this.jsxw = puzzle;
+
         // set the savegame_name
         const simpleHash=t=>{let e=0;for(let r=0;r<t.length;r++){e=(e<<5)-e+t.charCodeAt(r),e&=e}return new Uint32Array([e])[0].toString(36)};
         // Use puzzle hash to generate a unique storage key, so saves don’t collide.
