@@ -343,22 +343,31 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         </div>
       </div>`;
 
-    // returns deferred object
+    // Returns a jQuery Deferred object that resolves to a Uint8Array
     function loadFileFromServer(path, type) {
-      var xhr = new XMLHttpRequest(),
-        deferred = $.Deferred();
+      const deferred = $.Deferred();
+      const xhr = new XMLHttpRequest();
+
       xhr.open('GET', path);
-      xhr.responseType = 'blob';
+      xhr.responseType = 'arraybuffer'; // binary-safe for .puz, .jpz, etc.
+
       xhr.onload = function () {
-        if (xhr.status == 200) {
-          loadFromFile(xhr.response, type, deferred);
+        if (xhr.status === 200) {
+          const data = new Uint8Array(xhr.response);
+          deferred.resolve(data);
         } else {
           deferred.reject(ERR_FILE_LOAD);
         }
       };
+
+      xhr.onerror = function () {
+        deferred.reject(ERR_FILE_LOAD);
+      };
+
       xhr.send();
       return deferred;
     }
+
 
     // Check if we can drag and drop files
     var isAdvancedUpload = (function () {
@@ -371,15 +380,18 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     })();
 
     function loadFromFile(file, type, deferred) {
-      var reader = new FileReader();
+      const reader = new FileReader();
       deferred = deferred || $.Deferred();
+
       reader.onload = function (event) {
-        var string = event.target.result;
-        deferred.resolve(string);
+        const data = new Uint8Array(event.target.result);
+        deferred.resolve(data);
       };
-      reader.readAsBinaryString(file);
+
+      reader.readAsArrayBuffer(file);
       return deferred;
     }
+
 
     // Breakpoint config for the top clue, as tuples of `[max_width, max_size]`
     const maxClueSizes = [
@@ -706,9 +718,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         // function to process uploaded files
         function processFiles(files) {
           loadFromFile(files[0], FILE_PUZ).then(
-              parsePUZZLE_callback,
-              error_callback
-            );
+            function (data) {
+              parsePUZZLE_callback(data);
+            },
+            function (err) {
+              error_callback(err);
+            }
+          );
         }
 
         // preload one puzzle
@@ -787,7 +803,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         alert(message);
       }
 
-      /**
+    /**
      * Parse puzzle data into CrossWord structures.
      *
      * - Accepts either a JSCrossword object or raw string data.
@@ -796,15 +812,16 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
      * - Initializes cells, words, and clues (real or fake).
      * - Enables autofill for acrostic/coded puzzles.
      */
-      parsePuzzle(string) {
-        // if "string" is actually an object assume it's already a jsxw
-        var puzzle;
-        if (typeof(string) == "object") {
-          puzzle = string;
-        } else {
-          var xw_constructor = new JSCrossword();
-          puzzle = xw_constructor.fromData(string);
-        }
+     parsePuzzle(data) {
+       // if it's already a JSCrossword, return it as-is
+       var puzzle;
+       if (data instanceof JSCrossword) {
+         puzzle =  data;
+       }
+
+       // otherwise, parse it directly — JSCrossword handles the format detection
+       puzzle = JSCrossword.fromData(new Uint8Array(data));
+
         // we keep the original JSCrossword object as well
         this.jsxw = puzzle;
         // set the savegame_name
@@ -1207,7 +1224,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         );
 
         // PRINTER
-        this.print_btn.on('click', $.proxy(this.printPuzzle, this));
+        this.print_btn.on('click', (e) => this.printPuzzle(e));
 
         // CLEAR
         this.clear_btn.on(
@@ -2694,11 +2711,22 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.hidden_input.focus();
       }
 
-      printPuzzle(e) {
+      async printPuzzle(e) {
         // fill JSXW
         this.fillJsXw();
-        jscrossword_to_pdf(this.jsxw, {"print": true});
+        console.log(this.jsxw);
+        try {
+          let doc = await this.jsxw.toPDF();
+          console.log(doc);
+          doc.autoPrint();
+          // open in a new tab and trigger print dialog
+          const blobUrl = doc.output("bloburl");
+          window.open(blobUrl, "_blank");
+        } catch (err) {
+          console.error("PDF generation failed:", err);
+        }
       }
+
 
       updateClueAppearance(word) {
         // Grey out completed clues
