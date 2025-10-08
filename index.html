@@ -38,12 +38,13 @@
 <script>
     (function(){
         // Grab puzzle from query string if available
-        var url = new URL(window.location.href);
+        const url = new URL(window.location.href);
         var puzzle = url.searchParams.get("puzzle");
         if (!puzzle) puzzle = url.searchParams.get("file");
 
         // optional LZ-string–encoded puzzle (compressed JSON)
-        const lzpuz = url.searchParams.get("lzpuz");
+        const lzpuz =  window.location.hash.slice(1);
+        console.log(lzpuz);
 
         // optional puzzle parameters
         // for options, see line 141 in crosswords.js.
