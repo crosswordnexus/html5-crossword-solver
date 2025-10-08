@@ -964,7 +964,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           if (!this.realwords) {
             // Determine which word is an across and which is a down
             // We do this by comparing the entry to the set of across entries
-            var thisGrid = new xwGrid(puzzle.cells);
+            var thisGrid = JSCrossword.xwGrid(puzzle.cells);
             var acrossEntries = thisGrid.acrossEntries();
             var acrossSet = new Set(Object.keys(acrossEntries).map(function (x) {return acrossEntries[x].word;}))
             var entry_mapping = puzzle.get_entry_mapping();
