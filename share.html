@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crossword Sharer</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem; }
+    h1 { font-size: 1.4rem; }
+    input[type=file] { margin: 1rem 0; }
+    textarea { width: 100%; font-family: monospace; font-size: 0.9rem; }
+    button { margin-top: 0.5rem; padding: 0.3rem 0.8rem; }
+    .hidden { display: none; }
+    .customization { margin-top: 1rem; border: 1px solid #ccc; padding: 0.8rem; border-radius: 0.5rem; }
+    .customization label { display: block; margin: 0.5rem 0; }
+  </style>
+</head>
+<body>
+  <h1>Choose a Crossword to Share</h1>
+
+  <p>Your crossword never gets sent to our server.</p>
+
+  <p>Select a <code>.puz</code>, <code>.jpz</code>, or <code>.ipuz</code> file:</p>
+  <input type="file" id="fileInput" accept=".puz,.jpz,.ipuz,.cfp,.rg" />
+  <div id="status"></div>
+
+  <!-- 🧩 Customization section -->
+  <div id="customization" class="hidden customization">
+    <h3>Customize your puzzle appearance</h3>
+    <label>
+      Primary color:
+      <input type="color" id="primaryColor" value="#FEE300" />
+    </label>
+    <label>
+      Secondary color:
+      <input type="color" id="secondaryColor" value="#FF4136" />
+    </label>
+    <label>
+      <input type="checkbox" id="replaceCircles" />
+      Replace circles with shade
+    </label>
+    <button id="submitCustomization">Submit</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <h3>Shareable Link:</h3>
+    <textarea id="shareLink" rows="2" readonly></textarea>
+    <button id="copyLink">Copy Link</button>
+
+    <h3>Embed (iframe):</h3>
+    <textarea id="embedCode" rows="3" readonly></textarea>
+    <button id="copyEmbed">Copy Embed Code</button>
+  </div>
+
+  <script src="GitHub/html5-crossword-solver/lib/jscrossword_combined.js"></script>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const status = document.getElementById("status");
+    const customization = document.getElementById("customization");
+    const results = document.getElementById("results");
+    const shareLink = document.getElementById("shareLink");
+    const embedCode = document.getElementById("embedCode");
+    const submitCustomization = document.getElementById("submitCustomization");
+
+    // ---- LocalStorage handling ----
+    const LS_KEY = "xwSharerPrefs";
+
+    // sensible defaults
+    const DEFAULT_PREFS = {
+      primaryColor: "#FEE300",
+      secondaryColor: "#FF4136",
+      replaceCircles: false
+    };
+
+    // Load any saved preferences or fallback to defaults
+    function loadPrefs() {
+      let prefs = { ...DEFAULT_PREFS };
+      try {
+        const saved = JSON.parse(localStorage.getItem(LS_KEY));
+        if (saved && typeof saved === "object") {
+          prefs = { ...prefs, ...saved }; // merge saved over defaults
+        }
+      } catch (err) {
+        console.warn("Could not load prefs:", err);
+      }
+
+      // Apply to UI
+      document.getElementById("primaryColor").value = prefs.primaryColor;
+      document.getElementById("secondaryColor").value = prefs.secondaryColor;
+      document.getElementById("replaceCircles").checked = prefs.replaceCircles;
+    }
+
+    // Save current preferences
+    function savePrefs() {
+      const prefs = {
+        primaryColor: document.getElementById("primaryColor").value || DEFAULT_PREFS.primaryColor,
+        secondaryColor: document.getElementById("secondaryColor").value || DEFAULT_PREFS.secondaryColor,
+        replaceCircles: document.getElementById("replaceCircles").checked
+      };
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify(prefs));
+      } catch (err) {
+        console.warn("Could not save prefs:", err);
+      }
+    }
+
+
+    async function readFileAsArrayBuffer(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    // Utility: Deep clone a JSCrossword object safely
+    function clonePuzzle(xw) {
+      // Convert to plain object and rebuild a new instance
+      const data = JSON.parse(JSON.stringify({
+        metadata: xw.metadata,
+        cells: xw.cells,
+        words: xw.words,
+        clues: xw.clues
+      }));
+      return new JSCrossword(data.metadata, data.cells, data.words, data.clues);
+    }
+
+    let originalPuzzle = null;
+    let workingPuzzle = null;
+
+    loadPrefs();
+
+    fileInput.addEventListener("change", async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      status.textContent = `Reading ${file.name}...`;
+      results.classList.add("hidden");
+      customization.classList.add("hidden");
+
+      try {
+        const buf = await readFileAsArrayBuffer(file);
+        const xw = JSCrossword.fromData(new Uint8Array(buf));
+        originalPuzzle = xw;
+        // Make a working clone
+        workingPuzzle = clonePuzzle(originalPuzzle);
+        status.textContent = `✅ "${xw.metadata.title}" by ${xw.metadata.author}`;
+        customization.classList.remove("hidden");
+      } catch (err) {
+        console.error(err);
+        status.textContent = "❌ Could not parse puzzle: " + err.message;
+      }
+    });
+
+    // Utility: Apply or remove shading instead of circles
+    function applyCircleReplacement(useShade) {
+      if (!originalPuzzle) return;
+      // Reset working copy from original every time to avoid compounding changes
+      workingPuzzle = clonePuzzle(originalPuzzle);
+
+      if (useShade) {
+        for (const cell of workingPuzzle.cells) {
+          if (cell["background-shape"] === "circle") {
+            delete cell["background-shape"];
+            cell["background-color"] = "#c9c9ca";
+          }
+        }
+      }
+    }
+
+    submitCustomization.addEventListener("click", () => {
+      if (!workingPuzzle) return;
+
+      const primary = document.getElementById("primaryColor").value;
+      const secondary = document.getElementById("secondaryColor").value;
+      const shade = document.getElementById("replaceCircles").checked;
+
+      savePrefs();
+
+      // Update working puzzle based on checkbox
+      applyCircleReplacement(shade);
+
+      const config = {
+        color_selected: secondary,
+        color_word: primary,
+        replace_circles: shade
+      };
+
+      const configB64 = btoa(JSON.stringify(config));
+      const encoded = workingPuzzle.serialize();
+
+      const basePath = window.location.pathname.replace(/[^/]+$/, ""); // drop filename
+      const baseUrl = `${window.location.origin}${basePath}`;
+
+      const playUrl = `${baseUrl}/index.html?config=${configB64}#${encoded}`;
+
+      shareLink.value = playUrl;
+      embedCode.value = `<iframe allowfullscreen="true" height="550" width="100%" style="border:none;width: 100% !important;position: static;display: block !important;margin: 0 !important;" src="${playUrl}"></iframe>`;
+
+      results.classList.remove("hidden");
+    });
+
+
+    async function copyText(el, btn) {
+      try {
+        await navigator.clipboard.writeText(el.value);
+        showCopiedMessage(btn);
+      } catch (err) {
+        console.error("Clipboard failed:", err);
+      }
+    }
+
+    function showCopiedMessage(btn) {
+      let msg = btn.nextElementSibling;
+      if (!msg || !msg.classList.contains("copy-status")) {
+        msg = document.createElement("span");
+        msg.className = "copy-status";
+        msg.style.marginLeft = "0.5rem";
+        msg.style.color = "green";
+        btn.insertAdjacentElement("afterend", msg);
+      }
+      msg.textContent = "Copied!";
+      msg.style.opacity = 1;
+      setTimeout(() => {
+        msg.style.transition = "opacity 0.5s";
+        msg.style.opacity = 0;
+      }, 1500);
+    }
+
+    document.getElementById("copyLink").onclick = (e) => copyText(shareLink, e.target);
+    document.getElementById("copyEmbed").onclick = (e) => copyText(embedCode, e.target);
+
+    const openShortBtn = document.createElement("button");
+    openShortBtn.textContent = "Open in Shortener (da.gd)";
+    document.getElementById("copyLink").insertAdjacentElement("afterend", openShortBtn);
+
+    openShortBtn.onclick = () => {
+      const longUrl = shareLink.value.trim();
+      if (!longUrl) {
+        status.textContent = "Please generate a link first.";
+        return;
+      }
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "https://da.gd/shorten";
+      form.target = "_blank";
+      form.style.display = "none";
+      const input = document.createElement("input");
+      input.name = "url";
+      input.value = longUrl;
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+      form.remove();
+    };
+  </script>
+</body>
+</html>
