@@ -358,11 +358,14 @@ input.cw-hidden-input {
 
 /* large green button for initial overlay */
 .cw-button-open-puzzle {
-    --button-background-color: #52b323;
-    --button-background-color-hover: #58ba28;
-    --button-shadow-color: #368c0e;
+    background-color: #52b323;
+    box-shadow: 0 0.125em 0 0 #368c0e;
     color: white;
     font-size: 32px;
+}
+
+.cw-button-open-puzzle:hover {
+    background-color: #58ba28;
 }
 
 /* medium-sized gray button for timer */
@@ -381,7 +384,7 @@ input.cw-hidden-input {
     --button-background-color: #52b323;
     --button-background-color-hover: #58ba28;
     --button-shadow-color: #368c0e;
-    color: white;
+    color: #777777;
 }
 
 /* small gray button for notes */
