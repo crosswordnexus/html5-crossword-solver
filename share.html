@@ -193,7 +193,7 @@
       const basePath = window.location.pathname.replace(/[^/]+$/, ""); // drop filename
       const baseUrl = `${window.location.origin}${basePath}`;
 
-      const playUrl = `${baseUrl}/index.html?config=${configB64}#${encoded}`;
+      const playUrl = `${baseUrl}?config=${configB64}#${encoded}`;
 
       shareLink.value = playUrl;
       embedCode.value = `<iframe allowfullscreen="true" height="550" width="100%" style="border:none;width: 100% !important;position: static;display: block !important;margin: 0 !important;" src="${playUrl}"></iframe>`;
