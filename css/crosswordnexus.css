@@ -1,5 +1,5 @@
 /**
-Copyright (c) 2015-2021, Crossword Nexus
+Copyright (c) 2015-2025, Crossword Nexus
 CTFYC version
 
 All rights reserved.
@@ -15,6 +15,16 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 /* CSS for using the Crossword Nexus HTML5 Crossword Solver */
+
+/* Global variables */
+:root {
+  --clue-active-color: #ffeb3f;
+  /* default yellow color scheme */
+  --button-background-color-base: #ffeb3f;
+  --button-background-color-hover-base: #fff27f;
+  --button-shadow-color-base: #ebd200;
+  --top-text-wrapper-background: #fff5d7;
+}
 
 .cw-main, .cw-main * {
     box-sizing: content-box; /* for consistency */
@@ -173,7 +183,7 @@ input.cw-hidden-input {
 }
 
 .cw-top-text-wrapper {
-    background: #fff5d7;
+    background: var(--top-text-wrapper-background);
     flex-shrink: 0;
     /* font-size: 20px; */
 }
@@ -321,17 +331,12 @@ input.cw-hidden-input {
 **/
 
 .cw-button {
-    /* default yellow color scheme */
-    --button-background-color: #ffeb3f;
-    --button-background-color-hover: #fff27f;
-    --button-shadow-color: #ebd200;
     color: #413a00;
-
     align-items: center;
-    background-color: var(--button-background-color);
+    background-color: var(--button-background-color-base);
     border-radius: 0.2em;
     border: none;
-    box-shadow: 0 0.125em 0 0 var(--button-shadow-color);
+    box-shadow: 0 0.125em 0 0 var(--button-shadow-color-base);
     cursor: pointer;
     display: flex;
     font-size: 0.8em;
@@ -345,10 +350,10 @@ input.cw-hidden-input {
 .cw-button:active {
     position: relative;
     top: 0.0625em;
-    box-shadow: 0px 0.0625em 0px 0 var(--button-shadow-color);
+    box-shadow: 0px 0.0625em 0px 0 var(--button-shadow-color-base);
 }
 .cw-button:hover {
-    background-color: var(--button-background-color-hover);
+    background-color: var(--button-background-color-hover-base);
 }
 
 /* large green button for initial overlay */
@@ -441,7 +446,7 @@ input.cw-hidden-input {
     text-align: left;
 }
 .cw-menu-item:hover {
-    background-color: #ffeb3f;
+    background-color: var(--button-background-color);
 }
 
 /**
@@ -459,7 +464,7 @@ input.cw-hidden-input {
     display: flex;
 }
 .cw-clue.active {
-    background: #ffeb3f;
+    background: var(--clue-active-color);
 }
 .cw-clue.passive {
     background: #ddd;

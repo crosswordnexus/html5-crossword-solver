@@ -88,6 +88,54 @@ function componentAvg(c1, c2, weight) {
   return Math.floor(weight * c1 + (1 - weight) * c2)
 }
 
+// "Simple" function to adjust a color
+function rgbToHsv([r, g, b]) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  const d = max - min;
+  let h = 0;
+  if (d !== 0) {
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h *= 60;
+  }
+  const s = max === 0 ? 0 : d / max;
+  const v = max;
+  return [h, s, v];
+}
+
+function hsvToRgb([h, s, v]) {
+  h = ((h % 360) + 360) % 360;
+  const c = v * s;
+  const x = c * (1 - Math.abs(((h/60)%2) - 1));
+  const m = v - c;
+  let rp=0,gp=0,bp=0;
+  if (0<=h && h<60){rp=c;gp=x;bp=0;}
+  else if (60<=h && h<120){rp=x;gp=c;bp=0;}
+  else if (120<=h && h<180){rp=0;gp=c;bp=x;}
+  else if (180<=h && h<240){rp=0;gp=x;bp=c;}
+  else if (240<=h && h<300){rp=x;gp=0;bp=c;}
+  else {rp=c;gp=0;bp=x;}
+  return [
+    Math.round((rp+m)*255),
+    Math.round((gp+m)*255),
+    Math.round((bp+m)*255)
+  ];
+}
+
+function applyHsvTransform(rgbHex, {dh, ks, kv}) {
+  let rgb = hexToRgb(rgbHex);
+  let [h,s,v] = rgbToHsv(rgb);
+  h = h + dh;
+  s = Math.min(1, Math.max(0, s*ks));
+  v = Math.min(1, Math.max(0, v*kv));
+  let outRgb = hsvToRgb([h,s,v]);
+  return rgbToHex(outRgb[0], outRgb[1], outRgb[2]);
+}
+
 /**
  * Average two colors by weight (default 0.5).
  * Returns a new hex string.
@@ -172,14 +220,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     /* All of this is configurable via "params" when instantiating */
     var default_config = {
       hover_enabled: false, // enables or disables cell hover effect
-      color_hover: '#FFFFAA', // color for hovered cell (if enabled)
       color_selected: '#FF4136', // color for selected cell
       color_word: '#FEE300', // color for selected word
-      color_hilite: '#F8E473', // color for corresponding cells (in acrostics and codewords)
+
       color_none: '#FFFFFF', // color for "null" or "void" cells
       background_color_clue: '#666666', // color for "clue" cells
       default_background_color: '#c2ed7e', // color for shaded cells whose shade color is badly defined
-      color_secondary: '#fff7b7', // color for cross-referenced cells (currently unused)
       font_color_clue: '#FFFFFF', // color for text in "clue" cells
       font_color_fill: '#000000', // color for letters typed in the grid
       color_block: '#000000', // color of "black" squares
@@ -625,6 +671,28 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
           }
         }
+
+        /* Update config values based on `color_word` */
+        const COLOR_WORD = this.config.color_word;
+        console.log(COLOR_WORD);
+        // color for hovered cell (if enabled)
+        this.config.color_hover = applyHsvTransform(COLOR_WORD, { dh: 6.38, ks: 0.333, kv: 1.004 });
+        // color for corresponding cells (in acrostics and codewords)
+        this.config.color_hilite = applyHsvTransform(COLOR_WORD, {dh: -2.64, ks: 0.536, kv: 0.976});
+        // color for cross-referenced cells (currently unused)
+        this.config.color_secondary = applyHsvTransform(COLOR_WORD, {dh: -0.29, ks: 0.282, kv: 1.004});
+
+        /* Update CSS values based on `color_word` */
+        document.documentElement.style.setProperty("--button-background-color-base",
+          applyHsvTransform(COLOR_WORD, {dh: 0.13, ks: 0.753, kv: 1.004}));
+        document.documentElement.style.setProperty("--button-background-color-hover-base",
+          applyHsvTransform(COLOR_WORD, {dh: 0.28, ks: 0.502, kv: 1.004}));
+        document.documentElement.style.setProperty("--button-shadow-color-base",
+          applyHsvTransform(COLOR_WORD, {dh: -0.01, ks: 1.000, kv: 0.925}));
+        document.documentElement.style.setProperty("--clue-active-color",
+          applyHsvTransform(COLOR_WORD, {dh: 0.13, ks: 0.753, kv: 1.004}));
+        document.documentElement.style.setProperty("--top-text-wrapper-background",
+          applyHsvTransform(COLOR_WORD, {dh: -8.62, ks: 0.157, kv: 1.004}));
 
         /** enable dark mode if available **/
         if (this.config.dark_mode_enabled && DarkReader) {
