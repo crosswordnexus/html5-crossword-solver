@@ -4,35 +4,110 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Crossword Sharing | Crossword Nexus</title>
-  <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
 
   <style>
-    /**
-    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem; }
     h1 { font-size: 1.4rem; }
+    h3 { margin-top: 0.25rem; }
     input[type=file] { margin-top: 0.25rem; margin-bottom: 1rem; }
     textarea { width: 100%; font-family: monospace; font-size: 0.9rem; }
-    button { margin-top: 0.5rem; padding: 0.3rem 0.8rem; }
-    **/
-    h3 { margin-top: 0.25rem; }
     .hidden { display: none; }
     .customization { margin-top: 0.5rem; border: 1px solid #ccc; padding: 0.8rem; border-radius: 0.5rem; }
     .customization label { display: block; margin: 0.5rem 0; }
-  </style>
 
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #fafafa;
+      color: #222;
+    }
+
+    h1, h3 {
+      color: #333;
+    }
+
+    .customization, #results {
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+
+    button {
+      border: none;
+      background: #ffcc00;
+      color: #222;
+      font-weight: 600;
+      border-radius: 0.3rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 0.5rem;
+      margin-right: 0.5rem;
+      padding: 0.3rem 0.8rem;
+    }
+
+    button:hover {
+      background: #ffe94f;
+    }
+
+    /* DETAILS: "Learn more" section styling */
+    details {
+      margin-top: 0.75rem;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 0.4rem;
+      padding: 0.6rem 0.8rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    details:hover {
+      border-color: #ccc;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      list-style: none; /* remove default arrow */
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    summary::before {
+      content: "▸";
+      display: inline-block;
+      transform: rotate(0deg);
+      transition: transform 0.2s ease;
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    details[open] summary::before {
+      transform: rotate(90deg);
+    }
+
+    details p {
+      margin: 0.5rem 0 0 1.3rem; /* indent content slightly */
+      color: #444;
+      font-size: 0.95em;
+      line-height: 1.4;
+    }
+
+  </style>
 </head>
 <body class="container">
   <h1>Crossword Sharing</h1>
 
-  <p>
-    Everything happens right here in your browser — nothing gets uploaded or stored online.
-  </p>
-    <details>
-      <summary>Technical details</summary>
+  <p>Everything happens right here in your browser — nothing gets uploaded or stored online.</p>
+  <details>
+    <summary>Technical details</summary>
       Crossword data is parsed locally using <code>JSCrossword</code> in your browser.
       The generated share link encodes the puzzle within the URL fragment (#), so
       it’s never transmitted to any server. Only you control when and where to share it.
-    </details>
+  </details>
 
   <p>Select a <code>.puz</code>, <code>.jpz</code>, or <code>.ipuz</code> file:</p>
   <input type="file" id="fileInput" accept=".puz,.jpz,.ipuz,.cfp,.rg" />
@@ -230,7 +305,7 @@
       if (!msg || !msg.classList.contains("copy-status")) {
         msg = document.createElement("span");
         msg.className = "copy-status";
-        msg.style.marginLeft = "0.5rem";
+        msg.style.margin = "0.5rem";
         msg.style.color = "green";
         btn.insertAdjacentElement("afterend", msg);
       }
