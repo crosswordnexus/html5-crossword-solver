@@ -101,12 +101,18 @@
 <body class="container">
   <h1>Crossword Sharing</h1>
 
-  <p>Everything happens right here in your browser — nothing gets uploaded or stored online.</p>
+  <p>
+    This page lets you turn a crossword file into a shareable link or an embeddable iframe you can post anywhere.
+  </p>
+  <p>
+    Everything happens right here in your browser — nothing gets uploaded or stored online.
+  </p>
   <details>
-    <summary>Technical details</summary>
-      Crossword data is parsed locally using <code>JSCrossword</code> in your browser.
-      The generated share link encodes the puzzle within the URL fragment (#), so
-      it’s never transmitted to any server. Only you control when and where to share it.
+    <summary>Learn more</summary>
+    Choose a puzzle file (<code>.puz</code>, <code>.jpz</code>, or <code>.ipuz</code>) and this page will read it locally
+    using JavaScript. Once loaded, you can customize colors, replace circles with shading,
+    and instantly generate a link or embed code to share the puzzle however you'd like.
+    We don't have a terms of service because we don’t store files, track usage, or keep logs of any kind.
   </details>
 
   <p>Select a <code>.puz</code>, <code>.jpz</code>, or <code>.ipuz</code> file:</p>
