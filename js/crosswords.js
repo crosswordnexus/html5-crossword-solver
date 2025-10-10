@@ -334,8 +334,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                   <button class="cw-menu-item cw-file-print">Print</button>
                   <hr />
                   <button class="cw-menu-item cw-file-clear">Clear</button>
-                  <hr />
-                  <button class="cw-menu-item cw-file-download">Export JPZ</button>
                 </div>
               </div>
               <div class="cw-menu-container cw-check">
@@ -773,7 +771,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.print_btn = this.root.find('.cw-file-print');
         this.clear_btn = this.root.find('.cw-file-clear');
         this.save_btn = this.root.find('.cw-file-save');
-        this.download_btn = this.root.find('.cw-file-download');
 
         this.notes = new Map();
 
@@ -1307,9 +1304,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           'click',
           $.proxy(this.check_reveal, this, 'puzzle', 'clear')
         );
-
-        // DOWNLOAD
-        this.download_btn.on('click', $.proxy(this.exportJPZ, this));
 
         /** We're disabling save and load buttons **/
         // SAVE
@@ -2685,25 +2679,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         var jsxw_cells = lscache.get(this.savegame_name);
         // don't actually *load* it, just return the jsxw
         return jsxw_cells;
-      }
-
-      /* Export a JPZ */
-      exportJPZ() {
-        // fill jsxw
-        this.fillJsXw();
-        const jpz_str = this.jsxw.toJPZString();
-        // set filename
-        var filename = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.jpz';
-        // Initiate download
-        var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jpz_str));
-        element.setAttribute('download', filename);
-
-        element.style.display = 'none';
-        document.body.appendChild(element);
-
-        element.click();
-        document.body.removeChild(element);
       }
 
       check_reveal(to_solve, reveal_or_check, e) {
