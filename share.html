@@ -3,23 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crossword Sharer</title>
+  <title>Crossword Sharing | Crossword Nexus</title>
+  <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+
   <style>
+    /**
     body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem; }
     h1 { font-size: 1.4rem; }
-    h3 { margin-top: 0.25rem; }
     input[type=file] { margin-top: 0.25rem; margin-bottom: 1rem; }
     textarea { width: 100%; font-family: monospace; font-size: 0.9rem; }
     button { margin-top: 0.5rem; padding: 0.3rem 0.8rem; }
+    **/
+    h3 { margin-top: 0.25rem; }
     .hidden { display: none; }
     .customization { margin-top: 0.5rem; border: 1px solid #ccc; padding: 0.8rem; border-radius: 0.5rem; }
     .customization label { display: block; margin: 0.5rem 0; }
   </style>
-</head>
-<body>
-  <h1>Choose a Crossword to Share</h1>
 
-  <p>Your crossword never gets sent to our server.</p>
+</head>
+<body class="container">
+  <h1>Crossword Sharing</h1>
+
+  <p>
+    Everything happens right here in your browser — nothing gets uploaded or stored online.
+  </p>
+    <details>
+      <summary>Technical details</summary>
+      Crossword data is parsed locally using <code>JSCrossword</code> in your browser.
+      The generated share link encodes the puzzle within the URL fragment (#), so
+      it’s never transmitted to any server. Only you control when and where to share it.
+    </details>
 
   <p>Select a <code>.puz</code>, <code>.jpz</code>, or <code>.ipuz</code> file:</p>
   <input type="file" id="fileInput" accept=".puz,.jpz,.ipuz,.cfp,.rg" />
