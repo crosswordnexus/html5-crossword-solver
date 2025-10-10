@@ -20,9 +20,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 :root {
   --clue-active-color: #ffeb3f;
   /* default yellow color scheme */
-  --button-background-color-base: #ffeb3f;
-  --button-background-color-hover-base: #fff27f;
-  --button-shadow-color-base: #ebd200;
+  --button-background-color: #ffeb3f;
+  --button-background-color-hover: #fff27f;
+  --button-shadow-color: #ebd200;
   --top-text-wrapper-background: #fff5d7;
 }
 
@@ -333,10 +333,10 @@ input.cw-hidden-input {
 .cw-button {
     color: #413a00;
     align-items: center;
-    background-color: var(--button-background-color-base);
+    background-color: var(--button-background-color);
     border-radius: 0.2em;
     border: none;
-    box-shadow: 0 0.125em 0 0 var(--button-shadow-color-base);
+    box-shadow: 0 0.125em 0 0 var(--button-shadow-color);
     cursor: pointer;
     display: flex;
     font-size: 0.8em;
@@ -350,57 +350,47 @@ input.cw-hidden-input {
 .cw-button:active {
     position: relative;
     top: 0.0625em;
-    box-shadow: 0px 0.0625em 0px 0 var(--button-shadow-color-base);
+    box-shadow: 0px 0.0625em 0px 0 var(--button-shadow-color);
 }
 .cw-button:hover {
-    background-color: var(--button-background-color-hover-base);
+    background-color: var(--button-background-color-hover);
 }
 
 /* large green button for initial overlay */
 .cw-button-open-puzzle {
-    background-color: #52b323;
-    box-shadow: 0 0.125em 0 0 #368c0e;
+    --button-background-color: #52b323;
+    --button-background-color-hover: #58ba28;
+    --button-shadow-color: #368c0e;
     color: white;
     font-size: 32px;
 }
 
-.cw-button-open-puzzle:hover {
-    background-color: #58ba28;
-}
-
 /* medium-sized gray button for timer */
 .cw-button-timer {
-    background-color: #eeeeee;
-    box-shadow: 0 0.125em 0 0 #999999;
+    --button-background-color: #eeeeee;
+    --button-background-color-hover: #f2f2f2;
+    --button-shadow-color: #999999;
     color: #000000;
     font-size: 1em;
-    transition: background-color box-shadow 0.1s;
-}
 
-.cw-button-timer:hover {
-    background-color: #f2f2f2;
+    transition: background-color box-shadow 0.1s;
 }
 
 /* medium-sized green button for active timer */
 .cw-button-timer.running {
-    background-color: #52b323;
-    color: #444444;
-}
-
-.cw-button-timer.running:hover {
-    background-color: #58ba28;
+    --button-background-color: #52b323;
+    --button-background-color-hover: #58ba28;
+    --button-shadow-color: #368c0e;
+    color: white;
 }
 
 /* small gray button for notes */
 .cw-button-notepad {
-    background-color: #eeeeee;
-    box-shadow: 0 0.125em 0 0 #999999;
+    --button-background-color: #eeeeee;
+    --button-background-color-hover: #f2f2f2;
+    --button-shadow-color: #999999;
     color: #000000;
     font-size: 0.75em;
-}
-
-.cw-button-notepad:hover {
-    background-color: #f2f2f2;
 }
 
 /* left emoji icon */
@@ -456,7 +446,7 @@ input.cw-hidden-input {
     text-align: left;
 }
 .cw-menu-item:hover {
-    background-color: var(--button-background-color-base);
+    background-color: var(--button-background-color);
 }
 
 /**

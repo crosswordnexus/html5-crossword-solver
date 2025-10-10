@@ -681,11 +681,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.config.color_secondary = applyHsvTransform(COLOR_WORD, {dh: -0.29, ks: 0.282, kv: 1.004});
 
         /* Update CSS values based on `color_word` */
-        document.documentElement.style.setProperty("--button-background-color-base",
+        document.documentElement.style.setProperty("--button-background-color",
           applyHsvTransform(COLOR_WORD, {dh: 0.13, ks: 0.753, kv: 1.004}));
-        document.documentElement.style.setProperty("--button-background-color-hover-base",
+        document.documentElement.style.setProperty("--button-background-color-hover",
           applyHsvTransform(COLOR_WORD, {dh: 0.28, ks: 0.502, kv: 1.004}));
-        document.documentElement.style.setProperty("--button-shadow-color-base",
+        document.documentElement.style.setProperty("--button-shadow-color",
           applyHsvTransform(COLOR_WORD, {dh: -0.01, ks: 1.000, kv: 0.925}));
         document.documentElement.style.setProperty("--clue-active-color",
           applyHsvTransform(COLOR_WORD, {dh: 0.13, ks: 0.753, kv: 1.004}));
