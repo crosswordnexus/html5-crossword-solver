@@ -19,10 +19,6 @@
     <!-- for saving crosswords -->
     <script src="lib/lscache.min.js"></script>
 
-    <!-- for printing -->
-    <script src="lib/jspdf-2_5_1.min.js"></script>
-    <script src="lib/xw_pdf.js"></script>
-
     <!-- for dark mode -->
     <script src="lib/darkreader.min.js"></script>
 
@@ -49,9 +45,13 @@
 <script>
     (function(){
         // Grab puzzle from query string if available
-        var url = new URL(window.location.href);
+        const url = new URL(window.location.href);
         var puzzle = url.searchParams.get("puzzle");
         if (!puzzle) puzzle = url.searchParams.get("file");
+
+        // optional LZ-string–encoded puzzle (compressed JSON)
+        const lzpuz =  window.location.hash.slice(1);
+        console.log(lzpuz);
 
         // optional puzzle parameters
         // for options, see line 141 in crosswords.js.
@@ -61,6 +61,15 @@
                 url: puzzle,
                 type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
             };
+        } else if (lzpuz) {
+          try {
+            console.log("[startup] Found lzpuz param — decompressing...");
+            const xw = JSCrossword.deserialize(lzpuz);
+            console.log("[startup] Loaded LZ puzzle:", xw.metadata.title, "by", xw.metadata.author);
+            params["puzzle_object"] = xw;
+          } catch (err) {
+            console.error("[startup] Failed to load lzpuz:", err);
+          }
         }
 
         // you can also set parameters in the URL
