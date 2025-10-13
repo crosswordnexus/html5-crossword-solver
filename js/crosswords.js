@@ -1,5 +1,5 @@
 /**
-Copyright (c) 2015-2021, Crossword Nexus
+Copyright (c) 2015-2025, Crossword Nexus
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -12,6 +12,26 @@ Redistribution and use in source and binary forms, with or without modification,
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
+
+/**
+ * Crossword Nexus HTML5 Solver
+ *
+ * This script provides a full crossword puzzle solver UI:
+ * - Loads puzzle files (.puz, .jpz, .ipuz, etc.) using JSCrossword
+ * - Renders a resizable grid on <canvas>
+ * - Displays clues in interactive lists (across/down)
+ * - Handles keyboard/mouse/touch input for filling the grid
+ * - Supports features like check/reveal, notepad, timer, dark mode
+ * - Saves/restores progress via local storage
+ *
+ * Main components:
+ *   CrossWord  → core class, orchestrates puzzle loading, rendering, and input
+ *   CluesGroup → container for one clue list (across or down)
+ *   Word       → representation of a single crossword answer
+ *
+ * External dependencies: jQuery, JSCrossword, lscache, DarkReader, jscrossword_to_pdf
+ */
+
 
 // Settings that we can save
 const CONFIGURABLE_SETTINGS = [
@@ -34,21 +54,28 @@ try {DarkReader} catch {DarkReader = false;}
 // confetti code from https://gist.github.com/elrumo/3055a9163fd2d0d19f323db744b0a094
 var confetti={maxCount:150,speed:2,frameInterval:15,alpha:1,gradient:!1,start:null,stop:null,toggle:null,pause:null,resume:null,togglePause:null,remove:null,isPaused:null,isRunning:null};!function(){confetti.start=s,confetti.stop=w,confetti.toggle=function(){e?w():s()},confetti.pause=u,confetti.resume=m,confetti.togglePause=function(){i?m():u()},confetti.isPaused=function(){return i},confetti.remove=function(){stop(),i=!1,a=[]},confetti.isRunning=function(){return e};var t=window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame,n=["rgba(30,144,255,","rgba(107,142,35,","rgba(255,215,0,","rgba(255,192,203,","rgba(106,90,205,","rgba(173,216,230,","rgba(238,130,238,","rgba(152,251,152,","rgba(70,130,180,","rgba(244,164,96,","rgba(210,105,30,","rgba(220,20,60,"],e=!1,i=!1,o=Date.now(),a=[],r=0,l=null;function d(t,e,i){return t.color=n[Math.random()*n.length|0]+(confetti.alpha+")"),t.color2=n[Math.random()*n.length|0]+(confetti.alpha+")"),t.x=Math.random()*e,t.y=Math.random()*i-i,t.diameter=10*Math.random()+5,t.tilt=10*Math.random()-10,t.tiltAngleIncrement=.07*Math.random()+.05,t.tiltAngle=Math.random()*Math.PI,t}function u(){i=!0}function m(){i=!1,c()}function c(){if(!i)if(0===a.length)l.clearRect(0,0,window.innerWidth,window.innerHeight),null;else{var n=Date.now(),u=n-o;(!t||u>confetti.frameInterval)&&(l.clearRect(0,0,window.innerWidth,window.innerHeight),function(){var t,n=window.innerWidth,i=window.innerHeight;r+=.01;for(var o=0;o<a.length;o++)t=a[o],!e&&t.y<-15?t.y=i+100:(t.tiltAngle+=t.tiltAngleIncrement,t.x+=Math.sin(r)-.5,t.y+=.5*(Math.cos(r)+t.diameter+confetti.speed),t.tilt=15*Math.sin(t.tiltAngle)),(t.x>n+20||t.x<-20||t.y>i)&&(e&&a.length<=confetti.maxCount?d(t,n,i):(a.splice(o,1),o--))}(),function(t){for(var n,e,i,o,r=0;r<a.length;r++){if(n=a[r],t.beginPath(),t.lineWidth=n.diameter,e=(i=n.x+n.tilt)+n.diameter/2,o=n.y+n.tilt+n.diameter/2,confetti.gradient){var l=t.createLinearGradient(e,n.y,i,o);l.addColorStop("0",n.color),l.addColorStop("1.0",n.color2),t.strokeStyle=l}else t.strokeStyle=n.color;t.moveTo(e,n.y),t.lineTo(i,o),t.stroke()}}(l),o=n-u%confetti.frameInterval),requestAnimationFrame(c)}}function s(t,n,o){var r=window.innerWidth,u=window.innerHeight;window.requestAnimationFrame=window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame||function(t){return window.setTimeout(t,confetti.frameInterval)};var m=document.getElementById("confetti-canvas");null===m?((m=document.createElement("canvas")).setAttribute("id","confetti-canvas"),m.setAttribute("style","display:block;z-index:999999;pointer-events:none;position:fixed;top:0"),document.body.prepend(m),m.width=r,m.height=u,window.addEventListener("resize",(function(){m.width=window.innerWidth,m.height=window.innerHeight}),!0),l=m.getContext("2d")):null===l&&(l=m.getContext("2d"));var s=confetti.maxCount;if(n)if(o)if(n==o)s=a.length+o;else{if(n>o){var f=n;n=o,o=f}s=a.length+(Math.random()*(o-n)+n|0)}else s=a.length+n;else o&&(s=a.length+o);for(;a.length<s;)a.push(d({},r,u));e=!0,i=!1,c(),t&&window.setTimeout(w,t)}function w(){e=!1}}();
 
-// hex string to RGB array and vice versa
-// thanks https://stackoverflow.com/a/39077686
+/**
+ * Convert a hex color string to an RGB array.
+ * Handles shorthand (#abc → #aabbcc).
+ * Credit goes to https://stackoverflow.com/a/39077686
+ */
 const hexToRgb = hex =>
   hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
              ,(m, r, g, b) => '#' + r + r + g + g + b + b)
     .substring(1).match(/.{2}/g)
     .map(x => parseInt(x, 16));
 
+/**
+ * Convert an RGB triplet into a hex color string.
+ */
 const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
   const hex = x.toString(16)
   return hex.length === 1 ? '0' + hex : hex
 }).join('');
 
-// perceived brightness of a color on a scale of 0-255
-// via wx-xword
+/**
+ * Compute the perceived brightness (0–255) of a hex color.
+ */
 function getBrightness(hex) {
   const rgb = hexToRgb(hex);
   //return Math.sqrt(0.299 * rgb[0]**2 + 0.587 * rgb[1]**2 + 0.114 * rgb[2]**2);
@@ -60,8 +87,60 @@ function componentAvg(c1, c2, weight) {
   //return Math.floor(Math.sqrt(weight * c1**2 + (1 - weight) * c2**2));
   return Math.floor(weight * c1 + (1 - weight) * c2)
 }
-// helper function to take the "average" of two RGB strings
-// thanks https://stackoverflow.com/a/29576746
+
+// "Simple" function to adjust a color
+function rgbToHsv([r, g, b]) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  const d = max - min;
+  let h = 0;
+  if (d !== 0) {
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h *= 60;
+  }
+  const s = max === 0 ? 0 : d / max;
+  const v = max;
+  return [h, s, v];
+}
+
+function hsvToRgb([h, s, v]) {
+  h = ((h % 360) + 360) % 360;
+  const c = v * s;
+  const x = c * (1 - Math.abs(((h/60)%2) - 1));
+  const m = v - c;
+  let rp=0,gp=0,bp=0;
+  if (0<=h && h<60){rp=c;gp=x;bp=0;}
+  else if (60<=h && h<120){rp=x;gp=c;bp=0;}
+  else if (120<=h && h<180){rp=0;gp=c;bp=x;}
+  else if (180<=h && h<240){rp=0;gp=x;bp=c;}
+  else if (240<=h && h<300){rp=x;gp=0;bp=c;}
+  else {rp=c;gp=0;bp=x;}
+  return [
+    Math.round((rp+m)*255),
+    Math.round((gp+m)*255),
+    Math.round((bp+m)*255)
+  ];
+}
+
+function applyHsvTransform(rgbHex, {dh, ks, kv}) {
+  let rgb = hexToRgb(rgbHex);
+  let [h,s,v] = rgbToHsv(rgb);
+  h = h + dh;
+  s = Math.min(1, Math.max(0, s*ks));
+  v = Math.min(1, Math.max(0, v*kv));
+  let outRgb = hsvToRgb([h,s,v]);
+  return rgbToHex(outRgb[0], outRgb[1], outRgb[2]);
+}
+
+/**
+ * Average two colors by weight (default 0.5).
+ * Returns a new hex string.
+ * Credit: https://stackoverflow.com/a/29576746
+ */
 function averageColors(c1, c2, weight=0.5) {
   var r1 = hexToRgb(c1);
   var r2 = hexToRgb(c2);
@@ -141,18 +220,17 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     /* All of this is configurable via "params" when instantiating */
     var default_config = {
       hover_enabled: false, // enables or disables cell hover effect
-      color_hover: '#FFFFAA', // color for hovered cell (if enabled)
       color_selected: '#FF4136', // color for selected cell
       color_word: '#FEE300', // color for selected word
-      color_hilite: '#F8E473', // color for corresponding cells (in acrostics and codewords)
+
       color_none: '#FFFFFF', // color for "null" or "void" cells
       background_color_clue: '#666666', // color for "clue" cells
       default_background_color: '#c2ed7e', // color for shaded cells whose shade color is badly defined
-      color_secondary: '#fff7b7', // color for cross-referenced cells (currently unused)
       font_color_clue: '#FFFFFF', // color for text in "clue" cells
       font_color_fill: '#000000', // color for letters typed in the grid
       color_block: '#000000', // color of "black" squares
       puzzle_file: null, // puzzle file to load
+      puzzle_object: null, // jsxw to load, if available
       puzzles: null, // multiple puzzles from dropdown
       bar_linewidth: 3.5, // how thick to make the bars
       /*
@@ -257,8 +335,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                   <button class="cw-menu-item cw-file-print">Print</button>
                   <hr />
                   <button class="cw-menu-item cw-file-clear">Clear</button>
-                  <hr />
-                  <button class="cw-menu-item cw-file-download">Export JPZ</button>
                 </div>
               </div>
               <div class="cw-menu-container cw-check">
@@ -363,20 +439,29 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
     // returns deferred object
     function loadFileFromServer(path, type) {
-      var xhr = new XMLHttpRequest(),
-        deferred = $.Deferred();
+      const deferred = $.Deferred();
+      const xhr = new XMLHttpRequest();
+
       xhr.open('GET', path);
-      xhr.responseType = 'blob';
+      xhr.responseType = 'arraybuffer'; // binary-safe for .puz, .jpz, etc.
+
       xhr.onload = function () {
-        if (xhr.status == 200) {
-          loadFromFile(xhr.response, type, deferred);
+        if (xhr.status === 200) {
+          const data = new Uint8Array(xhr.response);
+          deferred.resolve(data);
         } else {
           deferred.reject(ERR_FILE_LOAD);
         }
       };
+
+      xhr.onerror = function () {
+        deferred.reject(ERR_FILE_LOAD);
+      };
+
       xhr.send();
       return deferred;
     }
+
 
     // Check if we can drag and drop files
     var isAdvancedUpload = (function () {
@@ -389,15 +474,18 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     })();
 
     function loadFromFile(file, type, deferred) {
-      var reader = new FileReader();
+      const reader = new FileReader();
       deferred = deferred || $.Deferred();
+
       reader.onload = function (event) {
-        var string = event.target.result;
-        deferred.resolve(string);
+        const data = new Uint8Array(event.target.result);
+        deferred.resolve(data);
       };
-      reader.readAsBinaryString(file);
+
+      reader.readAsArrayBuffer(file);
       return deferred;
     }
+
 
     // Breakpoint config for the top clue, as tuples of `[max_width, max_size]`
     const maxClueSizes = [
@@ -406,7 +494,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       [Infinity, 19],
     ];
 
-    /** Function to resize text **/
+    /**
+     * Dynamically resize text so it fits within its parent container.
+     *
+     * Increases font size from minSize until the element would overflow,
+     * then backs off one step. Used for clue text resizing based on viewport.
+     */
     function resizeText(rootElement, nodeList) {
       const minSize = 9;
       const rootWidth = rootElement.width();
@@ -452,10 +545,20 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
     }
 
-    // Function to check if a cell is solved correctly
-    function isCorrect(entry, solution) {
+    /**
+     * Determine if a user's entry matches the solution.
+     *
+     * - Strict rebus mode: exact match required
+     * - Rebus or non-alpha solution: accept anything non-empty.
+     * - Normal single-letter cells: require exact match.
+     */
+    function isCorrect(entry, solution, strictRebus) {
+      // if strictRebus and the string is alpha, the entry and solution must match
+      if (strictRebus && /^[A-Za-z]+$/.test(solution) ) {
+        return entry == solution;
+      }
       // if we have a rebus or non-alpha solution or no solution, accept anything
-      if (entry && (!solution || solution.length > 1 || /[^A-Za-z]/.test(solution))) {
+      else if (entry && (!solution || solution.length > 1 || /[^A-Za-z]/.test(solution))) {
         return true;
       }
       // otherwise, only mark as okay if we have an exact match
@@ -464,7 +567,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
     }
 
-    /** Sanitize an HTML string so it is safe to add it to the DOM. */
+    /**
+     * Sanitize an HTML string by stripping disallowed tags/attributes.
+     * Only whitelisted HTML/MathML elements and attributes are preserved.
+     * Prevents unsafe content from puzzle metadata or notes.
+     */
     function sanitizeHTML(html) {
       const unsanitized = new DOMParser().parseFromString(html, "text/html");
       const div = document.createElement("div");
@@ -572,6 +679,19 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       },
     };
 
+    /**
+     * CrossWord
+     *
+     * Core solver class. Manages puzzle state, rendering, and user input.
+     *
+     * Responsibilities:
+     * - Load puzzles (via JSCrossword) and parse metadata, grid, and clues
+     * - Track user configuration (dark mode, skip letters, tab behavior, etc.)
+     * - Render cells and clues, update on resize or selection change
+     * - Handle keyboard/mouse input (typing, arrow keys, check/reveal, etc.)
+     * - Manage game state (save/load to local storage)
+     * - Provide UI dialogs (modal boxes, settings, info, notes)
+     */
     class CrossWord {
       constructor(parent, user_config) {
         this.parent = parent;
@@ -598,6 +718,28 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
           }
         }
+
+        /* Update config values based on `color_word` */
+        const COLOR_WORD = this.config.color_word;
+        console.log(COLOR_WORD);
+        // color for hovered cell (if enabled)
+        this.config.color_hover = applyHsvTransform(COLOR_WORD, { dh: 6.38, ks: 0.333, kv: 1.004 });
+        // color for corresponding cells (in acrostics and codewords)
+        this.config.color_hilite = applyHsvTransform(COLOR_WORD, {dh: -2.64, ks: 0.536, kv: 0.976});
+        // color for cross-referenced cells (currently unused)
+        this.config.color_secondary = applyHsvTransform(COLOR_WORD, {dh: -0.29, ks: 0.282, kv: 1.004});
+
+        /* Update CSS values based on `color_word` */
+        document.documentElement.style.setProperty("--button-background-color",
+          applyHsvTransform(COLOR_WORD, {dh: 0.13, ks: 0.753, kv: 1.004}));
+        document.documentElement.style.setProperty("--button-background-color-hover",
+          applyHsvTransform(COLOR_WORD, {dh: 0.28, ks: 0.502, kv: 1.004}));
+        document.documentElement.style.setProperty("--button-shadow-color",
+          applyHsvTransform(COLOR_WORD, {dh: -0.01, ks: 1.000, kv: 0.925}));
+        document.documentElement.style.setProperty("--clue-active-color",
+          applyHsvTransform(COLOR_WORD, {dh: 0.13, ks: 0.753, kv: 1.004}));
+        document.documentElement.style.setProperty("--top-text-wrapper-background",
+          applyHsvTransform(COLOR_WORD, {dh: -8.62, ks: 0.157, kv: 1.004}));
 
         /** enable dark mode if available **/
         if (this.config.dark_mode_enabled && DarkReader) {
@@ -678,7 +820,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.print_btn = this.root.find('.cw-file-print');
         this.clear_btn = this.root.find('.cw-file-clear');
         this.save_btn = this.root.find('.cw-file-save');
-        this.download_btn = this.root.find('.cw-file-download');
 
         this.notes = new Map();
 
@@ -692,9 +833,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         // function to process uploaded files
         function processFiles(files) {
           loadFromFile(files[0], FILE_PUZ).then(
-              parsePUZZLE_callback,
-              error_callback
-            );
+            function (data) {
+              parsePUZZLE_callback(data);
+            },
+            function (err) {
+              error_callback(err);
+            }
+          );
         }
         // preload one puzzle
         if (
@@ -708,8 +853,16 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               this.config.puzzle_file.url,
               this.config.puzzle_file.type
             ).then(loaded_callback, error_callback);
+        } else if (this.config.puzzle_object) {
+          // Case 2: load from serialized (LZ) puzzle
+          console.log("[startup] Loading puzzle from lzpuz param");
+          const xw = this.config.puzzle_object;
+          console.log(xw);
+          Promise.resolve(xw).then(parsePUZZLE_callback, error_callback);
         } else if (this.config.avcx) {
+          // Case 3: AVCX
           this.root.addClass('loading');
+          console.log("[startup] Loading puzzle from AVCX config");
           var loaded_callback = parsePUZZLE_callback;
           var avcx_cookie = getCookie('avcx_s');
           loadAvcxFile(
@@ -779,20 +932,31 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         alert(message);
       }
 
-      /** Parse a puzzle using JSCrossword **/
-      parsePuzzle(string) {
-        // if "string" is actually an object assume it's already a jsxw
+    /**
+     * Parse puzzle data into CrossWord structures.
+     *
+     * - Accepts either a JSCrossword object or raw string data.
+     * - Normalizes coordinates (shift +1 to be 1-indexed).
+     * - Detects puzzle type (crossword, acrostic, coded).
+     * - Initializes cells, words, and clues (real or fake).
+     * - Enables autofill for acrostic/coded puzzles.
+     */
+     parsePuzzle(data) {
+        // if it's already a JSCrossword, return it as-is
         var puzzle;
-        if (typeof(string) == "object") {
-          puzzle = string;
+        if (data instanceof JSCrossword) {
+          puzzle = data;
         } else {
-          var xw_constructor = new JSCrossword();
-          puzzle = xw_constructor.fromData(string);
+          // otherwise, parse it directly — JSCrossword handles the format detection
+          puzzle = JSCrossword.fromData(new Uint8Array(data));
         }
+
         // we keep the original JSCrossword object as well
         this.jsxw = puzzle;
+
         // set the savegame_name
         const simpleHash=t=>{let e=0;for(let r=0;r<t.length;r++){e=(e<<5)-e+t.charCodeAt(r),e&=e}return new Uint32Array([e])[0].toString(36)};
+        // Use puzzle hash to generate a unique storage key, so saves don’t collide.
         const myHash = simpleHash(JSON.stringify(this.jsxw));
         this.savegame_name = STORAGE_KEY + '_' + myHash;
 
@@ -880,6 +1044,26 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
         }
 
+        /* determine if we should do strict rebus checking */
+        // flatten the cells
+        const cells1 = Object.values(this.cells).flatMap(row => Object.values(row));
+
+        // get the total number of cells with a solution
+        // and the number that have more than one character
+        const { total, long } = cells1.reduce(
+          (acc, c) => {
+            if (c.solution != null) {
+              acc.total++;
+              if (c.solution.length > 1) acc.long++;
+            }
+            return acc;
+          },
+          { total: 0, long: 0 }
+        );
+
+        // Enable strict rebus mode if >=1/3 of solution cells contain multi-char entries.
+        this.strictRebus = total === 0 ? false : long * 3 >= total;
+
         // helper function for coded and fakeclues puzzles
         this.make_fake_clues = function(puzzle, clue_mapping) {
 
@@ -902,7 +1086,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           if (!this.realwords) {
             // Determine which word is an across and which is a down
             // We do this by comparing the entry to the set of across entries
-            var thisGrid = new xwGrid(puzzle.cells);
+            var thisGrid = JSCrossword.xwGrid(puzzle.cells);
             var acrossEntries = thisGrid.acrossEntries();
             var acrossSet = new Set(Object.keys(acrossEntries).map(function (x) {return acrossEntries[x].word;}))
             var entry_mapping = puzzle.get_entry_mapping();
@@ -1170,16 +1354,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         );
 
         // PRINTER
-        this.print_btn.on('click', $.proxy(this.printPuzzle, this));
+        this.print_btn.on('click', (e) => this.printPuzzle(e));
 
         // CLEAR
         this.clear_btn.on(
           'click',
           $.proxy(this.check_reveal, this, 'puzzle', 'clear')
         );
-
-        // DOWNLOAD
-        this.download_btn.on('click', $.proxy(this.exportJPZ, this));
 
         /** We're disabling save and load buttons **/
         // SAVE
@@ -1227,72 +1408,69 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       // Create a generic modal box with content
-      createModalBox(title, content, button_text = 'Close', solved_msg = false) {
-        // pause the timer if it was running
+      createModalBox(title, content, button_text = 'Close', solved_msg = false, options = {}) {
+        const { showInput = false, inputPlaceholder = '', onSubmit = null } = options;
+
         const timer_was_running = this.timer_running;
-        if (timer_was_running) {
-          this.toggleTimer();
-        }
+        if (timer_was_running) this.toggleTimer();
 
-        // Set the contents of the modal box
+        const inputHTML = showInput
+          ? `<input type="text" id="modal-text-input" class="cw-input" placeholder="${inputPlaceholder}" style="width: 100%; margin-top: 1em;">`
+          : '';
+
         const modalContent = `
-        <div class="modal-content">
-          <div class="modal-header">
-            <span class="modal-close">&times;</span>
-            <span class="modal-title">${title}</span>
-          </div>
-          <div class="modal-body">
-            ${content}
-          </div>
-          <div class="modal-footer">
-            <button class="cw-button" id="modal-button">${button_text}</button>
-          </div>
-        </div>`;
-        // Set this to be the contents of the container modal div
-        this.root.find('.cw-modal').html(modalContent);
+          <div class="modal-content">
+            <div class="modal-header">
+              <span class="modal-close">&times;</span>
+              <span class="modal-title">${title}</span>
+            </div>
+            <div class="modal-body">
+              ${content}
+              ${inputHTML}
+            </div>
+            <div class="modal-footer">
+              <button class="cw-button" id="modal-button">${button_text}</button>
+            </div>
+          </div>`;
 
-        // turn "solved_open" to true if necessary
-        if (solved_msg) {
-          this.solved_open = true;
-        }
-
-        // Show the div
-        var modal = this.root.find('.cw-modal').get(0);
+        const modalElem = this.root.find('.cw-modal');
+        modalElem.html(modalContent);
+        const modal = modalElem.get(0);
         modal.style.display = 'block';
 
-        // Allow user to close the div
+        if (solved_msg) this.solved_open = true;
+
         const this_hidden_input = this.hidden_input;
-        var span = this.root.find('.modal-close').get(0);
+        const toggleTimerBound = this.toggleTimer.bind(this);
 
-        // When the user clicks on <span> (x), close the modal
-        var toggleTimerBound = this.toggleTimer.bind(this);
-        span.onclick = function () {
+        const closeModal = () => {
           modal.style.display = 'none';
           this_hidden_input.focus();
-          if (timer_was_running) {
-            toggleTimerBound();
-          }
+          if (timer_was_running) toggleTimerBound();
         };
-        // When the user clicks anywhere outside of the modal, close it
+
+        modal.querySelector('.modal-close').onclick = closeModal;
         window.onclick = function (event) {
-          if (event.target == modal) {
-            modal.style.display = 'none';
-            this_hidden_input.focus();
-            if (timer_was_running) {
-              toggleTimerBound();
-            }
-          }
+          if (event.target == modal) closeModal();
         };
 
-        // Clicking the button should close the modal
-        var modalButton = document.getElementById('modal-button');
+        const modalButton = modal.querySelector('#modal-button');
         modalButton.onclick = function () {
-          modal.style.display = 'none';
-          this_hidden_input.focus();
-          if (timer_was_running) {
-            toggleTimerBound();
-          }
+          const inputValue = showInput ? modal.querySelector('#modal-text-input').value : null;
+          closeModal();
+          if (onSubmit) onSubmit(inputValue);
         };
+
+        if (showInput) {
+          const inputField = modal.querySelector('#modal-text-input');
+          inputField.focus();
+
+          inputField.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+              modalButton.click();
+            }
+          });
+        }
       }
 
       // Function to switch the clues, generally from "ACROSS" to "DOWN"
@@ -1694,6 +1872,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                     this.context.beginPath();
                     this.context.moveTo(bar_start[key][0], bar_start[key][1]);
                     this.context.lineTo(bar_end[key][0], bar_end[key][1]);
+                    // Tiny random epsilon added for reasons I don't remember
                     const eps = Math.random()/10000;
                     this.context.lineWidth = this.config.bar_linewidth + eps;
                     this.context.stroke();
@@ -1902,20 +2081,30 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             this.checkIfSolved();
             break;
           case 27: // escape -- pulls up a rebus entry
-            if (e.shiftKey) {
+            if (e.shiftKey) { // Shift+Esc toggles timer
               e.preventDefault();
               this.toggleTimer();
             } else {
               if (this.selected_cell && this.selected_word) {
-                var rebus_entry = prompt('Rebus entry', '');
-                this.hiddenInputChanged(rebus_entry);
+                this.createModalBox("Rebus Entry", "Enter a rebus entry below:", "OK", false, {
+                  showInput: true,
+                  inputPlaceholder: "Type here...",
+                  onSubmit: (value) => {
+                    if (value != null) this.hiddenInputChanged(value);
+                  }
+                });
               }
             }
             break;
           case 45: // insert -- same as escape
             if (this.selected_cell && this.selected_word) {
-              var rebus_entry = prompt('Rebus entry', '');
-              this.hiddenInputChanged(rebus_entry);
+              this.createModalBox("Rebus Entry", "Enter a rebus entry below:", "OK", false, {
+                showInput: true,
+                inputPlaceholder: "Type here...",
+                onSubmit: (value) => {
+                  if (value != null) this.hiddenInputChanged(value);
+                }
+              });
             }
             break;
           case 46: // delete
@@ -2032,7 +2221,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             // if found cell without letter or with incorrect letter - return
             if (
               !cell.empty &&
-              (!cell.letter || !isCorrect(cell.letter, cell.solution))
+              (!cell.letter || !isCorrect(cell.letter, cell.solution, this.strictRebus))
             ) {
               this.isSolved = false;
               return;
@@ -2549,25 +2738,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         return jsxw_cells;
       }
 
-      /* Export a JPZ */
-      exportJPZ() {
-        // fill jsxw
-        this.fillJsXw();
-        const jpz_str = this.jsxw.toJPZString();
-        // set filename
-        var filename = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.jpz';
-        // Initiate download
-        var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jpz_str));
-        element.setAttribute('download', filename);
-
-        element.style.display = 'none';
-        document.body.appendChild(element);
-
-        element.click();
-        document.body.removeChild(element);
-      }
-
       check_reveal(to_solve, reveal_or_check, e) {
         var my_cells = [],
           cell;
@@ -2622,7 +2792,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             my_cells[i].letter = '';
           }
           if (
-            !isCorrect(my_cells[i].letter, my_cells[i].solution)
+            !isCorrect(my_cells[i].letter, my_cells[i].solution, this.strictRebus)
           ) {
             if (reveal_or_check == 'reveal') {
               my_cells[i].letter = my_cells[i].solution;
@@ -2631,7 +2801,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             } else if (reveal_or_check == 'check') {
               my_cells[i].checked = true;
             }
-          } else if (reveal_or_check == 'reveal' && isCorrect(my_cells[i].letter, my_cells[i].solution) && my_cells[i].letter !== my_cells[i].solution) {
+          } else if (
+            reveal_or_check == 'reveal'
+            && isCorrect(my_cells[i].letter, my_cells[i].solution, this.strictRebus)
+            && my_cells[i].letter !== my_cells[i].solution
+          ) {
             // i.e. the solution is "correct" but the letter doesn't match up
             my_cells[i].letter = my_cells[i].solution;
           }
@@ -2645,11 +2819,22 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.hidden_input.focus();
       }
 
-      printPuzzle(e) {
+      async printPuzzle(e) {
         // fill JSXW
         this.fillJsXw();
-        jscrossword_to_pdf(this.jsxw);
+        console.log(this.jsxw);
+        try {
+          let doc = await this.jsxw.toPDF();
+          console.log(doc);
+          doc.autoPrint();
+          // open in a new tab and trigger print dialog
+          const blobUrl = doc.output("bloburl");
+          window.open(blobUrl, "_blank");
+        } catch (err) {
+          console.error("PDF generation failed:", err);
+        }
       }
+
 
       updateClueAppearance(word) {
         // Grey out completed clues
