@@ -49,25 +49,6 @@
           isMobile: mobile
         });
 
-        function computeThemeFromPuzzle(puzzleUrl) {
-          if (!puzzleUrl) return null;
-
-          // Normalize: collapse // and ensure there's exactly one leading slash to keep matching easy
-          const norm = (puzzleUrl.startsWith('/') ? puzzleUrl : '/' + puzzleUrl).replace(/\/{2,}/g, '/');
-
-          const map = [
-            // Note the (^|/) isn’t needed now because we forced a single leading slash; but it’s still robust.
-            { pattern: /(^|\/)puzzles\/test\//i,           theme: 'taco-bell-theme' },
-            // { pattern: /(^|\/)puzzles\/cryptics\//i,    theme: 'cryptic-crossweird-theme' },
-            // { pattern: /(^|\/)puzzles\/seasonals\/fall\//i, theme: 'pumpkin-spice-theme' },
-          ];
-
-          for (const { pattern, theme } of map) {
-            if (pattern.test(norm)) return theme;
-          }
-          return null;
-        }
-
         if (mobile) {
           // ✅ Load core engine first (crosswords.js)
           const core = document.createElement('script');
@@ -106,17 +87,6 @@
             const puzzle = url.searchParams.get("puzzle") || url.searchParams.get("file");
             const b64config = url.searchParams.get("config");
             const params = {};
-
-            // Derive a theme from the puzzle URL (directory-based)
-            const forcedTheme = computeThemeFromPuzzle(puzzle);
-
-            // If found, pass through to the solver. Set lock_theme if you want it unchangeable.
-            if (forcedTheme) {
-              params.forced_theme = forcedTheme;
-              params.lock_theme   = true;     // set to false if you only want a default, not a lock
-            }
-            console.log('[Theme debug]', { puzzle, forcedTheme });
-
 
             if (puzzle) {
               params.puzzle_file = {
@@ -201,52 +171,14 @@
 
     <!-- SUCCESS ANIMATION STYLES -->
     <style>
-        #successAnimWrapper{
-            align-items: center;
-            justify-content: center;
-            position: fixed;
-            z-index: 999;
-            top:0;
-            left:0;
-            height: 100vh;
-            width: 100vw;
-            background-color: rgba(0,0,0,0.4);
-            pointer-events: none;
-            display: none;
-            user-select: none;
-        }
-        #successAnim{
-            opacity: 0;
-            width: 30vw;
-            aspect-ratio: 1/1;
-            filter: drop-shadow(0px 0px 20px #fff);
-            transform: translateY(-40px) rotateY(90deg);
-            object-fit: contain;
-            user-select: none;
-        }
-        /* TABLET STYLES */
-        @media only screen and (min-width: 650px) and (max-width: 990px){
-            #successAnim{
-            width: 60vw;
-        }
-        }
-
-        /* MOBILE STYLES */
-        @media only screen and (max-width: 649px){
-            #successAnim{
-            width: 80vw;
-        }
-        }
-
-        html,
-        body {
-        height: 100dvh;
-        overflow: hidden;
+        html, body {
+          height: 100dvh;
+          overflow: hidden;
         }
         .crossword {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
         }
     </style>
 
@@ -273,12 +205,6 @@
                 url: './puzzles/sample.puz', // your default test file
                 type: 'puz'
               };
-            }
-
-            const forcedTheme = computeThemeFromPuzzle(puzzle);
-            if (forcedTheme) {
-              params.forced_theme = forcedTheme;
-              params.lock_theme   = true; // set false if you don’t want to lock
             }
 
             if (b64config) {
