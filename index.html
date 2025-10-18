@@ -4,8 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
     <meta name="HandheldFriendly" content="True">
-    <title>Crossweird Solver</title>
-    <link rel="icon" href="images/cwlogo_28.png" type="image/icon type">
+    <title>Crossword Nexus Solver</title>
     <!--<link href="https://gists.rawgit.com/mfd/f3d96ec7f0e8f034cc22ea73b3797b59/raw/856f1dbb8d807aabceb80b6d4f94b464df461b3e/gotham.css" rel="stylesheet">-->
     <link href='https://fonts.googleapis.com/css?family=Poppins:Light' rel='stylesheet'>
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
@@ -38,10 +37,10 @@
           const isiPad = ua.includes("iPad") || (ua.includes("Mac") && navigator.maxTouchPoints > 1);
           const isMobileUA = /android|iphone|ipod|mobile/i.test(ua);
           const isSmallScreen = Math.max(window.innerWidth, window.innerHeight) < 1024;
-      
+
           return isTouch && (isMobileUA || isiPad || isSmallScreen);
         }
-      
+
         const mobile = isMobileDevice();
         console.log('[Device Detection]', {
           ua: navigator.userAgent,
@@ -68,41 +67,41 @@
           }
           return null;
         }
-            
+
         if (mobile) {
           // ✅ Load core engine first (crosswords.js)
           const core = document.createElement('script');
           core.src = './js/crosswords.js';
-      
+
           core.onload = () => {
             // ✅ Then load mobile layout script and CSS
             const link = document.createElement('link');
             link.rel = 'stylesheet';
             link.href = './css/crossword.mobile.css';
             document.head.appendChild(link);
-      
+
             const mobileScript = document.createElement('script');
             mobileScript.src = './js/crossword.mobile.js';
             document.body.appendChild(mobileScript); // ✅ Let it handle its own init
           };
-      
+
           window.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(core);
           });
-      
+
         } else {
           // ✅ Desktop CSS
           const link = document.createElement('link');
           link.rel = 'stylesheet';
           link.href = './css/crosswordnexus.css';
           document.head.appendChild(link);
-      
+
           // ✅ Desktop JS + Init
           const script = document.createElement('script');
           script.src = './js/crosswords.js';
           script.onload = () => {
             console.log('[Desktop] crosswords.js loaded — initializing crossword');
-      
+
             const url = new URL(window.location.href);
             const puzzle = url.searchParams.get("puzzle") || url.searchParams.get("file");
             const b64config = url.searchParams.get("config");
@@ -118,14 +117,14 @@
             }
             console.log('[Theme debug]', { puzzle, forcedTheme });
 
-      
+
             if (puzzle) {
               params.puzzle_file = {
                 url: puzzle,
                 type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
               };
             }
-      
+
             if (b64config) {
               try {
                 const config = JSON.parse(atob(b64config));
@@ -134,7 +133,7 @@
                 console.warn("Invalid config:", e);
               }
             }
-      
+
             window.gCrossword = CrosswordNexus.createCrossword($('div.crossword'), params);
 
             setTimeout(() => {
@@ -154,13 +153,13 @@
               }
             }, 350);
           };
-      
+
           window.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(script);
           });
         }
-      </script>           
-    
+      </script>
+
     <noscript>
       <link rel="stylesheet" href="./css/crosswordnexus.css">
     </noscript>
@@ -231,7 +230,7 @@
             width: 60vw;
         }
         }
-        
+
         /* MOBILE STYLES */
         @media only screen and (max-width: 649px){
             #successAnim{
@@ -253,9 +252,6 @@
 
 </head>
 <body>
-    <div id="successAnimWrapper">
-        <img src="./images/gg.svg" alt="success animation" id="successAnim">
-    </div>
     <div class="crossword cryptic-crossweird-theme"></div>
     <script>
         var gCrossword;
@@ -298,7 +294,6 @@
 
         });
     </script>
- 
+
 </body>
 </html>
-         

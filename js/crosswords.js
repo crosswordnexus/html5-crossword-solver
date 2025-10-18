@@ -229,7 +229,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         <!-- Overlay for opening puzzles -->
         <div class = "cw-open-holder">
         <div class = "cw-overflow" style = "
-          background-image   : url(images/cwlogo_trans.png);
           background-position: center;
           background-size    : 40%;
           background-repeat  : no-repeat;"></div>
@@ -673,33 +672,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
     };
 
-    // Map each solver theme to a success image
-    const successImageByTheme = {
-      "light-blue-theme":         "images/gg_light-blue.png",
-      "light-green-theme":        "images/gg_light-green.png",
-      "dark-theme":               "images/gg_dark.png",
-      "pumpkin-spice-theme":      "images/gg_pumpkin-spice.png",
-      "barbie-theme":             "images/gg_barbie.png",
-      "taco-bell-theme":          "images/gg_taco-bell.png",
-      "earth-tones-theme":        "images/gg_earth-tones.png",
-      "grape-soda-theme":         "images/gg_grape-soda.png",
-      "cherry-blossom-theme":     "images/gg_cherry-blossom.png",
-      "momos-nail-corner-theme":  "images/gg_momos-nail-corner.png",
-      "frost-theme":              "images/gg_frost.png",
-      "cryptic-crossweird-theme": "images/gg.svg",
-      "spring-pastels-theme":     "images/gg_spring-pastels.png",
-      "gio-theme":                "images/gg_gio.png",
-      "pride-theme":              "images/gg_pride.png",
-      "_default":                 "images/gg.svg" //fallback
-    };
-
-    function updateSuccessImageForTheme(themeKey) {
-      const img = document.getElementById("successAnim");
-      if (!img) return;
-      img.src = successImageByTheme[themeKey] || successImageByTheme["_default"];
-      img.alt = `GG! (${themeKey || "default"})`;
-    }
-
     var CrosswordNexus = {
       createCrossword: function (parent, user_config) {
         var crossword;
@@ -793,30 +765,30 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       make_fake_clues(puzzle, clue_mapping = {}) {
         const CLUES_TOP = 'clues_top';
         const CLUES_BOTTOM = 'clues_bottom';
-      
+
         let across_group = new CluesGroup(this, {
           id: CLUES_TOP,
           title: 'Across',
           clues: [],
           words_ids: [],
         });
-      
+
         let down_group = new CluesGroup(this, {
           id: CLUES_BOTTOM,
           title: 'Down',
           clues: [],
           words_ids: [],
         });
-      
+
         const clueMapping = {};
-      
+
         if (!this.realwords) {
           const entry_mapping = puzzle.get_entry_mapping();
           const thisGrid = new xwGrid(puzzle.cells);
           const acrossSet = new Set(
             Object.values(thisGrid.acrossEntries()).map(entry => entry.word)
           );
-      
+
           Object.keys(entry_mapping).forEach((id) => {
             const entry = entry_mapping[id];
             const clue = { word: id, number: id, text: '--' };
@@ -833,13 +805,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           across_group = this.clues_top;
           down_group = this.clues_bottom;
         }
-      
+
         return {
           across_group,
           down_group,
           clue_mapping: clueMapping
         };
-      }      
+      }
 
       init() {
         var parsePUZZLE_callback = $.proxy(this.parsePuzzle, this);
@@ -1013,9 +985,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
 
         puzzle.kind = puzzle.metadata.kind;
-      
+
         this.jsxw = puzzle;
-      
+
         this.diagramless_mode = false;
 
         // 1. Trust metadata if available
@@ -1024,8 +996,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             this.diagramless_mode = true;
             console.log('Diagramless detected: from metadata.crossword_type');
           }
-        }        
-      
+        }
+
         // 3. If diagramless, wipe all types BEFORE building cells
         if (this.diagramless_mode) {
           for (let i = 0; i < puzzle.cells.length; i++) {
@@ -1034,13 +1006,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             cell['bottom-bar'] = false;
             cell['left-bar'] = false;
             cell['right-bar'] = false;
-        
+
             // Detect blocks manually
             const sol = cell.solution?.trim().toUpperCase();
             if (!sol || sol === '#' || sol === '.' || sol === '-') {
               cell.solution = '#'; // treat it as a block
             }
-        
+
             if (cell.solution === '#') {
               cell.type = 'block';
               cell.letter = '';
@@ -1050,8 +1022,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
             cell.number = null;
           }
-        }        
-      
+        }
+
         // Savegame
         const simpleHash = t => { let e = 0; for (let r = 0; r < t.length; r++) { e = (e << 5) - e + t.charCodeAt(r), e &= e } return new Uint32Array([e])[0].toString(36) };
         const myHash = simpleHash(JSON.stringify(puzzle));
@@ -1068,7 +1040,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           localStorage.setItem(versionKey, PUZZLE_STORAGE_VERSION);
         }
         */
-      
+
         const jsxw2_cells = this.loadGame();
         if (jsxw2_cells) {
           console.log('Loading puzzle from localStorage');
@@ -1098,22 +1070,22 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.notepad = puzzle.metadata.description || '';
         this.grid_width = puzzle.metadata.width;
         this.grid_height = puzzle.metadata.height;
-      
+
         if (this.title) {
           document.title = this.title + ' | ' + document.title;
         }
         if (this.crossword_type == 'acrostic' || this.crossword_type == 'coded') {
           this.is_autofill = true;
         }
-      
+
         if (this.fakeclues) {
           $('div.cw-top-text-wrapper').css({ display: 'none' });
         }
-      
+
         // === Build cells ===
         this.cells = {};
         this.number_to_cells = {};
-      
+
         for (var i = 0; i < puzzle.cells.length; i++) {
           const rawCell = puzzle.cells[i];
           const c = {
@@ -1162,7 +1134,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               c.fixed = true;
             }
           }
-      
+
           if (this.diagramless_mode) {
             c.type = null;
             c.empty = false;
@@ -1174,12 +1146,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             c.empty = (c.type === 'block' || c.type === 'void' || c.type === 'clue');
             c.clue = (c.type === 'clue');
           }
-      
+
           if (!this.cells[c.x]) {
             this.cells[c.x] = {};
           }
           this.cells[c.x][c.y] = c;
-      
+
           const key = c.number || c.top_right_number;
           if (key) {
             if (!this.number_to_cells[key]) {
@@ -1188,25 +1160,25 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             this.number_to_cells[key].push(c);
           }
         }
-      
+
         // If diagramless, renumber
         if (this.diagramless_mode) {
           this.renumberGrid();
         }
-      
+
         // === Build clues ===
         var clueMapping = {};
-      
+
         if (this.crossword_type === 'coded') {
           var fake_clue_obj = this.make_fake_clues(puzzle);
           this.clues_top = fake_clue_obj.across_group;
           this.clues_bottom = fake_clue_obj.down_group;
           clueMapping = fake_clue_obj.clue_mapping;
-      
+
           $('div.cw-clues-holder').css({ display: 'none' });
           $('div.cw-top-text-wrapper').css({ display: 'none' });
           $('div.cw-buttons-holder').css({ padding: '0 10px' });
-      
+
         } else {
           puzzle.clues[0].clue.forEach(function (clue) {
             clueMapping[clue.word] = clue;
@@ -1220,7 +1192,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             clues: puzzle.clues[0].clue,
             words_ids: words_ids_top
           });
-      
+
           if (puzzle.clues.length > 1) {
             puzzle.clues[1].clue.forEach(function (clue) {
               clueMapping[clue.word] = clue;
@@ -1239,7 +1211,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             });
           }
         }
-      
+
         // Handle fake clues override
         var num_words = puzzle.words.length;
         var num_clues = puzzle.clues.map(x => x.clue).flat().length;
@@ -1251,7 +1223,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.clues_bottom = fake_clue_obj.down_group;
           clueMapping = fake_clue_obj.clue_mapping;
         }
-      
+
         // === Build words ===
         this.words = {};
         for (var i = 0; i < puzzle.words.length; i++) {
@@ -1266,12 +1238,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             clue: clueMapping[word.id]
           });
         }
-      
+
         console.log(this);
-      
+
         this.completeLoad();
         this.loadSavedTheme();
-      }      
+      }
 
       completeLoad() {
         $('#cw-title').text(this.title || 'Untitled Puzzle');
@@ -1589,7 +1561,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             const x = parseInt(e.target.getAttribute('data-x'));
             const y = parseInt(e.target.getAttribute('data-y'));
             const clickedCell = this.getCell(x, y);
-        
+
             if (this.diagramless_mode) {
               // Diagramless: only select square
               if (clickedCell) {
@@ -1603,7 +1575,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               if (!clickedCell.empty) {
                 const newActiveWord = this.active_clues.getMatchingWord(x, y, true)
                   || this.inactive_clues.getMatchingWord(x, y, true);
-        
+
                 if (newActiveWord) {
                   this.setActiveWord(newActiveWord);
                   this.setActiveCell(clickedCell);
@@ -1612,7 +1584,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               }
             }
           }
-        });        
+        });
 
         this.svgContainer.addEventListener('dblclick', (e) => {
           if (e.target.tagName === 'rect') {
@@ -1852,7 +1824,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             $(this).find('.cw-cluenote-button').hide();
           }
         });
-        
+
         items.find('.cw-input').on('click', function (event) {
           event.stopPropagation();
         });
@@ -1866,31 +1838,31 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           clueElement.find('.cw-input').focus();
           $(this).hide();
         });
-        
+
         items.find('.cw-input').on('blur', function (event) {
           const clueElement = $(this).closest('.cw-clue');
           const inputEl = $(this);
           const wordId = clueElement.data('word');
-        
+
           setTimeout(() => {
             const newlyFocused = document.activeElement;
             const newText = inputEl.val().trim();
-        
+
             if (newlyFocused && newlyFocused.classList.contains('cw-hidden-input')) {
               return;
             }
-        
+
             if (newText.length > 0) {
               notes.set(wordId, newText);
             } else {
               clueElement.find('.cw-edit-container').hide();
               notes.delete(wordId);
             }
-        
+
             save();
           }, 10);  // Delay slightly to allow focus to settle
         });
-                            
+
         items.find('.cw-input').on('keydown', function (event) {
           if (event.keyCode === 13) { // Enter key
             var clueElement = $(this).closest('.cw-clue');
@@ -2065,13 +2037,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               text.setAttribute('x', cellX + SIZE / 2);
               text.setAttribute('y', cellY + SIZE * 0.77);
               text.setAttribute('text-anchor', 'middle');
-              
+
               const letterLength = cell.letter.length;
               const maxScale = 0.6;
               const minScale = 0.25;
               const scale = Math.max(minScale, maxScale - 0.07 * (letterLength - 1));
               text.setAttribute('font-size', `${SIZE * scale}px`);
-              
+
               text.setAttribute('font-family', 'Arial, sans-serif');
               text.setAttribute('font-weight', 'bold');
               text.textContent = cell.letter;
@@ -2092,7 +2064,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               svg.appendChild(number);
             }
 
-            if (  
+            if (
               cell.top_right_number &&
               cell.top_right_number !== cell.letter
             ) {
@@ -2115,7 +2087,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               slash.setAttribute('y1', (cell.y - 1) * SIZE + 2);
               slash.setAttribute('x2', (cell.x - 1) * SIZE + SIZE - 2);
               slash.setAttribute('y2', (cell.y - 1) * SIZE + SIZE - 2);
-            
+
               if (this.diagramless_mode) {
                 const solutionIsBlock = (cell.solution === '#');
                 const typeIsBlock = (cell.type === 'block');
@@ -2130,16 +2102,16 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 slash.setAttribute('stroke', '#000');
                 slash.setAttribute('stroke-width', 2);
               }
-            
+
               slash.setAttribute('stroke-linecap', 'round');
               svg.appendChild(slash);
-            }            
+            }
           }
         }
 
         if (!this.diagramless_mode && this.selected_word) {
           this.drawSelectedWordBorder(svg, this.selected_word);
-        }        
+        }
         setTimeout(() => this.syncTopTextWidth(), 0);
 
         for (const wordId in this.words) {
@@ -2179,7 +2151,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         let number = 1;
         const width = this.grid_width;
         const height = this.grid_height;
-      
+
         // First clear all numbers
         for (let x = 1; x <= width; x++) {
           for (let y = 1; y <= height; y++) {
@@ -2189,27 +2161,27 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
           }
         }
-      
+
         // Assign new numbers
         for (let y = 1; y <= height; y++) {
           for (let x = 1; x <= width; x++) {
             const cell = this.getCell(x, y);
             if (!cell || cell.type === 'block') continue;
-      
+
             const left = this.getCell(x - 1, y);
             const above = this.getCell(x, y - 1);
             const right = this.getCell(x + 1, y);
             const below = this.getCell(x, y + 1);
-      
+
             const startsAcross = (!left || left.type === 'block') && right && right.type !== 'block';
             const startsDown = (!above || above.type === 'block') && below && below.type !== 'block';
-      
+
             if (startsAcross || startsDown) {
               cell.number = number++;
             }
           }
         }
-      }      
+      }
 
       mouseMoved(e) {
         if (this.config.hover_enabled) {
@@ -2233,7 +2205,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             mouse_y = e.pageY - offset.top,
             index_x = Math.ceil(mouse_x / this.cell_size),
             index_y = Math.ceil(mouse_y / this.cell_size);
-      
+
         if (this.diagramless_mode) {
           const clickedCell = this.getCell(index_x, index_y);
           if (clickedCell) {
@@ -2253,7 +2225,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           ) {
             this.changeActiveClues();
           }
-      
+
           if (this.active_clues.getMatchingWord(index_x, index_y, true)) {
             this.setActiveWord(
               this.active_clues.getMatchingWord(index_x, index_y, true)
@@ -2270,7 +2242,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             this.hidden_input.focus();  // <-- Also focus here for normal puzzles
           }
         }
-      }                  
+      }
 
       keyPressed(e) {
         if (this.settings_open) {
@@ -2364,14 +2336,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 var rebus_entry = prompt('Rebus entry', '');
                 this.hiddenInputChanged(rebus_entry);
               }
-            }            
+            }
             break;
             case 45: // insert -- same as escape
             if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
               var rebus_entry = prompt('Rebus entry', '');
               this.hiddenInputChanged(rebus_entry);
             }
-            break;          
+            break;
           case 46: // delete
             if (this.selected_cell && !this.selected_cell.fixed) {
               this.selected_cell.letter = '';
@@ -2387,7 +2359,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               this.selected_cell.letter = '';
               this.selected_cell.checked = false;
               this.autofill();
-          
+
               if (this.diagramless_mode) {
                 // move left to previous non-block square
                 const cx = this.selected_cell.x;
@@ -2406,11 +2378,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 );
                 this.setActiveCell(prev_cell);
               }
-          
+
               this.renderCells();
               this.checkIfSolved();
             }
-            break;          
+            break;
           case 9: // tab
             var skip_filled_words = this.config.tab_key === 'tab_skip';
             if (e.shiftKey) {
@@ -2430,7 +2402,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             case 190: // "." key pressed
             if (this.diagramless_mode && this.selected_cell) {
               const cell = this.selected_cell;
-          
+
               // Toggle block / white
               if (cell.type === 'block') {
                 // It is currently a block: make it white again
@@ -2441,14 +2413,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 cell.type = 'block';
                 cell.empty = true;
               }
-          
+
               // Always clear any letter inside
               cell.letter = '';
-          
+
               // Renumber immediately
               this.renumberGrid();
               this.renderCells(); // redraw right away
-          
+
               if (!isMobile) {
                 this.hidden_input.focus();
               }
@@ -2595,7 +2567,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             ) {
               this.isSolved = false;
               return;
-            }            
+            }
           }
         }
         // Puzzle is solved!
@@ -2816,13 +2788,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           const x = this.selected_cell.x + delta_x;
           const y = this.selected_cell.y + delta_y;
           const new_cell = this.getCell(x, y);
-        
+
           if (new_cell) {
             this.selected_cell = new_cell;
             this.renderCells();
           }
           return; // skip normal crossword movement logic
-        }        
+        }
         var x, y, new_cell;
         if (this.selected_cell) {
           x = this.selected_cell.x + delta_x;
@@ -2981,7 +2953,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
         if (this.diagramless_mode) {
           return;
-        }        
+        }
         var target = $(e.currentTarget),
           word = this.words[target.data('word')],
           cell = word.getFirstEmptyCell() || word.getFirstCell();
@@ -3498,9 +3470,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.setConfig(key, value);
         }
 
-        // Keep success image in sync with theme
-        updateSuccessImageForTheme(newThemeClass);
-
         this.renderCells();
 
         // Reposition clue bar if needed
@@ -3544,20 +3513,19 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
             return;
           }
-          
+
         let savedTheme = localStorage.getItem('selectedTheme');
         if (!savedTheme) {
           savedTheme = 'cryptic-crossweird-theme';
           localStorage.setItem('selectedTheme', savedTheme);
         }
         this.set_theme(savedTheme);
-        updateSuccessImageForTheme(savedTheme);
         this.appliedThemeClass = savedTheme;
       }
 
       check_reveal(to_solve, reveal_or_check, e) {
         var my_cells = [], cell;
-      
+
         switch (to_solve) {
           case 'letter':
             if (this.selected_cell) {
@@ -3582,7 +3550,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
             break;
         }
-      
+
         // Expand autofill cells (if needed)
         if (this.is_autofill) {
           const extra_cells = [];
@@ -3600,7 +3568,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
           my_cells = my_cells.concat(extra_cells);
         }
-      
+
         for (let c of my_cells) {
           if (reveal_or_check !== 'clear' && !c.solution) {
             continue;
@@ -3662,9 +3630,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 c.checked = false;
               }
             }
-          }                                      
+          }
         }
-      
+
         // After mass-reveal or clear, renumber
         if (reveal_or_check === 'reveal' && this.diagramless_mode) {
           this.renumberGrid();
@@ -3672,9 +3640,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         if (reveal_or_check === 'clear' && this.diagramless_mode) {
           this.renumberGrid();
         }
-      
+
         this.renderCells();
-      
+
         if (reveal_or_check === 'reveal') {
           this.checkIfSolved(false);
         }
@@ -3686,7 +3654,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         if (!isMobile) {
           this.hidden_input.focus();
         }
-      }      
+      }
 
       printPuzzle(e) {
         // fill JSXW
