@@ -4,23 +4,166 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
     <meta name="HandheldFriendly" content="True">
-    <title>Crossword Nexus Solver</title>
-    <link href="css/crosswordnexus.css" rel="stylesheet">
-
-    <!-- the main crossword JavaScript -->
-    <script src="js/crosswords.js"></script>
+    <title>Crossweird Solver</title>
+    <link rel="icon" href="images/cwlogo_28.png" type="image/icon type">
+    <!--<link href="https://gists.rawgit.com/mfd/f3d96ec7f0e8f034cc22ea73b3797b59/raw/856f1dbb8d807aabceb80b6d4f94b464df461b3e/gotham.css" rel="stylesheet">-->
+    <link href='https://fonts.googleapis.com/css?family=Poppins:Light' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Noto%20Sans%20Mono' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Noto%20Sans%20Mono:SemiBold' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Noto%20Sans%20Mono:Bold' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:ital,wght@0,100..900" rel="stylesheet">
 
     <!-- jQuery -->
     <script src="lib/jquery.js"></script>
 
     <!-- for loading crosswords -->
-    <script src="lib/jscrossword_combined.js"></script>
+    <script src="lib/crossword-tools/jscrossword/jscrossword_combined.js"></script>
 
-    <!-- for saving crosswords -->
-    <script src="lib/lscache.min.js"></script>
+    <!-- for printing -->
+    <script src="lib/crossword-tools/pdf_create/jspdf.min.js"></script>
+    <script src="lib/crossword-tools/pdf_create/xw_pdf.js"></script>
 
-    <!-- for dark mode -->
-    <script src="lib/darkreader.min.js"></script>
+    <!-- confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- GG animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OyTttBxEGkTsoIVsiP1iaTtM8b3+hu2kB6pQ4Clr5yug==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        function isMobileDevice() {
+          const ua = navigator.userAgent || '';
+          const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 1;
+          const isiPad = ua.includes("iPad") || (ua.includes("Mac") && navigator.maxTouchPoints > 1);
+          const isMobileUA = /android|iphone|ipod|mobile/i.test(ua);
+          const isSmallScreen = Math.max(window.innerWidth, window.innerHeight) < 1024;
+      
+          return isTouch && (isMobileUA || isiPad || isSmallScreen);
+        }
+      
+        const mobile = isMobileDevice();
+        console.log('[Device Detection]', {
+          ua: navigator.userAgent,
+          platform: navigator.platform,
+          maxTouchPoints: navigator.maxTouchPoints,
+          isMobile: mobile
+        });
+
+        function computeThemeFromPuzzle(puzzleUrl) {
+          if (!puzzleUrl) return null;
+
+          // Normalize: collapse // and ensure there's exactly one leading slash to keep matching easy
+          const norm = (puzzleUrl.startsWith('/') ? puzzleUrl : '/' + puzzleUrl).replace(/\/{2,}/g, '/');
+
+          const map = [
+            // Note the (^|/) isn’t needed now because we forced a single leading slash; but it’s still robust.
+            { pattern: /(^|\/)puzzles\/test\//i,           theme: 'taco-bell-theme' },
+            // { pattern: /(^|\/)puzzles\/cryptics\//i,    theme: 'cryptic-crossweird-theme' },
+            // { pattern: /(^|\/)puzzles\/seasonals\/fall\//i, theme: 'pumpkin-spice-theme' },
+          ];
+
+          for (const { pattern, theme } of map) {
+            if (pattern.test(norm)) return theme;
+          }
+          return null;
+        }
+            
+        if (mobile) {
+          // ✅ Load core engine first (crosswords.js)
+          const core = document.createElement('script');
+          core.src = './js/crosswords.js';
+      
+          core.onload = () => {
+            // ✅ Then load mobile layout script and CSS
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = './css/crossword.mobile.css';
+            document.head.appendChild(link);
+      
+            const mobileScript = document.createElement('script');
+            mobileScript.src = './js/crossword.mobile.js';
+            document.body.appendChild(mobileScript); // ✅ Let it handle its own init
+          };
+      
+          window.addEventListener('DOMContentLoaded', () => {
+            document.body.appendChild(core);
+          });
+      
+        } else {
+          // ✅ Desktop CSS
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = './css/crosswordnexus.css';
+          document.head.appendChild(link);
+      
+          // ✅ Desktop JS + Init
+          const script = document.createElement('script');
+          script.src = './js/crosswords.js';
+          script.onload = () => {
+            console.log('[Desktop] crosswords.js loaded — initializing crossword');
+      
+            const url = new URL(window.location.href);
+            const puzzle = url.searchParams.get("puzzle") || url.searchParams.get("file");
+            const b64config = url.searchParams.get("config");
+            const params = {};
+
+            // Derive a theme from the puzzle URL (directory-based)
+            const forcedTheme = computeThemeFromPuzzle(puzzle);
+
+            // If found, pass through to the solver. Set lock_theme if you want it unchangeable.
+            if (forcedTheme) {
+              params.forced_theme = forcedTheme;
+              params.lock_theme   = true;     // set to false if you only want a default, not a lock
+            }
+            console.log('[Theme debug]', { puzzle, forcedTheme });
+
+      
+            if (puzzle) {
+              params.puzzle_file = {
+                url: puzzle,
+                type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
+              };
+            }
+      
+            if (b64config) {
+              try {
+                const config = JSON.parse(atob(b64config));
+                Object.assign(params, config);
+              } catch (e) {
+                console.warn("Invalid config:", e);
+              }
+            }
+      
+            window.gCrossword = CrosswordNexus.createCrossword($('div.crossword'), params);
+
+            setTimeout(() => {
+              const svg = document.getElementById('cw-puzzle-grid');
+              const cw = window.gCrossword;
+
+              if (svg && cw?.renderCells && cw.grid_width && cw.grid_height) {
+                console.log('[Fix] Final render pass after layout settle');
+                cw.renderCells();
+                cw.windowResized?.();
+                cw.syncTopTextWidth?.();
+              } else {
+                console.warn('[Fix] Skipping renderCells — grid size not yet initialized', {
+                  grid_width: cw?.grid_width,
+                  grid_height: cw?.grid_height
+                });
+              }
+            }, 350);
+          };
+      
+          window.addEventListener('DOMContentLoaded', () => {
+            document.body.appendChild(script);
+          });
+        }
+      </script>           
+    
+    <noscript>
+      <link rel="stylesheet" href="./css/crosswordnexus.css">
+    </noscript>
 
     <style>
         html, body {
@@ -30,53 +173,132 @@
         }
         div.crossword { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
     </style>
+
+    <!--<style>
+        /* Hide the scrollbar */
+        /*::-webkit-scrollbar {
+            width: 0.5em;
+            /* Adjust the width as needed
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: transparent;
+            /* Make the track transparent */
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: transparent;
+            /* Make the scrollbar handle transparent */
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: transparent;
+            /* Make the scrollbar handle transparent on hover */
+        }*/
+    </style>-->
+
+    <!-- SUCCESS ANIMATION STYLES -->
+    <style>
+        #successAnimWrapper{
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            z-index: 999;
+            top:0;
+            left:0;
+            height: 100vh;
+            width: 100vw;
+            background-color: rgba(0,0,0,0.4);
+            pointer-events: none;
+            display: none;
+            user-select: none;
+        }
+        #successAnim{
+            opacity: 0;
+            width: 30vw;
+            aspect-ratio: 1/1;
+            filter: drop-shadow(0px 0px 20px #fff);
+            transform: translateY(-40px) rotateY(90deg);
+            object-fit: contain;
+            user-select: none;
+        }
+        /* TABLET STYLES */
+        @media only screen and (min-width: 650px) and (max-width: 990px){
+            #successAnim{
+            width: 60vw;
+        }
+        }
+        
+        /* MOBILE STYLES */
+        @media only screen and (max-width: 649px){
+            #successAnim{
+            width: 80vw;
+        }
+        }
+
+        html,
+        body {
+        height: 100dvh;
+        overflow: hidden;
+        }
+        .crossword {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        }
+    </style>
+
 </head>
 <body>
-    <!-- The div in which the crossword will be created -->
-    <div class="crossword"></div>
+    <div id="successAnimWrapper">
+        <img src="./images/gg.svg" alt="success animation" id="successAnim">
+    </div>
+    <div class="crossword cryptic-crossweird-theme"></div>
+    <script>
+        var gCrossword;
+        $(document).ready(function(){
 
-<script>
-    (function(){
-        // Grab puzzle from query string if available
-        const url = new URL(window.location.href);
-        var puzzle = url.searchParams.get("puzzle");
-        if (!puzzle) puzzle = url.searchParams.get("file");
+            var url = new URL(window.location.href);
+            var puzzle = url.searchParams.get("puzzle");
+            if (!puzzle) puzzle = url.searchParams.get("file");
+            var b64config = url.searchParams.get("config");
+            var params = {};
 
-        // optional LZ-string–encoded puzzle (compressed JSON)
-        const lzpuz =  window.location.hash.slice(1);
-        console.log(lzpuz);
+            if (puzzle) {
+                params.puzzle_file = {
+                    url: puzzle,
+                    type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
+                };
+            } else {
+              params.puzzle_file = {
+                url: './puzzles/sample.puz', // your default test file
+                type: 'puz'
+              };
+            }
 
-        // optional puzzle parameters
-        // for options, see line 141 in crosswords.js.
-        var params = {};
-        if (puzzle) {
-            params['puzzle_file'] = {
-                url: puzzle,
-                type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
-            };
-        } else if (lzpuz) {
-          try {
-            console.log("[startup] Found lzpuz param — decompressing...");
-            const xw = JSCrossword.deserialize(lzpuz);
-            console.log("[startup] Loaded LZ puzzle:", xw.metadata.title, "by", xw.metadata.author);
-            params["puzzle_object"] = xw;
-          } catch (err) {
-            console.error("[startup] Failed to load lzpuz:", err);
-          }
-        }
+            const forcedTheme = computeThemeFromPuzzle(puzzle);
+            if (forcedTheme) {
+              params.forced_theme = forcedTheme;
+              params.lock_theme   = true; // set false if you don’t want to lock
+            }
 
-        // you can also set parameters in the URL
-        // as a base64-encoded JSON blob
-        var b64config = url.searchParams.get("config");
-        if (b64config) {
-            var config = JSON.parse(atob(b64config));
-            params = Object.assign(params, config);
-        }
+            if (b64config) {
+                var config = JSON.parse(atob(b64config));
+                params = Object.assign(params, config);
+            }
 
-        // Create the crossword
-        CrosswordNexus.createCrossword($('div.crossword'), params);
-    })();
-</script>
+            console.log(params);
 
+            if (!isMobileDevice) {
+              gCrossword = CrosswordNexus.createCrossword($('div.crossword'), params);
+            }
+
+        });
+    </script>
+ 
 </body>
 </html>
+         

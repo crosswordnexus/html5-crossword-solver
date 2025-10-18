@@ -1,0 +1,528 @@
+/**
+Copyright (c) 2025, Crossweird
+CTFYC version
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**/
+/* CSS for using the Crossweird Crossword Solver */
+
+/* Themes (New theme: Step 2) */
+.pride-theme {
+    --main-bg-color: #ffffff;
+    --header-bg-color: #f4afc9;
+    --content-bg-gradient: linear-gradient(to bottom, rgba(238,49,36,0.5) 0%,rgba(245,127,41,0.5) 20%,rgba(255,240,0,0.5) 40%,rgba(88,185,71,0.5) 60%,rgba(0,84,166,0.5) 80%,rgba(159,36,143,0.5) 100%);
+    --main-hilite-color: #b384d5;
+    --button-bg-color: #cbc4bd;
+    --button-text-color: #000000;
+    --button-hover-color: #f4afc9;
+    --button-menu-bg-color: #FFFFFF;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #BA4178;
+    --timer-running-text-color: #000000;
+    --timer-runnning-text-shadow: -0.3px 0.3px black;*/
+    --top-text-wrapper-bg-color: #5bcffa;
+    --top-text-wrapper-text-color: #000000;
+    --clues-holder-bg-color: #f2f2f2;
+    --clue-active-color: #c29cdd;
+    --clue-active-text-color: #000000;
+    --clue-hover-color: #e0cdee;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #ffffff;
+    --clue-scrollbar-color-thumb: #66308c;
+    --clue-scrollbar-color-thumb-hover: #51266f;
+    /*--clue-scrollbar-color-thumb1: #ff9dca;
+    --clue-scrollbar-color-thumb2: #2fcdfb;*/
+    --main-text-color: #000000;
+    --grid-selected-square-color: #f4afc9;
+    --grid-selected-word-color: #fbe3ec;
+    --grid-block-color: #3F3F3F;
+    --grid-none-color: #FFE8F2;
+    --modal-header-bg-color: #f4afc9;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #fbe3ec;
+ }
+
+.gio-theme {
+    --main-bg-color: #fefefe;
+    --header-bg-color: #e4deca;
+    --content-bg-color: #e4deca;
+    --main-hilite-color: #d2b7a0;
+    --button-bg-color: #c5a385;
+    --button-text-color: #000000;
+    --button-hover-color: #dac6a6;
+    --button-menu-bg-color: #FFFFFF;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #BA4178;
+    --timer-running-text-color: #000000;
+    --timer-runnning-text-shadow: -0.3px 0.3px black;*/
+    --top-text-wrapper-bg-color: #c98164;
+    --top-text-wrapper-text-color: #000000;
+    --clues-holder-bg-color: #ebe6d7;
+    --clue-active-color: #916844;
+    --clue-active-text-color: #ffffff;
+    --clue-hover-color: #dac6a6;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #fefefe;
+    --clue-scrollbar-color-thumb: #52442d;
+    --clue-scrollbar-color-thumb-hover: #392f1f;
+    /*--clue-scrollbar-color-thumb1: #ff9dca;
+    --clue-scrollbar-color-thumb2: #2fcdfb;*/
+    --main-text-color: #000000;
+    --grid-selected-square-color: #916844;
+    --grid-selected-word-color: #d2b7a0;
+    --grid-block-color: #3F3F3F;
+    --grid-none-color: #FFE8F2;
+    --modal-header-bg-color: #d2b7a0;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #e4deca;
+ }
+
+.spring-pastels-theme {
+    --main-bg-color: #fefefe;
+    --header-bg-color: #FCFAD9;
+    --content-bg-color: #FCFAD9;
+    --main-hilite-color: #F0E690;
+    --button-bg-color: #FAF1A0;
+    --button-text-color: #000000;
+    --button-hover-color: #F7F0B0;
+    --button-menu-bg-color: #FFFFFF;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #BA4178;
+    --timer-running-text-color: #000000;
+    --timer-runnning-text-shadow: -0.3px 0.3px black;*/
+    --top-text-wrapper-bg-color: #a1d6b2;
+    --top-text-wrapper-text-color: #000000;
+    --clues-holder-bg-color: #FFFEE6;
+    --clue-active-color: #a1d6b2;
+    --clue-active-text-color: #000000;
+    --clue-hover-color: #F7F0B0;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #fefefe;
+    --clue-scrollbar-color-thumb: #f2d9ef;
+    --clue-scrollbar-color-thumb-hover: #e3addd;
+    /*--clue-scrollbar-color-thumb1: #ff9dca;
+    --clue-scrollbar-color-thumb2: #2fcdfb;*/
+    --main-text-color: #000000;
+    --grid-selected-square-color: #e3addd;
+    --grid-selected-word-color: #f7e8f5;
+    --grid-block-color: #3F3F3F;
+    --grid-none-color: #FFE8F2;
+    --modal-header-bg-color: #FAF1A0;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #FCFAD9;
+ }
+
+.cryptic-crossweird-theme {
+    --main-bg-color: #ffffff;
+    --header-bg-color: #E9E3DC;
+    --content-bg-color: #E9E3DC;
+    --main-hilite-color: #e3a67b;
+    --button-bg-color: #cbc4bd;
+    --button-text-color: #000000;
+    --button-hover-color: #B1A79C;
+    --button-menu-bg-color: #FFFFFF;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #BA4178;
+    --timer-running-text-color: #000000;
+    --timer-runnning-text-shadow: -0.3px 0.3px black;*/
+    --top-text-wrapper-bg-color: #5ea0cd;
+    --top-text-wrapper-text-color: #000000;
+    --clues-holder-bg-color: #EDE7DF;
+    --clue-active-color: #da854a;
+    --clue-active-text-color: #000000;
+    --clue-hover-color: #eabc9b;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #ffffff;
+    --clue-scrollbar-color-thumb: #825851;
+    --clue-scrollbar-color-thumb-hover: #6a4842;
+    /*--clue-scrollbar-color-thumb1: #ff9dca;
+    --clue-scrollbar-color-thumb2: #2fcdfb;*/
+    --main-text-color: #000000;
+    --grid-selected-square-color: #da854a;
+    --grid-selected-word-color: #eabc9b;
+    --grid-block-color: #3F3F3F;
+    --grid-none-color: #FFE8F2;
+    --modal-header-bg-color: #e3a67b;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #E9E3DC;
+ }
+
+.frost-theme {
+    --main-bg-color: #ffffff;
+    --header-bg-color: #EBF4FC;
+    --content-bg-color: #EBF4FC;
+    --main-hilite-color: #9ec9f5;
+    --button-bg-color: #c2ddf9;
+    --button-text-color: #000000;
+    --button-hover-color: #b0d4f7;
+    --button-menu-bg-color: #FFFFFF;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #BA4178;
+    --timer-running-text-color: #000000;
+    --timer-runnning-text-shadow: -0.3px 0.3px black;*/
+    --top-text-wrapper-bg-color: #68adef;
+    --top-text-wrapper-text-color: #000000;
+    --clues-holder-bg-color: #F7FBFF;
+    --clue-active-color: #68adef;
+    --clue-active-text-color: #000000;
+    --clue-hover-color: #c2ddf9;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #ffffff;
+    --clue-scrollbar-color-thumb: #245487;
+    --clue-scrollbar-color-thumb-hover: #183759;
+    /*--clue-scrollbar-color-thumb1: #ff9dca;
+    --clue-scrollbar-color-thumb2: #2fcdfb;*/
+    --main-text-color: #000000;
+    --grid-selected-square-color: #b0bef7;
+    --grid-selected-word-color: #e6eafc;
+    --grid-block-color: #3F3F3F;
+    --grid-none-color: #FFE8F2;
+    --modal-header-bg-color: #9ec9f5;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #EBF4FC;
+ }
+
+.barbie-theme {
+    --main-bg-color: #FFD9EA;
+    --header-bg-color: #FFC4DF;
+    --content-bg-color: #FFC4DF;
+    --main-hilite-color: #D998B5;
+    --button-bg-color: #56D6FC;
+    --button-text-color: #000000;
+    --button-hover-color: #F0ADCB;
+    --button-menu-bg-color: #FFFFFF;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #BA4178;
+    --timer-running-text-color: #000000;
+    --timer-runnning-text-shadow: -0.3px 0.3px black;*/
+    --top-text-wrapper-bg-color: #56D6FC;
+    --top-text-wrapper-text-color: #000000;
+    --clues-holder-bg-color: #FFD1E6;
+    --clue-active-color: #FF61A8;
+    --clue-active-text-color: #000000;
+    --clue-hover-color: #F0ADCB;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #FFD9EA;
+    --clue-scrollbar-color-thumb: #ff9dca;
+    --clue-scrollbar-color-thumb-hover: #ff76b4;
+    /*--clue-scrollbar-color-thumb1: #ff9dca;
+    --clue-scrollbar-color-thumb2: #2fcdfb;*/
+    --main-text-color: #000000;
+    --grid-selected-square-color: #56D6FC;
+    --grid-selected-word-color: #FFCFE4;
+    --grid-block-color: #3F3F3F;
+    --grid-none-color: #FFE8F2;
+    --modal-header-bg-color: #56D6FC;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #FFC4DF;
+ }
+
+ .cherry-blossom-theme {
+    --main-bg-color: #f8f8f8;
+    --header-bg-color: #ffe8e8;
+    --content-bg-color: #ffe8e8;
+    --main-hilite-color: #F5C4C4;
+    --button-bg-color: #ffc1c1;
+    --button-text-color: #000000;
+    --button-hover-color: #FFDCDC;
+    --button-menu-bg-color: #FAFAFA;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #799BB3;
+    --timer-running-text-color: #000000;*/
+    --top-text-wrapper-bg-color: #d4e0ee;
+    --top-text-wrapper-text-color: #000000;
+    --clues-holder-bg-color: #FFF2F2;
+    --clue-active-color: #F25477;
+    --clue-active-text-color: #FFFFFF;
+    --clue-hover-color: #FFDCDC;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #f8f8f8;
+    --clue-scrollbar-color-thumb: #ffc1c1;
+    --clue-scrollbar-color-thumb-hover: #ff9a9a;
+    /*--clue-scrollbar-color-thumb1: #ffc1c1;
+    --clue-scrollbar-color-thumb2: #b8cce3;*/
+    --main-text-color: #000000;
+    --grid-selected-square-color: #F25477;
+    --grid-selected-word-color: #FFDCDC;
+    --grid-block-color: #3F3F3F;
+    --grid-none-color: #FFFFFF;
+    --modal-header-bg-color: #ffc1c1;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #ffe8e8;
+ }
+
+ .dark-theme {
+    --main-bg-color: #2E2F32;
+    --header-bg-color: #202124;
+    --content-bg-color: #202124;
+    --main-hilite-color: #322533;
+    --button-bg-color: #292A2B;
+    --button-text-color: #DEDCD9;
+    --button-hover-color: #333638;
+    --button-menu-bg-color: #202124;
+    /*--timer-text-color: ##DEDCD9;
+    --timer-hover-color: #2E2F32;*/
+    --top-text-wrapper-bg-color: #3F4D59;
+    --top-text-wrapper-text-color: #FFFFFF;
+    --clues-holder-bg-color: #17171A;
+    --clue-active-color: #534A54;
+    --clue-active-text-color: #FFFFFF;
+    --clue-hover-color: #333638;
+    --cluenote-text-color: #D2BAD4;
+    --clue-scrollbar-color-track: #2E2F32;
+    --clue-scrollbar-color-thumb: #44474e;
+    --clue-scrollbar-color-thumb-hover: #575a63;
+    /*--clue-scrollbar-color-thumb1: #323439;
+    --clue-scrollbar-color-thumb2: #4f6170;*/
+    --main-text-color: #DEDCD9;
+    --grid-selected-square-color: #322533;
+    --grid-selected-word-color: #EFF5E9;
+    --grid-block-color: #0D0C0C;
+    --grid-none-color: #3F4D59;
+    --modal-header-bg-color: #3F4D59;
+    --modal-header-text-color: #FFFFFF;
+    --modal-content-bg-color: #202124;
+ }
+
+ .earth-tones-theme {
+    --main-bg-color: #E0D5CA;
+    --header-bg-color: #CCBBA9;
+    --content-bg-color: #CCBBA9;
+    --main-hilite-color: #B39C84;
+    --button-bg-color: #F7DFD0;
+    --button-text-color: #000000;
+    --button-hover-color: #BFAB95;
+    --button-menu-bg-color: #FAFAFA;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #799BB3;
+    --timer-running-text-color: #000000;*/
+    --top-text-wrapper-bg-color: #595841;
+    --top-text-wrapper-text-color: #FFFFFF;
+    --clues-holder-bg-color: #D9C7B4;
+    --clue-active-color: #754E42;
+    --clue-active-text-color: #FFFFFF;
+    --clue-hover-color: #BFAB95;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #E0D5CA;
+    --clue-scrollbar-color-thumb: #af9478;
+    --clue-scrollbar-color-thumb-hover: #a0805f;
+    /*--clue-scrollbar-color-thumb1: #bda890;
+    --clue-scrollbar-color-thumb2: #424230;*/
+    --main-text-color: #000000;
+    --grid-selected-square-color: #754E42;
+    --grid-selected-word-color: #F7DFD0;
+    --grid-block-color: #3F3F3F;
+    --grid-none-color: #FFFFFF;
+    --modal-header-bg-color: #F7DFD0;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #CCBBA9;
+ }
+
+ .grape-soda-theme {
+    --main-bg-color: #f7f7fa;
+    --header-bg-color: #dfdfea;
+    --content-bg-color: #dfdfea;
+    --main-hilite-color: #b3b1cb;
+    --button-bg-color: #817d8e;
+    --button-text-color: #000000;
+    --button-hover-color: #c7c7da;
+    --button-menu-bg-color: #FAFAFA;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #799BB3;
+    --timer-running-text-color: #000000;*/
+    --top-text-wrapper-bg-color: #585EA3;
+    --top-text-wrapper-text-color: #FFFFFF;
+    --clues-holder-bg-color: #EBEBF7;
+    --clue-active-color: #6F6C9D;
+    --clue-active-text-color: #FFFFFF;
+    --clue-hover-color: #c7c7da;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #f7f7fa;
+    --clue-scrollbar-color-thumb: #817d8e;
+    --clue-scrollbar-color-thumb-hover: #6e6a7a;
+    --main-text-color: #000000;
+    --grid-selected-square-color: #6F6C9D;
+    --grid-selected-word-color: #dfdfea;
+    --grid-block-color: #2b256f;
+    --grid-none-color: #FFFFFF;
+    --modal-header-bg-color: #817d8e;
+    --modal-header-text-color: #ffffff;
+    --modal-content-bg-color: #dfdfea;
+ }
+ 
+.light-blue-theme {
+    --main-bg-color: #ffffff;
+    --header-bg-color: #f2f2f2;
+    --content-bg-color: #f2f2f2;
+    --main-hilite-color: #CCC8C8;
+    --button-bg-color: #9DBBD1;
+    --button-text-color: #000000;
+    --button-hover-color: #E2E2E2;
+    --button-menu-bg-color: #FAFAFA;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #799BB3;
+    --timer-running-text-color: #000000;*/
+    --top-text-wrapper-bg-color: #EB9771;
+    --top-text-wrapper-text-color: #000000;
+    --clues-holder-bg-color: #FFFFFF;
+    --clue-active-color: #C3D8E6;
+    --clue-active-text-color: #000000;
+    --clue-hover-color: #DEDEDE;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #ffffff;
+    --clue-scrollbar-color-thumb: #cbcbcb;
+    --clue-scrollbar-color-thumb-hover: #b7b7b7;
+    /*--clue-scrollbar-color-thumb1: #dedede;
+    --clue-scrollbar-color-thumb2: #e67e4f;*/
+    --main-text-color: #000000;
+    --grid-selected-square-color: #506E85;
+    --grid-selected-word-color: #C3D8E6;
+    --grid-block-color: #3F3F3F;
+    --grid-none-color: #FFFFFF;
+    --modal-header-bg-color: #9DBBD1;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #f2f2f2;
+ }
+
+ .light-green-theme {
+    --main-bg-color: #FFFEFA;
+    --header-bg-color: #FFF3E0;
+    --content-bg-color: #FFF3E0;
+    --main-hilite-color: #E0D1B8;
+    --button-bg-color: #E1EDD8;
+    --button-text-color: #000000;
+    --button-hover-color: #F2E4CE;
+    --button-menu-bg-color: #FFFFFF;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #E9D6AA;*/
+    --top-text-wrapper-bg-color: #E1EDD8;
+    --top-text-wrapper-text-color: #000000;
+    --clues-holder-bg-color: #FFF8ED;
+    --clue-active-color: #D0C7D1;
+    --clue-active-text-color: #000000;
+    --clue-hover-color: #F2E4CE;
+    --cluenote-text-color: #634266;
+    --clue-scrollbar-color-track: #FFFEFA;
+    --clue-scrollbar-color-thumb: #ffe4b9;
+    --clue-scrollbar-color-thumb-hover: #ffd592;
+    /*--clue-scrollbar-color-thumb1: #ffe4b9;
+    --clue-scrollbar-color-thumb2: #cce1bd;*/
+    --main-text-color: #000000;
+    --grid-selected-square-color: #9DB08F;
+    --grid-selected-word-color: #EFF5E9;
+    --grid-block-color: #3F3F3F;
+    --grid-none-color: #FFFFFF;
+    --modal-header-bg-color: #E1EDD8;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #FFF3E0;
+ }
+
+.momos-nail-corner-theme {
+    --main-bg-color: #fdfff9;
+    --header-bg-color: #F0F7CB;
+    --content-bg-color: #F0F7CB;
+    --main-hilite-color: #bed565;
+    --button-bg-color: #bed565;
+    --button-text-color: #000000;
+    --button-hover-color: #d2e193;
+    --button-menu-bg-color: #FAFAFA;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #799BB3;
+    --timer-running-text-color: #000000;*/
+    --top-text-wrapper-bg-color: #585EA3;
+    --top-text-wrapper-text-color: #FFFFFF;
+    --clues-holder-bg-color: #F8FFD6;
+    --clue-active-color: #abc837;
+    --clue-active-text-color: #000000;
+    --clue-hover-color: #d8e6a3;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #f8fde7;
+    --clue-scrollbar-color-thumb: #c5d975;
+    --clue-scrollbar-color-thumb-hover: #9eb933;
+    --main-text-color: #000000;
+    --grid-selected-square-color: #7976a4;
+    --grid-selected-word-color: #dfdfea;
+    --grid-block-color: #2b256f;
+    --grid-none-color: #FFFFFF;
+    --modal-header-bg-color: #bed565;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #F0F7CB;
+ }
+
+ .pumpkin-spice-theme {
+    --main-bg-color: #D9A475;
+    --header-bg-color: #D99357;
+    --content-bg-color: #D99357;
+    --main-hilite-color: #B87337;
+    --button-bg-color: #E3AF7B;
+    --button-text-color: #000000;
+    --button-hover-color: #C78246;
+    --button-menu-bg-color: #FAFAFA;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #799BB3;
+    --timer-running-text-color: #000000;*/
+    --top-text-wrapper-bg-color: #734329;
+    --top-text-wrapper-text-color: #FFFFFF;
+    --clues-holder-bg-color: #E69C5C;
+    --clue-active-color: #9e2a2b;
+    --clue-active-text-color: #FFFFFF;
+    --clue-hover-color: #C78246;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #D9A475;
+    --clue-scrollbar-color-thumb: #d27e37;
+    --clue-scrollbar-color-thumb-hover: #b86b29;
+    /*--clue-scrollbar-color-thumb1: #d27e37;
+    --clue-scrollbar-color-thumb2: #56321f;*/
+    --main-text-color: #000000;
+    --grid-selected-square-color: #9e2a2b;
+    --grid-selected-word-color: #E3AF7B;
+    --grid-block-color: #3F3F3F;
+    --grid-none-color: #FFFFFF;
+    --modal-header-bg-color: #E3AF7B;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #D99357;
+ }
+
+ .taco-bell-theme {
+    --main-bg-color: #FFFBF2;
+    --header-bg-color: #FFF2D9;
+    --content-bg-color: #FFF2D9;
+    --main-hilite-color: #D9CAB2;
+    --button-bg-color: #30C2B6;
+    --button-text-color: #000000;
+    --button-hover-color: #EBDEC7;
+    --button-menu-bg-color: #FAFAFA;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #2DB3A7;
+    --timer-running-text-color: #000000;*/
+    --top-text-wrapper-bg-color: #F786B7;
+    --top-text-wrapper-text-color: #000000;
+    --clues-holder-bg-color: #FFF6E6;
+    --clue-active-color: #FFB3D4;
+    --clue-active-text-color: #000000;
+    --clue-hover-color: #EBDEC7;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #FFFBF2;
+    --clue-scrollbar-color-thumb: #ffe5b2;
+    --clue-scrollbar-color-thumb-hover: #ffd78b;
+    /*--clue-scrollbar-color-thumb1: #ffe5b2;
+    --clue-scrollbar-color-thumb2: #f561a1;*/
+    --main-text-color: #000000;
+    --grid-selected-square-color: #289E94;
+    --grid-selected-word-color: #3DF2E3;
+    --grid-block-color: #502859;
+    --grid-none-color: #FFD4E6;
+    --modal-header-bg-color: #30C2B6;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #FFF2D9;
+ }

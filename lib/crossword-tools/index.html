@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <script src="jscrossword/jscrossword_combined.js"></script>
+    <script src="pdf_create/jspdf.min.js"></script>
+    <script src="pdf_create/xw_pdf.js"></script>
+</head>
+
+<body>
+
+<input type="file" id="files" name="files" accept=".puz,.xml,.jpz,.xpz,.ipuz,.cfp" />
+
+<br /><br />
+<button title="Show/hide options (advanced)" type="button" onclick="show_hide('options_div')">Show/hide options (advanced)</button>
+<div id="options_div" style="display:none">
+  <textarea id="options_textarea" rows=20 cols=30>
+{
+   "num_columns": null,
+   "num_full_columns": null,
+   "gray": null,
+   "show_notepad": false
+}
+  </textarea>
+</div>
+
+<script type="text/javascript">
+function show_hide(elt) {
+  if(document.getElementById(elt).style.display=='none') {
+    document.getElementById(elt).style.display='';
+  } else {
+    document.getElementById(elt).style.display='none'
+  }
+}
+
+
+/** Handling form submission **/
+function handleFileSelect(evt) {
+    const files = evt.target.files; // FileList object
+
+    // files is a FileList of File objects.
+    for (let i = 0, f; f = files[i]; i++) {
+        // Only process small files.
+        if (f.size >= 750000) {
+            alert('This file is too big.');
+            continue;
+        }
+        if (f) {
+            console.log(f);
+            var filename = f.name.toLowerCase();
+            const r = new FileReader();
+            options_obj = JSON.parse(document.getElementById('options_textarea').value);
+            r.onload = (function (theFile) {
+                return function (e) {
+                    let contents = e.target.result;
+                    var xw_constructor = new JSCrossword();
+                    var xw;
+                    xw = xw_constructor.fromData(contents);
+                    console.log(xw);
+                    window.jsxw = xw;
+                    jscrossword_to_pdf(xw, options=options_obj);
+
+                    //var jpz_str = xw.toJPZString();
+                    //file_download(jpz_str, 'test.jpz', 'text/xml');
+
+                    //var ipuz_str = xw.toIpuzString();
+                    //file_download(ipuz_str, 'test.ipuz', 'text/plain');
+                };
+            })(f);
+            r.readAsBinaryString(f);
+        } else {
+            alert("Failed to load file");
+        }
+    }
+}
+document.getElementById('files').addEventListener('change', handleFileSelect, false);
+</script>
+
+</body>
+</HTML>
