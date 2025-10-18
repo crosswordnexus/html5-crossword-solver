@@ -30,7 +30,7 @@ $(document).ready(function () {
     setTimeout(() => {
       if (gCrossword?.syncTopTextWidth) {
         gCrossword.syncTopTextWidth();
-      }      
+      }
       setCSSViewportHeight();
     }, 300);
   });
@@ -39,15 +39,14 @@ $(document).ready(function () {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
 
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    const screenIsSmall = Math.max(window.innerWidth, window.innerHeight) < 1024;
+    //const screenIsSmall = Math.max(window.innerWidth, window.innerHeight) < 1024;
 
     const isiPad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
     const isMobileUA = /android|iphone|ipod|ipad|mobile/i.test(ua);
 
     return (
-      isTouchDevice &&
-      (screenIsSmall || isiPad || isMobileUA)
+      isTouchDevice && (isiPad || isMobileUA)
     );
   }
 
@@ -112,7 +111,7 @@ $(document).ready(function () {
   function rebuildKeyboardAndPositionDrawer() {
     rebuildKeyboard();
   }
-      
+
   function detectKeyboardAndResize() {
     setTimeout(() => {
       const currentHeight = window.innerHeight;
@@ -147,14 +146,14 @@ $(document).ready(function () {
   gCrossword = CrosswordNexus.createCrossword($('div.crossword'), params);
   if (gCrossword?.syncTopTextWidth) {
     window.gCrossword.syncTopTextWidth = gCrossword.syncTopTextWidth.bind(gCrossword);
-  }  
+  }
   if (isMobile && crosswordRoot) {
     const tryWrapLayout = () => {
         const canvas = document.querySelector('.cw-canvas');
         const buttons = document.querySelector('.cw-buttons-holder');
         if (buttons && buttons.children.length) {
           const allButtons = Array.from(buttons.children);
-        
+
           // Match by text content – you can refine this to use classes if needed
           const file = allButtons.find(btn => btn.textContent.includes('File'));
           const check = allButtons.find(btn => btn.textContent.includes('Check'));
@@ -162,22 +161,22 @@ $(document).ready(function () {
           const theme = allButtons.find(btn => btn.textContent.includes('Theme'));
           const settings = allButtons.find(btn => btn.textContent.includes('Settings'));
           const timer = allButtons.find(btn => btn.textContent.match(/[\d:]+/)); // crude match for timer
-        
+
           // Only reflow if all buttons were found
           if (file && check && reveal && theme && settings && timer) {
             const row1 = document.createElement('div');
             row1.className = 'cw-buttons-row';
             row1.append(file, check, reveal, theme);
-        
+
             const row2 = document.createElement('div');
             row2.className = 'cw-buttons-row';
             row2.append(settings, timer);
-        
+
             // Clear and re-append
             buttons.innerHTML = '';
             buttons.append(row1, row2);
           }
-        }        
+        }
         const content = document.querySelector('.cw-content');
         const clues = document.querySelector('.cw-clues-holder');
         let drawerOpen = false;
@@ -253,7 +252,7 @@ $(document).ready(function () {
               gCrossword.renderCells();
             }
           });
-        }); 
+        });
 
         // Create drawer container
         const buttonWrapper = document.createElement('div');
@@ -373,7 +372,7 @@ $(document).ready(function () {
               clueBar.style.width = gridEl.getBoundingClientRect().width + 'px';
             }
           }, 100);
-        }, 50);                                     
+        }, 50);
     };
 
     setTimeout(tryWrapLayout, 300);
@@ -546,5 +545,3 @@ function createCustomKeyboard() {
   console.log('[MOBILE] crossword.mobile.js loaded');
   return keyboard;
 }
-
-

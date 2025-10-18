@@ -39,9 +39,9 @@
           const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 1;
           const isiPad = ua.includes("iPad") || (ua.includes("Mac") && navigator.maxTouchPoints > 1);
           const isMobileUA = /android|iphone|ipod|mobile/i.test(ua);
-          const isSmallScreen = Math.max(window.innerWidth, window.innerHeight) < 1024;
+          //const isSmallScreen = Math.max(window.innerWidth, window.innerHeight) < 1024;
 
-          return isTouch && (isMobileUA || isiPad || isSmallScreen);
+          return isTouch && (isMobileUA || isiPad);
         }
 
         const mobile = isMobileDevice();

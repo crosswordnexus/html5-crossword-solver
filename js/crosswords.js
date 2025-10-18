@@ -54,7 +54,7 @@ const isMobile = (() => {
     /android/i.test(ua) ||
     /iphone|ipad|ipod/i.test(ua) ||
     /mobile/i.test(ua) ||
-    window.innerWidth <= 768
+    //window.innerWidth <= 768
   );
 })();
 
