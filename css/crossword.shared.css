@@ -15,6 +15,14 @@ This file contains shared styles always loaded (mobile or desktop)
   /* for consistency */
 }
 
+.selected-word-border {
+  animation: glow 1.5s ease-in-out infinite;
+  stroke-linejoin: round;
+  rx: 2;
+  ry: 2;
+  pointer-events: none;
+}
+
 input.cw-hidden-input {
   opacity: 0;
   position: fixed;
@@ -236,6 +244,24 @@ div.is-dragover {
     top: 0;
     opacity: 1;
   }
+}
+
+@keyframes blinking {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.blink {
+  animation: blinking 1.5s infinite;
 }
 
 /* The Close Button */
@@ -474,6 +500,13 @@ div.is-dragover {
   min-width: 1px;
 }
 
+.cw-clues-items {
+  flex: 1 1 auto;
+  min-height: 1px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .cw-clue {
   margin-bottom: 1px;
   cursor: pointer;
@@ -520,6 +553,11 @@ div.is-dragover {
     opacity: .8;
 }
 
+.cw-input:hover, .cw-input:focus {
+  outline: 2px solid var(--clue-active-color);
+  opacity: 1;
+}
+
 .cw-button-prev-clue,
 .cw-button-next-clue {
     display: none;
@@ -539,4 +577,68 @@ div.is-dragover {
 .cw-cell-letter.spin {
   animation: letter-spin 0.6s ease-in-out forwards;
   transform-origin: center;
+}
+
+/** Inputs **/
+input[type='checkbox'] {
+  accent-color: #000000;
+}
+
+input[type='radio'] {
+  accent-color: #000000;
+}
+
+/* Settings */
+.settings-setting {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.settings-description {
+  font-weight: 600;
+}
+
+.settings-label {
+  display: block;
+}
+
+/** Size-specific **/
+.cw-max-width-1200.cw-main {
+  font-size: 16px;
+}
+
+.cw-max-width-1200 .cw-top-text-wrapper {
+  height: 55px;
+}
+
+.cw-max-width-1200 .cw-top-text {
+  padding: 5px 10px 5px 10px;
+}
+
+.cw-max-width-1200 .cw-clues {
+  width: 300px;
+}
+
+.cw-max-width-1200 .cw-clues-holder {
+  width: auto;
+}
+
+.cw-max-width-1080.cw-main {
+  font-size: 14px;
+}
+
+.cw-max-width-1080 .cw-top-text-wrapper {
+  height: 45px;
+}
+
+.cw-max-width-1080 .cw-top-text {
+  padding: 4px 8px 4px 8px;
+}
+
+.cw-max-width-1080 .cw-clues {
+  width: 220px;
+}
+
+.cw-max-width-850 .cw-clues-holder {
+  flex-direction: column;
 }

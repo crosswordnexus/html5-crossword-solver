@@ -17,16 +17,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   font-size: 22px;
 }
 
-.selected-word-border {
-  animation: glow 1.5s ease-in-out infinite;
-  stroke-linejoin: round;
-  rx: 2;
-  ry: 2;
-  pointer-events: none;
-}
-
-
-
 .cw-clues-bottom {
   margin-right: 5px;
 }
@@ -34,12 +24,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 /**
 * Clues
 **/
-.cw-clues-items {
-  flex: 1 1 auto;
-  min-height: 1px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
 
 .cw-clues-items::-webkit-scrollbar {
   width: 7px;
@@ -84,20 +68,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   font-weight: 100;
 }
 
-/* Settings */
-.settings-setting {
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-.settings-description {
-  font-weight: 600;
-}
-
-.settings-label {
-  display: block;
-}
-
 /**
 * Utilities
 **/
@@ -134,69 +104,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   font-weight: 600;
   font-size: 0.65em;
   margin-bottom: 0.25em;
-}
-
-@keyframes blinking {
-  0% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-.blink {
-  animation: blinking 1.5s infinite;
-}
-
-.cw-input:hover, .cw-input:focus {
-  outline: 2px solid var(--clue-active-color);
-  opacity: 1;
-}
-
-.cw-max-width-1200.cw-main {
-  font-size: 16px;
-}
-
-.cw-max-width-1200 .cw-top-text-wrapper {
-  height: 55px;
-}
-
-.cw-max-width-1200 .cw-top-text {
-  padding: 5px 10px 5px 10px;
-}
-
-.cw-max-width-1200 .cw-clues {
-  width: 300px;
-}
-
-.cw-max-width-1200 .cw-clues-holder {
-  width: auto;
-}
-
-.cw-max-width-1080.cw-main {
-  font-size: 14px;
-}
-
-.cw-max-width-1080 .cw-top-text-wrapper {
-  height: 45px;
-}
-
-.cw-max-width-1080 .cw-top-text {
-  padding: 4px 8px 4px 8px;
-}
-
-.cw-max-width-1080 .cw-clues {
-  width: 220px;
-}
-
-.cw-max-width-850 .cw-clues-holder {
-  flex-direction: column;
 }
 
 /* MOBILE BASE OVERRIDES */
