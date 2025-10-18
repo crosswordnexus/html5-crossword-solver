@@ -81,7 +81,7 @@ div.cw-overflow {
   left: 0;
   height: 100%;
   width: 100%;
-  background: var(--content-bg-gradient, var(--content-bg-color));
+  background: white;
   z-index: -1;
 }
 
@@ -123,7 +123,7 @@ div.has-advanced-upload {
 }
 
 div.is-dragover {
-  background-color: #799BB3;
+  background-color: #fff5d7;
 }
 
 .cw-main {

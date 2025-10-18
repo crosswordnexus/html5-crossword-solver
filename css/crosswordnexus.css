@@ -17,17 +17,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   font-size: 21px;
 }
 
-.cw-title {
-  font-size: 1em;
-  font-weight: 700;
-  letter-spacing: 0.3em;
+.cw-title,
+.cw-author,
+.cw-copyright {
+    flex: 0 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-
+.cw-title {
+    font-weight: bold;
+}
+.cw-header-separator {
+    flex: 0 0 auto;
+}
 .cw-author {
-  font-size: .8em;
-  font-weight: 500;
-  letter-spacing: 3px;
-  margin-left: 4px;
+    margin-right: 0.5em;
+}
+.cw-copyright {
+    color: #555555;
+    margin-right: 0.5em;
 }
 
 .cw-content {
