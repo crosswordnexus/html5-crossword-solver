@@ -1,6 +1,5 @@
 /**
 Copyright (c) 2015-2025 Crossword Nexus & Crossweird LLC
-CTFYC version
 
 All rights reserved.
 
@@ -14,566 +13,96 @@ Redistribution and use in source and binary forms, with or without modification,
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
-
-/* point to themes-only CSS */
-@import url('./themes.css');
-
-.cw-main,
-.cw-main * {
-
-    font-family: "Poppins", "Apple Color Emoji", "Noto Color Emoji";
-    box-sizing: content-box; /* for consistency */
-}
-
- .cw-cluenote-button {
-    position: absolute;
-    bottom: 4px;
-    right: 4px;
-    width: 16px;
-    height: 16px;
-    padding: 4px 4px;
-    border-radius: 4px;
-    background-color: none;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAXAAAAFwBhyfMcAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAACXSURBVDiNzdI9CsJQEEXhzyI7CP5sxYXYuA4t3JO9XbS21ARBXILgAoRYJA9CiOElNh6YZuDcO8UwjBkyPLEZ6EpwQdmYbayc1gFrvBsBrxh5iiv2HSFZrBwaQ8iq3i+GyO2QpE+eo+iQy3qfjmkucRt79p/LCfIvcqF6316WY5sDu19kOLTkPObswAQP3HHCEWfVr0fxAbSiWClHz+v4AAAAAElFTkSuQmCC');
-    background-position: center;
-    background-repeat: no-repeat;
-}
-.cw-cluenote-button:hover {
-    background-color: var(--main-hilite-color);
-}
-
-div.cw-open-holder {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 4;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-div.cw-overflow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    background: var(--content-bg-gradient, var(--content-bg-color));
-    z-index: -1;
-}
-div.cw-main.loading div.cw-open-holder,
-div.cw-main.loaded div.cw-open-holder {
-    display: none;
-}
-
-.cw-open-puzzle {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin: 20px;
-    text-align: center;
-}
-.cw-open-puzzle-instructions {
-    font-size: 22px;
-    margin-bottom: 1em;
-}
-.cw-open-puzzle-formats {
-    font-size: 13px;
-    margin-top: 1em;
-    opacity: 0.7;
-}
-.cw-open-holder input {
-    visibility: hidden;
-    position: absolute;
-    justify-content: center;
-}
-
-/* drag-and-drop style */
-div.has-advanced-upload {
-    outline: 2px dashed gray;
-    outline-offset: -10px;
-}
-
-div.is-dragover {
-    background-color: #799BB3;
-}
-
-div.crossword {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-}
-
 .cw-main {
-    background-color: var(--main-bg-color);
-    font-size: 22px;
-    font-weight: 400;
-    color: var(--main-text-color);
-    bottom: 0;
-    display: flex;
-    flex-direction: column;
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-}
-.cw-main.loading {
-    visibility: hidden;
+  font-size: 22px;
 }
 
-input.cw-hidden-input {
-    opacity: 0;
-    position: fixed;
-    top: -100px;
-    left: -100px;
-    width: 0;
-    height: 0;
-    z-index: -1;
+.selected-word-border {
+  animation: glow 1.5s ease-in-out infinite;
+  stroke-linejoin: round;
+  rx: 2;
+  ry: 2;
+  pointer-events: none;
 }
 
-.cw-header {
-    display: inline-block;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    font-size: 1em;
-    margin-top: 8px;
-    margin-bottom: 8px;
-    background-color: var(--main-bg-color);
-    /*position: relative;
-    justify-content: center;*/
-}
 
-.cw-header-box {
-    background: var(--header-bg-color);
-    border-radius: 15px;
-    padding: 6px 65px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin: 5px auto;
-    max-width: fit-content;
-    transition: all 0.3s ease-in-out;
-  }
-
-.cw-header-content {
-    display: flex;
-    align-items: center;
-    /*justify-content: center;
-    width: 100%;
-    position: relative;
-    text-align: center;*/
-    flex-direction: column;
-}
-
-/*.cw-header-content::before, .cw-header-content::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: black;
-    margin: 0 60px 0 60px;
-}*/
-  
-  .selected-word-border {
-    animation: glow 1.5s ease-in-out infinite;
-    stroke-linejoin: round;
-    rx: 2;
-    ry: 2;
-    pointer-events: none;
-  }  
-
-  @keyframes letter-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  
-  .cw-cell-letter.spin {
-    animation: letter-spin 0.6s ease-in-out forwards;
-    transform-origin: center;
-  }  
-
-.cw-clues {
-    display: flex;
-    flex: 1 1 100%;
-    flex-direction: column;
-    margin-left: 10px;
-    min-height: 1px;
-    min-width: 1px;
-}
 
 .cw-clues-bottom {
-    margin-right: 5px;
-}
-
-/**
-* Modal box
-**/
-/* The Modal (background) */
-.cw-modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    padding-top: 30px; /* location of the box */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0, 0, 0); /* Fallback color */
-    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
-}
-
-/* Modal Content/Box */
-.modal-content {
-    position: relative;
-    background: var(--modal-content-bg-color);
-    margin: auto;
-    padding: 0;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 600px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    border-radius: 5px;
-    overflow: hidden;
-    -webkit-animation-name: animatetop;
-    -webkit-animation-duration: 0.4s;
-    animation-name: animatetop;
-    animation-duration: 0.3s;
-}
-
-/* Modal Header */
-.modal-header {
-    padding: 2px 16px;
-    background-color: var(--modal-header-bg-color);
-    color: var(--modal-header-text-color);
-    text-align: center;
-    height: 40px;
-    font-size: max(1.1em, 14px);
-    font-weight: 500;
-}
-
-/* Modal Body */
-.modal-body {
-    padding: 2px 16px;
-    margin: 1em;
-    font-size: max(0.8em, 12px);
-}
-
-/* Modal Footer */
-.modal-footer {
-    border-top: 1px solid #e5e5e5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 16px;
-}
-
-/* Modal Title */
-.modal-title {
-    line-height: 40px; /* same as the containing div, to vertically center */
-}
-
-/* Modal Animation */
-@-webkit-keyframes animatetop {
-    from {
-        top: -300px;
-        opacity: 0;
-    }
-    to {
-        top: 0;
-        opacity: 1;
-    }
-}
-
-@keyframes animatetop {
-    from {
-        top: -300px;
-        opacity: 0;
-    }
-    to {
-        top: 0;
-        opacity: 1;
-    }
-}
-
-/* The Close Button */
-.modal-close {
-    color: white;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.modal-close:hover,
-.modal-close:focus {
-    color: #333333;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-/* The modal footer button */
-#modal-button {
-    /* the footer is 40px, so these numbers are to center it */
-    margin: 5px auto;
-    padding: 8px 16px;
-    background-color: var(--button-bg-color);
-    color: var(--button-text-color);
-    border-radius: 8px;
-    font-size: 14px;
-}
-
-#modal-button:hover {
-    background-color: var(--button-background-color-hover);
-    transition: all 0.3s ease-in-out;
-}
-
-/**
-* Buttons
-**/
-
-.cw-button {
-    --button-background-color-hover: var(--button-hover-color);
-    background-color: var(--clues-holder-bg-color);
-    color: var(--button-text-color);
-    padding: 0.3em;
-    font-size: 0.8em;
-    font-weight: 500;
-    border: none;
-    border-radius: 8px;
-    box-shadow: 0 1px 6px 1px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.25s ease, transform 0.1s ease;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.2em;
-  }
-  
-  .cw-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  .cw-button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-
-/* large button for initial overlay */
-.cw-button-open-puzzle {
-    background-color: rgba(235,151,113,.5);
-    --button-background-color-hover: rgba(235,151,113,.8);
-    color: black;
-    font-size: 28px;
-    border-radius: 8px;
-    box-shadow: 0 0 15px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.25s ease, transform 0.1s ease;
-}
-
-/* medium-sized gray button for timer */
-.cw-button-timer {
-    --button-background-color-hover: var(--button-hover-color);
-    color: var(--timer-text-color);
-    font-size: 1em;
-	  height: 21px;
-    width: 60px;
-    font-family: "Noto Sans Mono";
-}
-
-/* medium-sized green button for active timer */
-.cw-button-timer.running {
-    --button-background-color-hover: var(--button-hover-color);
-    color: var(--timer-running-text-color);
-    text-shadow: var( --timer-runnning-text-shadow);
-}
-
-/* small gray button for notes */
-.cw-button-notepad {
-    --button-background-color-hover: var(--button-hover-color);
-    margin-right: 2px;
-}
-
-/* left emoji icon */
-.cw-button-icon {
-    font-size: 1.25em;
-    line-height: 0; /* never stretch button vertically */
-    margin-right: 0.25em;
-    width: 1.25em; /* standardize spacing between Chrome and Firefox */
-}
-
-/* right arrow icon for dropdown triggers */
-.cw-arrow {
-    border: solid currentColor;
-    border-width: 0 1.5px 1.5px 0;
-    display: inline-block;
-    margin-left: 0.2em;
-    padding: 2px;
-    transform: rotate(45deg);
-    -webkit-transform: rotate(45deg);
-}
-
-/**
-* Popup menus
-**/
-
-.cw-menu-container {
-    position: relative;
-}
-
-.cw-menu {
-    background-color: var(--button-menu-bg-color);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
-    padding: 0.2em 0;
-    position: absolute;
-    z-index: 1;
-  
-    /* Smooth dropdown animation */
-    opacity: 0;
-    transform: translateY(-8px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-    pointer-events: none;
-  
-    /* Keep it in the flow so transitions work */
-    display: block;
-}
-  
-/* When active */
-.cw-menu.open {
-    z-index: 999;
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-    visibility: visible;
-}
-
-.cw-menu hr {
-    border: 0;
-    border-top: 1px solid var(--clue-active-color);
-}
-
-.cw-menu-item {
-    background: none;
-    border: none;
-    border-radius: 4px;
-    color: inherit; /* avoid Safari active style */
-    cursor: pointer;
-    display: block;
-    font-size: 0.8em;
-    margin: 0;
-    min-width: 7em;
-    padding: 0.3em 0.6em;
-    text-align: left;
-}
-.cw-menu-item:hover {
-    background-color: var(--button-hover-color);
-    transition: all 0.3s ease-in-out;
-}
-
-.crossword {
-    transition: background-color 0.3s ease, color 0.3s ease;
+  margin-right: 5px;
 }
 
 /**
 * Clues
 **/
-
 .cw-clues-items {
-    flex: 1 1 auto;
-    min-height: 1px;
-    overflow-y: auto;
-    overflow-x: hidden;
+  flex: 1 1 auto;
+  min-height: 1px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .cw-clues-items::-webkit-scrollbar {
-    width: 7px;
+  width: 7px;
 }
 
 .cw-clues-items::-webkit-scrollbar-track {
-    background-color: var(--main-bg-color);
-    border-radius: 50px;
+  background-color: var(--main-bg-color);
+  border-radius: 50px;
 }
 
 .cw-clues-items::-webkit-scrollbar-thumb {
-    /*background-image: linear-gradient(180deg, var(--clue-scrollbar-color-thumb2) 0%, var(--clue-scrollbar-color-thumb1) 99%);*/
-    background-color: var(--clue-scrollbar-color-thumb);
-    border-radius: 50px;
-    transition: scrollbar-color 0.3s ease-out;
+  /*background-image: linear-gradient(180deg, var(--clue-scrollbar-color-thumb2) 0%, var(--clue-scrollbar-color-thumb1) 99%);*/
+  background-color: var(--clue-scrollbar-color-thumb);
+  border-radius: 50px;
+  transition: scrollbar-color 0.3s ease-out;
 }
 
 .cw-clues-items::-webkit-scrollbar-thumb:hover {
-    background-color: var(--clue-scrollbar-color-thumb-hover)
+  background-color: var(--clue-scrollbar-color-thumb-hover)
 }
 
 .cw-clue {
-    padding: 2px 0px;
-    margin-bottom: 1px;
-    cursor: pointer;
-    display: flex;
-    border-radius: 4px;
-    line-height: 1.4rem;
-    font-size: 0.7em;
-}
-
-.cw-clue.active {
-    background: var(--clue-active-color);
-    color: var(--clue-active-text-color);
-    margin-right: 5px;
-    transition: all 0.3s ease-in-out;
-}
-
-.cw-clue.passive {
-    box-shadow: 0 0 0 2px var(--clue-active-color) inset;
-    margin-right: 5px;
-    transition: all 0.3s ease-in-out;
+  padding: 2px 0px;
+  line-height: 1.4rem;
+  font-size: 0.7em;
 }
 
 .cw-clue-number {
-    flex-shrink: 0;
-    text-align: right;
-    min-width: 1.5rem;
-    margin-left: 0.2rem;
-    margin-right: 0.5rem;
-    font-family: "Noto Sans Mono";
-    font-weight: 700;
-    font-size: 0.65em;
+  flex-shrink: 0;
+  text-align: right;
+  min-width: 1.5rem;
+  margin-left: 0.2rem;
+  margin-right: 0.5rem;
+  font-weight: 700;
+  font-size: 0.65em;
 }
 
 .cw-clue-text {
-    flex: 1 1 auto;
-    word-wrap: break-word;
-    margin-right: 6px;
-    font-weight: 100;
-}
-
-.cw-clue.completed {
-    color: gray;
-    opacity: 0.6;
-    text-decoration: line-through;
+  flex: 1 1 auto;
+  word-wrap: break-word;
+  margin-right: 6px;
+  font-weight: 100;
 }
 
 /* Settings */
 .settings-setting {
-    padding-top: 5px;
-    padding-bottom: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 .settings-description {
-    font-weight: 600;
+  font-weight: 600;
 }
 
 .settings-label {
-    display: block;
+  display: block;
 }
 
 /**
 * Utilities
 **/
-
 .cw-flex-spacer {
-    flex-grow: 1;
+  flex-grow: 1;
 }
 
 /**
@@ -582,109 +111,92 @@ input.cw-hidden-input {
 * behavior on the width of the root element, not the width of the overall
 * window.
 **/
-
 .cw-clues {
-    width: 350px;
+  width: 350px;
 }
 
 .cw-top-text {
-    align-items: flex-start;
-    display: flex;
-    text-align: left;
-    line-height: 1.2;
+  align-items: flex-start;
+  display: flex;
+  text-align: left;
+  line-height: 1.2;
 }
 
 .cw-clues-title {
-    align-items: flex-end;
-    box-sizing: border-box;
-    display: flex;
-    flex-shrink: 0;
-    height: 1.6em;
-    padding: 0;
-    position: relative;
-    letter-spacing: .1rem;
-    font-weight: 600;
-    font-size: 0.65em;
-    margin-bottom: 0.25em;
-}
-
-.cw-clue:not(.active):not(.passive):hover {
-    background: var(--clue-hover-color);
-    transition: all 0.3s ease-in-out;
-}
-
-.cw-input{
-    outline: 1px solid var(--clue-hover-color);
-    border: none;
-    display: inline-flex;
-    width: 90%;
-    border-radius: 4px;
-    padding: 5px 10px;
-    margin-top: 4px;
-    font-size: .9rem;
-    font-weight: 800;
-    left: 5px;
-    opacity: .8;
-}
-
-.cw-button-prev-clue,
-.cw-button-next-clue {
-    display: none;
+  align-items: flex-end;
+  box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0;
+  height: 1.6em;
+  padding: 0;
+  position: relative;
+  letter-spacing: .1rem;
+  font-weight: 600;
+  font-size: 0.65em;
+  margin-bottom: 0.25em;
 }
 
 @keyframes blinking {
-    0%   { opacity: 1; }
-    50%  { opacity: 0; }
-    100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 .blink {
-    animation: blinking 1.5s infinite;
+  animation: blinking 1.5s infinite;
 }
 
 .cw-input:hover, .cw-input:focus {
-    outline: 2px solid var(--clue-active-color);
-    opacity: 1;
+  outline: 2px solid var(--clue-active-color);
+  opacity: 1;
 }
 
 .cw-max-width-1200.cw-main {
-    font-size: 16px;
+  font-size: 16px;
 }
 
 .cw-max-width-1200 .cw-top-text-wrapper {
-    height: 55px;
+  height: 55px;
 }
 
 .cw-max-width-1200 .cw-top-text {
-    padding: 5px 10px 5px 10px;
+  padding: 5px 10px 5px 10px;
 }
 
 .cw-max-width-1200 .cw-clues {
-    width: 300px;
+  width: 300px;
 }
 
 .cw-max-width-1200 .cw-clues-holder {
-    width: auto;
+  width: auto;
 }
 
 .cw-max-width-1080.cw-main {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 .cw-max-width-1080 .cw-top-text-wrapper {
-    height: 45px;
+  height: 45px;
 }
 
 .cw-max-width-1080 .cw-top-text {
-    padding: 4px 8px 4px 8px;
+  padding: 4px 8px 4px 8px;
 }
 
 .cw-max-width-1080 .cw-clues {
-    width: 220px;
+  width: 220px;
 }
 
 .cw-max-width-850 .cw-clues-holder {
-    flex-direction: column;
+  flex-direction: column;
 }
 
 /* MOBILE BASE OVERRIDES */
@@ -714,36 +226,36 @@ html.mobile-mode {
 }
 
 .crossword.mobile .cw-header {
-    display: inline-block;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    font-size: .8em;
-    margin: 10px;
-    background-color: var(--main-bg-color);
+  display: inline-block;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-size: .8em;
+  margin: 10px;
+  background-color: var(--main-bg-color);
 }
 
 .crossword.mobile.cw-header-box {
-    background: var(--header-bg-color);
-    border-radius: 15px;
-    padding: 6px 65px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin: 5px auto;
-    max-width: fit-content;
-    transition: all 0.3s ease-in-out;
-  }
+  background: var(--header-bg-color);
+  border-radius: 15px;
+  padding: 6px 65px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin: 5px auto;
+  max-width: fit-content;
+  transition: all 0.3s ease-in-out;
+}
 
 .crossword.mobile .cw-title {
-    font-size: 1.4em;
-    font-weight: 700;
-    letter-spacing: 0.3em;
+  font-size: 1.4em;
+  font-weight: 700;
+  letter-spacing: 0.3em;
 }
 
 .crossword.mobile .cw-author {
-    font-size: 1em;
-    font-weight: 500;
-    letter-spacing: 3px;
-    margin-left: 4px;
+  font-size: 1em;
+  font-weight: 500;
+  letter-spacing: 3px;
+  margin-left: 4px;
 }
 
 .crossword.mobile .cw-canvas {
@@ -757,65 +269,66 @@ html.mobile-mode {
 }
 
 .crossword.mobile .cw-grid-wrapper {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    height: 100%;
-    overflow: hidden;
-  }
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+}
 
-  .crossword.mobile .cw-mobile-clues-holder {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 0.5em;
-    height: 10em; /* adjust based on your keyboard size */
-    overflow: hidden;
-    padding: 4px;
-    background: var(--clues-holder-bg-color);
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 -2px 6px rgba(0,0,0,0.05);
-  }
-  
-  .crossword.mobile .cw-clues-top,
-  .crossword.mobile .cw-clues-bottom {
-    flex: 1;
-    overflow-y: auto;
-    padding: 4px;
-    font-size: 1em;
-  }
-  
-  .crossword.mobile .cw-clues-items {
-    max-height: 100%;
-    overflow-y: auto;
-    scroll-snap-type: y proximity;
-    font-size: 1.2em;
-  }  
+.crossword.mobile .cw-mobile-clues-holder {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 0.5em;
+  height: 10em;
+  /* adjust based on your keyboard size */
+  overflow: hidden;
+  padding: 4px;
+  background: var(--clues-holder-bg-color);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+}
 
-  .crossword.mobile .cw-clue {
-    padding: 2px 0;
-    margin-bottom: 0;
-    line-height: 1rem;
-    scroll-snap-align: start;
-  }
+.crossword.mobile .cw-clues-top,
+.crossword.mobile .cw-clues-bottom {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px;
+  font-size: 1em;
+}
 
-  .crossword.mobile .cw-puzzle-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    width: 100%;
-    max-width: 100%;
-} 
+.crossword.mobile .cw-clues-items {
+  max-height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y proximity;
+  font-size: 1.2em;
+}
+
+.crossword.mobile .cw-clue {
+  padding: 2px 0;
+  margin-bottom: 0;
+  line-height: 1rem;
+  scroll-snap-align: start;
+}
+
+.crossword.mobile .cw-puzzle-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 100%;
+}
 
 .crossword.mobile .cw-grid {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-width: 300px;
-    position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 300px;
+  position: relative;
 }
 
 .crossword.mobile #cw-puzzle-grid {
@@ -839,45 +352,45 @@ html.mobile-mode {
   max-width: 100%;
 }
 
-  .crossword.mobile .cw-buttons-holder {
-    position: relative;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    padding-top: 6px;
-    padding-left: 4px;
-    padding-right: 4px;
-    padding-bottom: 2px;
-    flex-wrap: wrap;
-    gap: 1.8em;
-    z-index: 30;
-    flex-shrink: 0;
-    overflow: visible;
-    background: var(--main-bg-color);
-  }
+.crossword.mobile .cw-buttons-holder {
+  position: relative;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding-top: 6px;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-bottom: 2px;
+  flex-wrap: wrap;
+  gap: 1.8em;
+  z-index: 30;
+  flex-shrink: 0;
+  overflow: visible;
+  background: var(--main-bg-color);
+}
 
-  .crossword.mobile .cw-buttons-row {
-    display: flex;
-    justify-content: center;
-    gap: 5.5em;
-  }
+.crossword.mobile .cw-buttons-row {
+  display: flex;
+  justify-content: center;
+  gap: 5.5em;
+}
 
-  /* Smaller mobile buttons */
+/* Smaller mobile buttons */
 .crossword.mobile .cw-button {
-    flex: 1;
-    font-size: 0.75em;
-    padding: 1em 2.5em;
-    min-width: 0;
-    max-width: 10em;
-    text-align: center;
-    box-shadow: 0 1px 6px 1px rgb(0 0 0 / 5%);
-  }
+  flex: 1;
+  font-size: 0.75em;
+  padding: 1em 2.5em;
+  min-width: 0;
+  max-width: 10em;
+  text-align: center;
+  box-shadow: 0 1px 6px 1px rgb(0 0 0 / 5%);
+}
 
-  /* Hide buttons before they're moved by the mobile code */
-  .crossword.mobile .cw-grid > .cw-buttons-holder {
-    display: none;
-  }
+/* Hide buttons before they're moved by the mobile code */
+.crossword.mobile .cw-grid>.cw-buttons-holder {
+  display: none;
+}
 
 .crossword.mobile .cw-button-prev-clue,
 .crossword.mobile .cw-button-next-clue {
@@ -888,7 +401,7 @@ html.mobile-mode {
 
 /* Hide clues */
 .crossword.mobile .cw-clues-holder {
-    display: none !important;
+  display: none !important;
 }
 
 .crossword.mobile .cw-clues-items {
@@ -897,109 +410,109 @@ html.mobile-mode {
 }
 
 .crossword.mobile .cw-keyboard-wrapper {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    background: var(--main-bg-color);
-  }
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: var(--main-bg-color);
+}
 
-  .crossword.mobile .custom-keyboard {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--main-bg-color);
-    padding-top: 6px;
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5px);
-    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
-    z-index: 10;
-    flex-shrink: 0;
-  }
-  
-  .crossword.mobile .custom-keyboard-row {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 4px;
-  }
-  
-  .crossword.mobile .custom-key {
-    width: 3.5%;
-    margin: 2px;
-    padding: 0.65em 0.5em;
-    text-align: center;
-    font-size: 1.1em;
-    background: var(--button-bg-color);
-    color: var(--button-text-color);
-    border-radius: 6px;
-    user-select: none;
-    cursor: pointer;
-    transition: background 0.2s ease;
-  }
+.crossword.mobile .custom-keyboard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--main-bg-color);
+  padding-top: 6px;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5px);
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  flex-shrink: 0;
+}
 
-  .crossword.mobile .wide-key {
-    flex: 1; /* takes up more space */
-    max-width: none;
-  }  
-  
-  .crossword.mobile .custom-key:active {
-    background: var(--button-hover-color);
-  }  
+.crossword.mobile .custom-keyboard-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4px;
+}
 
-  .custom-keyboard {
-    display: block;
-  }
+.crossword.mobile .custom-key {
+  width: 3.5%;
+  margin: 2px;
+  padding: 0.65em 0.5em;
+  text-align: center;
+  font-size: 1.1em;
+  background: var(--button-bg-color);
+  color: var(--button-text-color);
+  border-radius: 6px;
+  user-select: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
 
-  .crossword.mobile .cw-hidden-input {
-    position: absolute;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    height: 0 !important;
-    width: 0 !important;
-    top: -9999px;
-    left: -9999px;
-    font-size: 0;
-  }
+.crossword.mobile .wide-key {
+  flex: 1;
+  /* takes up more space */
+  max-width: none;
+}
 
-  /*.cw-key-left,
+.crossword.mobile .custom-key:active {
+  background: var(--button-hover-color);
+}
+
+.custom-keyboard {
+  display: block;
+}
+
+.crossword.mobile .cw-hidden-input {
+  position: absolute;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  top: -9999px;
+  left: -9999px;
+  font-size: 0;
+}
+
+/*.cw-key-left,
   .cw-key-right,
   .cw-key-rebus,
   .cw-key-alt-toggle,
   .cw-key-backspace {
     max-width: none;
     flex: 1;
-  }  
-  
+  }
+
   .cw-key-alt-toggle,
   .cw-key-rebus {
     max-width: none;
   }*/
+.crossword.mobile .custom-key.cw-key-left,
+.crossword.mobile .custom-key.cw-key-right {
+  background-color: var(--top-text-wrapper-bg-color) !important;
+  color: var(--top-text-wrapper-text-color) !important;
+  font-weight: bold;
+}
 
-  .crossword.mobile .custom-key.cw-key-left,
-  .crossword.mobile .custom-key.cw-key-right {
-    background-color: var(--top-text-wrapper-bg-color) !important;
-    color: var(--top-text-wrapper-text-color) !important;
-    font-weight: bold;
-  }
+.crossword.mobile .custom-key.rebus-key,
+.crossword.mobile .custom-key.backspace-key {
+  background: var(--button-hover-color);
+}
 
-  .crossword.mobile .custom-key.rebus-key,
-  .crossword.mobile .custom-key.backspace-key {
-    background: var(--button-hover-color);
-  }
+.crossword.mobile .cw-key-left,
+.crossword.mobile .cw-key-right {
+  font-size: 1.8em;
+  font-weight: bold;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
 
-  .crossword.mobile .cw-key-left,
-  .crossword.mobile .cw-key-right {
-    font-size: 1.8em;
-    font-weight: bold;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-  }  
-
-  /*.crossword.mobile .cw-key-backspace {
+/*.crossword.mobile .cw-key-backspace {
     font-size: 1.6em;
     line-height: 1;
     display: flex;
@@ -1007,139 +520,140 @@ html.mobile-mode {
     justify-content: center;
     padding: 0;
   }*/
+.cw-key-alt-toggle.active {
+  background-color: var(--button-hover-color);
+  font-weight: bold
+}
 
-  .cw-key-alt-toggle.active {
-    background-color: var(--button-hover-color);
-    font-weight: bold
+.crossword.mobile .cw-key-alt-toggle {
+  background: var(--button-hover-color);
+}
+
+.crossword.mobile .custom-key.period-key {
+  background: var(--button-bg-color);
+}
+
+.keyboard-wrapper-placeholder {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: var(--main-bg-color);
+  z-index: 10;
+  flex-shrink: 0;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+}
+
+.crossword.mobile .cw-buttons-drawer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: auto;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  will-change: transform;
+  z-index: 0;
+  background: var(--main-bg-color);
+  overflow: visible;
+  pointer-events: auto;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.crossword.mobile .cw-buttons-drawer.open {
+  transform: translateY(-160%);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+}
+
+.crossword.mobile .cw-menu {
+  z-index: 999;
+  position: fixed;
+  bottom: 100%;
+  top: auto;
+}
+
+.crossword.mobile .cw-buttons-handle {
+  height: 24px;
+  background: var(--top-text-wrapper-bg-color);
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  cursor: pointer;
+  z-index: 21;
+}
+
+.crossword.mobile .cw-buttons-handle::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 4px;
+  background: var(--top-text-wrapper-text-color);
+  border-radius: 2px;
+  margin: 8px auto;
+}
+
+.crossword.mobile .cw-modal {
+  z-index: 1000;
+}
+
+.crossword.mobile .cw-clues-title {
+  font-size: 0.8em;
+}
+
+.crossword.mobile .cw-cluenote-button {
+  right: 1px;
+  height: 1em;
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+.crossword.mobile .cw-input {
+  padding: 2px 6px;
+}
+
+.crossword.mobile .cw-grid-clue-wrapper {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  flex: 1;
+  overflow: hidden;
+  width: 100%;
+  gap: 10px;
+  margin-bottom: 30px;
+  box-sizing: border-box;
+}
+
+.crossword.mobile .cw-mobile-clues-side {
+  width: 43%;
+  max-width: 43%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 2px;
+  box-sizing: border-box;
+  background: var(--clues-holder-bg-color);
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.crossword.mobile .cw-mobile-clues-side .cw-clues {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px;
+  font-size: 1em;
+  box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+  .crossword.mobile .cw-mobile-clues-side {
+    display: none !important;
   }
 
-  .crossword.mobile .cw-key-alt-toggle {
-    background: var(--button-hover-color);
-  }
-
-  .crossword.mobile .custom-key.period-key {
-    background: var(--button-bg-color);
-  }
-
-  .keyboard-wrapper-placeholder {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    background: var(--main-bg-color);
-    z-index: 10;
-    flex-shrink: 0;
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
-  }
-
-  .crossword.mobile .cw-buttons-drawer {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: auto;
-    transform: translateY(100%);
-    transition: transform 0.3s ease;
-    will-change: transform;
-    z-index: 0;
-    background: var(--main-bg-color);
-    overflow: visible;
-    pointer-events: auto;
-    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .crossword.mobile .cw-buttons-drawer.open {
-    transform: translateY(-160%);
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
-  }
-
-  .crossword.mobile .cw-menu {
-    z-index: 999;
-    position: fixed;
-    bottom: 100%;
-    top: auto;
-  }  
-  
-  .crossword.mobile .cw-buttons-handle {
-    height: 24px;
-    background: var(--top-text-wrapper-bg-color);
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    cursor: pointer;
-    z-index: 21;
-  }
-
-  .crossword.mobile .cw-buttons-handle::before {
-    content: '';
-    display: block;
-    width: 36px;
-    height: 4px;
-    background: var(--top-text-wrapper-text-color);
-    border-radius: 2px;
-    margin: 8px auto;
-  }
-
-  .crossword.mobile .cw-modal {
-    z-index: 1000;
-  }
-
-  .crossword.mobile .cw-clues-title {
-    font-size: 0.8em;
-  }
-
-  .crossword.mobile .cw-cluenote-button {
-    right: 1px;
-    height: 1em;
-    padding: 1px 3px;
-    border-radius: 2px;
-  }
-
-  .crossword.mobile .cw-input {
-    padding: 2px 6px;
+  .crossword.mobile .cw-header {
+    font-size: .5em;
+    margin: 1px;
   }
 
   .crossword.mobile .cw-grid-clue-wrapper {
-    display: flex;
-    flex-direction: row;
-    height: 100%;
-    flex: 1;
-    overflow: hidden;
-    width: 100%;
-    gap: 10px;
-    margin-bottom: 30px;
-    box-sizing: border-box;
-  }
-
-  .crossword.mobile .cw-mobile-clues-side {
-    width: 43%;
-    max-width: 43%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    padding: 2px;
-    box-sizing: border-box;
-    background: var(--clues-holder-bg-color);
-    box-shadow: -2px 0 6px rgba(0,0,0,0.05);
-    border-radius: 4px;
-  }
-  
-  .crossword.mobile .cw-mobile-clues-side .cw-clues {
-    flex: 1;
-    overflow-y: auto;
-    padding: 4px;
-    font-size: 1em;
-    box-sizing: border-box;
-  }
-
-  @media (max-width: 767px) {
-    .crossword.mobile .cw-mobile-clues-side {
-      display: none !important;
-    }
-    .crossword.mobile .cw-header {
-      font-size: .5em;
-      margin: 1px;
-    }
-    .crossword.mobile .cw-grid-clue-wrapper {
-      margin-bottom: 5px;
+    margin-bottom: 5px;
   }
 }
 
@@ -1150,21 +664,20 @@ html.mobile-mode {
   }
 
   .cw-button {
-      font-size: 0.75em !important;
-      padding: 0.6em 1.1em !important;
+    font-size: 0.75em !important;
+    padding: 0.6em 1.1em !important;
   }
 
   .cw-buttons-holder {
-      gap: 2.8em !important;
+    gap: 2.8em !important;
   }
 
   .cw-buttons-row {
-      gap: 2em !important;
+    gap: 2em !important;
   }
 }
 
-@media (min-width: 768px) and 
-(max-width: 1024px) {
+@media (min-width: 768px) and (max-width: 1024px) {
   .crossword.mobile .custom-key {
     width: 6.5%;
   }
@@ -1182,7 +695,3 @@ html.mobile-mode {
   font-size: 1em;
   white-space: nowrap;
 }
-
-
-
-  
