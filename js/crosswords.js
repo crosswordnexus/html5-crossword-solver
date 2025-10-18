@@ -53,8 +53,7 @@ const isMobile = (() => {
   return (
     /android/i.test(ua) ||
     /iphone|ipad|ipod/i.test(ua) ||
-    /mobile/i.test(ua) ||
-    //window.innerWidth <= 768
+    /mobile/i.test(ua)
   );
 })();
 
