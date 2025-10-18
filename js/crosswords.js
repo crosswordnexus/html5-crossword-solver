@@ -15,33 +15,27 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 // Settings that we can save
 const CONFIGURABLE_SETTINGS = [
-  "skip_filled_letters"
-  , "arrow_direction"
-  , "space_bar"
-  , "tab_key"
-  , "timer_autostart"
-  , "dark_mode_enabled"
-  , "gray_completed_clues"
+  "skip_filled_letters", "arrow_direction", "space_bar", "tab_key", "timer_autostart", "dark_mode_enabled", "gray_completed_clues"
 ];
-(function () {
-  const isMobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);
-})();
 
 // Since DarkReader is an external library, make sure it exists
-try { DarkReader } catch { DarkReader = false; }
+try {
+  DarkReader
+} catch {
+  DarkReader = false;
+}
 
 /**
-* Helper functions
-* mostly for colors
-**/
+ * Helper functions
+ * mostly for colors
+ **/
 
 // hex string to RGB array and vice versa
 // thanks https://stackoverflow.com/a/39077686
 const hexToRgb = hex =>
-  hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
-    , (m, r, g, b) => '#' + r + r + g + g + b + b)
-    .substring(1).match(/.{2}/g)
-    .map(x => parseInt(x, 16));
+  hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => '#' + r + r + g + g + b + b)
+  .substring(1).match(/.{2}/g)
+  .map(x => parseInt(x, 16));
 
 const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
   const hex = x.toString(16)
@@ -61,8 +55,8 @@ const isMobile = (() => {
 // via wx-xword
 function getBrightness(hex) {
   const rgb = hexToRgb(hex);
-  //return Math.sqrt(0.299 * rgb[0]**2 + 0.587 * rgb[1]**2 + 0.114 * rgb[2]**2);
-  return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+  return Math.sqrt(0.299 * rgb[0] ** 2 + 0.587 * rgb[1] ** 2 + 0.114 * rgb[2] ** 2);
+  //return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
 }
 
 // Helper function for a single component
@@ -76,8 +70,9 @@ function averageColors(c1, c2, weight = 0.5) {
   var r1 = hexToRgb(c1);
   var r2 = hexToRgb(c2);
   var newColor = [componentAvg(r1[0], r2[0], weight),
-  componentAvg(r1[1], r2[1], weight),
-  componentAvg(r1[2], r2[2], weight)]
+    componentAvg(r1[1], r2[1], weight),
+    componentAvg(r1[2], r2[2], weight)
+  ]
   return rgbToHex(newColor[0], newColor[1], newColor[2]);
 }
 
@@ -137,7 +132,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 }
 
 // Main crossword javascript for the Crossword Nexus HTML5 Solver
-(function (global, factory) {
+(function(global, factory) {
   if (typeof module === 'object' && typeof module.exports === 'object') {
     module.exports = factory(global);
   } else {
@@ -145,32 +140,32 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
   }
 })(
   typeof window !== 'undefined' ? window : this,
-  function (window, registerGlobal) {
+  function(window, registerGlobal) {
     'use strict';
 
     var default_config = {
       hover_enabled: false,
       color_hover: '#FFFFAA',
-      color_selected: '#506E85',
-      color_word: '#D7E9F5',
-      color_hilite: '#506E85',
-      /*color_word_shade: '#BAAB56',*/
+      color_selected: '#FF4136',
+      color_word: '#FEE300',
+      color_hilite: '#F8E473',
+      color_word_shade: '#BAAB56',
       color_none: '#FFFFFF',
       background_color_clue: '#666666',
       default_background_color: '#c2ed7e',
-      color_secondary: '#d7e1ec',
+      color_secondary: '#fff7b7',
       font_color_clue: '#FFFFFF',
       font_color_fill: '#000000',
       color_block: '#212121',
       puzzle_file: null,
       puzzles: null,
       skip_filled_letters: true,
-      arrow_direction: 'arrow_stay',
-      space_bar: 'space_switch',
+      arrow_direction: 'arrow_move_filled',
+      space_bar: 'space_clear',
       filled_clue_color: '#999999',
       timer_autostart: false,
       dark_mode_enabled: false,
-      tab_key: 'tab_skip',
+      tab_key: 'tab_noskip',
       bar_linewidth: 3.2,
       gray_completed_clues: false,
       forced_theme: null,
@@ -196,7 +191,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     // messages
     var MSG_SAVED = 'Crossword saved';
     var MSG_LOADED = 'Crossword loaded';
-    var MSG_SOLVED = '<center>Way to go!</center>';
+    var MSG_SOLVED = 'Crossword solved! Congratulations!';
 
     var MAX_CLUES_LENGTH = 2;
 
@@ -227,12 +222,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       <div class = "cw-main auto normal">
         <!-- Overlay for opening puzzles -->
         <div class = "cw-open-holder">
-        <div class = "cw-overflow" style = "
-          background-position: center;
-          background-size    : 40%;
-          background-repeat  : no-repeat;"></div>
-          <div class = "cw-open-puzzle">
-          <div class = "cw-open-puzzle-instructions">
+        <div class="cw-overflow"></div>
+          <div class="cw-open-puzzle">
+            <div class="cw-open-puzzle-instructions">
               Drag and drop a file here, or click the button to choose a file
               to open.
             </div>
@@ -246,14 +238,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           <input type = "file" class = "cw-open-jpz" accept = ".puz,.xml,.jpz,.xpz,.ipuz,.cfp">
         </div>
         <!-- End overlay -->
-        <div class = "cw-header">
-        <div class = "cw-header-box">
-        <div class = "cw-header-content">
-        <div class = "cw-title" id  = "cw-title"></div>
-        <div class = "cw-author" id = "cw-author"></div>
-            </div>
-          </div>
-        </div>
+        <header class = "cw-header"></header>
         <div class = "cw-content">
           <!-- Placeholder for modal boxes -->
           <div    class = "cw-modal"></div>
@@ -261,7 +246,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           <div    class = "cw-buttons-holder">
           <div    class = "cw-menu-container">
           <button type  = "button" class = "cw-button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-icon lucide-file"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+            <span class="cw-button-icon">🗄️</span>
                    File
                   <span class = "cw-arrow"></span>
                 </button>
@@ -270,12 +255,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 <button class = "cw-menu-item cw-file-notepad">Notepad</button>
                 <button class = "cw-menu-item cw-file-print">Print</button>
                 <button class = "cw-menu-item cw-file-clear">Clear</button>
-                <button class = "cw-menu-item cw-file-download">Export JPZ</button>
                 </div>
               </div>
               <div    class = "cw-menu-container cw-check">
               <button type  = "button" class = "cw-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
+                <span class="cw-button-icon">🔍</span>
                    Check
                   <span class = "cw-arrow"></span>
                 </button>
@@ -287,7 +271,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               </div>
               <div    class = "cw-menu-container cw-reveal">
               <button type  = "button" class = "cw-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+                <span class="cw-button-icon">🎱</span>
                    Reveal
                   <span class = "cw-arrow"></span>
                 </button>
@@ -297,37 +281,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 <button class = "cw-menu-item cw-reveal-puzzle">Puzzle</button>
                 </div>
               </div>
-              <!-- NEW THEME: STEP 3 -->
-              <div    class = "cw-menu-container cw-theme">
-              <button type  = "button" class = "cw-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-palette-icon lucide-palette"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
-                   Theme
-                  <span class = "cw-arrow"></span>
-                </button>
-                <div    class = "cw-menu">
-                <button class = "cw-menu-item cw-theme-barbie">Barbie</button>
-                <button class = "cw-menu-item cw-theme-cherry-blossom">Cherry Blossom</button>
-                <button class = "cw-menu-item cw-theme-cryptic-crossweird">Cryptic Crossweird</button>
-                <button class = "cw-menu-item cw-theme-dark">Dark</button>
-                <button class = "cw-menu-item cw-theme-earth-tones">Earth Tones</button>
-                <button class = "cw-menu-item cw-theme-frost">Frost</button>
-                <button class = "cw-menu-item cw-theme-gio">Gio</button>
-                <button class = "cw-menu-item cw-theme-grape-soda">Grape Soda</button>
-                <button class = "cw-menu-item cw-theme-light-blue">Light Blue</button>
-                <button class = "cw-menu-item cw-theme-light-green">Light Green</button>
-                <button class = "cw-menu-item cw-theme-momos-nail-corner">Momo's Nail Corner</button>
-                <button class = "cw-menu-item cw-theme-pride">Pride</button>
-                <button class = "cw-menu-item cw-theme-pumpkin-spice">Pumpkin Spice</button>
-                <button class = "cw-menu-item cw-theme-spring-pastels">Spring Pastels</button>
-                <button class = "cw-menu-item cw-theme-taco-bell">Taco Bell</button>
-                </div>
-              </div>
+
               <button type = "button" class = "cw-button cw-settings-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                <span class="cw-button-icon">⚙️</span>
                  Settings
               </button>
-              <span   class = "cw-flex-spacer"></span>
-              <button type  = "button" class = "cw-button cw-button-notepad"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notepad-text-icon lucide-notepad-text"><path d="M8 2v4"/><path d="M12 2v4"/><path d="M16 2v4"/><rect width="16" height="18" x="4" y="4" rx="2"/><path d="M8 10h6"/><path d="M8 14h8"/><path d="M8 18h5"/></svg>Notes</button>
               <span   class = "cw-flex-spacer"></span>
               <button type  = "button" class = "cw-button cw-button-timer">00:00</button>
             </div>
@@ -363,7 +321,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         deferred = $.Deferred();
       xhr.open('GET', path);
       xhr.responseType = 'blob';
-      xhr.onload = function () {
+      xhr.onload = function() {
         if (xhr.status == 200) {
           loadFromFile(xhr.response, type, deferred);
         } else {
@@ -375,7 +333,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     }
 
     // Check if we can drag and drop files
-    var isAdvancedUpload = (function () {
+    var isAdvancedUpload = (function() {
       var div = document.createElement('div');
       return (
         ('draggable' in div || ('ondragstart' in div && 'ondrop' in div)) &&
@@ -387,7 +345,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     function loadFromFile(file, type, deferred) {
       var reader = new FileReader();
       deferred = deferred || $.Deferred();
-      reader.onload = function (event) {
+      reader.onload = function(event) {
         var string = event.target.result;
         deferred.resolve(string);
       };
@@ -450,16 +408,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
     // Function to check if a cell is solved correctly
     function isCorrect(entry, solution) {
-      if (!solution) return true; // No solution to check against
-
-      // Rebus: solution has more than one character (and is not just punctuation)
-      if (solution.length > 1 && /^[A-Za-z]+$/.test(solution)) {
-        // Must match exactly and be at least two chars
-        return typeof entry === "string" && entry.length > 1 && entry.toUpperCase() === solution.toUpperCase();
+      // if we have a rebus or non-alpha solution or no solution, accept anything
+      if (entry && (!solution || solution.length > 1 || /[^A-Za-z]/.test(solution))) {
+        return true;
       }
-
-      // Single letter: match one character, case-insensitive
-      return typeof entry === "string" && entry.length === 1 && entry.toUpperCase() === solution.toUpperCase();
+      // otherwise, only mark as okay if we have an exact match
+      else {
+        return entry == solution;
+      }
     }
 
     /**
@@ -480,6 +436,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       `</?(i|b|em|strong|span|br|p)>|[&<>"'\`=\\/]`,
       'g'
     );
+
     function escape(string) {
       //return String(string).replace(escapeRegex, (s) =>
       //  s.length > 1 ? s : entityMap[s]
@@ -487,192 +444,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       return string;
     }
 
-    // Themes (New theme: Step 1, > themes.css for Step 2)
-    const themeConfigs = {
-      "light-blue-theme": {
-        cssClass: "light-blue-theme",
-        config: {
-          color_selected: "#506E85",
-          color_word: "#D7E9F5",
-          color_block: "#212121",
-          color_none: "#FFFFFF",
-          color_hilite: "#506E85",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000"
-        }
-      },
-      "light-green-theme": {
-        cssClass: "light-green-theme",
-        config: {
-          color_selected: "#9DB08F",
-          color_word: "#EFF5E9",
-          color_block: "#212121",
-          color_none: "#FFFFFF",
-          color_hilite: "#9DB08F",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000",
-        }
-      },
-      "dark-theme": {
-        cssClass: "dark-theme",
-        config: {
-          color_selected: "#322533",
-          color_word: "#534A54",
-          color_block: "#212121",
-          color_none: "#3F4D59",
-          color_hilite: "#322533",
-          font_color_fill: "#FFFFFF",
-          font_color_clue: "#FFFFFF"
-        }
-      },
-      "pumpkin-spice-theme": {
-        cssClass: "pumpkin-spice-theme",
-        config: {
-          color_selected: "#9e2a2b",
-          color_word: "#E3AF7B",
-          color_block: "#212121",
-          color_none: "#FFFFFF",
-          color_hilite: "#E3AF7B",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000"
-        }
-      },
-      "barbie-theme": {
-        cssClass: "barbie-theme",
-        config: {
-          color_selected: "#56D6FC",
-          color_word: "#FFCFE4",
-          color_block: "#212121",
-          color_none: "#FFE8F2",
-          color_hilite: "#56D6FC",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000"
-        }
-      },
-      "taco-bell-theme": {
-        cssClass: "taco-bell-theme",
-        config: {
-          color_selected: "#289E94",
-          color_word: "#3DF2E3",
-          color_block: "#502859",
-          color_none: "#FFD4E6",
-          color_hilite: "#289E94",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000"
-        }
-      },
-      "earth-tones-theme": {
-        cssClass: "earth-tones-theme",
-        config: {
-          color_selected: "#754E42",
-          color_word: "#F7DFD0",
-          color_block: "#212121",
-          color_none: "#FFFFFF",
-          color_hilite: "#F7DFD0",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000"
-        }
-      },
-      "grape-soda-theme": {
-        cssClass: "grape-soda-theme",
-        config: {
-          color_selected: "#7976a4",
-          color_word: "#dfdfea",
-          color_block: "#2b256f",
-          color_none: "#FFFFFF",
-          color_hilite: "#289E94",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000"
-        }
-      },
-      "cherry-blossom-theme": {
-        cssClass: "cherry-blossom-theme",
-        config: {
-          color_selected: "#F25477",
-          color_word: "#FFDCDC",
-          color_block: "#212121",
-          color_none: "#FFFFFF",
-          color_hilite: "#506E85",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000"
-        }
-      },
-      "momos-nail-corner-theme": {
-        cssClass: "momos-nail-corner-theme",
-        config: {
-          color_selected: "#98fdff",
-          color_word: "#d3feff",
-          color_block: "#abc837",
-          color_none: "#edf9c3",
-          color_hilite: "#289e94",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000"
-        }
-      },
-      "frost-theme": {
-        cssClass: "frost-theme",
-        config: {
-          color_selected: "#b0bef7",
-          color_word: "#e6eafc",
-          color_block: "#212121",
-          color_none: "#ffffff",
-          color_hilite: "#289e94",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000"
-        }
-      },
-      "cryptic-crossweird-theme": {
-        cssClass: "cryptic-crossweird-theme",
-        config: {
-          color_selected: "#da854a",
-          color_word: "#eabc9b",
-          color_block: "#212121",
-          color_none: "#ffffff",
-          color_hilite: "#289e94",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000"
-        }
-      },
-      "spring-pastels-theme": {
-        cssClass: "spring-pastels-theme",
-        config: {
-          color_selected: "#e3addd",
-          color_word: "#f7e8f5",
-          color_block: "#212121",
-          color_none: "#ffffff",
-          color_hilite: "#289e94",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000"
-        }
-      },
-      "gio-theme": {
-        cssClass: "gio-theme",
-        config: {
-          color_selected: "#916844",
-          color_word: "#d2b7a0",
-          color_block: "#212121",
-          color_none: "#ffffff",
-          color_hilite: "#289e94",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000"
-        }
-      },
-      "pride-theme": {
-        cssClass: "pride-theme",
-        config: {
-          color_selected: "#f4afc9",
-          color_word: "#fbe3ec",
-          color_block: "#212121",
-          color_none: "#ffffff",
-          color_hilite: "#289e94",
-          font_color_fill: "#000000",
-          font_color_clue: "#000000"
-        }
-      }
-    };
-
     var CrosswordNexus = {
-      createCrossword: function (parent, user_config) {
+      createCrossword: function(parent, user_config) {
         var crossword;
         try {
           if (typeof jQuery === TYPE_UNDEFINED) {
@@ -790,7 +563,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
           Object.keys(entry_mapping).forEach((id) => {
             const entry = entry_mapping[id];
-            const clue = { word: id, number: id, text: '--' };
+            const clue = {
+              word: id,
+              number: id,
+              text: '--'
+            };
             clueMapping[id] = clue;
             if (acrossSet.has(entry)) {
               across_group.clues.push(clue);
@@ -888,9 +665,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           });
 
           this.file_input.on('change', () => {
-            var files = this.file_input[0].files.length
-              ? this.file_input[0].files
-              : null;
+            var files = this.file_input[0].files.length ?
+              this.file_input[0].files :
+              null;
             if (files) {
               processFiles(files);
             }
@@ -907,18 +684,18 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             div_open_holder
               .on(
                 'drag dragstart dragend dragover dragenter dragleave drop',
-                function (e) {
+                function(e) {
                   e.preventDefault();
                   e.stopPropagation();
                 }
               )
-              .on('dragover dragenter', function () {
+              .on('dragover dragenter', function() {
                 div_overflow.addClass('is-dragover');
               })
-              .on('dragleave dragend drop', function () {
+              .on('dragleave dragend drop', function() {
                 div_overflow.removeClass('is-dragover');
               })
-              .on('drop', function (e) {
+              .on('drop', function(e) {
                 droppedFiles = e.originalEvent.dataTransfer.files;
                 processFiles(droppedFiles);
               });
@@ -939,9 +716,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.svgContainer = document.createElementNS(this.svgNS, 'svg');
         this.svgContainer.setAttribute('id', 'cw-puzzle-grid');
         // Preserve existing top text wrapper while replacing only the canvas
-        this.canvas_holder.find('#cw-puzzle-grid').remove();  // Remove old canvas only
+        this.canvas_holder.find('#cw-puzzle-grid').remove(); // Remove old canvas only
 
-        this.canvas_holder.append(this.svgContainer);         // Add new SVG crossword
+        this.canvas_holder.append(this.svgContainer); // Add new SVG crossword
         this.svg = $('#cw-puzzle-grid');
 
         setBreakpointClasses(this.root);
@@ -960,7 +737,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         if (title === 'ACROSS') return 'Across';
         if (title === 'DOWN') return 'Down';
 
-        return rawTitle;  // Preserve original if it's custom
+        return rawTitle; // Preserve original if it's custom
       }
 
       /** Parse a puzzle using JSCrossword **/
@@ -1024,7 +801,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
 
         // Savegame
-        const simpleHash = t => { let e = 0; for (let r = 0; r < t.length; r++) { e = (e << 5) - e + t.charCodeAt(r), e &= e } return new Uint32Array([e])[0].toString(36) };
+        const simpleHash = t => {
+          let e = 0;
+          for (let r = 0; r < t.length; r++) {
+            e = (e << 5) - e + t.charCodeAt(r), e &= e
+          }
+          return new Uint32Array([e])[0].toString(36)
+        };
         const myHash = simpleHash(JSON.stringify(puzzle));
         this.savegame_name = STORAGE_KEY + '_' + myHash;
 
@@ -1078,7 +861,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
 
         if (this.fakeclues) {
-          $('div.cw-top-text-wrapper').css({ display: 'none' });
+          $('div.cw-top-text-wrapper').css({
+            display: 'none'
+          });
         }
 
         // === Build cells ===
@@ -1103,7 +888,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             color: rawCell['background-color'] || null,
             shape: rawCell['background-shape'] || null,
             top_right_number: rawCell.top_right_number,
-            fixed: rawCell.fixed === true  // Preserve fixed flag from saved data
+            fixed: rawCell.fixed === true // Preserve fixed flag from saved data
           };
 
           // ✔ DO NOT reset `c.fixed` to false here!
@@ -1174,15 +959,21 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.clues_bottom = fake_clue_obj.down_group;
           clueMapping = fake_clue_obj.clue_mapping;
 
-          $('div.cw-clues-holder').css({ display: 'none' });
-          $('div.cw-top-text-wrapper').css({ display: 'none' });
-          $('div.cw-buttons-holder').css({ padding: '0 10px' });
+          $('div.cw-clues-holder').css({
+            display: 'none'
+          });
+          $('div.cw-top-text-wrapper').css({
+            display: 'none'
+          });
+          $('div.cw-buttons-holder').css({
+            padding: '0 10px'
+          });
 
         } else {
-          puzzle.clues[0].clue.forEach(function (clue) {
+          puzzle.clues[0].clue.forEach(function(clue) {
             clueMapping[clue.word] = clue;
           });
-          var words_ids_top = puzzle.clues[0].clue.map(function (key) {
+          var words_ids_top = puzzle.clues[0].clue.map(function(key) {
             return key.word;
           });
           this.clues_top = new CluesGroup(this, {
@@ -1193,14 +984,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           });
 
           if (puzzle.clues.length > 1) {
-            puzzle.clues[1].clue.forEach(function (clue) {
+            puzzle.clues[1].clue.forEach(function(clue) {
               clueMapping[clue.word] = clue;
             });
             this.clues_bottom = new CluesGroup(this, {
               id: CLUES_BOTTOM,
               title: this.normalizeClueTitle(puzzle.clues[1]['title']),
               clues: puzzle.clues[1].clue,
-              words_ids: puzzle.clues[1].clue.map(function (key) {
+              words_ids: puzzle.clues[1].clue.map(function(key) {
                 return key.word;
               })
             });
@@ -1231,8 +1022,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             id: word.id,
             dir: word.dir,
             refs_raw: null,
-            cell_ranges: word.cells.map(function (c) {
-              return { x: (c[0] + 1).toString(), y: (c[1] + 1).toString() };
+            cell_ranges: word.cells.map(function(c) {
+              return {
+                x: (c[0] + 1).toString(),
+                y: (c[1] + 1).toString()
+              };
             }),
             clue: clueMapping[word.id]
           });
@@ -1572,8 +1366,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             } else {
               // Normal puzzles
               if (!clickedCell.empty) {
-                const newActiveWord = this.active_clues.getMatchingWord(x, y, true)
-                  || this.inactive_clues.getMatchingWord(x, y, true);
+                const newActiveWord = this.active_clues.getMatchingWord(x, y, true) ||
+                  this.inactive_clues.getMatchingWord(x, y, true);
 
                 if (newActiveWord) {
                   this.setActiveWord(newActiveWord);
@@ -1671,14 +1465,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         const this_hidden_input = this.hidden_input;
         var span = this.root.find('.modal-close').get(0);
         // When the user clicks on <span> (x), close the modal
-        span.onclick = function () {
+        span.onclick = function() {
           modal.style.display = 'none';
           if (!isMobile) {
             this_hidden_input.focus();
           }
         };
         // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function (event) {
+        window.onclick = function(event) {
           if (event.target == modal) {
             modal.style.display = 'none';
             if (!isMobile) {
@@ -1688,7 +1482,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         };
         // Clicking the button should close the modal
         var modalButton = document.getElementById('modal-button');
-        modalButton.onclick = function () {
+        modalButton.onclick = function() {
           modal.style.display = 'none';
           if (!isMobile) {
             this_hidden_input.focus();
@@ -1760,7 +1554,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           input_top = offset.top + (cell.y - 1) * this.cell_size;
           input_left = offset.left + (cell.x - 1) * this.cell_size;
 
-          this.hidden_input.css({ left: input_left, top: input_top });
+          this.hidden_input.css({
+            left: input_left,
+            top: input_top
+          });
           if (!isMobile) {
             this.hidden_input.focus();
           }
@@ -1776,7 +1573,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           items = clues_container.find('div.cw-clues-items');
         let notes = this.notes;
         items.find('div.cw-clue').remove();
-        for (i = 0; (clue = clues_group.clues[i]); i++) {
+        for (i = 0;
+          (clue = clues_group.clues[i]); i++) {
           clue_el = $(`
             <div style="position: relative">
               <span class="cw-clue-number">
@@ -1809,14 +1607,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         clues_group.clues_container = items;
 
         // Add event listeners for editing
-        items.find('.cw-clue').on('mouseenter', function () {
+        items.find('.cw-clue').on('mouseenter', function() {
           var clueElement = $(this).closest('.cw-clue');
           if (clueElement.find('.cw-input').val().trim().length === 0) {
             $(this).find('.cw-cluenote-button').show();
           }
         });
 
-        items.find('.cw-clue').on('mouseleave', function (event) {
+        items.find('.cw-clue').on('mouseleave', function(event) {
           const relatedTarget = event.relatedTarget;
           const isInsideNote = $(relatedTarget).closest('.cw-edit-container').length > 0;
           if (!isInsideNote) {
@@ -1824,13 +1622,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
         });
 
-        items.find('.cw-input').on('click', function (event) {
+        items.find('.cw-input').on('click', function(event) {
           event.stopPropagation();
         });
 
         var save = () => this.saveGame();
 
-        items.find('.cw-cluenote-button').on('click', function (event) {
+        items.find('.cw-cluenote-button').on('click', function(event) {
           event.stopPropagation();
           var clueElement = $(this).closest('.cw-clue');
           clueElement.find('.cw-edit-container').show();
@@ -1838,7 +1636,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           $(this).hide();
         });
 
-        items.find('.cw-input').on('blur', function (event) {
+        items.find('.cw-input').on('blur', function(event) {
           const clueElement = $(this).closest('.cw-clue');
           const inputEl = $(this);
           const wordId = clueElement.data('word');
@@ -1859,10 +1657,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
 
             save();
-          }, 10);  // Delay slightly to allow focus to settle
+          }, 10); // Delay slightly to allow focus to settle
         });
 
-        items.find('.cw-input').on('keydown', function (event) {
+        items.find('.cw-input').on('keydown', function(event) {
           if (event.keyCode === 13) { // Enter key
             var clueElement = $(this).closest('.cw-clue');
             clueElement.find('.cw-input').blur();
@@ -1921,61 +1719,60 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           for (let yStr in this.cells[x]) {
             const y = parseInt(yStr, 10);
             const cell = this.cells[x][y];
-            const shouldRender =
-              !cell.empty || cell.clue === true || cell.type === 'block' || cell.top_right_number;
+            const shouldRender = !cell.empty || cell.clue === true || cell.type === 'block' || cell.top_right_number;
             if (!shouldRender) continue;
 
-          const cellX = (x - 1) * SIZE;
-          const cellY = (y - 1) * SIZE;
+            const cellX = (x - 1) * SIZE;
+            const cellY = (y - 1) * SIZE;
 
-          const isLabelOnly = (
-            this.crossword_type === 'acrostic' &&
-            cell.fixed === true &&
-            /^[A-Z]$/.test(cell.letter) &&
-            cell.letter === cell.solution &&
-            !cell.top_right_number
-          );
+            const isLabelOnly = (
+              this.crossword_type === 'acrostic' &&
+              cell.fixed === true &&
+              /^[A-Z]$/.test(cell.letter) &&
+              cell.letter === cell.solution &&
+              !cell.top_right_number
+            );
 
-          const isPunctuationOnly = (
-            cell.letter &&
-            /^[^A-Za-z0-9]$/.test(cell.letter) &&
-            !cell.solution
-          );
-          const shouldBeTransparent = isLabelOnly || isPunctuationOnly;
+            const isPunctuationOnly = (
+              cell.letter &&
+              /^[^A-Za-z0-9]$/.test(cell.letter) &&
+              !cell.solution
+            );
+            const shouldBeTransparent = isLabelOnly || isPunctuationOnly;
 
-          // ⬇️ Skip drawing the rect if it's a floating label-only cell
-          if (!isLabelOnly) {
-            const rect = document.createElementNS(this.svgNS, 'rect');
-            rect.setAttribute('x', cellX);
-            rect.setAttribute('y', cellY);
-            rect.setAttribute('width', SIZE);
-            rect.setAttribute('height', SIZE);
-            rect.setAttribute('stroke', '#212121');
-            rect.setAttribute('data-x', cell.x);
-            rect.setAttribute('data-y', cell.y);
-            rect.setAttribute('class', 'cw-cell');
+            // ⬇️ Skip drawing the rect if it's a floating label-only cell
+            if (!isLabelOnly) {
+              const rect = document.createElementNS(this.svgNS, 'rect');
+              rect.setAttribute('x', cellX);
+              rect.setAttribute('y', cellY);
+              rect.setAttribute('width', SIZE);
+              rect.setAttribute('height', SIZE);
+              rect.setAttribute('stroke', '#212121');
+              rect.setAttribute('data-x', cell.x);
+              rect.setAttribute('data-y', cell.y);
+              rect.setAttribute('class', 'cw-cell');
 
-            let fillColor;
+              let fillColor;
 
-            if (cell.type === 'block') {
-              fillColor = this.config.color_block;
-            } else if (this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) {
-              fillColor = this.config.color_selected;
-              rect.classList.add('selected');
-            } else if (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)) {
-              fillColor = this.config.color_word;
-            } else if (linkedSet && linkedSet.has(`${cell.x}-${cell.y}`)) {
-              fillColor = this.config.color_word;   // highlight partners
-              rect.classList.add('linked');         // optional CSS hook
-            } else if (cell.color) {
-              fillColor = cell.color;
-            } else {
-              fillColor = this.config.color_none;
+              if (cell.type === 'block') {
+                fillColor = this.config.color_block;
+              } else if (this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) {
+                fillColor = this.config.color_selected;
+                rect.classList.add('selected');
+              } else if (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)) {
+                fillColor = this.config.color_word;
+              } else if (linkedSet && linkedSet.has(`${cell.x}-${cell.y}`)) {
+                fillColor = this.config.color_word; // highlight partners
+                rect.classList.add('linked'); // optional CSS hook
+              } else if (cell.color) {
+                fillColor = cell.color;
+              } else {
+                fillColor = this.config.color_none;
+              }
+
+              rect.setAttribute('fill', fillColor);
+              svg.appendChild(rect);
             }
-
-            rect.setAttribute('fill', fillColor);
-            svg.appendChild(rect);
-          }
 
             if (cell.shape === 'circle') {
               const circle = document.createElementNS(this.svgNS, 'circle');
@@ -2123,7 +1920,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         const SIZE = this.cell_size;
 
-        let minX = Infinity, minY = Infinity, maxX = -1, maxY = -1;
+        let minX = Infinity,
+          minY = Infinity,
+          maxX = -1,
+          maxY = -1;
 
         for (const coord of word.cells) {
           const [x, y] = coord.split('-').map(Number);
@@ -2200,10 +2000,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
       mouseClicked(e) {
         var offset = this.svg.offset(),
-            mouse_x = e.pageX - offset.left,
-            mouse_y = e.pageY - offset.top,
-            index_x = Math.ceil(mouse_x / this.cell_size),
-            index_y = Math.ceil(mouse_y / this.cell_size);
+          mouse_x = e.pageX - offset.left,
+          mouse_y = e.pageY - offset.top,
+          index_x = Math.ceil(mouse_x / this.cell_size),
+          index_y = Math.ceil(mouse_y / this.cell_size);
 
         if (this.diagramless_mode) {
           const clickedCell = this.getCell(index_x, index_y);
@@ -2213,7 +2013,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             this.top_text.html('');
             this.renderCells();
             if (!isMobile) {
-              this.hidden_input.focus();  // <-- FOCUS here after selecting cell
+              this.hidden_input.focus(); // <-- FOCUS here after selecting cell
             }
           }
         } else {
@@ -2238,7 +2038,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.setActiveCell(this.getCell(index_x, index_y));
           this.renderCells();
           if (!isMobile) {
-            this.hidden_input.focus();  // <-- Also focus here for normal puzzles
+            this.hidden_input.focus(); // <-- Also focus here for normal puzzles
           }
         }
       }
@@ -2254,8 +2054,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
 
         // to prevent event propagation for specified keys
-        var prevent =
-          [35, 36, 37, 38, 39, 40, 32, 46, 8, 9, 13].indexOf(e.keyCode) >= 0;
+        var prevent = [35, 36, 37, 38, 39, 40, 32, 46, 8, 9, 13].indexOf(e.keyCode) >= 0;
 
         switch (e.keyCode) {
           case 35: // end
@@ -2337,7 +2136,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               }
             }
             break;
-            case 45: // insert -- same as escape
+          case 45: // insert -- same as escape
             if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
               var rebus_entry = prompt('Rebus entry', '');
               this.hiddenInputChanged(rebus_entry);
@@ -2398,7 +2197,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               this.moveToNextWord(false, skip_filled_words);
             }
             break;
-            case 190: // "." key pressed
+          case 190: // "." key pressed
             if (this.diagramless_mode && this.selected_cell) {
               const cell = this.selected_cell;
 
@@ -2426,62 +2225,62 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
             prevent = true;
             break;
-            default: {
-              // Allow any single printable character except space (space has special meaning)
-              const isPrintableChar =
-                e.key.length === 1 &&
-                e.key !== ' ' &&
-                !e.ctrlKey && !e.metaKey && !e.altKey;
+          default: {
+            // Allow any single printable character except space (space has special meaning)
+            const isPrintableChar =
+              e.key.length === 1 &&
+              e.key !== ' ' &&
+              !e.ctrlKey && !e.metaKey && !e.altKey;
 
-              if (this.selected_cell && isPrintableChar && !this.selected_cell.fixed) {
-                // Uppercase only letters, leave numbers/punctuation unchanged
-                const ch = /[a-z]/i.test(e.key) ? e.key.toUpperCase() : e.key;
-                this.selected_cell.letter = ch;
-                this.selected_cell.checked = false;
-                this.autofill();
-                this.checkIfSolved();
-                this.renderCells();
-                if (!isMobile) {
-                  this.hidden_input.focus();
-                }
+            if (this.selected_cell && isPrintableChar && !this.selected_cell.fixed) {
+              // Uppercase only letters, leave numbers/punctuation unchanged
+              const ch = /[a-z]/i.test(e.key) ? e.key.toUpperCase() : e.key;
+              this.selected_cell.letter = ch;
+              this.selected_cell.checked = false;
+              this.autofill();
+              this.checkIfSolved();
+              this.renderCells();
+              if (!isMobile) {
+                this.hidden_input.focus();
+              }
 
-                let next_cell = null;
+              let next_cell = null;
 
-                if (this.diagramless_mode) {
-                  // Diagramless: move to next non-block cell to the right
-                  const cx = this.selected_cell.x;
-                  const cy = this.selected_cell.y;
-                  for (let nx = cx + 1; nx <= this.grid_width; nx++) {
-                    const next = this.getCell(nx, cy);
-                    if (next && next.type !== 'block') {
-                      next_cell = next;
-                      break;
-                    }
-                  }
-                } else if (this.selected_word) {
-                  // Regular crossword logic
-                  if (this.config.skip_filled_letters && !this.selected_word.isFilled()) {
-                    next_cell = this.selected_word.getFirstEmptyCell(
-                      this.selected_cell.x,
-                      this.selected_cell.y
-                    ) || this.selected_word.getNextCell(
-                      this.selected_cell.x,
-                      this.selected_cell.y
-                    );
-                  } else {
-                    next_cell = this.selected_word.getNextCell(
-                      this.selected_cell.x,
-                      this.selected_cell.y
-                    );
+              if (this.diagramless_mode) {
+                // Diagramless: move to next non-block cell to the right
+                const cx = this.selected_cell.x;
+                const cy = this.selected_cell.y;
+                for (let nx = cx + 1; nx <= this.grid_width; nx++) {
+                  const next = this.getCell(nx, cy);
+                  if (next && next.type !== 'block') {
+                    next_cell = next;
+                    break;
                   }
                 }
-
-                if (next_cell) {
-                  this.setActiveCell(next_cell);
+              } else if (this.selected_word) {
+                // Regular crossword logic
+                if (this.config.skip_filled_letters && !this.selected_word.isFilled()) {
+                  next_cell = this.selected_word.getFirstEmptyCell(
+                    this.selected_cell.x,
+                    this.selected_cell.y
+                  ) || this.selected_word.getNextCell(
+                    this.selected_cell.x,
+                    this.selected_cell.y
+                  );
+                } else {
+                  next_cell = this.selected_word.getNextCell(
+                    this.selected_cell.x,
+                    this.selected_cell.y
+                  );
                 }
               }
-              break;
+
+              if (next_cell) {
+                this.setActiveCell(next_cell);
+              }
             }
+            break;
+          }
         }
         if (prevent) {
           e.preventDefault();
@@ -2489,34 +2288,34 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
       }
 
-          autofill() {
-            this.saveGame(); // keep saving
+      autofill() {
+        this.saveGame(); // keep saving
 
-            if (this.is_autofill && this.selected_cell) {
-              const key = this.selected_cell.number || this.selected_cell.top_right_number;
-              const same_number_cells = this.number_to_cells[key] || [];
+        if (this.is_autofill && this.selected_cell) {
+          const key = this.selected_cell.number || this.selected_cell.top_right_number;
+          const same_number_cells = this.number_to_cells[key] || [];
 
-              for (const cell of same_number_cells) {
-                if (cell !== this.selected_cell) {
-                  cell.letter = this.selected_cell.letter;
-                  cell.checked = this.selected_cell.checked;
-                }
-              }
+          for (const cell of same_number_cells) {
+            if (cell !== this.selected_cell) {
+              cell.letter = this.selected_cell.letter;
+              cell.checked = this.selected_cell.checked;
             }
           }
+        }
+      }
 
       // Detects user inputs to hidden input element
       hiddenInputChanged(rebus_string) {
-      var next_cell;
-      if (this.selected_cell) {
-        if (rebus_string && rebus_string.trim()) {
-          this.selected_cell.letter = rebus_string.toUpperCase();  // ✅ Use rebus string if available
-        } else {
-          const mychar = this.hidden_input.val().slice(0, 1).toUpperCase();
-          if (mychar) {
-            this.selected_cell.letter = mychar;
+        var next_cell;
+        if (this.selected_cell) {
+          if (rebus_string && rebus_string.trim()) {
+            this.selected_cell.letter = rebus_string.toUpperCase(); // ✅ Use rebus string if available
+          } else {
+            const mychar = this.hidden_input.val().slice(0, 1).toUpperCase();
+            if (mychar) {
+              this.selected_cell.letter = mychar;
+            }
           }
-        }
           this.selected_cell.checked = false;
 
           // If this is a coded or acrostic
@@ -2595,12 +2394,15 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         confetti({
           particleCount: 280,
           spread: 190,
-          origin: { y: 0.4 }
+          origin: {
+            y: 0.4
+          }
         });
 
         /* const winSound = new Audio('./sounds/hny.mp3');
            winSound.play();*/
         const here = this
+
         function showSuccessMsg() {
           const rawMessage = "Congratulations!";
 
@@ -2710,9 +2512,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
       moveToNextWord_OLD(to_previous) {
         if (this.selected_word) {
-          var next_word = to_previous
-            ? this.active_clues.getPreviousWord(this.selected_word)
-            : this.active_clues.getNextWord(this.selected_word),
+          var next_word = to_previous ?
+            this.active_clues.getPreviousWord(this.selected_word) :
+            this.active_clues.getNextWord(this.selected_word),
             cell;
           if (next_word) {
             cell = next_word.getFirstEmptyCell() || next_word.getFirstCell();
@@ -2725,9 +2527,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
       moveToFirstCell(to_last) {
         if (this.selected_word) {
-          var cell = to_last
-            ? this.selected_word.getLastCell()
-            : this.selected_word.getFirstCell();
+          var cell = to_last ?
+            this.selected_word.getLastCell() :
+            this.selected_word.getFirstCell();
           if (cell) {
             this.setActiveCell(cell);
             this.renderCells();
@@ -2936,7 +2738,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.createModalBox('Notes', escape(this.notepad));
       }
 
-            /**
+      /**
        * Normalize selected text to letters only (A–Z).
        */
       lettersOnly(text) {
@@ -3016,12 +2818,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
           // initial center (one-time) if not previously positioned
           if (!box.dataset.positioned) {
-            const vw = window.innerWidth, vh = window.innerHeight;
-            const bw = box.offsetWidth, bh = box.offsetHeight;
+            const vw = window.innerWidth,
+              vh = window.innerHeight;
+            const bw = box.offsetWidth,
+              bh = box.offsetHeight;
             const left = Math.max(8, Math.round((vw - bw) / 2));
-            const top  = Math.max(8, Math.round((vh - bh) / 10)); // slightly high
+            const top = Math.max(8, Math.round((vh - bh) / 10)); // slightly high
             box.style.left = left + "px";
-            box.style.top  = top  + "px";
+            box.style.top = top + "px";
             box.style.margin = "0"; // cancel auto-centering
             box.dataset.positioned = "1";
           }
@@ -3030,7 +2834,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           const header = box.querySelector(".modal-header");
           if (!header) return;
 
-          let startX = 0, startY = 0, startLeft = 0, startTop = 0, dragging = false;
+          let startX = 0,
+            startY = 0,
+            startLeft = 0,
+            startTop = 0,
+            dragging = false;
 
           const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
 
@@ -3052,16 +2860,16 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             // New bounds: you can push the box so that only GUARD_* px remain visible
             const minLeft = -(bw - GUARD_X);
             const maxLeft = vw - GUARD_X;
-            const minTop  = -(bh - GUARD_Y);
-            const maxTop  = vh - GUARD_Y;
+            const minTop = -(bh - GUARD_Y);
+            const maxTop = vh - GUARD_Y;
 
             const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
 
             const newLeft = clamp(startLeft + dx, minLeft, maxLeft);
-            const newTop  = clamp(startTop  + dy, minTop,  maxTop);
+            const newTop = clamp(startTop + dy, minTop, maxTop);
 
             box.style.left = newLeft + "px";
-            box.style.top  = newTop  + "px";
+            box.style.top = newTop + "px";
           };
 
           const endDrag = () => {
@@ -3099,7 +2907,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               observer.disconnect();
             }
           });
-          observer.observe(modalEl, { attributes: true, attributeFilter: ["style"] });
+          observer.observe(modalEl, {
+            attributes: true,
+            attributeFilter: ["style"]
+          });
         })();
 
         // Fallback button: open in new tab
@@ -3110,7 +2921,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         // Auto-copy immediately (will often succeed thanks to user gesture)
         const input = document.getElementById("dt-letters");
         const copyToClipboard = async () => {
-          try { if (letters) await navigator.clipboard.writeText(letters); } catch {}
+          try {
+            if (letters) await navigator.clipboard.writeText(letters);
+          } catch {}
         };
         copyToClipboard();
 
@@ -3126,9 +2939,17 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         const iframe = document.getElementById("ducktiles-frame");
         const help = document.getElementById("dt-help");
         let hinted = false;
-        const showHelpIfBlank = () => { if (!hinted) { help.style.display = "block"; hinted = true; } };
+        const showHelpIfBlank = () => {
+          if (!hinted) {
+            help.style.display = "block";
+            hinted = true;
+          }
+        };
         setTimeout(showHelpIfBlank, 1500);
-        iframe?.addEventListener("load", () => { help.style.display = "none"; hinted = true; });
+        iframe?.addEventListener("load", () => {
+          help.style.display = "none";
+          hinted = true;
+        });
 
         // Allow Escape key to close the modal
         const modalEl = this.root.find('.cw-modal').get(0);
@@ -3325,9 +3146,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
       saveSettings() {
         // we only save settings that are configurable
-        var ss1 = { ...this.config };
+        var ss1 = {
+          ...this.config
+        };
         var savedSettings = {};
-        CONFIGURABLE_SETTINGS.forEach(function (x) {
+        CONFIGURABLE_SETTINGS.forEach(function(x) {
           savedSettings[x] = ss1[x];
         })
         localStorage.setItem(
@@ -3343,7 +3166,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         // stringify
         const jsxw_str = JSON.stringify(this.jsxw.cells);
         localStorage.setItem(this.savegame_name, jsxw_str);
-        localStorage.setItem(this.savegame_name + "_notes", JSON.stringify(Array.from(this.notes.entries()).map(n => { return { key: n[0], value: n[1] } })));
+        localStorage.setItem(this.savegame_name + "_notes", JSON.stringify(Array.from(this.notes.entries()).map(n => {
+          return {
+            key: n[0],
+            value: n[1]
+          }
+        })));
         /*localStorage.setItem(this.savegame_name + '_version', PUZZLE_STORAGE_VERSION);*/
       }
 
@@ -3454,19 +3282,19 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       loadSavedTheme() {
         const forced = this.requested_theme || this.config.forced_theme;
 
-          if (forced && themeConfigs[forced]) {
-            this.set_theme(forced);
-            this.appliedThemeClass = forced;
+        if (forced && themeConfigs[forced]) {
+          this.set_theme(forced);
+          this.appliedThemeClass = forced;
 
-            if (this.config.lock_theme) {
-              const themeMenu = this.root.find('.cw-menu-container.cw-theme');
-              themeMenu.addClass('disabled');
-              themeMenu.find('> button')
-                .prop('disabled', true)
-                .attr('title', 'Theme locked for this puzzle');
-            }
-            return;
+          if (this.config.lock_theme) {
+            const themeMenu = this.root.find('.cw-menu-container.cw-theme');
+            themeMenu.addClass('disabled');
+            themeMenu.find('> button')
+              .prop('disabled', true)
+              .attr('title', 'Theme locked for this puzzle');
           }
+          return;
+        }
 
         let savedTheme = localStorage.getItem('selectedTheme');
         if (!savedTheme) {
@@ -3478,7 +3306,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       check_reveal(to_solve, reveal_or_check, e) {
-        var my_cells = [], cell;
+        var my_cells = [],
+          cell;
 
         switch (to_solve) {
           case 'letter':
@@ -3563,12 +3392,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 c.checked = false;
               }
             }
-          }
-          else if (reveal_or_check === 'check') {
+          } else if (reveal_or_check === 'check') {
             if (this.diagramless_mode) {
               if (c.type === 'block') {
                 // If the user placed a black square
-                c.checked = (c.solution !== '#');  // Mark wrong if not supposed to be a black square
+                c.checked = (c.solution !== '#'); // Mark wrong if not supposed to be a black square
               } else if (c.letter) {
                 // User typed something — check the letter
                 c.checked = !isCorrect(c.letter, c.solution);
@@ -3626,11 +3454,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           display_minutes = (xw_timer_seconds - display_seconds) / 60;
 
           var display =
-            (display_minutes
-              ? display_minutes > 9
-                ? display_minutes
-                : '0' + display_minutes
-              : '00') +
+            (display_minutes ?
+              display_minutes > 9 ?
+              display_minutes :
+              '0' + display_minutes :
+              '00') +
             ':' +
             (display_seconds > 9 ? display_seconds : '0' + display_seconds);
 
@@ -3739,10 +3567,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           word_id,
           word,
           words = [];
-        for (i = 0; (word_id = this.words_ids[i]); i++) {
-          word = this.crossword.words.hasOwnProperty(word_id)
-            ? this.crossword.words[word_id]
-            : null;
+        for (i = 0;
+          (word_id = this.words_ids[i]); i++) {
+          word = this.crossword.words.hasOwnProperty(word_id) ?
+            this.crossword.words[word_id] :
+            null;
           if (word && word.cells.indexOf(`${x}-${y}`) >= 0) {
             words.push(word);
           }
@@ -3807,18 +3636,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           const scrollRect = scrollContainer.get(0).getBoundingClientRect();
 
           if (clueRect.top < scrollRect.top) {
-            scrollContainer.stop().animate(
-              {
-                scrollTop:
-                  scrollContainer.scrollTop() - (scrollRect.top - clueRect.top),
+            scrollContainer.stop().animate({
+                scrollTop: scrollContainer.scrollTop() - (scrollRect.top - clueRect.top),
               },
               150
             );
           } else if (clueRect.bottom > scrollRect.bottom) {
-            scrollContainer.stop().animate(
-              {
-                scrollTop:
-                  scrollContainer.scrollTop() +
+            scrollContainer.stop().animate({
+                scrollTop: scrollContainer.scrollTop() +
                   (clueRect.bottom - scrollRect.bottom),
               },
               150
@@ -3882,7 +3707,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       parseRanges() {
         var i, k, cell_range;
         this.cells = [];
-        for (i = 0; (cell_range = this.cell_ranges[i]); i++) {
+        for (i = 0;
+          (cell_range = this.cell_ranges[i]); i++) {
           var split_x = cell_range.x.split('-'),
             split_y = cell_range.y.split('-'),
             x,
@@ -3897,9 +3723,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             x_to = Number(split_x[1]);
             y = split_y[0];
             for (
-              k = x_from;
-              x_from < x_to ? k <= x_to : k >= x_to;
-              x_from < x_to ? k++ : k--
+              k = x_from; x_from < x_to ? k <= x_to : k >= x_to; x_from < x_to ? k++ : k--
             ) {
               this.cells.push(`${k}-${y}`);
             }
@@ -3908,9 +3732,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             y_from = Number(split_y[0]);
             y_to = Number(split_y[1]);
             for (
-              k = y_from;
-              y_from < y_to ? k <= y_to : k >= y_to;
-              y_from < y_to ? k++ : k--
+              k = y_from; y_from < y_to ? k <= y_to : k >= y_to; y_from < y_to ? k++ : k--
             ) {
               this.cells.push(`${x}-${k}`);
             }
@@ -3941,7 +3763,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             start = 0;
           }
         }
-        for (i = start; (coordinates = this.cells[i]); i++) {
+        for (i = start;
+          (coordinates = this.cells[i]); i++) {
           cell = this.getCellByCoordinates(coordinates);
           if (cell && !cell.letter) {
             return cell;
@@ -4014,7 +3837,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
       solve() {
         var i, coordinates, cell;
-        for (i = 0; (coordinates = this.cells[i]); i++) {
+        for (i = 0;
+          (coordinates = this.cells[i]); i++) {
           cell = this.getCellByCoordinates(coordinates);
           if (cell) {
             cell.letter = cell.solution;
@@ -4024,7 +3848,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     }
 
     if (typeof define === 'function' && define.amd) {
-      define('CrosswordNexus', [], function () {
+      define('CrosswordNexus', [], function() {
         return CrosswordNexus;
       });
     }
