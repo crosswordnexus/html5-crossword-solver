@@ -2593,18 +2593,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.check_reveal('puzzle', 'reveal');
         }
 
-        setTimeout(() => {
-          this.renderCells(); // Force fresh render
-          const allLetters = this.svgContainer.querySelectorAll('.cw-cell-letter');
-
-          allLetters.forEach((el, i) => {
-            setTimeout(() => {
-              el.classList.add('spin');
-            }, i * 15);
-          });
-        }, 100); // give the DOM some time to settle
-
-
         confetti({
           particleCount: 280,
           spread: 190,
@@ -2613,51 +2601,18 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         /* const winSound = new Audio('./sounds/hny.mp3');
            winSound.play();*/
-
-        const successWrapper = document.getElementById("successAnimWrapper")
-        const successAnim = document.getElementById("successAnim")
-        function showSuccessAnim() {
-          successWrapper.style.display = "flex";
-          successWrapper.style.pointerEvents = "all";
-          gsap.to(successAnim, {
-            y: "0px",
-            rotateY: "0deg",
-            duration: 1,
-            ease: "bounce.out",
-            onComplete: () => { setTimeout(hideSuccessAnim, 500) }
-          })
-          gsap.to(successAnim, {
-            opacity: 1,
-            duration: 1,
-            ease: "power3.out"
-          })
-        }
-        function hideSuccessAnim() {
-          gsap.to(successAnim, {
-            y: "-40px",
-            rotateY: "90deg",
-            duration: 0.5,
-            opacity: 0,
-            ease: "power4.out",
-            onComplete: () => { successWrapper.style.display = "none"; successWrapper.style.pointerEvents = "none"; showSuccessMsg() }
-          })
-        }
         const here = this
         function showSuccessMsg() {
-          const rawMessage = here.msg_solved;
-
-          // ⛔ If msg_solved is undefined, null, or an empty string, skip the message
-          if (!rawMessage || rawMessage.trim() === '') return;
+          const rawMessage = "Congratulations!";
 
           let solvedMessage = escape(rawMessage).trim().replaceAll('\n', '<br />');
           solvedMessage += timerMessage;
           here.createModalBox('Puzzle solved!', solvedMessage);
         }
 
-
         // show completion message if newly solved
         if (!wasSolved) {
-          showSuccessAnim()
+          showSuccessMsg()
         }
       }
 
