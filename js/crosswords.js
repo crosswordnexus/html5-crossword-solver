@@ -52,11 +52,9 @@ const isMobile = (() => {
 })();
 
 // perceived brightness of a color on a scale of 0-255
-// via wx-xword
 function getBrightness(hex) {
   const rgb = hexToRgb(hex);
-  return Math.sqrt(0.299 * rgb[0] ** 2 + 0.587 * rgb[1] ** 2 + 0.114 * rgb[2] ** 2);
-  //return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+  return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
 }
 
 // Helper function for a single component
@@ -1705,6 +1703,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             const shouldBeTransparent = isLabelOnly || isPunctuationOnly;
 
             // ⬇️ Skip drawing the rect if it's a floating label-only cell
+            let fillColor;
             if (!isLabelOnly) {
               const rect = document.createElementNS(this.svgNS, 'rect');
               rect.setAttribute('x', cellX);
@@ -1715,8 +1714,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               rect.setAttribute('data-x', cell.x);
               rect.setAttribute('data-y', cell.y);
               rect.setAttribute('class', 'cw-cell');
-
-              let fillColor;
 
               if (cell.type === 'block') {
                 fillColor = this.config.color_block;
@@ -1792,6 +1789,28 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               }
             }
 
+            /* Determine the color of letters/numbers in the cell */
+            // Default fill color
+            let fontColorFill = this.config.font_color_fill;
+            // Brightness of the background and foreground
+            const bgBrightness = getBrightness(fillColor || this.config.color_none);
+            const fgBrightness = getBrightness(this.config.font_color_fill);
+
+            if (cell.color) {
+              console.log(cell.color);
+              console.log(bgBrightness);
+            }
+            if (cell.number == 1) {
+              console.log(cell);
+            }
+
+            // If we fail to meet some threshold, invert
+            if (Math.abs(bgBrightness - fgBrightness) < 125) {
+              var thisRGB = hexToRgb(this.config.font_color_fill);
+              var invertedRGB = thisRGB.map(x => 255 - x);
+              fontColorFill = rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
+            }
+
             if (cell.letter) {
               const text = document.createElementNS(this.svgNS, 'text');
               text.setAttribute('x', cellX + SIZE / 2);
@@ -1805,10 +1824,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               text.setAttribute('font-size', `${SIZE * scale}px`);
 
               text.setAttribute('font-family', 'Arial, sans-serif');
-              text.setAttribute('font-weight', 'bold');
+              //text.setAttribute('font-weight', 'bold');
               text.textContent = cell.letter;
               text.classList.add('cw-cell-letter');
-              text.setAttribute('fill', this.config.font_color_fill);
+              text.setAttribute('fill', fontColorFill);
               svg.appendChild(text);
             }
 
@@ -1819,7 +1838,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               number.setAttribute('font-size', `${SIZE / 3.75}px`);
               number.setAttribute('font-family', 'Arial, sans-serif');
               number.textContent = cell.number;
-              number.setAttribute('fill', this.config.font_color_clue);
+              number.setAttribute('fill', fontColorFill);
               number.classList.add('cw-cell-number');
               svg.appendChild(number);
             }
