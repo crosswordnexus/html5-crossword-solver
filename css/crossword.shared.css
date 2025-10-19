@@ -373,7 +373,7 @@ div.is-dragover {
   max-width: 120px;
   height: 15px;
   text-align: center;
-  font-size: 0.8em;
+  font-size: 1rem;
 }
 
 .cw-button {
@@ -647,7 +647,21 @@ input[type='radio'] {
 }
 
 .cw-max-width-1200.cw-main {
-  font-size: 16px;
+  font-size: 18px;
+}
+
+.cw-max-width-1200 .cw-buttons-holder {
+  gap: 3px;
+}
+
+.cw-max-width-1200 .cw-buttons-holder .cw-button {
+  font-size: 0.9rem;
+}
+
+.cw-max-width-1200 .cw-button-icon {
+    margin-right: 0.1rem;
+    font-size: 1rem;
+    width: 1rem;
 }
 
 .cw-max-width-1200 .cw-top-text-wrapper {
@@ -667,7 +681,7 @@ input[type='radio'] {
 }
 
 .cw-max-width-1080.cw-main {
-  font-size: 14px;
+  font-size: 17px;
 }
 
 .cw-max-width-1080 .cw-top-text-wrapper {

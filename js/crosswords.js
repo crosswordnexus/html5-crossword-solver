@@ -1796,14 +1796,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             const bgBrightness = getBrightness(fillColor || this.config.color_none);
             const fgBrightness = getBrightness(this.config.font_color_fill);
 
-            if (cell.color) {
-              console.log(cell.color);
-              console.log(bgBrightness);
-            }
-            if (cell.number == 1) {
-              console.log(cell);
-            }
-
             // If we fail to meet some threshold, invert
             if (Math.abs(bgBrightness - fgBrightness) < 125) {
               var thisRGB = hexToRgb(this.config.font_color_fill);
