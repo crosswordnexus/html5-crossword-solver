@@ -464,24 +464,35 @@ div.is-dragover {
 
 /** Header stuff **/
 .cw-header {
-  display: inline-block;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  font-size: 1em;
-  margin-top: 8px;
-  margin-bottom: 8px;
-  background-color: var(--main-bg-color);
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  flex-direction: row !important;
+  font-size: 0.9em;
+  padding: 0.5em 10px;
+  flex-direction: column;
+  white-space: nowrap;
+  background-color: var(--content-bg-color);
 }
 
-.cw-header-box {
-  background: var(--header-bg-color);
-  border-radius: 15px;
-  padding: 6px 65px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  margin: 5px auto;
-  max-width: fit-content;
-  transition: all 0.3s ease-in-out;
+.cw-title,
+.cw-author,
+.cw-copyright {
+    flex: 0 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cw-title {
+    font-weight: bold;
+}
+
+.cw-header-separator {
+    flex: 0 0 auto;
+}
+
+.cw-flex-spacer {
+    flex-grow: 1;
 }
 
 .cw-header-content {
@@ -641,4 +652,8 @@ input[type='radio'] {
 
 .cw-max-width-850 .cw-clues-holder {
   flex-direction: column;
+}
+
+.cw-max-width-600 .cw-header {
+    display: none;
 }

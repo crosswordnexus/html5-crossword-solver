@@ -1038,8 +1038,20 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       completeLoad() {
-        $('#cw-title').text(this.title || 'Untitled Puzzle');
-        $('#cw-author').text(this.author ? `${this.author}` : '');
+        $('.cw-header').html(`
+          <span class="cw-title">${escape(this.title)}</span>
+          <span class="cw-header-separator">&nbsp;•&nbsp;</span>
+          <span class="cw-author">${escape(this.author)}</span>
+          ${
+            this.notepad
+              ? `<button class="cw-button cw-button-notepad">
+                   <span class="cw-button-icon">📝</span> Notes
+                 </button>`
+              : ''
+          }
+          <span class="cw-flex-spacer"></span>
+          <span class="cw-copyright">${escape(this.copyright)}</span>
+        `);
 
         this.notepad_icon = this.root.find('.cw-button-notepad');
 
