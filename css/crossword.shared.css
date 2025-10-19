@@ -655,7 +655,7 @@ input[type='radio'] {
 }
 
 .cw-max-width-1200 .cw-buttons-holder .cw-button {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .cw-max-width-1200 .cw-button-icon {
@@ -684,6 +684,10 @@ input[type='radio'] {
   font-size: 17px;
 }
 
+.cw-max-width-1080 .cw-button-icon {
+    display: none;
+}
+
 .cw-max-width-1080 .cw-top-text-wrapper {
   height: 45px;
 }
@@ -702,4 +706,12 @@ input[type='radio'] {
 
 .cw-max-width-600 .cw-header {
     display: none;
+}
+
+.cw-max-width-600 .cw-clues-holder {
+    display: none;
+}
+
+.cw-max-width-420 .cw-buttons-holder .cw-button {
+  font-size: 0.85rem;
 }

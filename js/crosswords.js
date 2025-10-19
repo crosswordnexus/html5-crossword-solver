@@ -362,30 +362,35 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     function resizeText(rootElement, nodeList) {
       const minSize = 7;
       const rootWidth = rootElement.width();
-      const maxSize = maxClueSizes.find(
-        (breakpoint) => breakpoint[0] > rootWidth
-      )[1];
-      const step = 1;
+      const maxSize = maxClueSizes.find(bp => bp[0] > rootWidth)?.[1] ?? 24;
       const unit = 'px';
 
       for (var j = 0; j < nodeList.length; j++) {
         const el = nodeList[j];
-        let i = minSize;
-        let overflow = false;
         const parent = el.parentNode;
+        let low = minSize;
+        let high = maxSize;
+        let best = minSize;
 
-        while (!overflow && i <= maxSize) {
-          el.style.fontSize = `${i}${unit}`;
-          // TODO: is this the best logic we can use here?
-          overflow = parent.scrollHeight < el.clientHeight;
-          if (!overflow) {
-            i += step;
+        // binary search for largest size that fits
+        while (low <= high) {
+          const mid = Math.ceil((low + high) / 2);
+          el.style.fontSize = `${mid}${unit}`;
+
+          const overflow = el.scrollHeight > parent.clientHeight ||
+                           el.scrollWidth > parent.clientWidth;
+
+          if (overflow) {
+            high = mid - 1;
+          } else {
+            best = mid;
+            low = mid + 1;
           }
         }
-        // revert to last state where no overflow happened
-        el.style.fontSize = `${i - step}${unit}`;
+        el.style.fontSize = `${best}${unit}`;
       }
     }
+
 
     // Breakpoint widths used by the stylesheet.
     const breakpoints = [420, 600, 850, 1080, 1200];
