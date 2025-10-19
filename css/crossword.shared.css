@@ -463,10 +463,9 @@ div.is-dragover {
 /** Header stuff **/
 .cw-header {
   align-items: center;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #777;
   display: flex;
   flex-direction: row !important;
-  font-size: 0.9em;
   padding: 0.5em 10px;
   flex-direction: column;
   white-space: nowrap;
