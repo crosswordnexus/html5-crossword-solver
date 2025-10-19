@@ -44,10 +44,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   flex: 1 1 auto;
   min-height: 1px;
   position: relative;
-  margin-left: 30px;
-  margin-right: 30px;
-  margin-bottom: 30px;
-  border-radius: 15px;
 }
 
 .cw-grid {
