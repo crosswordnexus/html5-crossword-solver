@@ -1035,7 +1035,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         console.log(this);
 
         this.completeLoad();
-        this.loadSavedTheme();
       }
 
       completeLoad() {
@@ -1247,53 +1246,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           'click',
           $.proxy(this.check_reveal, this, 'puzzle', 'check')
         );
-
-        // PREVIEW THEME ON HOVER
-
-        const previewTheme = (themeClass) => {
-          const root = document.querySelector('.crossword');
-
-          Object.values(themeConfigs).forEach(theme => root.classList.remove(theme.cssClass));
-
-          const theme = themeConfigs[themeClass];
-          if (!theme) return;
-
-          root.classList.add(theme.cssClass);
-          this.preview_theme = themeClass;
-
-          // TEMP apply config
-          for (const [key, value] of Object.entries(theme.config)) {
-            this.config[key] = value;
-          }
-
-          this.renderCells();
-        };
-
-        const revertTheme = () => {
-          const root = document.querySelector('.crossword');
-          const currentTheme = this.appliedThemeClass;
-
-          if (this.preview_theme && this.preview_theme !== currentTheme) {
-            root.classList.remove(this.preview_theme);
-            if (currentTheme) root.classList.add(currentTheme);
-            this.set_theme(currentTheme); // restores config too
-            this.renderCells();
-          }
-
-          this.preview_theme = null;
-        };
-
-        this.root.find('.cw-theme .cw-menu-item').each((_, el) => {
-          const classList = el.className.split(' ');
-          const foundClass = classList.find(cls => cls.startsWith('cw-theme-'));
-          if (!foundClass) return;
-
-          const themeKey = foundClass.replace('cw-theme-', '') + '-theme';
-
-          el.addEventListener('mouseenter', () => previewTheme(themeKey));
-          el.addEventListener('mouseleave', () => revertTheme());
-          el.addEventListener('click', () => this.set_theme(themeKey)); // 💥 click now works
-        });
 
         // PRINTER
         this.print_btn.on('click', $.proxy(this.printPuzzle, this));
@@ -3234,75 +3186,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         element.click();
         document.body.removeChild(element);
-      }
-
-      set_theme(newThemeClass) {
-        const root = document.querySelector(".crossword");
-
-        // Remove all theme classes
-        Object.values(themeConfigs).forEach(theme => root.classList.remove(theme.cssClass));
-
-        const theme = themeConfigs[newThemeClass];
-        if (!theme) return;
-
-        root.classList.add(theme.cssClass);
-
-        // Apply config values
-        for (const [key, value] of Object.entries(theme.config)) {
-          this.setConfig(key, value);
-        }
-
-        this.renderCells();
-
-        // Reposition clue bar if needed
-        this.syncTopTextWidth();
-
-        // Reselect word/cell if applicable
-        if (!this.diagramless_mode) {
-          const first_word = this.active_clues?.getFirstWord?.();
-          if (first_word) {
-            this.setActiveWord(first_word);
-            const firstCell = first_word.getFirstCell?.();
-            if (firstCell) {
-              this.setActiveCell(firstCell);
-            }
-          }
-        } else {
-          const topLeft = this.getCell(1, 1);
-          if (topLeft) {
-            this.selected_word = null;
-            this.setActiveCell(topLeft);
-          }
-        }
-
-        this.appliedThemeClass = newThemeClass;
-        localStorage.setItem('selectedTheme', newThemeClass);
-      }
-
-      loadSavedTheme() {
-        const forced = this.requested_theme || this.config.forced_theme;
-
-        if (forced && themeConfigs[forced]) {
-          this.set_theme(forced);
-          this.appliedThemeClass = forced;
-
-          if (this.config.lock_theme) {
-            const themeMenu = this.root.find('.cw-menu-container.cw-theme');
-            themeMenu.addClass('disabled');
-            themeMenu.find('> button')
-              .prop('disabled', true)
-              .attr('title', 'Theme locked for this puzzle');
-          }
-          return;
-        }
-
-        let savedTheme = localStorage.getItem('selectedTheme');
-        if (!savedTheme) {
-          savedTheme = 'cryptic-crossweird-theme';
-          localStorage.setItem('selectedTheme', savedTheme);
-        }
-        this.set_theme(savedTheme);
-        this.appliedThemeClass = savedTheme;
       }
 
       check_reveal(to_solve, reveal_or_check, e) {
