@@ -521,7 +521,6 @@ div.is-dragover {
   cursor: pointer;
   display: flex;
   border-radius: 4px;
-  font-size: 16px;
 }
 
 .cw-clue.active {
