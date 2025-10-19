@@ -521,6 +521,7 @@ div.is-dragover {
   cursor: pointer;
   display: flex;
   border-radius: 4px;
+  font-size: 16px;
 }
 
 .cw-clue.active {
@@ -612,6 +613,10 @@ input[type='radio'] {
 }
 
 /** Size-specific **/
+.cw-main {
+    font-size: 19px;
+}
+
 .cw-max-width-1200.cw-main {
   font-size: 16px;
 }

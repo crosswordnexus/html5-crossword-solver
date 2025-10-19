@@ -136,7 +136,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 /* End custom scrollbar styling */
 .cw-clue {
   padding: 6px 0px;
-  line-height: 1.85rem;
   margin-right: 3px;
 }
 
@@ -153,7 +152,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   flex: 1 1 auto;
   word-wrap: break-word;
   margin-right: 3px;
-  font-weight: 100;
 }
 
 /**
