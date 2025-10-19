@@ -132,39 +132,6 @@ html.mobile-mode {
   margin-right: .5em;
 }
 
-.crossword.mobile .cw-header {
-  display: inline-block;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  font-size: .8em;
-  margin: 10px;
-  background-color: var(--main-bg-color);
-}
-
-.crossword.mobile.cw-header-box {
-  background: var(--header-bg-color);
-  border-radius: 15px;
-  padding: 6px 65px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  margin: 5px auto;
-  max-width: fit-content;
-  transition: all 0.3s ease-in-out;
-}
-
-.crossword.mobile .cw-title {
-  font-size: 1.4em;
-  font-weight: 700;
-  letter-spacing: 0.3em;
-}
-
-.crossword.mobile .cw-author {
-  font-size: 1em;
-  font-weight: 500;
-  letter-spacing: 3px;
-  margin-left: 4px;
-}
-
 .crossword.mobile .cw-canvas {
   display: flex;
   width: 100%;
@@ -552,11 +519,6 @@ html.mobile-mode {
 @media (max-width: 767px) {
   .crossword.mobile .cw-mobile-clues-side {
     display: none !important;
-  }
-
-  .crossword.mobile .cw-header {
-    font-size: .5em;
-    margin: 1px;
   }
 
   .crossword.mobile .cw-grid-clue-wrapper {
