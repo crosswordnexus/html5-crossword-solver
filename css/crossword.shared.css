@@ -370,17 +370,17 @@ div.is-dragover {
 
 .cw-buttons-holder .cw-button {
   flex: 1 1 0;
-  min-width: 85px;
   max-width: 120px;
-  height: 28px;
+  height: 15px;
   text-align: center;
+  font-size: 0.8em;
 }
 
 .cw-button {
   --button-background-color-hover: var(--button-hover-color);
   background-color: var(--clues-holder-bg-color);
   color: var(--button-text-color);
-  padding: 0.2em 0.3em;
+  padding: 0.3em 0.7em;
   font-size: 0.65em;
   font-weight: 500;
   border: none;
@@ -398,8 +398,6 @@ div.is-dragover {
   --button-background-color-hover: var(--button-hover-color);
   color: var(--timer-text-color);
   font-size: 0.8em;
-  width: 3.4em;
-  font-family: "Azeret Mono";
   font-weight: 600;
   border-radius: 999px;
   border: 1px solid var(--button-hover-color);
