@@ -168,20 +168,5 @@
 </head>
 <body>
     <div class="crossword crosswordnexus-theme"></div>
-    <script>
-        var gCrossword;
-        $(document).ready(function(){
-
-            const params = getCrosswordParams();
-
-            console.log(params);
-
-            if (!isMobileDevice) {
-              gCrossword = CrosswordNexus.createCrossword($('div.crossword'), params);
-            }
-
-        });
-    </script>
-
 </body>
 </html>
