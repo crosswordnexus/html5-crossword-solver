@@ -277,7 +277,7 @@ html.mobile-mode {
   margin: 2px;
   padding: 0.65em 0.5em;
   text-align: center;
-  font-size: 1.1em;
+  font-size: 1rem;
   background: var(--button-bg-color);
   color: var(--button-text-color);
   border-radius: 6px;
@@ -311,19 +311,6 @@ html.mobile-mode {
   font-size: 0;
 }
 
-/*.cw-key-left,
-  .cw-key-right,
-  .cw-key-rebus,
-  .cw-key-alt-toggle,
-  .cw-key-backspace {
-    max-width: none;
-    flex: 1;
-  }
-
-  .cw-key-alt-toggle,
-  .cw-key-rebus {
-    max-width: none;
-  }*/
 .crossword.mobile .custom-key.cw-key-left,
 .crossword.mobile .custom-key.cw-key-right {
   background-color: var(--top-text-wrapper-bg-color) !important;
@@ -338,7 +325,7 @@ html.mobile-mode {
 
 .crossword.mobile .cw-key-left,
 .crossword.mobile .cw-key-right {
-  font-size: 1.8em;
+  font-size: 1.3em;
   font-weight: bold;
   line-height: 1;
   display: flex;

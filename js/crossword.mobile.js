@@ -158,15 +158,15 @@ $(document).ready(function () {
           const file = allButtons.find(btn => btn.textContent.includes('File'));
           const check = allButtons.find(btn => btn.textContent.includes('Check'));
           const reveal = allButtons.find(btn => btn.textContent.includes('Reveal'));
-          const theme = allButtons.find(btn => btn.textContent.includes('Theme'));
           const settings = allButtons.find(btn => btn.textContent.includes('Settings'));
           const timer = allButtons.find(btn => btn.textContent.match(/[\d:]+/)); // crude match for timer
 
           // Only reflow if all buttons were found
-          if (file && check && reveal && theme && settings && timer) {
+          if (file && check && reveal && settings && timer) {
+
             const row1 = document.createElement('div');
             row1.className = 'cw-buttons-row';
-            row1.append(file, check, reveal, theme);
+            row1.append(file, check, reveal);
 
             const row2 = document.createElement('div');
             row2.className = 'cw-buttons-row';
@@ -191,7 +191,6 @@ $(document).ready(function () {
         const grid = document.querySelector('.cw-grid');
         if (grid) grid.remove();
 
-        // Build wrapper
         // Build wrapper
         const wrapper = document.createElement('div');
         wrapper.className = 'cw-grid-wrapper';
