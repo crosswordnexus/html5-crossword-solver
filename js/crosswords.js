@@ -313,19 +313,27 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         </div>
       </div>`;
 
-    // returns deferred object
+    // Returns a jQuery Deferred object that resolves to a Uint8Array
     function loadFileFromServer(path, type) {
-      var xhr = new XMLHttpRequest(),
-        deferred = $.Deferred();
+      const deferred = $.Deferred();
+      const xhr = new XMLHttpRequest();
+
       xhr.open('GET', path);
-      xhr.responseType = 'blob';
+      xhr.responseType = 'arraybuffer'; // binary-safe for .puz, .jpz, etc.
+
       xhr.onload = function() {
-        if (xhr.status == 200) {
-          loadFromFile(xhr.response, type, deferred);
+        if (xhr.status === 200) {
+          const data = new Uint8Array(xhr.response);
+          deferred.resolve(data);
         } else {
           deferred.reject(ERR_FILE_LOAD);
         }
       };
+
+      xhr.onerror = function() {
+        deferred.reject(ERR_FILE_LOAD);
+      };
+
       xhr.send();
       return deferred;
     }
@@ -341,13 +349,15 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     })();
 
     function loadFromFile(file, type, deferred) {
-      var reader = new FileReader();
+      const reader = new FileReader();
       deferred = deferred || $.Deferred();
+
       reader.onload = function(event) {
-        var string = event.target.result;
-        deferred.resolve(string);
+        const data = new Uint8Array(event.target.result);
+        deferred.resolve(data);
       };
-      reader.readAsBinaryString(file);
+
+      reader.readAsArrayBuffer(file);
       return deferred;
     }
 
@@ -378,7 +388,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           el.style.fontSize = `${mid}${unit}`;
 
           const overflow = el.scrollHeight > parent.clientHeight ||
-                           el.scrollWidth > parent.clientWidth;
+            el.scrollWidth > parent.clientWidth;
 
           if (overflow) {
             high = mid - 1;
@@ -559,7 +569,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         if (!this.realwords) {
           const entry_mapping = puzzle.get_entry_mapping();
-          const thisGrid = new xwGrid(puzzle.cells);
+          const thisGrid = JSCrossword.xwGrid(puzzle.cells);
           const acrossSet = new Set(
             Object.values(thisGrid.acrossEntries()).map(entry => entry.word)
           );
@@ -639,8 +649,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         // function to process uploaded files
         function processFiles(files) {
           loadFromFile(files[0], FILE_PUZ).then(
-            parsePUZZLE_callback,
-            error_callback
+            function(data) {
+              parsePUZZLE_callback(data);
+            },
+            function(err) {
+              error_callback(err);
+            }
           );
         }
 
@@ -743,24 +757,23 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         return rawTitle; // Preserve original if it's custom
       }
 
-      /** Parse a puzzle using JSCrossword **/
-      parsePuzzle(string) {
+      /**
+       * Parse puzzle data into Crossord structure.
+       *
+       * - Accepts either a JSCrossword object or raw string data.
+       * - Normalizes coordinates (shift +1 to be 1-indexed).
+       * - Detects puzzle type (crossword, acrostic, coded).
+       * - Initializes cells, words, and clues (real or fake).
+       * - Enables autofill for acrostic/coded puzzles.
+       */
+      parsePuzzle(data) {
+        // if it's already a JSCrossword, return it as-is
         var puzzle;
-        if (typeof(string) == "object") {
-          puzzle = string;
+        if (data instanceof JSCrossword) {
+          puzzle = data;
         } else {
-          var xw_constructor = new JSCrossword();
-          try {
-            puzzle = xw_constructor.fromData(string);
-          } catch (e) {
-            if (e.name !== 'BADMAGICNUMBER') {
-              console.warn('[Puzzle Load Error]', e);
-              throw e; // only rethrow unexpected errors
-            } else {
-              // This is expected for non-.puz formats (e.g., jpz, ipuz)
-              return; // Exit early — fallback will have parsed the puzzle
-            }
-          }
+          // otherwise, parse it directly â€” JSCrossword handles the format detection
+          puzzle = JSCrossword.fromData(new Uint8Array(data));
         }
 
         puzzle.kind = puzzle.metadata.kind;
@@ -1263,7 +1276,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         );
 
         // PRINTER
-        this.print_btn.on('click', $.proxy(this.printPuzzle, this));
+        this.print_btn.on('click', (e) => this.printPuzzle(e));
 
         // CLEAR
         this.clear_btn.on(
@@ -1272,7 +1285,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         );
 
         // DOWNLOAD
-        this.download_btn.on('click', $.proxy(this.exportJPZ, this));
+        //this.download_btn.on('click', $.proxy(this.exportJPZ, this));
 
         /** We're disabling save and load buttons **/
         // SAVE
@@ -3197,25 +3210,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         //}
       }
 
-      /* Export a JPZ */
-      exportJPZ() {
-        // fill jsxw
-        this.fillJsXw();
-        const jpz_str = this.jsxw.toJPZString();
-        // set filename
-        var filename = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.jpz';
-        // Initiate download
-        var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jpz_str));
-        element.setAttribute('download', filename);
-
-        element.style.display = 'none';
-        document.body.appendChild(element);
-
-        element.click();
-        document.body.removeChild(element);
-      }
-
       check_reveal(to_solve, reveal_or_check, e) {
         var my_cells = [],
           cell;
@@ -3349,10 +3343,20 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
       }
 
-      printPuzzle(e) {
+      async printPuzzle(e) {
         // fill JSXW
         this.fillJsXw();
-        jscrossword_to_pdf(this.jsxw);
+        console.log(this.jsxw);
+        try {
+          let doc = await this.jsxw.toPDF();
+          console.log(doc);
+          doc.autoPrint();
+          // open in a new tab and trigger print dialog
+          const blobUrl = doc.output("bloburl");
+          window.open(blobUrl, "_blank");
+        } catch (err) {
+          console.error("PDF generation failed:", err);
+        }
       }
 
       toggleTimer() {
