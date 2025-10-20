@@ -16,7 +16,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 var gCrossword;
 let isAltKeyboard = false;
 
-$(document).ready(function () {
+$(document).ready(function() {
   let initialWindowHeight = window.innerHeight;
   setCSSViewportHeight();
   // Listen to visualViewport resize events
@@ -80,32 +80,32 @@ $(document).ready(function () {
   }
 
   function rebuildKeyboard() {
-  const wrapper = document.querySelector('.keyboard-wrapper-placeholder');
-  const oldKeyboard = wrapper.querySelector('#custom-keyboard');
-  if (oldKeyboard) oldKeyboard.remove();
+    const wrapper = document.querySelector('.keyboard-wrapper-placeholder');
+    const oldKeyboard = wrapper.querySelector('#custom-keyboard');
+    if (oldKeyboard) oldKeyboard.remove();
 
-  const newKeyboard = createCustomKeyboard();
+    const newKeyboard = createCustomKeyboard();
 
-  wrapper.appendChild(newKeyboard);
-  wrapper.style.height = `${newKeyboard.offsetHeight}px`;
+    wrapper.appendChild(newKeyboard);
+    wrapper.style.height = `${newKeyboard.offsetHeight}px`;
 
-  /* // Reattach Rebus key
-  newKeyboard.querySelector('.cw-key-rebus')?.addEventListener('click', () => {
-    const rebusEntry = prompt('Rebus entry', '');
-    if (rebusEntry) {
-      gCrossword.hiddenInputChanged(rebusEntry.toUpperCase());
-    }
-  });
+    /* // Reattach Rebus key
+    newKeyboard.querySelector('.cw-key-rebus')?.addEventListener('click', () => {
+      const rebusEntry = prompt('Rebus entry', '');
+      if (rebusEntry) {
+        gCrossword.hiddenInputChanged(rebusEntry.toUpperCase());
+      }
+    });
 
-  newKeyboard.querySelector('.cw-key-left')?.addEventListener('click', () => {
-    const skipFilled = gCrossword.config?.tab_key === 'tab_skip';
-    gCrossword.moveToNextWord(true, skipFilled); // ← previous word
-  });
+    newKeyboard.querySelector('.cw-key-left')?.addEventListener('click', () => {
+      const skipFilled = gCrossword.config?.tab_key === 'tab_skip';
+      gCrossword.moveToNextWord(true, skipFilled); // ← previous word
+    });
 
-  newKeyboard.querySelector('.cw-key-right')?.addEventListener('click', () => {
-    const skipFilled = gCrossword.config?.tab_key === 'tab_skip';
-    gCrossword.moveToNextWord(false, skipFilled); // → next word
-  });*/
+    newKeyboard.querySelector('.cw-key-right')?.addEventListener('click', () => {
+      const skipFilled = gCrossword.config?.tab_key === 'tab_skip';
+      gCrossword.moveToNextWord(false, skipFilled); // → next word
+    });*/
   }
 
   function rebuildKeyboardAndPositionDrawer() {
@@ -128,15 +128,14 @@ $(document).ready(function () {
   const params = {};
 
   // optional LZ-string–encoded puzzle (compressed JSON)
-  const lzpuz =  window.location.hash.slice(1);
+  const lzpuz = window.location.hash.slice(1);
 
   if (puzzle) {
     params.puzzle_file = {
       url: puzzle,
       type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
     };
-  }
-  else if (lzpuz) {
+  } else if (lzpuz) {
     try {
       console.log("[startup] Found lzpuz param — decompressing...");
       const xw = JSCrossword.deserialize(lzpuz);
@@ -162,233 +161,237 @@ $(document).ready(function () {
   }
   if (isMobile && crosswordRoot) {
     const tryWrapLayout = () => {
-        const canvas = document.querySelector('.cw-canvas');
-        const buttons = document.querySelector('.cw-buttons-holder');
-        if (buttons && buttons.children.length) {
-          const allButtons = Array.from(buttons.children);
+      const canvas = document.querySelector('.cw-canvas');
+      const buttons = document.querySelector('.cw-buttons-holder');
+      if (buttons && buttons.children.length) {
+        const allButtons = Array.from(buttons.children);
 
-          // Match by text content – you can refine this to use classes if needed
-          const file = allButtons.find(btn => btn.textContent.includes('File'));
-          const check = allButtons.find(btn => btn.textContent.includes('Check'));
-          const reveal = allButtons.find(btn => btn.textContent.includes('Reveal'));
-          const settings = allButtons.find(btn => btn.textContent.includes('Settings'));
-          const timer = allButtons.find(btn => btn.textContent.match(/[\d:]+/)); // crude match for timer
+        // Match by text content – you can refine this to use classes if needed
+        const file = allButtons.find(btn => btn.textContent.includes('File'));
+        const check = allButtons.find(btn => btn.textContent.includes('Check'));
+        const reveal = allButtons.find(btn => btn.textContent.includes('Reveal'));
+        const settings = allButtons.find(btn => btn.textContent.includes('Settings'));
+        const timer = allButtons.find(btn => btn.textContent.match(/[\d:]+/)); // crude match for timer
 
-          // Only reflow if all buttons were found
-          if (file && check && reveal && settings && timer) {
+        // Only reflow if all buttons were found
+        if (file && check && reveal && settings && timer) {
 
-            const row1 = document.createElement('div');
-            row1.className = 'cw-buttons-row';
-            row1.append(file, check, reveal);
+          const row1 = document.createElement('div');
+          row1.className = 'cw-buttons-row';
+          row1.append(file, check, reveal);
 
-            const row2 = document.createElement('div');
-            row2.className = 'cw-buttons-row';
-            row2.append(settings, timer);
+          const row2 = document.createElement('div');
+          row2.className = 'cw-buttons-row';
+          row2.append(settings, timer);
 
-            // Clear and re-append
-            buttons.innerHTML = '';
-            buttons.append(row1, row2);
-          }
+          // Clear and re-append
+          buttons.innerHTML = '';
+          buttons.append(row1, row2);
         }
-        const content = document.querySelector('.cw-content');
-        const clues = document.querySelector('.cw-clues-holder');
-        let drawerOpen = false;
-        let drawer;
-        let touchStartY = null;
+      }
+      const content = document.querySelector('.cw-content');
+      const clues = document.querySelector('.cw-clues-holder');
+      let drawerOpen = false;
+      let drawer;
+      let touchStartY = null;
 
-        if (!canvas || !buttons || !content || !clues) {
+      if (!canvas || !buttons || !content || !clues) {
         return setTimeout(tryWrapLayout, 100);
-        }
+      }
 
-        // Safe to remove .cw-grid AFTER canvas is grabbed
-        const grid = document.querySelector('.cw-grid');
-        if (grid) grid.remove();
+      // Safe to remove .cw-grid AFTER canvas is grabbed
+      const grid = document.querySelector('.cw-grid');
+      if (grid) grid.remove();
 
-        // Build wrapper
-        const wrapper = document.createElement('div');
-        wrapper.className = 'cw-grid-wrapper';
+      // Build wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'cw-grid-wrapper';
 
-        // Append the canvas (grid)
-        wrapper.appendChild(canvas);
+      // Append the canvas (grid)
+      wrapper.appendChild(canvas);
 
-        // NEW: Create clues container
-        const mobileClues = document.createElement('div');
-        mobileClues.className = 'cw-mobile-clues-holder';
+      // NEW: Create clues container
+      const mobileClues = document.createElement('div');
+      mobileClues.className = 'cw-mobile-clues-holder';
 
-        // Move top and bottom clues into this container
-        const across = document.querySelector('.cw-clues-top');
-        const down = document.querySelector('.cw-clues-bottom');
+      // Move top and bottom clues into this container
+      const across = document.querySelector('.cw-clues-top');
+      const down = document.querySelector('.cw-clues-bottom');
 
-        if (across && down) {
-          mobileClues.appendChild(across);
-          mobileClues.appendChild(down);
-        }
+      if (across && down) {
+        mobileClues.appendChild(across);
+        mobileClues.appendChild(down);
+      }
 
-        // Create container to hold grid + clues side by side
-        const gridClueWrapper = document.createElement('div');
-        gridClueWrapper.className = 'cw-grid-clue-wrapper';
+      // Create container to hold grid + clues side by side
+      const gridClueWrapper = document.createElement('div');
+      gridClueWrapper.className = 'cw-grid-clue-wrapper';
 
-        // Append the canvas (grid)
-        gridClueWrapper.appendChild(canvas);
+      // Append the canvas (grid)
+      gridClueWrapper.appendChild(canvas);
 
-        // Use the already-declared mobileClues
-        mobileClues.className = 'cw-mobile-clues-side'; // update class name for styling
+      // Use the already-declared mobileClues
+      mobileClues.className = 'cw-mobile-clues-side'; // update class name for styling
 
-        // Append clues to the right of the grid
-        gridClueWrapper.appendChild(mobileClues);
+      // Append clues to the right of the grid
+      gridClueWrapper.appendChild(mobileClues);
 
-        // Append grid + clues layout into the main wrapper
-        wrapper.appendChild(gridClueWrapper);
+      // Append grid + clues layout into the main wrapper
+      wrapper.appendChild(gridClueWrapper);
 
-        // Rebind clue clicks for mobile container
-        mobileClues.querySelectorAll('.cw-clue').forEach(el => {
-          el.addEventListener('click', (e) => {
-            const target = $(e.currentTarget);
-            const wordId = target.data('word');
-            const word = gCrossword.words[wordId];
+      // Rebind clue clicks for mobile container
+      mobileClues.querySelectorAll('.cw-clue').forEach(el => {
+        el.addEventListener('click', (e) => {
+          const target = $(e.currentTarget);
+          const wordId = target.data('word');
+          const word = gCrossword.words[wordId];
 
-            if (!word) return;
+          if (!word) return;
 
-            const cell = word.getFirstEmptyCell() || word.getFirstCell();
-            if (cell) {
-              gCrossword.setActiveWord(word);
-              if (gCrossword.active_clues.id !== target.data('clues')) {
-                gCrossword.changeActiveClues();
-              }
-              gCrossword.setActiveCell(cell);
-
-              // ✅ Manually trigger clue highlighting
-              gCrossword.inactive_clues.markActive(cell.x, cell.y, true, gCrossword.fakeclues);
-              gCrossword.active_clues.markActive(cell.x, cell.y, false, gCrossword.fakeclues);
-
-              gCrossword.renderCells();
+          const cell = word.getFirstEmptyCell() || word.getFirstCell();
+          if (cell) {
+            gCrossword.setActiveWord(word);
+            if (gCrossword.active_clues.id !== target.data('clues')) {
+              gCrossword.changeActiveClues();
             }
-          });
+            gCrossword.setActiveCell(cell);
+
+            // ✅ Manually trigger clue highlighting
+            gCrossword.inactive_clues.markActive(cell.x, cell.y, true, gCrossword.fakeclues);
+            gCrossword.active_clues.markActive(cell.x, cell.y, false, gCrossword.fakeclues);
+
+            gCrossword.renderCells();
+          }
+        });
+      });
+
+      // Create drawer container
+      const buttonWrapper = document.createElement('div');
+      buttonWrapper.className = 'cw-buttons-drawer';
+
+      // Add drawer to layout before inserting buttons
+      wrapper.appendChild(buttonWrapper);
+
+      // THEN move buttons inside the drawer
+      buttonWrapper.appendChild(buttons);
+
+      // Create the handle and append
+      const handle = document.createElement('div');
+      handle.className = 'cw-buttons-handle';
+
+      // Add drawer to wrapper
+      wrapper.appendChild(handle);
+      wrapper.appendChild(buttonWrapper);
+
+      // Create keyboard wrapper and append
+      const keyboardWrapper = document.createElement('div');
+      keyboardWrapper.className = 'keyboard-wrapper-placeholder';
+      wrapper.appendChild(keyboardWrapper);
+
+      // Insert everything before clues
+      content.insertBefore(wrapper, clues);
+
+      // Rebuild keyboard
+      rebuildKeyboardAndPositionDrawer();
+
+      // === Rebus via long-press on the grid ===
+      (function enableRebusLongPressOnCell() {
+        // Your grid is the canvas with id 'cw-puzzle-grid' (fallback to .cw-canvas)
+        const grid = document.getElementById('cw-puzzle-grid') || document.querySelector('.cw-canvas');
+        if (!grid || grid.dataset.rebusLpAttached === '1') return; // guard against double binding
+        grid.dataset.rebusLpAttached = '1';
+
+        const LP_MS = 450; // long-press threshold
+        const MAX_MOVE = 8; // cancel if finger moves too much (px)
+        let timer = null;
+        let startX = 0,
+          startY = 0;
+
+        function openRebusEditor() {
+          if (!gCrossword?.selected_cell || gCrossword.selected_cell.empty) return;
+          const val = prompt('Rebus entry', gCrossword.selected_cell.letter || '');
+          if (val && gCrossword?.hiddenInputChanged) {
+            gCrossword.hiddenInputChanged(val.toUpperCase());
+          }
+        }
+
+        function clearTimer() {
+          if (timer) {
+            clearTimeout(timer);
+            timer = null;
+          }
+        }
+
+        grid.addEventListener('pointerdown', (e) => {
+          if (!gCrossword?.selected_cell || gCrossword.selected_cell.empty) return;
+          startX = e.clientX;
+          startY = e.clientY;
+          clearTimer();
+          timer = setTimeout(openRebusEditor, LP_MS);
         });
 
-        // Create drawer container
-        const buttonWrapper = document.createElement('div');
-        buttonWrapper.className = 'cw-buttons-drawer';
+        grid.addEventListener('pointermove', (e) => {
+          if (!timer) return;
+          const dx = Math.abs(e.clientX - startX);
+          const dy = Math.abs(e.clientY - startY);
+          if (dx > MAX_MOVE || dy > MAX_MOVE) clearTimer(); // treat as scroll/drag, cancel LP
+        });
 
-        // Add drawer to layout before inserting buttons
-        wrapper.appendChild(buttonWrapper);
-
-        // THEN move buttons inside the drawer
-        buttonWrapper.appendChild(buttons);
-
-        // Create the handle and append
-        const handle = document.createElement('div');
-        handle.className = 'cw-buttons-handle';
-
-        // Add drawer to wrapper
-        wrapper.appendChild(handle);
-        wrapper.appendChild(buttonWrapper);
-
-        // Create keyboard wrapper and append
-        const keyboardWrapper = document.createElement('div');
-        keyboardWrapper.className = 'keyboard-wrapper-placeholder';
-        wrapper.appendChild(keyboardWrapper);
-
-        // Insert everything before clues
-        content.insertBefore(wrapper, clues);
-
-        // Rebuild keyboard
-        rebuildKeyboardAndPositionDrawer();
-
-        // === Rebus via long-press on the grid ===
-        (function enableRebusLongPressOnCell(){
-          // Your grid is the canvas with id 'cw-puzzle-grid' (fallback to .cw-canvas)
-          const grid = document.getElementById('cw-puzzle-grid') || document.querySelector('.cw-canvas');
-          if (!grid || grid.dataset.rebusLpAttached === '1') return; // guard against double binding
-          grid.dataset.rebusLpAttached = '1';
-
-          const LP_MS = 450;        // long-press threshold
-          const MAX_MOVE = 8;       // cancel if finger moves too much (px)
-          let timer = null;
-          let startX = 0, startY = 0;
-
-          function openRebusEditor() {
-            if (!gCrossword?.selected_cell || gCrossword.selected_cell.empty) return;
-            const val = prompt('Rebus entry', gCrossword.selected_cell.letter || '');
-            if (val && gCrossword?.hiddenInputChanged) {
-              gCrossword.hiddenInputChanged(val.toUpperCase());
-            }
-          }
-
-          function clearTimer() {
-            if (timer) { clearTimeout(timer); timer = null; }
-          }
-
-          grid.addEventListener('pointerdown', (e) => {
-            if (!gCrossword?.selected_cell || gCrossword.selected_cell.empty) return;
-            startX = e.clientX;
-            startY = e.clientY;
-            clearTimer();
-            timer = setTimeout(openRebusEditor, LP_MS);
-          });
-
-          grid.addEventListener('pointermove', (e) => {
-            if (!timer) return;
-            const dx = Math.abs(e.clientX - startX);
-            const dy = Math.abs(e.clientY - startY);
-            if (dx > MAX_MOVE || dy > MAX_MOVE) clearTimer(); // treat as scroll/drag, cancel LP
-          });
-
-          grid.addEventListener('pointerup', clearTimer);
-          grid.addEventListener('pointerleave', clearTimer);
-          grid.addEventListener('pointercancel', clearTimer);
-        })();
+        grid.addEventListener('pointerup', clearTimer);
+        grid.addEventListener('pointerleave', clearTimer);
+        grid.addEventListener('pointercancel', clearTimer);
+      })();
 
 
-        // Drawer toggle logic
-        drawer = buttonWrapper;
-        drawerOpen = false; // starts visible
-        drawer.classList.remove('open'); // make sure it's closed on load
-        // Immediately hide the drawer (force rendering to catch transform)
-        requestAnimationFrame(() => {
+      // Drawer toggle logic
+      drawer = buttonWrapper;
+      drawerOpen = false; // starts visible
+      drawer.classList.remove('open'); // make sure it's closed on load
+      // Immediately hide the drawer (force rendering to catch transform)
+      requestAnimationFrame(() => {
+        drawer.classList.remove('open');
+      });
+
+      // Click to toggle
+      handle.addEventListener('click', () => {
+        drawerOpen = !drawerOpen;
+        drawer.classList.toggle('open', drawerOpen);
+      });
+
+      // Swipe gesture
+      touchStartY = null;
+      handle.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+      });
+      handle.addEventListener('touchend', (e) => {
+        if (touchStartY === null) return;
+        const deltaY = touchStartY - e.changedTouches[0].clientY;
+        if (deltaY > 30) {
+          drawerOpen = true;
+        } else if (deltaY < -30) {
           drawer.classList.remove('open');
-        });
-
-        // Click to toggle
-        handle.addEventListener('click', () => {
-          drawerOpen = !drawerOpen;
-          drawer.classList.toggle('open', drawerOpen);
-        });
-
-        // Swipe gesture
+          drawerOpen = false;
+        }
         touchStartY = null;
-        handle.addEventListener('touchstart', (e) => {
-          touchStartY = e.touches[0].clientY;
-        });
-        handle.addEventListener('touchend', (e) => {
-          if (touchStartY === null) return;
-          const deltaY = touchStartY - e.changedTouches[0].clientY;
-          if (deltaY > 30) {
-            drawerOpen = true;
-          } else if (deltaY < -30) {
-            drawer.classList.remove('open');
-            drawerOpen = false;
-          }
-          touchStartY = null;
-        });
+      });
+      setTimeout(() => {
+        const firstWord = gCrossword.active_clues.getFirstWord();
+        gCrossword.setActiveWord(firstWord);
+        gCrossword.setActiveCell(firstWord.getFirstCell());
+        gCrossword.renderCells();
+        // Match the width of the top clue bar to the grid
         setTimeout(() => {
-          const firstWord = gCrossword.active_clues.getFirstWord();
-          gCrossword.setActiveWord(firstWord);
-          gCrossword.setActiveCell(firstWord.getFirstCell());
-          gCrossword.renderCells();
-          // Match the width of the top clue bar to the grid
-          setTimeout(() => {
-            const gridEl = document.getElementById('cw-puzzle-grid');
-            const clueBar = document.querySelector('.cw-top-text-wrapper');
-            if (gridEl && clueBar) {
-              clueBar.style.width = gridEl.getBoundingClientRect().width + 'px';
-            }
-          }, 100);
-        }, 50);
+          const gridEl = document.getElementById('cw-puzzle-grid');
+          const clueBar = document.querySelector('.cw-top-text-wrapper');
+          if (gridEl && clueBar) {
+            clueBar.style.width = gridEl.getBoundingClientRect().width + 'px';
+          }
+        }, 100);
+      }, 50);
     };
 
     setTimeout(tryWrapLayout, 300);
-    }
+  }
   console.log('Is mobile?', isMobile, 'Classes:', document.querySelector('.crossword')?.className);
 });
 
@@ -404,9 +407,9 @@ function createCustomKeyboard() {
   ];
 
   const symbolRows = [
-    ['1','2','3','4','5','6','7','8','9','0'],
-    ['!','@','#','$','%','^','&','*','(',')'],
-    ['-','+','=','/','?',':',';','"',"'",'\\']
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+    ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')'],
+    ['-', '+', '=', '/', '?', ':', ';', '"', "'", '\\']
   ];
 
   const rows = isAltKeyboard ? symbolRows : letterRows;
@@ -512,7 +515,8 @@ function createCustomKeyboard() {
           return;
         }
 
-        let x = cell.x, y = cell.y;
+        let x = cell.x,
+          y = cell.y;
         while (true) {
           if (isAcross ? x <= 1 : y <= 1) return;
           isAcross ? x-- : y--;
