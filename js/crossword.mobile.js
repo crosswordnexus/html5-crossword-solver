@@ -35,22 +35,7 @@ $(document).ready(function() {
     }, 300);
   });
 
-  function isMobileDevice() {
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
-
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    //const screenIsSmall = Math.max(window.innerWidth, window.innerHeight) < 1024;
-
-    const isiPad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-    const isMobileUA = /android|iphone|ipod|ipad|mobile/i.test(ua);
-
-    return (
-      isTouchDevice && (isiPad || isMobileUA)
-    );
-  }
-
-  const isMobile = isMobileDevice();
+  const isMobile = CrosswordShared.isMobileDevice();
   const crosswordRoot = document.querySelector('.crossword');
 
   if (isMobile && crosswordRoot) {
@@ -122,38 +107,7 @@ $(document).ready(function() {
   }
 
   // Load puzzle and optional config from URL
-  const url = new URL(window.location.href);
-  let puzzle = url.searchParams.get("puzzle") || url.searchParams.get("file");
-  const b64config = url.searchParams.get("config");
-  const params = {};
-
-  // optional LZ-string–encoded puzzle (compressed JSON)
-  const lzpuz = window.location.hash.slice(1);
-
-  if (puzzle) {
-    params.puzzle_file = {
-      url: puzzle,
-      type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
-    };
-  } else if (lzpuz) {
-    try {
-      console.log("[startup] Found lzpuz param — decompressing...");
-      const xw = JSCrossword.deserialize(lzpuz);
-      console.log("[startup] Loaded LZ puzzle:", xw.metadata.title, "by", xw.metadata.author);
-      params["puzzle_object"] = xw;
-    } catch (err) {
-      console.error("[startup] Failed to load lzpuz:", err);
-    }
-  }
-
-  if (b64config) {
-    try {
-      const config = JSON.parse(atob(b64config));
-      Object.assign(params, config);
-    } catch (e) {
-      console.warn("Invalid base64 config parameter:", e);
-    }
-  }
+  const params = CrosswordShared.getCrosswordParams();
 
   gCrossword = CrosswordNexus.createCrossword($('div.crossword'), params);
   if (gCrossword?.syncTopTextWidth) {

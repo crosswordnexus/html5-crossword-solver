@@ -21,55 +21,11 @@
     <!-- GG animation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OyTttBxEGkTsoIVsiP1iaTtM8b3+hu2kB6pQ4Clr5yug==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+    <!-- Shared JS -->
+    <script src="js/crossword.shared.js"></script>
+
     <script>
-        function getCrosswordParams() {
-          const url = new URL(window.location.href);
-          const puzzle = url.searchParams.get("puzzle") || url.searchParams.get("file");
-          const b64config = url.searchParams.get("config");
-          const params = {};
-
-          // optional LZ-string–encoded puzzle (compressed JSON)
-          const lzpuz =  window.location.hash.slice(1);
-
-          if (puzzle) {
-            params.puzzle_file = {
-              url: puzzle,
-              type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
-            };
-          }
-          else if (lzpuz) {
-            try {
-              console.log("[startup] Found lzpuz param — decompressing...");
-              const xw = JSCrossword.deserialize(lzpuz);
-              console.log("[startup] Loaded LZ puzzle:", xw.metadata.title, "by", xw.metadata.author);
-              params["puzzle_object"] = xw;
-            } catch (err) {
-              console.error("[startup] Failed to load lzpuz:", err);
-            }
-          }
-
-          if (b64config) {
-            try {
-              Object.assign(params, JSON.parse(atob(b64config)));
-            } catch (e) {
-              console.warn("Invalid config:", e);
-            }
-          }
-
-          return params;
-        }
-
-        function isMobileDevice() {
-          const ua = navigator.userAgent || '';
-          const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 1;
-          const isiPad = ua.includes("iPad") || (ua.includes("Mac") && navigator.maxTouchPoints > 1);
-          const isMobileUA = /android|iphone|ipod|mobile/i.test(ua);
-          //const isSmallScreen = Math.max(window.innerWidth, window.innerHeight) < 1024;
-
-          return isTouch && (isMobileUA || isiPad);
-        }
-
-        const mobile = isMobileDevice();
+        const mobile = CrosswordShared.isMobileDevice();
         console.log('[Device Detection]', {
           ua: navigator.userAgent,
           platform: navigator.platform,
@@ -111,7 +67,7 @@
           script.onload = () => {
             console.log('[Desktop] crosswords.js loaded — initializing crossword');
 
-            const params = getCrosswordParams();
+            const params = CrosswordShared.getCrosswordParams();
 
             window.gCrossword = CrosswordNexus.createCrossword($('div.crossword'), params);
 
