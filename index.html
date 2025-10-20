@@ -22,6 +22,46 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OyTttBxEGkTsoIVsiP1iaTtM8b3+hu2kB6pQ4Clr5yug==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script>
+      /**
+      * Parse URL query parameters and build a crossword configuration object.
+      * Supports:
+      *   ?puzzle= or ?file= → the puzzle file URL
+      *   ?config= (base64 JSON) → additional options for the solver
+      * Returns a normalized `params` object for CrosswordNexus.createCrossword().
+      */
+      function getCrosswordParams() {
+        const url = new URL(window.location.href);
+
+        // Accept both ?puzzle= and ?file= as synonyms for the puzzle URL
+        const puzzle = url.searchParams.get("puzzle") || url.searchParams.get("file");
+
+        // Optional Base64-encoded config JSON (e.g., layout or theming)
+        const b64config = url.searchParams.get("config");
+
+        // The object we'll pass to the crossword initializer
+        const params = {};
+
+        // If a puzzle URL was given, infer its file type from the extension
+        if (puzzle) {
+          params.puzzle_file = {
+            url: puzzle,
+            type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
+          };
+        }
+
+      // Decode and merge any additional Base64-encoded config options
+      if (b64config) {
+        try {
+          Object.assign(params, JSON.parse(atob(b64config)));
+        } catch (e) {
+          console.warn("Invalid config parameter (could not decode Base64 JSON):", e);
+        }
+      }
+
+      return params;
+    }
+
+
         function isMobileDevice() {
           const ua = navigator.userAgent || '';
           const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 1;
@@ -74,26 +114,7 @@
           script.onload = () => {
             console.log('[Desktop] crosswords.js loaded — initializing crossword');
 
-            const url = new URL(window.location.href);
-            const puzzle = url.searchParams.get("puzzle") || url.searchParams.get("file");
-            const b64config = url.searchParams.get("config");
-            const params = {};
-
-            if (puzzle) {
-              params.puzzle_file = {
-                url: puzzle,
-                type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
-              };
-            }
-
-            if (b64config) {
-              try {
-                const config = JSON.parse(atob(b64config));
-                Object.assign(params, config);
-              } catch (e) {
-                console.warn("Invalid config:", e);
-              }
-            }
+            const params = getCrosswordParams();
 
             window.gCrossword = CrosswordNexus.createCrossword($('div.crossword'), params);
 
@@ -150,41 +171,6 @@
 </head>
 <body>
     <div class="crossword crosswordnexus-theme"></div>
-    <script>
-        var gCrossword;
-        $(document).ready(function(){
-
-            var url = new URL(window.location.href);
-            var puzzle = url.searchParams.get("puzzle");
-            if (!puzzle) puzzle = url.searchParams.get("file");
-            var b64config = url.searchParams.get("config");
-            var params = {};
-
-            if (puzzle) {
-                params.puzzle_file = {
-                    url: puzzle,
-                    type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
-                };
-            } else {
-              params.puzzle_file = {
-                url: './puzzles/sample.puz', // your default test file
-                type: 'puz'
-              };
-            }
-
-            if (b64config) {
-                var config = JSON.parse(atob(b64config));
-                params = Object.assign(params, config);
-            }
-
-            console.log(params);
-
-            if (!isMobileDevice) {
-              gCrossword = CrosswordNexus.createCrossword($('div.crossword'), params);
-            }
-
-        });
-    </script>
 
 </body>
 </html>
