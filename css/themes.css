@@ -16,7 +16,41 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 **/
 /* CSS for using the Crossweird Crossword Solver */
 
-/* Themes (New theme: Step 2) */
+.crosswordnexus-theme {
+    --main-bg-color: #ffffff;
+    --header-bg-color: #E9E3DC;
+    --content-bg-color: #E9E3DC;
+    --main-hilite-color: #e3a67b;
+    --button-bg-color: #cbc4bd;
+    --button-text-color: #000000;
+    --button-hover-color: #B1A79C;
+    --button-menu-bg-color: #FFFFFF;
+    /*--timer-text-color: #000000;
+    --timer-hover-color: #BA4178;
+    --timer-running-text-color: #000000;
+    --timer-runnning-text-shadow: -0.3px 0.3px black;*/
+    --top-text-wrapper-bg-color: #5ea0cd;
+    --top-text-wrapper-text-color: #000000;
+    --clues-holder-bg-color: #EDE7DF;
+    --clue-active-color: #da854a;
+    --clue-active-text-color: #000000;
+    --clue-hover-color: #eabc9b;
+    --cluenote-text-color: #000000;
+    --clue-scrollbar-color-track: #ffffff;
+    --clue-scrollbar-color-thumb: #825851;
+    --clue-scrollbar-color-thumb-hover: #6a4842;
+    /*--clue-scrollbar-color-thumb1: #ff9dca;
+    --clue-scrollbar-color-thumb2: #2fcdfb;*/
+    --main-text-color: #000000;
+    --grid-selected-square-color: #da854a;
+    --grid-selected-word-color: #eabc9b;
+    --grid-block-color: #3F3F3F;
+    --grid-none-color: #FFE8F2;
+    --modal-header-bg-color: #e3a67b;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #E9E3DC;
+ }
+
 .pride-theme {
     --main-bg-color: #ffffff;
     --header-bg-color: #f4afc9;
@@ -359,7 +393,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --modal-header-text-color: #ffffff;
     --modal-content-bg-color: #dfdfea;
  }
- 
+
 .light-blue-theme {
     --main-bg-color: #ffffff;
     --header-bg-color: #f2f2f2;
