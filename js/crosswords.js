@@ -508,12 +508,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           DarkReader.enable({
             brightness: 100,
             contrast: 90,
-            sepia: 55
+            sepia: 10
           });
-          this.config.color_none = '#F2F2F2';
-          this.config.color_selected = '#5C5C42';
-          this.config.color_word = '#9E9E77';
-          //this.config.font_color_fill = '#ddd4c5';
+          this.config.color_none = '#404040';
+          this.config.font_color_fill = '#ddd4c5';
         }
 
         this.cell_size = 40;
@@ -3052,7 +3050,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             </div>
           </div>
 
-          <!-- Timer -->
+          <!-- Miscellaneous (only timer for now) -->
           <div class="settings-setting">
             <div class="settings-description">
               Timer
@@ -3064,6 +3062,15 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 </input>
               </label>
             </div>
+            <!--
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="dark_mode_enabled" checked="" type="checkbox" name="dark_mode_enabled" class="settings-changer">
+                  Dark mode
+                </input>
+              </label>
+            </div>
+            -->
           </div>
         `;
 
@@ -3087,33 +3094,31 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             if (event.target.className === 'settings-changer') {
               if (event.target.type === 'checkbox') {
                 this.config[event.target.name] = event.target.checked;
+
                 // need to add a special bit for dark mode
                 if (event.target.name == 'dark_mode_enabled' && DarkReader) {
                   if (event.target.checked) {
                     DarkReader.enable({
                       brightness: 100,
                       contrast: 90,
-                      sepia: 55
+                      sepia: 10
                     });
-                    this.config.color_none = '#F2F2F2';
-                    //this.config.font_color_fill = '#ddd4c5';
-                    this.config.color_selected = '#5C5C42';
-                    this.config.color_word = '#9E9E77';
+                    this.config.color_none = '#252624';
+                    this.config.font_color_fill = '#ddd4c5';
                     this.renderCells();
+                    console.log(1);
                   } else {
                     DarkReader.disable();
                     this.config.color_none = default_config.color_none;
-                    this.config.color_selected = default_config.color_selected;
-                    this.config.color_word = default_config.color_word;
-                    //this.config.font_color_fill = default_config.font_color_fill;
+                    this.config.font_color_fill = default_config.font_color_fill;
                     this.renderCells();
                   }
+                }
 
-                  // If the toggled setting is gray_completed_clues, re-render clues immediately
-                  if (event.target.name === 'gray_completed_clues') {
-                    for (const wordId in this.words) {
-                      this.updateClueAppearance(this.words[wordId]);
-                    }
+                // If the toggled setting is gray_completed_clues, re-render clues immediately
+                if (event.target.name === 'gray_completed_clues') {
+                  for (const wordId in this.words) {
+                    this.updateClueAppearance(this.words[wordId]);
                   }
                   this.syncTopTextWidth();
                 }
