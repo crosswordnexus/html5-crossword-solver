@@ -717,6 +717,10 @@ input[type='radio'] {
   flex-direction: column;
 }
 
+.cw-max-width-850 .cw-copyright {
+    display: none;
+}
+
 .cw-max-width-600 .cw-header {
     display: none;
 }
