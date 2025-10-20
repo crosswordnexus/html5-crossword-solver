@@ -156,6 +156,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       font_color_fill: '#000000',
       color_block: '#212121',
       puzzle_file: null,
+      puzzle_object: null, // jsxw to load, if available
       puzzles: null,
       skip_filled_letters: true,
       arrow_direction: 'arrow_move_filled',
@@ -670,6 +671,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             this.config.puzzle_file.url,
             this.config.puzzle_file.type
           ).then(loaded_callback, error_callback);
+        } else if (this.config.puzzle_object) {
+          // Case 2: load from serialized (LZ) puzzle
+          console.log("[startup] Loading puzzle from lzpuz param");
+          const xw = this.config.puzzle_object;
+          console.log(xw);
+          Promise.resolve(xw).then(parsePUZZLE_callback, error_callback);
         } else {
           // shows open button
           var i, puzzle_file, el;
