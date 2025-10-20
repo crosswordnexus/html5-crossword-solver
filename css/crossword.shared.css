@@ -539,6 +539,18 @@ div.is-dragover {
   min-width: 1px;
 }
 
+.cw-clues-title {
+  align-items: flex-end;
+  box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0;
+  height: 1.6em;
+  padding: 4px 0;
+  position: relative;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
 .cw-clues-items {
   flex: 1 1 auto;
   min-height: 1px;

@@ -68,21 +68,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   width: 350px;
 }
 
-
-.cw-clues-title {
-  align-items: flex-end;
-  box-sizing: border-box;
-  display: flex;
-  flex-shrink: 0;
-  height: 1.6em;
-  padding: 0;
-  position: relative;
-  letter-spacing: .1rem;
-  font-weight: 600;
-  font-size: 0.65em;
-  margin-bottom: 0.25em;
-}
-
 /* MOBILE BASE OVERRIDES */
 body.mobile-mode,
 html.mobile-mode {

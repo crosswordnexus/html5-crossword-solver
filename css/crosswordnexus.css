@@ -163,26 +163,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   margin: 0 auto;
 }
 
-
-
 .cw-top-text {
   align-items: flex-start;
   display: flex;
   text-align: left;
   line-height: 1.2;
-}
-
-.cw-clues-title {
-  align-items: flex-end;
-  box-sizing: border-box;
-  display: flex;
-  flex-shrink: 0;
-  height: 40px;
-  padding: 4px 0;
-  position: relative;
-  letter-spacing: .1rem;
-  font-weight: 600;
-  font-size: 22px;
 }
 
 /* MOBILE BASE OVERRIDES */
