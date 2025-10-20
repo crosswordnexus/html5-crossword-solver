@@ -557,13 +557,14 @@ div.is-dragover {
   background: var(--clue-active-color);
   color: var(--clue-active-text-color);
   margin-right: 3px;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.1s ease-in-out;
 }
 
 .cw-clue.passive {
-  box-shadow: 0 0 0 2px var(--clue-active-color) inset;
+  /* box-shadow: 0 0 0 2px var(--clue-active-color) inset; */
   margin-right: 3px;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.1s ease-in-out;
+  background: #ccc;
 }
 
 .cw-clue.completed {
