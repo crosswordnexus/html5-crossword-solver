@@ -127,11 +127,24 @@ $(document).ready(function () {
   const b64config = url.searchParams.get("config");
   const params = {};
 
+  // optional LZ-string–encoded puzzle (compressed JSON)
+  const lzpuz =  window.location.hash.slice(1);
+
   if (puzzle) {
     params.puzzle_file = {
       url: puzzle,
       type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
     };
+  }
+  else if (lzpuz) {
+    try {
+      console.log("[startup] Found lzpuz param — decompressing...");
+      const xw = JSCrossword.deserialize(lzpuz);
+      console.log("[startup] Loaded LZ puzzle:", xw.metadata.title, "by", xw.metadata.author);
+      params["puzzle_object"] = xw;
+    } catch (err) {
+      console.error("[startup] Failed to load lzpuz:", err);
+    }
   }
 
   if (b64config) {
