@@ -25,58 +25,8 @@ try {
   DarkReader = false;
 }
 
-/**
- * Helper functions
- * mostly for colors
- **/
-
-// hex string to RGB array and vice versa
-// thanks https://stackoverflow.com/a/39077686
-const hexToRgb = hex =>
-  hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => '#' + r + r + g + g + b + b)
-  .substring(1).match(/.{2}/g)
-  .map(x => parseInt(x, 16));
-
-const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
-  const hex = x.toString(16)
-  return hex.length === 1 ? '0' + hex : hex
-}).join('');
-
-const isMobile = (() => {
-  const ua = navigator.userAgent || navigator.vendor || window.opera;
-  return (
-    /android/i.test(ua) ||
-    /iphone|ipad|ipod/i.test(ua) ||
-    /mobile/i.test(ua)
-  );
-})();
-
-// perceived brightness of a color on a scale of 0-255
-function getBrightness(hex) {
-  const rgb = hexToRgb(hex);
-  return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
-}
-
-// Helper function for a single component
-function componentAvg(c1, c2, weight) {
-  //return Math.floor(Math.sqrt(weight * c1**2 + (1 - weight) * c2**2));
-  return Math.floor(weight * c1 + (1 - weight) * c2)
-}
-// helper function to take the "average" of two RGB strings
-// thanks https://stackoverflow.com/a/29576746
-function averageColors(c1, c2, weight = 0.5) {
-  var r1 = hexToRgb(c1);
-  var r2 = hexToRgb(c2);
-  var newColor = [componentAvg(r1[0], r2[0], weight),
-    componentAvg(r1[1], r2[1], weight),
-    componentAvg(r1[2], r2[2], weight)
-  ]
-  return rgbToHex(newColor[0], newColor[1], newColor[2]);
-}
-
-function adjustColor(color, amount) {
-  return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
-}
+// one-time check for mobile device status
+const IS_MOBILE = CrosswordShared.isMobileDevice();
 
 // Helper function to draw an arrow in a square
 function drawArrow(context, top_x, top_y, square_size, direction = "right") {
@@ -1234,7 +1184,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         );
 
         // Right-click in the clue list → Ducktiles
-        if (!isMobile) {
+        if (!IS_MOBILE) {
           this.clues_holder.delegate(
             'div.cw-clues-items div.cw-clue .cw-clue-text',
             'contextmenu',
@@ -1383,7 +1333,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         });
 
         // Right-click on the top clue bar → Ducktiles
-        if (!isMobile) {
+        if (!IS_MOBILE) {
           this.top_text.on('contextmenu', (e) => {
             e.preventDefault();
             let selectedText = '';
@@ -1452,7 +1402,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         // When the user clicks on <span> (x), close the modal
         span.onclick = function() {
           modal.style.display = 'none';
-          if (!isMobile) {
+          if (!IS_MOBILE) {
             this_hidden_input.focus();
           }
         };
@@ -1460,7 +1410,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         window.onclick = function(event) {
           if (event.target == modal) {
             modal.style.display = 'none';
-            if (!isMobile) {
+            if (!IS_MOBILE) {
               this_hidden_input.focus();
             }
           }
@@ -1469,7 +1419,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         var modalButton = document.getElementById('modal-button');
         modalButton.onclick = function() {
           modal.style.display = 'none';
-          if (!isMobile) {
+          if (!IS_MOBILE) {
             this_hidden_input.focus();
           }
         };
@@ -1543,7 +1493,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             left: input_left,
             top: input_top
           });
-          if (!isMobile) {
+          if (!IS_MOBILE) {
             this.hidden_input.focus();
           }
           this.renderCells();
@@ -1816,14 +1766,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             // Default fill color
             let fontColorFill = this.config.font_color_fill;
             // Brightness of the background and foreground
-            const bgBrightness = getBrightness(fillColor || this.config.color_none);
-            const fgBrightness = getBrightness(this.config.font_color_fill);
+            const bgBrightness = Color.getBrightness(fillColor || this.config.color_none);
+            const fgBrightness = Color.getBrightness(this.config.font_color_fill);
 
             // If we fail to meet some threshold, invert
             if (Math.abs(bgBrightness - fgBrightness) < 125) {
-              var thisRGB = hexToRgb(this.config.font_color_fill);
+              var thisRGB = Color.hexToRgb(this.config.font_color_fill);
               var invertedRGB = thisRGB.map(x => 255 - x);
-              fontColorFill = rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
+              fontColorFill = Color.rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
             }
 
             if (cell.letter) {
@@ -2010,7 +1960,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             this.selected_word = null;
             this.top_text.html('');
             this.renderCells();
-            if (!isMobile) {
+            if (!IS_MOBILE) {
               this.hidden_input.focus(); // <-- FOCUS here after selecting cell
             }
           }
@@ -2035,7 +1985,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
           this.setActiveCell(this.getCell(index_x, index_y));
           this.renderCells();
-          if (!isMobile) {
+          if (!IS_MOBILE) {
             this.hidden_input.focus(); // <-- Also focus here for normal puzzles
           }
         }
@@ -2217,7 +2167,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               this.renumberGrid();
               this.renderCells(); // redraw right away
 
-              if (!isMobile) {
+              if (!IS_MOBILE) {
                 this.hidden_input.focus();
               }
             }
@@ -2238,7 +2188,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               this.autofill();
               this.checkIfSolved();
               this.renderCells();
-              if (!isMobile) {
+              if (!IS_MOBILE) {
                 this.hidden_input.focus();
               }
 
@@ -2751,7 +2701,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
        */
       async openDucktilesOverlayWithClipboard(rawText) {
         // Hard-disable Ducktiles overlay on mobile
-        if (isMobile) {
+        if (IS_MOBILE) {
           // Optional: show a polite message instead of silently doing nothing
           // this.createModalBox('Ducktiles', 'This helper is disabled on mobile.', 'OK');
           return;
@@ -2955,7 +2905,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           if (evt.key === 'Escape') {
             modalEl.style.display = 'none';
             window.removeEventListener('keydown', escHandler);
-            if (!isMobile) {
+            if (!IS_MOBILE) {
               this.hidden_input.focus();
             }
           }
@@ -3350,7 +3300,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.saveGame();
         }
 
-        if (!isMobile) {
+        if (!IS_MOBILE) {
           this.hidden_input.focus();
         }
       }
@@ -3403,7 +3353,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           timer_btn.removeClass('running');
           timer_btn.addClass('blink'); // Add blinking effect
           this.timer_running = false;
-          if (!isMobile) {
+          if (!IS_MOBILE) {
             this.hidden_input.focus();
           }
         } else {
@@ -3411,7 +3361,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           timer_btn.removeClass('blink'); // Remove blinking effect
           this.timer_running = true;
           timer_btn.addClass('running');
-          if (!isMobile) {
+          if (!IS_MOBILE) {
             this.hidden_input.focus();
           }
           timer();
