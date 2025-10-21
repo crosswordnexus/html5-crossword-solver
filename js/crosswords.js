@@ -1697,7 +1697,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
               // Set the cell color
               if (cell.type === 'block') {
-                fillColor = this.config.color_block;
+                fillColor = cell.color || this.config.color_block;
               } else if (this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) {
                 fillColor = this.config.color_selected;
                 rect.classList.add('selected');
