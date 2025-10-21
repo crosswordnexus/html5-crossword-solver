@@ -450,7 +450,7 @@ html.mobile-mode {
   }
 
   .cw-buttons-holder {
-    gap: 2.8em !important;
+    /* gap: 2.8em !important; */
   }
 
   .cw-buttons-row {
