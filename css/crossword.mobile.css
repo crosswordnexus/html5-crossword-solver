@@ -42,7 +42,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 }
 
 .cw-clues-items::-webkit-scrollbar-thumb:hover {
-  background-color: var(--clue-scrollbar-color-thumb-hover)
+  background-color: var(--clue-scrollbar-color-thumb)
 }
 
 .cw-clue {

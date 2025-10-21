@@ -25,14 +25,12 @@ This file contains shared styles always loaded (mobile or desktop)
     --clue-scrollbar-color-track: #ffffff;
     --clue-scrollbar-color-thumb: #bf3028;
     --clue-scrollbar-color-thumb-hover: #bf3028;
-    /*--clue-scrollbar-color-thumb1: #ff9dca;
-    --clue-scrollbar-color-thumb2: #2fcdfb;*/
     --main-text-color: #000000;
     --grid-selected-square-color: #da854a;
     --grid-selected-word-color: #eabc9b;
     --grid-block-color: #3F3F3F;
     --grid-none-color: #FFE8F2;
-    --modal-header-bg-color: #e3a67b;
+    --modal-header-bg-color: #999999;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #E9E3DC;
  }
@@ -407,7 +405,7 @@ div.is-dragover {
 
 .cw-button {
   --button-background-color-hover: var(--button-hover-color);
-  background-color: var(--clues-holder-bg-color);
+  background-color: var(--button-bg-color);
   color: var(--button-text-color);
   padding: 0.3em 0.7em;
   font-size: 0.65em;

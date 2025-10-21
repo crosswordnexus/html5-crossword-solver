@@ -453,6 +453,34 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
         }
 
+
+        /* Update config values based on `color_word` */
+        const COLOR_WORD = this.config.color_word;
+        const COLOR_SELECTED = this.config.color_selected;
+        // color for hovered cell (if enabled)
+        this.config.color_hover = Color.applyHsvTransform(COLOR_WORD, { dh: 6.38, ks: 0.333, kv: 1.004 });
+        // color for corresponding cells (in acrostics and codewords)
+        this.config.color_hilite = Color.applyHsvTransform(COLOR_WORD, {dh: -2.64, ks: 0.536, kv: 0.976});
+        // color for cross-referenced cells (currently unused)
+        this.config.color_secondary = Color.applyHsvTransform(COLOR_WORD, {dh: -0.29, ks: 0.282, kv: 1.004});
+
+        /* Update CSS values based on `color_word` and `color_selected`*/
+        // Buttons
+        document.documentElement.style.setProperty("--button-bg-color",
+          Color.applyHsvTransform(COLOR_WORD, {dh: 0.13, ks: 0.753, kv: 1.004}));
+        document.documentElement.style.setProperty("--button-hover-color",
+          Color.applyHsvTransform(COLOR_WORD, {dh: 0.28, ks: 0.502, kv: 1.004}));
+
+        // Clues
+        document.documentElement.style.setProperty("--clue-active-color",
+          Color.applyHsvTransform(COLOR_WORD, {dh: 0.13, ks: 0.753, kv: 1.004}));
+        document.documentElement.style.setProperty("--top-text-wrapper-bg-color",
+          Color.applyHsvTransform(COLOR_WORD, {dh: -8.62, ks: 0.157, kv: 1.004}));
+
+        // Scrollbars
+        document.documentElement.style.setProperty("--clue-scrollbar-color-thumb",
+          Color.averageColors(COLOR_SELECTED, '#333333', 0.5));
+
         /** enable dark mode if available **/
         if (this.config.dark_mode_enabled && DarkReader) {
           DarkReader.enable({
