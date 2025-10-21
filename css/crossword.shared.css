@@ -446,13 +446,11 @@ div.is-dragover {
 
 /* large button for initial overlay */
 .cw-button-open-puzzle {
-  background-color: rgba(235, 151, 113, .5);
-  --button-background-color-hover: rgba(235, 151, 113, .8);
-  color: black;
-  font-size: 26px;
-  border-radius: 8px;
-  box-shadow: 0 0 15px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.25s ease, transform 0.1s ease;
+    background-color: #52b323;
+    --button-background-color-hover: #58ba28;
+    --button-shadow-color: #368c0e;
+    color: white;
+    font-size: 32px;
 }
 
 /* medium-sized green button for active timer */
