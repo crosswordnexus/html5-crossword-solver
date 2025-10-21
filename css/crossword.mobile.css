@@ -298,8 +298,10 @@ html.mobile-mode {
 
 .crossword.mobile .custom-key.cw-key-left,
 .crossword.mobile .custom-key.cw-key-right {
+  /**
   background-color: var(--top-text-wrapper-bg-color) !important;
   color: var(--top-text-wrapper-text-color) !important;
+  **/
   font-weight: bold;
 }
 
