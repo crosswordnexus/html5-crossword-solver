@@ -862,6 +862,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             fixed: rawCell.fixed === true // Preserve fixed flag from saved data
           };
 
+          /* set a "shade_highlight" color */
+          if (c.color && c.color != this.config.color_none) {
+            c.shade_highlight_color = Color.averageColors(this.config.color_word, Color.adjustColor(c.color, -50));
+          } else {
+            c.shade_highlight_color = this.config.color_word;
+          }
+
           // ✔ DO NOT reset `c.fixed` to false here!
 
           // Apply rules only if this is a fresh load
@@ -1692,14 +1699,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               if (cell.type === 'block') {
                 fillColor = this.config.color_block;
               } else if (this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) {
-                // Note that we modify the color if there's a background color
-                fillColor = Color.averageColors(this.config.color_selected, Color.adjustColor(cell.color, -50));
+                fillColor = this.config.color_selected;
                 rect.classList.add('selected');
               } else if (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)) {
-                fillColor = Color.averageColors(this.config.color_word, Color.adjustColor(cell.color, -50));
+                fillColor = cell.shade_highlight_color;
               } else if (linkedSet && linkedSet.has(`${cell.x}-${cell.y}`)) {
                 // highlight partners
-                fillColor = Color.averageColors(this.config.color_word, Color.adjustColor(cell.color, -50));
+                fillColor = cell.shade_highlight_color;
                 rect.classList.add('linked'); // optional CSS hook
               } else if (cell.color) {
                 fillColor = cell.color;
