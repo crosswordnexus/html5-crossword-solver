@@ -1688,15 +1688,18 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               rect.setAttribute('data-y', cell.y);
               rect.setAttribute('class', 'cw-cell');
 
+              // Set the cell color
               if (cell.type === 'block') {
                 fillColor = this.config.color_block;
               } else if (this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) {
-                fillColor = this.config.color_selected;
+                // Note that we modify the color if there's a background color
+                fillColor = Color.averageColors(this.config.color_selected, Color.adjustColor(cell.color, -50));
                 rect.classList.add('selected');
               } else if (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)) {
-                fillColor = this.config.color_word;
+                fillColor = Color.averageColors(this.config.color_word, Color.adjustColor(cell.color, -50));
               } else if (linkedSet && linkedSet.has(`${cell.x}-${cell.y}`)) {
-                fillColor = this.config.color_word; // highlight partners
+                // highlight partners
+                fillColor = Color.averageColors(this.config.color_word, Color.adjustColor(cell.color, -50));
                 rect.classList.add('linked'); // optional CSS hook
               } else if (cell.color) {
                 fillColor = cell.color;

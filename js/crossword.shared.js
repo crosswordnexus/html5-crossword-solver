@@ -127,6 +127,10 @@ window.Color = {
   // helper to take the "average" of two RGB strings
   // thanks https://stackoverflow.com/a/29576746
   averageColors(c1, c2, weight = 0.5) {
+    // if there's no c2, just return c1
+    if (!c2) {
+      return c1;
+    }
     var r1 = this.hexToRgb(c1);
     var r2 = this.hexToRgb(c2);
     var newColor = [this.componentAvg(r1[0], r2[0], weight),
@@ -137,6 +141,9 @@ window.Color = {
   },
 
   adjustColor(color, amount) {
+    if (!color) {
+      return null;
+    }
     return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
   }
 };
