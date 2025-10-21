@@ -1867,6 +1867,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       drawSelectedWordBorder(svg, word) {
+        // this doesn't play well with irregularly shaped words
+        return;
+        /*
         if (!word || !word.cells.length) return;
 
         const SIZE = this.cell_size;
@@ -1895,6 +1898,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         rect.setAttribute('pointer-events', 'none');
         rect.setAttribute('class', 'selected-word-border');
         svg.appendChild(rect);
+        */
       }
 
       renumberGrid() {
