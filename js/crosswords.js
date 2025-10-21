@@ -869,6 +869,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             c.shade_highlight_color = this.config.color_word;
           }
 
+          /* set the background color for "clue" cells */
+          if (rawCell.clue) {
+            c.color = this.config.background_color_clue;
+          }
+
           // ✔ DO NOT reset `c.fixed` to false here!
 
           // Apply rules only if this is a fresh load
@@ -1667,6 +1672,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             const cellX = (x - 1) * SIZE;
             const cellY = (y - 1) * SIZE;
 
+            /*
+            // We don't use this
             const isLabelOnly = (
               this.crossword_type === 'acrostic' &&
               cell.fixed === true &&
@@ -1674,17 +1681,17 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               cell.letter === cell.solution &&
               !cell.top_right_number
             );
+            */
 
             const isPunctuationOnly = (
               cell.letter &&
               /^[^A-Za-z0-9]$/.test(cell.letter) &&
               !cell.solution
             );
-            const shouldBeTransparent = isLabelOnly || isPunctuationOnly;
 
-            // ⬇️ Skip drawing the rect if it's a floating label-only cell
             let fillColor;
-            if (!isLabelOnly) {
+            // Previously this was done for !isLabelOnly
+            if (true) {
               const rect = document.createElementNS(this.svgNS, 'rect');
               rect.setAttribute('x', cellX);
               rect.setAttribute('y', cellY);
