@@ -263,7 +263,7 @@ html.mobile-mode {
   padding: 0.65em 0.5em;
   text-align: center;
   font-size: 1rem;
-  background: var(--button-bg-color);
+  background: var(--keyboard-button-bg-color);
   color: var(--button-text-color);
   border-radius: 6px;
   user-select: none;
@@ -303,11 +303,6 @@ html.mobile-mode {
   font-weight: bold;
 }
 
-.crossword.mobile .custom-key.rebus-key,
-.crossword.mobile .custom-key.backspace-key {
-  background: var(--button-hover-color);
-}
-
 .crossword.mobile .cw-key-left,
 .crossword.mobile .cw-key-right {
   font-size: 1.3em;
@@ -319,25 +314,9 @@ html.mobile-mode {
   padding: 0;
 }
 
-/*.crossword.mobile .cw-key-backspace {
-    font-size: 1.6em;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-  }*/
 .cw-key-alt-toggle.active {
   background-color: var(--button-hover-color);
   font-weight: bold
-}
-
-.crossword.mobile .cw-key-alt-toggle {
-  background: var(--button-hover-color);
-}
-
-.crossword.mobile .custom-key.period-key {
-  background: var(--button-bg-color);
 }
 
 .keyboard-wrapper-placeholder {

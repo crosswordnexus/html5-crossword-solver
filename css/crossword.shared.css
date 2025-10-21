@@ -33,6 +33,8 @@ This file contains shared styles always loaded (mobile or desktop)
     --modal-header-bg-color: #999999;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #E9E3DC;
+
+    --keyboard-button-bg-color: #cbc4bd;
  }
 
 .cw-main,
