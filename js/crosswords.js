@@ -1287,8 +1287,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.notepad_icon.hide();
         }
 
-        // Automatically show notepad on load if it exists
-        if (this.notepad) {
+        // Automatically show intro on load if it exists
+        if (this.jsxw.metadata.intro) {
           setTimeout(() => this.showNotepad(), 300);
         }
 
@@ -1834,7 +1834,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               label.setAttribute('text-anchor', 'end');
               label.setAttribute('font-size', `${SIZE / 3.75}px`);
               label.setAttribute('font-family', 'Arial, sans-serif');
-              label.setAttribute('fill', this.config.font_color_clue);
+              label.setAttribute('fill', fontColorFill);
               label.setAttribute('pointer-events', 'none');
               label.textContent = cell.top_right_number;
               label.classList.add('cw-top-right-label');
