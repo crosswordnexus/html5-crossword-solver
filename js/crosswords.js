@@ -3677,32 +3677,37 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       // if x and y given - get first empty cell after cell with coordinates x,y
       // if there's no empty cell after those coordinates - search from begin
       getFirstEmptyCell(x, y) {
-        var i,
-          cell,
-          coordinates,
-          start = 0;
-        if (x && y) {
-          start = Math.max(0, this.cells.indexOf(`${x}-${y}`));
-          // if currently last cell - search from beginning
-          if (start == this.cells.length - 1) {
-            start = 0;
+        // Return null if there are no cells in the word
+        if (!this.cells || this.cells.length === 0) return null;
+
+        const total = this.cells.length;
+        let startIndex = 0;
+
+        if (x != null && y != null) {
+          // Find the index of the given coordinates in the word
+          const idx = this.cells.indexOf(`${x}-${y}`);
+          if (idx >= 0) {
+            // Start searching *after* the current cell, wrapping if necessary
+            startIndex = (idx + 1) % total;
           }
         }
-        for (i = start;
-          (coordinates = this.cells[i]); i++) {
-          cell = this.getCellByCoordinates(coordinates);
+
+        // Loop through every cell once, wrapping automatically using modulo
+        for (let i = 0; i < total; i++) {
+          // Compute index with wraparound
+          const index = (startIndex + i) % total;
+
+          // Get the cell coordinates and the corresponding cell object
+          const coordinates = this.cells[index];
+          const cell = this.getCellByCoordinates(coordinates);
+
+          // Return the first cell without a letter
           if (cell && !cell.letter) {
             return cell;
           }
         }
 
-        // if coordinates given and no cell found - search from beginning
-        if (start > 0) {
-          for (i = 0; i < start; i++) {
-            cell = this.getCellByCoordinates(this.cells[i]);
-          }
-        }
-
+        // If we reach here, all cells are filled — no empty cell found
         return null;
       }
 
