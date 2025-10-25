@@ -14,6 +14,9 @@ This file contains shared styles always loaded (mobile or desktop)
     --button-bg-color: #cbc4bd;
     --button-text-color: #000000;
     --button-hover-color: #B1A79C;
+    --button-note-timer-color: #EEEEEE;
+    --button-note-timer-hover: #99999;
+    --button-note-timer-border: #888888;
     --button-menu-bg-color: #FFFFFF;
     --top-text-wrapper-bg-color: #fff5d7;
     --top-text-wrapper-text-color: #000000;
@@ -424,12 +427,13 @@ div.is-dragover {
 }
 
 .cw-button-timer {
-  --button-background-color-hover: var(--button-hover-color);
+  background-color: var(--button-note-timer-color);
+  --button-background-color-hover: var(--button-note-timer-hover);
   color: var(--timer-text-color);
   font-size: 0.8em;
   font-weight: 600;
   border-radius: 999px;
-  border: 1px solid var(--button-hover-color);
+  border: 1px solid var(--button-note-timer-border);
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
@@ -462,7 +466,9 @@ div.is-dragover {
 
 /* small gray button for notes */
 .cw-button-notepad {
-  --button-background-color-hover: var(--button-hover-color);
+  background-color: var(--button-note-timer-color);
+  --button-background-color-hover: var(--button-note-timer-hover);
+  border: 1px solid var(--button-note-timer-border);
   margin: 0px;
 }
 
