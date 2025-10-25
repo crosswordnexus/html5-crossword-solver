@@ -140,7 +140,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     // messages
     var MSG_SAVED = 'Crossword saved';
     var MSG_LOADED = 'Crossword loaded';
-    var MSG_SOLVED = 'Crossword solved! Congratulations!';
 
     var MAX_CLUES_LENGTH = 2;
 
@@ -511,9 +510,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.settings_open = false;
         // TIMER
         this.timer_running = false;
-
-        /*// Solution message
-        this.msg_solved = MSG_SOLVED;*/
 
         // whether to show the reveal button
         this.has_reveal = true;
@@ -2400,11 +2396,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         const here = this
 
         function showSuccessMsg() {
-          const rawMessage = "Congratulations!";
+          const rawMessage = "Puzzle solved!";
 
           let solvedMessage = escape(rawMessage).trim().replaceAll('\n', '<br />');
           solvedMessage += timerMessage;
-          here.createModalBox('Puzzle solved!', solvedMessage);
+          here.createModalBox('🎉🎉🎉', solvedMessage);
         }
 
         // show completion message if newly solved
