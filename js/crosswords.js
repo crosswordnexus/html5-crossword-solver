@@ -88,6 +88,54 @@ function componentAvg(c1, c2, weight) {
   return Math.floor(weight * c1 + (1 - weight) * c2)
 }
 
+// "Simple" function to adjust a color
+function rgbToHsv([r, g, b]) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  const d = max - min;
+  let h = 0;
+  if (d !== 0) {
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h *= 60;
+  }
+  const s = max === 0 ? 0 : d / max;
+  const v = max;
+  return [h, s, v];
+}
+
+function hsvToRgb([h, s, v]) {
+  h = ((h % 360) + 360) % 360;
+  const c = v * s;
+  const x = c * (1 - Math.abs(((h/60)%2) - 1));
+  const m = v - c;
+  let rp=0,gp=0,bp=0;
+  if (0<=h && h<60){rp=c;gp=x;bp=0;}
+  else if (60<=h && h<120){rp=x;gp=c;bp=0;}
+  else if (120<=h && h<180){rp=0;gp=c;bp=x;}
+  else if (180<=h && h<240){rp=0;gp=x;bp=c;}
+  else if (240<=h && h<300){rp=x;gp=0;bp=c;}
+  else {rp=c;gp=0;bp=x;}
+  return [
+    Math.round((rp+m)*255),
+    Math.round((gp+m)*255),
+    Math.round((bp+m)*255)
+  ];
+}
+
+function applyHsvTransform(rgbHex, {dh, ks, kv}) {
+  let rgb = hexToRgb(rgbHex);
+  let [h,s,v] = rgbToHsv(rgb);
+  h = h + dh;
+  s = Math.min(1, Math.max(0, s*ks));
+  v = Math.min(1, Math.max(0, v*kv));
+  let outRgb = hsvToRgb([h,s,v]);
+  return rgbToHex(outRgb[0], outRgb[1], outRgb[2]);
+}
+
 /**
  * Average two colors by weight (default 0.5).
  * Returns a new hex string.
@@ -172,18 +220,17 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     /* All of this is configurable via "params" when instantiating */
     var default_config = {
       hover_enabled: false, // enables or disables cell hover effect
-      color_hover: '#FFFFAA', // color for hovered cell (if enabled)
       color_selected: '#FF4136', // color for selected cell
       color_word: '#FEE300', // color for selected word
-      color_hilite: '#F8E473', // color for corresponding cells (in acrostics and codewords)
+
       color_none: '#FFFFFF', // color for "null" or "void" cells
       background_color_clue: '#666666', // color for "clue" cells
       default_background_color: '#c2ed7e', // color for shaded cells whose shade color is badly defined
-      color_secondary: '#fff7b7', // color for cross-referenced cells (currently unused)
       font_color_clue: '#FFFFFF', // color for text in "clue" cells
       font_color_fill: '#000000', // color for letters typed in the grid
       color_block: '#000000', // color of "black" squares
       puzzle_file: null, // puzzle file to load
+      puzzle_object: null, // jsxw to load, if available
       puzzles: null, // multiple puzzles from dropdown
       bar_linewidth: 3.5, // how thick to make the bars
       /*
@@ -288,8 +335,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                   <button class="cw-menu-item cw-file-print">Print</button>
                   <hr />
                   <button class="cw-menu-item cw-file-clear">Clear</button>
-                  <hr />
-                  <button class="cw-menu-item cw-file-download">Export JPZ</button>
                 </div>
               </div>
               <div class="cw-menu-container cw-check">
@@ -394,20 +439,29 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
     // returns deferred object
     function loadFileFromServer(path, type) {
-      var xhr = new XMLHttpRequest(),
-        deferred = $.Deferred();
+      const deferred = $.Deferred();
+      const xhr = new XMLHttpRequest();
+
       xhr.open('GET', path);
-      xhr.responseType = 'blob';
+      xhr.responseType = 'arraybuffer'; // binary-safe for .puz, .jpz, etc.
+
       xhr.onload = function () {
-        if (xhr.status == 200) {
-          loadFromFile(xhr.response, type, deferred);
+        if (xhr.status === 200) {
+          const data = new Uint8Array(xhr.response);
+          deferred.resolve(data);
         } else {
           deferred.reject(ERR_FILE_LOAD);
         }
       };
+
+      xhr.onerror = function () {
+        deferred.reject(ERR_FILE_LOAD);
+      };
+
       xhr.send();
       return deferred;
     }
+
 
     // Check if we can drag and drop files
     var isAdvancedUpload = (function () {
@@ -420,15 +474,18 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     })();
 
     function loadFromFile(file, type, deferred) {
-      var reader = new FileReader();
+      const reader = new FileReader();
       deferred = deferred || $.Deferred();
+
       reader.onload = function (event) {
-        var string = event.target.result;
-        deferred.resolve(string);
+        const data = new Uint8Array(event.target.result);
+        deferred.resolve(data);
       };
-      reader.readAsBinaryString(file);
+
+      reader.readAsArrayBuffer(file);
       return deferred;
     }
+
 
     // Breakpoint config for the top clue, as tuples of `[max_width, max_size]`
     const maxClueSizes = [
@@ -662,6 +719,28 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
         }
 
+        /* Update config values based on `color_word` */
+        const COLOR_WORD = this.config.color_word;
+        console.log(COLOR_WORD);
+        // color for hovered cell (if enabled)
+        this.config.color_hover = applyHsvTransform(COLOR_WORD, { dh: 6.38, ks: 0.333, kv: 1.004 });
+        // color for corresponding cells (in acrostics and codewords)
+        this.config.color_hilite = applyHsvTransform(COLOR_WORD, {dh: -2.64, ks: 0.536, kv: 0.976});
+        // color for cross-referenced cells (currently unused)
+        this.config.color_secondary = applyHsvTransform(COLOR_WORD, {dh: -0.29, ks: 0.282, kv: 1.004});
+
+        /* Update CSS values based on `color_word` */
+        document.documentElement.style.setProperty("--button-background-color",
+          applyHsvTransform(COLOR_WORD, {dh: 0.13, ks: 0.753, kv: 1.004}));
+        document.documentElement.style.setProperty("--button-background-color-hover",
+          applyHsvTransform(COLOR_WORD, {dh: 0.28, ks: 0.502, kv: 1.004}));
+        document.documentElement.style.setProperty("--button-shadow-color",
+          applyHsvTransform(COLOR_WORD, {dh: -0.01, ks: 1.000, kv: 0.925}));
+        document.documentElement.style.setProperty("--clue-active-color",
+          applyHsvTransform(COLOR_WORD, {dh: 0.13, ks: 0.753, kv: 1.004}));
+        document.documentElement.style.setProperty("--top-text-wrapper-background",
+          applyHsvTransform(COLOR_WORD, {dh: -8.62, ks: 0.157, kv: 1.004}));
+
         /** enable dark mode if available **/
         if (this.config.dark_mode_enabled && DarkReader) {
           DarkReader.enable({
@@ -741,7 +820,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.print_btn = this.root.find('.cw-file-print');
         this.clear_btn = this.root.find('.cw-file-clear');
         this.save_btn = this.root.find('.cw-file-save');
-        this.download_btn = this.root.find('.cw-file-download');
 
         this.notes = new Map();
 
@@ -755,9 +833,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         // function to process uploaded files
         function processFiles(files) {
           loadFromFile(files[0], FILE_PUZ).then(
-              parsePUZZLE_callback,
-              error_callback
-            );
+            function (data) {
+              parsePUZZLE_callback(data);
+            },
+            function (err) {
+              error_callback(err);
+            }
+          );
         }
         // preload one puzzle
         if (
@@ -771,8 +853,16 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               this.config.puzzle_file.url,
               this.config.puzzle_file.type
             ).then(loaded_callback, error_callback);
+        } else if (this.config.puzzle_object) {
+          // Case 2: load from serialized (LZ) puzzle
+          console.log("[startup] Loading puzzle from lzpuz param");
+          const xw = this.config.puzzle_object;
+          console.log(xw);
+          Promise.resolve(xw).then(parsePUZZLE_callback, error_callback);
         } else if (this.config.avcx) {
+          // Case 3: AVCX
           this.root.addClass('loading');
+          console.log("[startup] Loading puzzle from AVCX config");
           var loaded_callback = parsePUZZLE_callback;
           var avcx_cookie = getCookie('avcx_s');
           loadAvcxFile(
@@ -842,7 +932,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         alert(message);
       }
 
-      /**
+    /**
      * Parse puzzle data into CrossWord structures.
      *
      * - Accepts either a JSCrossword object or raw string data.
@@ -851,17 +941,19 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
      * - Initializes cells, words, and clues (real or fake).
      * - Enables autofill for acrostic/coded puzzles.
      */
-      parsePuzzle(string) {
-        // if "string" is actually an object assume it's already a jsxw
+     parsePuzzle(data) {
+        // if it's already a JSCrossword, return it as-is
         var puzzle;
-        if (typeof(string) == "object") {
-          puzzle = string;
+        if (data instanceof JSCrossword) {
+          puzzle = data;
         } else {
-          var xw_constructor = new JSCrossword();
-          puzzle = xw_constructor.fromData(string);
+          // otherwise, parse it directly — JSCrossword handles the format detection
+          puzzle = JSCrossword.fromData(new Uint8Array(data));
         }
+
         // we keep the original JSCrossword object as well
         this.jsxw = puzzle;
+
         // set the savegame_name
         const simpleHash=t=>{let e=0;for(let r=0;r<t.length;r++){e=(e<<5)-e+t.charCodeAt(r),e&=e}return new Uint32Array([e])[0].toString(36)};
         // Use puzzle hash to generate a unique storage key, so saves don’t collide.
@@ -994,7 +1086,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           if (!this.realwords) {
             // Determine which word is an across and which is a down
             // We do this by comparing the entry to the set of across entries
-            var thisGrid = new xwGrid(puzzle.cells);
+            var thisGrid = JSCrossword.xwGrid(puzzle.cells);
             var acrossEntries = thisGrid.acrossEntries();
             var acrossSet = new Set(Object.keys(acrossEntries).map(function (x) {return acrossEntries[x].word;}))
             var entry_mapping = puzzle.get_entry_mapping();
@@ -1262,16 +1354,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         );
 
         // PRINTER
-        this.print_btn.on('click', $.proxy(this.printPuzzle, this));
+        this.print_btn.on('click', (e) => this.printPuzzle(e));
 
         // CLEAR
         this.clear_btn.on(
           'click',
           $.proxy(this.check_reveal, this, 'puzzle', 'clear')
         );
-
-        // DOWNLOAD
-        this.download_btn.on('click', $.proxy(this.exportJPZ, this));
 
         /** We're disabling save and load buttons **/
         // SAVE
@@ -2649,25 +2738,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         return jsxw_cells;
       }
 
-      /* Export a JPZ */
-      exportJPZ() {
-        // fill jsxw
-        this.fillJsXw();
-        const jpz_str = this.jsxw.toJPZString();
-        // set filename
-        var filename = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.jpz';
-        // Initiate download
-        var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jpz_str));
-        element.setAttribute('download', filename);
-
-        element.style.display = 'none';
-        document.body.appendChild(element);
-
-        element.click();
-        document.body.removeChild(element);
-      }
-
       check_reveal(to_solve, reveal_or_check, e) {
         var my_cells = [],
           cell;
@@ -2749,11 +2819,22 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.hidden_input.focus();
       }
 
-      printPuzzle(e) {
+      async printPuzzle(e) {
         // fill JSXW
         this.fillJsXw();
-        jscrossword_to_pdf(this.jsxw, {"print": true});
+        console.log(this.jsxw);
+        try {
+          let doc = await this.jsxw.toPDF();
+          console.log(doc);
+          doc.autoPrint();
+          // open in a new tab and trigger print dialog
+          const blobUrl = doc.output("bloburl");
+          window.open(blobUrl, "_blank");
+        } catch (err) {
+          console.error("PDF generation failed:", err);
+        }
       }
+
 
       updateClueAppearance(word) {
         // Grey out completed clues
