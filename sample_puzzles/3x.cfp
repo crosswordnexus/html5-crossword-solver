@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<CROSSFIRE>
+<VERSION>1</VERSION>
+<TITLE>Test Puzzle</TITLE>
+<AUTHOR>Alex Boisvert</AUTHOR>
+<COPYRIGHT>© 2022 Alex Boisvert. CC BY 4.0 License.</COPYRIGHT>
+<GRID width="3">
+.AB
+CDE
+F@.
+</GRID>
+<CIRCLES>1,6</CIRCLES>
+<REBUSES>
+<REBUS display="1" input="@" letters="ghi"/>
+</REBUSES>
+<WORDS>
+<WORD dir="ACROSS" id="0" isTheme="false" num="1">clue 1</WORD>
+<WORD dir="ACROSS" id="1" isTheme="false" num="3">clue 2</WORD>
+<WORD dir="ACROSS" id="2" isTheme="false" num="4">clue 3</WORD>
+<WORD dir="DOWN" id="4" isTheme="false" num="1">clue 4</WORD>
+<WORD dir="DOWN" id="5" isTheme="false" num="2">clue 5</WORD>
+<WORD dir="DOWN" id="3" isTheme="false" num="3">&lt;i&gt;clue&lt;/i&gt; 6</WORD>
+</WORDS>
+<NOTES>this is a note</NOTES>
+</CROSSFIRE>

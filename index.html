@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
     <meta name="HandheldFriendly" content="True">
     <title>Crossword Nexus Solver</title>
-    <link href="css/crosswordnexus.css" rel="stylesheet">
-
-    <!-- the main crossword JavaScript -->
-    <script src="js/crosswords.js"></script>
 
     <!-- jQuery -->
     <script src="lib/jquery.js"></script>
@@ -16,67 +12,102 @@
     <!-- for loading crosswords -->
     <script src="lib/jscrossword_combined.js"></script>
 
-    <!-- for saving crosswords -->
-    <script src="lib/lscache.min.js"></script>
+    <!-- confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-    <!-- for dark mode -->
-    <script src="lib/darkreader.min.js"></script>
+    <!-- GG animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OyTttBxEGkTsoIVsiP1iaTtM8b3+hu2kB6pQ4Clr5yug==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    <style>
-        html, body {
-            /* height: 100%; */
-            margin: 0;
-            background-color: white;
+    <!-- Shared JS -->
+    <script src="js/crossword.shared.js"></script>
+
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="./css/crossword.shared.css">
+
+    <script>
+        const mobile = CrosswordShared.isMobileDevice();
+        console.log('[Device Detection]', {
+          ua: navigator.userAgent,
+          platform: navigator.platform,
+          maxTouchPoints: navigator.maxTouchPoints,
+          isMobile: mobile
+        });
+
+        if (mobile) {
+          // ✅ Load core engine first (crosswords.js)
+          const core = document.createElement('script');
+          core.src = './js/crosswords.js';
+
+          core.onload = () => {
+            // ✅ Then load mobile layout script and CSS
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = './css/crossword.mobile.css';
+            document.head.appendChild(link);
+
+            const mobileScript = document.createElement('script');
+            mobileScript.src = './js/crossword.mobile.js';
+            document.body.appendChild(mobileScript); // ✅ Let it handle its own init
+          };
+
+          window.addEventListener('DOMContentLoaded', () => {
+            document.body.appendChild(core);
+          });
+
+        } else {
+          // ✅ Desktop CSS
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = './css/crosswordnexus.css';
+          document.head.appendChild(link);
+
+          // ✅ Desktop JS + Init
+          const script = document.createElement('script');
+          script.src = './js/crosswords.js';
+          script.onload = () => {
+            console.log('[Desktop] crosswords.js loaded — initializing crossword');
+
+            const params = CrosswordShared.getCrosswordParams();
+
+            window.gCrossword = CrosswordNexus.createCrossword($('div.crossword'), params);
+
+            setTimeout(() => {
+              const svg = document.getElementById('cw-puzzle-grid');
+              const cw = window.gCrossword;
+
+              if (svg && cw?.renderCells && cw.grid_width && cw.grid_height) {
+                console.log('[Fix] Final render pass after layout settle');
+                cw.renderCells();
+                cw.windowResized?.();
+                cw.syncTopTextWidth?.();
+              } else {
+                console.warn('[Fix] Skipping renderCells — grid size not yet initialized', {
+                  grid_width: cw?.grid_width,
+                  grid_height: cw?.grid_height
+                });
+              }
+            }, 350);
+          };
+
+          window.addEventListener('DOMContentLoaded', () => {
+            document.body.appendChild(script);
+          });
         }
-        div.crossword { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
-    </style>
+      </script>
+
+      <noscript>
+        <p style="padding:1rem; font-family:sans-serif;">
+          The Crossword Nexus Solver requires JavaScript.
+        </p>
+      </noscript>
+
 </head>
 <body>
-    <!-- The div in which the crossword will be created -->
-    <div class="crossword"></div>
-
-<script>
-    (function(){
-        // Grab puzzle from query string if available
-        const url = new URL(window.location.href);
-        var puzzle = url.searchParams.get("puzzle");
-        if (!puzzle) puzzle = url.searchParams.get("file");
-
-        // optional LZ-string–encoded puzzle (compressed JSON)
-        const lzpuz =  window.location.hash.slice(1);
-        console.log(lzpuz);
-
-        // optional puzzle parameters
-        // for options, see line 141 in crosswords.js.
-        var params = {};
-        if (puzzle) {
-            params['puzzle_file'] = {
-                url: puzzle,
-                type: puzzle.slice(puzzle.lastIndexOf('.') + 1)
-            };
-        } else if (lzpuz) {
-          try {
-            console.log("[startup] Found lzpuz param — decompressing...");
-            const xw = JSCrossword.deserialize(lzpuz);
-            console.log("[startup] Loaded LZ puzzle:", xw.metadata.title, "by", xw.metadata.author);
-            params["puzzle_object"] = xw;
-          } catch (err) {
-            console.error("[startup] Failed to load lzpuz:", err);
-          }
-        }
-
-        // you can also set parameters in the URL
-        // as a base64-encoded JSON blob
-        var b64config = url.searchParams.get("config");
-        if (b64config) {
-            var config = JSON.parse(atob(b64config));
-            params = Object.assign(params, config);
-        }
-
-        // Create the crossword
-        CrosswordNexus.createCrossword($('div.crossword'), params);
-    })();
-</script>
-
+    <!-- Loading overlay -->
+    <div id="loading-overlay">
+    <!--<div id="loading-text">Loading...</div>-->
+    <div id="spinner"></div>
+    </div>
+    <div class="crossword crosswordnexus-theme"></div>
 </body>
 </html>
