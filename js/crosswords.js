@@ -861,6 +861,16 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           });
         }
 
+        // disable check and reveal in certain cases
+        if (puzzle.metadata.has_reveal === false) {
+          this.has_reveal = false;
+          $('.cw-reveal').css({ display: 'none' });
+        }
+        if (puzzle.metadata.has_check === false) {
+          this.has_check = false;
+          $('.cw-check').css({ display: 'none' });
+        }
+
         // === Build cells ===
         this.cells = {};
         this.number_to_cells = {};
