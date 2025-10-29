@@ -751,8 +751,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         if (data instanceof JSCrossword) {
           puzzle = data;
         } else {
-          // otherwise, parse it directly â€” JSCrossword handles the format detection
-          puzzle = JSCrossword.fromData(new Uint8Array(data));
+          // otherwise, parse it directly -- JSCrossword handles the format detection
+          puzzle = JSCrossword.fromData(new Uint8Array(data), { lockedHandling: "mask" });
         }
 
         puzzle.kind = puzzle.metadata.kind;
