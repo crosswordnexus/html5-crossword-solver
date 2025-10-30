@@ -2805,23 +2805,27 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
       // callback for clicking a clue in the sidebar
       clueClicked(e) {
-        if (this.fakeclues) {
-          return;
+        if (this.fakeclues || this.diagramless_mode) return;
+
+        const target = $(e.currentTarget);
+        const word = this.words[target.data('word')];
+        if (!word) return;
+
+        const cell = word.getFirstEmptyCell() || word.getFirstCell();
+        if (!cell) return;
+
+        // Find which clue group this clue belongs to
+        const clickedGroupId = target.data('clues');
+        const groupIndex = this.clueGroups.findIndex(g => g.id === clickedGroupId);
+
+        // Switch directly to that group if needed
+        if (groupIndex !== -1 && groupIndex !== this.activeClueGroupIndex) {
+          this.changeActiveClues(groupIndex);
         }
-        if (this.diagramless_mode) {
-          return;
-        }
-        var target = $(e.currentTarget),
-          word = this.words[target.data('word')],
-          cell = word.getFirstEmptyCell() || word.getFirstCell();
-        if (cell) {
-          this.setActiveWord(word);
-          if (this.clueGroups[this.activeClueGroupIndex].id !== target.data('clues')) {
-            this.changeActiveClues();
-          }
-          this.setActiveCell(cell);
-          this.renderCells();
-        }
+
+        this.setActiveWord(word);
+        this.setActiveCell(cell);
+        this.renderCells();
       }
 
       showInfo() {
