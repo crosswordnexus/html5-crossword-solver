@@ -559,7 +559,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
 
         return {
-          clue_groups: clueGroups,
+          clueGroups: clueGroups,
           clue_mapping: clueMapping
         };
       }
@@ -954,7 +954,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
 
         // === Build clues ===
-        const clueMapping = {};
+        let clueMapping = {};
 
         if (this.crossword_type === 'coded') {
           var fake_clue_obj = this.make_fake_clues(puzzle);
