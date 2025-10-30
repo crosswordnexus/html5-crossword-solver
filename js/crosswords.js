@@ -124,8 +124,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     // constants
     var FILE_JPZ = 'jpz';
     var FILE_PUZ = 'puz';
-    var CLUES_TOP = 'clues_top';
-    var CLUES_BOTTOM = 'clues_bottom';
     var MIN_SIZE = 10;
     var MAX_SIZE = 100;
     var SKIP_UP = 'up';
@@ -250,16 +248,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 </div>
               </div>
             </div>
-          <div class = "cw-clues-holder">
-          <div class = "cw-clues cw-clues-top">
-          <div class = "cw-clues-title"></div>
-          <div class = "cw-clues-items"></div>
-            </div>
-            <div class = "cw-clues cw-clues-bottom">
-            <div class = "cw-clues-title"></div>
-            <div class = "cw-clues-items"></div>
-            </div>
-          </div>
+          <div class = "cw-clues-holder"></div>
         </div>
       </div>`;
 
@@ -498,10 +487,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.grid_height = 0;
         this.cells = {};
         this.words = {};
-        this.clues_top = null;
-        this.clues_bottom = null;
-        this.active_clues = null;
-        this.inactive_clues = null;
+
+        this.clueGroups = []; // array of clue groups
+        this.displayClueGroups = null; // for "fakeclues" puzzles
+        this.activeClueGroupIndex = 0;
+
         this.hovered_x = null;
         this.hovered_y = null;
         this.selected_word = null;
@@ -521,24 +511,24 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       make_fake_clues(puzzle, clue_mapping = {}) {
-        const CLUES_TOP = 'clues_top';
-        const CLUES_BOTTOM = 'clues_bottom';
 
         let across_group = new CluesGroup(this, {
-          id: CLUES_TOP,
+          id: "clues_0",
           title: 'Across',
           clues: [],
           words_ids: [],
         });
 
         let down_group = new CluesGroup(this, {
-          id: CLUES_BOTTOM,
+          id: "clues_1",
           title: 'Down',
           clues: [],
           words_ids: [],
         });
 
         const clueMapping = {};
+
+        var clueGroups;
 
         if (!this.realwords) {
           const entry_mapping = puzzle.get_entry_mapping();
@@ -563,14 +553,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               down_group.words_ids.push(id);
             }
           });
+          clueGroups = [across_group, down_group];
         } else {
-          across_group = this.clues_top;
-          down_group = this.clues_bottom;
+          clueGroups = this.clueGroups;
         }
 
         return {
-          across_group,
-          down_group,
+          clue_groups: clueGroups,
           clue_mapping: clueMapping
         };
       }
@@ -588,8 +577,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.top_text = this.root.find('div.cw-top-text');
         //this.bottom_text = this.root.find('div.cw-bottom-text');
         this.clues_holder = this.root.find('div.cw-clues-holder');
-        this.clues_top_container = this.root.find('div.cw-clues-top');
-        this.clues_bottom_container = this.root.find('div.cw-clues-bottom');
 
         this.toptext = this.root.find('.cw-top-text-wrapper');
         this.notes = new Map();
@@ -647,7 +634,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           // Case 2: load from serialized (LZ) puzzle
           console.log("[startup] Loading puzzle from lzpuz param");
           const xw = this.config.puzzle_object;
-          console.log(xw);
           Promise.resolve(xw).then(parsePUZZLE_callback, error_callback);
         } else {
           // shows open button
@@ -968,12 +954,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
 
         // === Build clues ===
-        var clueMapping = {};
+        const clueMapping = {};
 
         if (this.crossword_type === 'coded') {
           var fake_clue_obj = this.make_fake_clues(puzzle);
-          this.clues_top = fake_clue_obj.across_group;
-          this.clues_bottom = fake_clue_obj.down_group;
+          this.clueGroups = fake_clue_obj.clueGroups;
           clueMapping = fake_clue_obj.clue_mapping;
 
           $('div.cw-clues-holder').css({
@@ -987,49 +972,69 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           });
 
         } else {
-          puzzle.clues[0].clue.forEach(function(clue) {
-            clueMapping[clue.word] = clue;
-          });
-          var words_ids_top = puzzle.clues[0].clue.map(function(key) {
-            return key.word;
-          });
-          this.clues_top = new CluesGroup(this, {
-            id: CLUES_TOP,
-            title: this.normalizeClueTitle(puzzle.clues[0]['title']),
-            clues: puzzle.clues[0].clue,
-            words_ids: words_ids_top
+          // Initialize clue mapping and groups dynamically
+          this.clueGroups = [];
+
+          // Defensive: if no clues array exists
+          const clueSets = puzzle.clues || [];
+
+          // Create one CluesGroup per clue set
+          clueSets.forEach((clueSet, index) => {
+            // Normalize title and word IDs
+            const title = this.normalizeClueTitle(clueSet.title || `Clue Set ${index + 1}`);
+            const clues = clueSet.clue || [];
+
+            // Populate global mapping for quick lookup
+            clues.forEach(clue => {
+              if (clue.word) clueMapping[clue.word] = clue;
+            });
+
+            const words_ids = clues.map(c => c.word);
+
+            // Create and store CluesGroup instance
+            const group = new CluesGroup(this, {
+              id: `clues_${index}`,
+              title,
+              clues,
+              words_ids,
+            });
+
+            this.clueGroups.push(group);
           });
 
-          if (puzzle.clues.length > 1) {
-            puzzle.clues[1].clue.forEach(function(clue) {
-              clueMapping[clue.word] = clue;
-            });
-            this.clues_bottom = new CluesGroup(this, {
-              id: CLUES_BOTTOM,
-              title: this.normalizeClueTitle(puzzle.clues[1]['title']),
-              clues: puzzle.clues[1].clue,
-              words_ids: puzzle.clues[1].clue.map(function(key) {
-                return key.word;
-              })
-            });
-          } else {
-            $('div.cw-clues-bottom').css({
-              display: 'none',
-            });
-          }
         }
 
         // Handle fake clues override
         var num_words = puzzle.words.length;
         var num_clues = puzzle.clues.map(x => x.clue).flat().length;
         if (this.fakeclues && num_words != num_clues) {
-          this.display_clues_top = this.clues_top;
-          this.display_clues_bottom = this.clues_bottom;
+          this.displayClueGroups = structuredClone(this.clueGroups);
           var fake_clue_obj = this.make_fake_clues(puzzle);
-          this.clues_top = fake_clue_obj.across_group;
-          this.clues_bottom = fake_clue_obj.down_group;
+          this.clueGroups = fake_clue_obj.clueGroups;
           clueMapping = fake_clue_obj.clue_mapping;
         }
+
+        // Update DOM with clue info
+        const holder = document.querySelector('.cw-clues-holder');
+        if (!holder) return;
+
+        holder.innerHTML = ''; // clear old ones
+
+        this.clueGroups.forEach(group => {
+          const div = document.createElement('div');
+          div.classList.add('cw-clues');
+          div.dataset.groupId = group.id;
+
+          div.innerHTML = `
+            <div class="cw-clues-title">${group.title}</div>
+            <div class="cw-clues-items"></div>
+          `;
+
+          holder.appendChild(div);
+
+          // Optionally attach scroll or resize logic
+          //group.bindElement(div.querySelector('.cw-clues-items'));
+        });
 
         // === Build words ===
         this.words = {};
@@ -1099,13 +1104,15 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
         }
 
-        this.changeActiveClues();
-        if (this.display_clues_top || this.clues_top) {
-          this.renderClues(this.display_clues_top || this.clues_top, this.clues_top_container);
-        }
-        if (this.display_clues_bottom || this.clues_bottom) {
-          this.renderClues(this.display_clues_bottom || this.clues_bottom, this.clues_bottom_container);
-        }
+        //this.changeActiveClues();
+        (this.displayClueGroups || this.clueGroups || []).forEach(group => {
+          // Find the container that matches this group’s ID
+          const container = document.querySelector(`.cw-clues[data-group-id="${group.id}"] .cw-clues-items`);
+          if (container) {
+            const displayGroup = group; // preserve old logic
+            this.renderClues(displayGroup, container);
+          }
+        });
         this.addListeners();
 
         this.root.removeClass('loading');
@@ -1126,16 +1133,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             this.top_text.html('');
             this.renderCells();
           }
-        } else if (this.fakeclues) {
-          const fallback = this.getCell(1, 1);
-          if (fallback) {
-            this.selected_cell = fallback;
-            this.selected_word = null;
-            this.top_text.html('');
-            this.renderCells();
-          }
         } else {
-          const first_word = this.active_clues?.getFirstWord?.();
+          const first_word = this.clueGroups[this.activeClueGroupIndex].getFirstWord?.();
           if (first_word) {
             this.setActiveWord(first_word);
             const firstCell = first_word.getFirstCell?.();
@@ -1347,10 +1346,33 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             } else {
               // Normal puzzles
               if (!clickedCell.empty) {
-                const newActiveWord = this.active_clues.getMatchingWord(x, y, true) ||
-                  this.inactive_clues.getMatchingWord(x, y, true);
+                const groups = this.clueGroups || [];
+                const n = groups.length;
+                if (!n) return;
+
+                let newActiveWord = null;
+                let newGroupIndex = this.activeClueGroupIndex;
+
+                // Try current group first
+                const currentGroup = groups[this.activeClueGroupIndex];
+                newActiveWord = currentGroup.getMatchingWord(x, y, true);
+
+                // If not found, cycle through remaining groups (2, 3, ..., N, 0, 1, ...)
+                if (!newActiveWord) {
+                  for (let offset = 1; offset < n; offset++) {
+                    const i = (this.activeClueGroupIndex + offset) % n;
+                    const group = groups[i];
+                    const match = group.getMatchingWord(x, y, true);
+                    if (match) {
+                      newActiveWord = match;
+                      newGroupIndex = i;
+                      break;
+                    }
+                  }
+                }
 
                 if (newActiveWord) {
+                  this.activeClueGroupIndex = newGroupIndex;
                   this.setActiveWord(newActiveWord);
                   this.setActiveCell(clickedCell);
                   this.renderCells();
@@ -1475,31 +1497,37 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.config[name] = value;
       }
 
-      // Function to switch the clues, generally from "ACROSS" to "DOWN"
-      changeActiveClues() {
-        if (!this.clues_bottom) {
-          // only one clue list
-          this.active_clues = this.clues_top;
-          this.inactive_clues = this.clues_top;
-          if (this.selected_cell) {
-            var new_word = this.active_clues.getMatchingWord(
-              this.selected_cell.x,
-              this.selected_cell.y,
-              true
-            );
-            this.setActiveWord(new_word);
-          }
-        } else if (this.active_clues && this.active_clues.id === CLUES_TOP) {
-          if (this.inactive_clues !== null) {
-            this.active_clues = this.clues_bottom;
-            this.inactive_clues = this.clues_top;
-          }
+      /**
+       * Switch active clue group — cycles through all available lists.
+       * Works with any number of clue groups (1, 2, or N).
+       * If targetIndex is specified, we switch to that index.
+       */
+      changeActiveClues(targetIndex = null) {
+        const groups = this.clueGroups || [];
+        if (groups.length === 0) return;
+
+        if (targetIndex !== null && targetIndex >= 0 && targetIndex < groups.length) {
+          // Jump directly to specified group
+          this.activeClueGroupIndex = targetIndex;
+        } else if (groups.length === 1) {
+          // if there's only one index, stay there
+          this.activeClueGroupIndex = 0;
         } else {
-          // active is the bottom
-          this.active_clues = this.clues_top;
-          this.inactive_clues = this.clues_bottom;
+          // Cycle to next group
+          this.activeClueGroupIndex = (this.activeClueGroupIndex + 1) % groups.length;
+        }
+
+        // if a cell is selected, try to select its matching word in the new group
+        if (this.selected_cell && this.clueGroups[this.activeClueGroupIndex]) {
+          const new_word = this.clueGroups[this.activeClueGroupIndex].getMatchingWord(
+            this.selected_cell.x,
+            this.selected_cell.y,
+            true
+          );
+          this.setActiveWord(new_word);
         }
       }
+
 
       getCell(x, y) {
         return this.cells[x] ? this.cells[x][y] : null;
@@ -1524,130 +1552,135 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       setActiveCell(cell) {
-        var offset = this.svg.offset(),
-          input_top,
-          input_left;
-        if (cell && !cell.empty) {
-          this.selected_cell = cell;
-          this.inactive_clues.markActive(cell.x, cell.y, true, this.fakeclues);
-          this.active_clues.markActive(cell.x, cell.y, false, this.fakeclues);
+        if (!cell || cell.empty) return;
 
-          input_top = offset.top + (cell.y - 1) * this.cell_size;
-          input_left = offset.left + (cell.x - 1) * this.cell_size;
+        this.selected_cell = cell;
 
-          this.hidden_input.css({
-            left: input_left,
-            top: input_top
-          });
-          if (!IS_MOBILE) {
-            this.hidden_input.focus();
+        // Mark active/inactive state for all clue groups
+        const groups = this.clueGroups || [];
+
+        groups.forEach(group => {
+          // The first param (`isInactive`) is true for all groups except the active one
+          const isInactive = group !== this.clueGroups[this.activeClueGroupIndex];
+          if (typeof group.markActive === 'function') {
+            group.markActive(cell.x, cell.y, isInactive, this.fakeclues);
           }
-          this.renderCells();
+        });
+
+        // --- Move and focus hidden input ---
+        const offset = this.svg.offset();
+        const input_top = offset.top + (cell.y - 1) * this.cell_size;
+        const input_left = offset.left + (cell.x - 1) * this.cell_size;
+
+        this.hidden_input.css({
+          left: input_left,
+          top: input_top,
+        });
+
+        if (!IS_MOBILE) {
+          this.hidden_input.focus();
         }
+
+        this.renderCells();
       }
 
       renderClues(clues_group, clues_container) {
-        var i,
-          clue,
-          clue_el,
-          title = clues_container.find('div.cw-clues-title'),
-          items = clues_container.find('div.cw-clues-items');
-        let notes = this.notes;
-        items.find('div.cw-clue').remove();
-        for (i = 0;
-          (clue = clues_group.clues[i]); i++) {
-          clue_el = $(`
+        const $container = $(clues_container);
+
+        // Locate title and items within the container
+        const $title = $container.find('div.cw-clues-title').length
+          ? $container.find('div.cw-clues-title')
+          : $container.closest('.cw-clues').find('div.cw-clues-title');
+
+        const $items = $container.find('div.cw-clues-items').length
+          ? $container.find('div.cw-clues-items')
+          : $container;
+
+        const notes = this.notes;
+        $items.find('div.cw-clue').remove();
+
+        // --- render each clue ---
+        for (const clue of clues_group.clues) {
+          const clue_el = $(`
             <div style="position: relative">
-              <span class="cw-clue-number">
-                ${escape(clue.number)}
-              </span>
+              <span class="cw-clue-number">${escape(clue.number)}</span>
               <span class="cw-clue-text">
                 ${escape(clue.text)}
                 <div class="cw-edit-container" style="display: none;">
-                <input class="cw-input note-style" type="text">
-              </div>
-              <span class="cw-cluenote-button" style="display: none;" />
+                  <input class="cw-input note-style" type="text">
+                </div>
+                <span class="cw-cluenote-button" style="display: none;"></span>
               </span>
-                  </div>
+            </div>
           `);
-          // if there's any saved notes add them to their section
-          let clueNote = notes.get(clue.word);
+
+          // attach metadata
+          clue_el.data({
+            word: clue.word,
+            number: clue.number,
+            clues: clues_group.id,
+          }).addClass(`cw-clue word-${clue.word}`);
+
+          // restore any saved note
+          const clueNote = notes.get(clue.word);
           if (clueNote !== undefined) {
             clue_el.find('.cw-input').val(clueNote);
             clue_el.find('.cw-edit-container').show();
           }
 
-          clue_el.data('word', clue.word);
-          clue_el.data('number', clue.number);
-          clue_el.data('clues', clues_group.id);
-          clue_el.addClass('cw-clue');
-          clue_el.addClass('word-' + clue.word);
-          items.append(clue_el);
+          $items.append(clue_el);
         }
-        title.html(escape(clues_group.title));
-        clues_group.clues_container = items;
 
-        // Add event listeners for editing
-        items.find('.cw-clue').on('mouseenter', function() {
-          var clueElement = $(this).closest('.cw-clue');
-          if (clueElement.find('.cw-input').val().trim().length === 0) {
-            $(this).find('.cw-cluenote-button').show();
-          }
-        });
+        // Set the group title
+        if ($title.length) $title.text(escape(clues_group.title));
+        clues_group.clues_container = $items;
 
-        items.find('.cw-clue').on('mouseleave', function(event) {
-          const relatedTarget = event.relatedTarget;
-          const isInsideNote = $(relatedTarget).closest('.cw-edit-container').length > 0;
-          if (!isInsideNote) {
-            $(this).find('.cw-cluenote-button').hide();
-          }
-        });
+        // --- event listeners ---
+        const save = () => this.saveGame();
 
-        items.find('.cw-input').on('click', function(event) {
-          event.stopPropagation();
-        });
-
-        var save = () => this.saveGame();
-
-        items.find('.cw-cluenote-button').on('click', function(event) {
-          event.stopPropagation();
-          var clueElement = $(this).closest('.cw-clue');
-          clueElement.find('.cw-edit-container').show();
-          clueElement.find('.cw-input').focus();
-          $(this).hide();
-        });
-
-        items.find('.cw-input').on('blur', function(event) {
-          const clueElement = $(this).closest('.cw-clue');
-          const inputEl = $(this);
-          const wordId = clueElement.data('word');
-
-          setTimeout(() => {
-            const newlyFocused = document.activeElement;
-            const newText = inputEl.val().trim();
-
-            if (newlyFocused && newlyFocused.classList.contains('cw-hidden-input')) {
-              return;
+        $items
+          .on('mouseenter', '.cw-clue', function() {
+            const $el = $(this);
+            if ($el.find('.cw-input').val().trim().length === 0) {
+              $el.find('.cw-cluenote-button').show();
             }
+          })
+          .on('mouseleave', '.cw-clue', function(event) {
+            const $el = $(this);
+            const relatedTarget = event.relatedTarget;
+            const isInsideNote = $(relatedTarget).closest('.cw-edit-container').length > 0;
+            if (!isInsideNote) $el.find('.cw-cluenote-button').hide();
+          })
+          .on('click', '.cw-cluenote-button', function(event) {
+            event.stopPropagation();
+            const $clue = $(this).closest('.cw-clue');
+            $clue.find('.cw-edit-container').show().find('.cw-input').focus();
+            $(this).hide();
+          })
+          .on('blur', '.cw-input', function() {
+            const $input = $(this);
+            const $clue = $input.closest('.cw-clue');
+            const wordId = $clue.data('word');
+            const newText = $input.val().trim();
 
-            if (newText.length > 0) {
-              notes.set(wordId, newText);
-            } else {
-              clueElement.find('.cw-edit-container').hide();
-              notes.delete(wordId);
-            }
+            setTimeout(() => {
+              const newlyFocused = document.activeElement;
+              if (newlyFocused?.classList.contains('cw-hidden-input')) return;
 
-            save();
-          }, 10); // Delay slightly to allow focus to settle
-        });
-
-        items.find('.cw-input').on('keydown', function(event) {
-          if (event.keyCode === 13) { // Enter key
-            var clueElement = $(this).closest('.cw-clue');
-            clueElement.find('.cw-input').blur();
-          }
-        });
+              if (newText.length > 0) {
+                notes.set(wordId, newText);
+              } else {
+                $clue.find('.cw-edit-container').hide();
+                notes.delete(wordId);
+              }
+              save();
+            }, 10);
+          })
+          .on('keydown', '.cw-input', function(event) {
+            if (event.key === 'Enter') $(this).blur();
+          });
       }
+
 
       // Clears canvas and re-renders all cells
       renderCells() {
@@ -2000,48 +2033,70 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
       }
 
+      /**
+       * Handle mouse clicks on the crossword grid.
+       * Works with any number of clue groups (not just Across/Down).
+       */
       mouseClicked(e) {
-        var offset = this.svg.offset(),
-          mouse_x = e.pageX - offset.left,
-          mouse_y = e.pageY - offset.top,
-          index_x = Math.ceil(mouse_x / this.cell_size),
-          index_y = Math.ceil(mouse_y / this.cell_size);
+        const offset = this.svg.offset();
+        const mouse_x = e.pageX - offset.left;
+        const mouse_y = e.pageY - offset.top;
+        const index_x = Math.ceil(mouse_x / this.cell_size);
+        const index_y = Math.ceil(mouse_y / this.cell_size);
+        const clickedCell = this.getCell(index_x, index_y);
+
+        if (!clickedCell) return;
 
         if (this.diagramless_mode) {
-          const clickedCell = this.getCell(index_x, index_y);
-          if (clickedCell) {
-            this.selected_cell = clickedCell;
-            this.selected_word = null;
-            this.top_text.html('');
-            this.renderCells();
-            if (!IS_MOBILE) {
-              this.hidden_input.focus(); // <-- FOCUS here after selecting cell
+          // Diagramless: select cell only, no active word
+          this.selected_cell = clickedCell;
+          this.selected_word = null;
+          this.top_text.html('');
+          this.renderCells();
+          if (!IS_MOBILE) this.hidden_input.focus();
+          return;
+        }
+
+        // --- Normal puzzle mode ---
+        const sameCellClicked =
+          this.selected_cell &&
+          this.selected_cell.x === index_x &&
+          this.selected_cell.y === index_y;
+
+        if (sameCellClicked) {
+          // Cycle to the next clue group if clicking same square again
+          this.changeActiveClues();
+        }
+
+        // Try to find a matching word in the current group
+        let currentGroup = this.clueGroups[this.activeClueGroupIndex];
+        let matchingWord = currentGroup.getMatchingWord(index_x, index_y, true);
+
+        // If not found, try other groups in order
+        if (!matchingWord) {
+          for (let i = 0; i < this.clueGroups.length; i++) {
+            if (i === this.activeClueGroupIndex) continue;
+            const testGroup = this.clueGroups[i];
+            const testWord = testGroup.getMatchingWord(index_x, index_y, true);
+            if (testWord) {
+              matchingWord = testWord;
+              this.activeClueGroupIndex = i; // switch to that group
+              break;
             }
           }
-        } else {
-          if (
-            this.selected_cell &&
-            this.selected_cell.x == index_x &&
-            this.selected_cell.y == index_y
-          ) {
-            this.changeActiveClues();
-          }
+        }
 
-          if (this.active_clues.getMatchingWord(index_x, index_y, true)) {
-            this.setActiveWord(
-              this.active_clues.getMatchingWord(index_x, index_y, true)
-            );
-          } else {
-            this.setActiveWord(
-              this.inactive_clues.getMatchingWord(index_x, index_y, true)
-            );
-            this.changeActiveClues();
-          }
-          this.setActiveCell(this.getCell(index_x, index_y));
-          this.renderCells();
-          if (!IS_MOBILE) {
-            this.hidden_input.focus(); // <-- Also focus here for normal puzzles
-          }
+        // If still nothing found, just stay on current group
+        if (matchingWord) {
+          this.setActiveWord(matchingWord);
+        }
+
+        // Update cell selection and redraw
+        this.setActiveCell(clickedCell);
+        this.renderCells();
+
+        if (!IS_MOBILE) {
+          this.hidden_input.focus();
         }
       }
 
@@ -2094,38 +2149,55 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               this.renderCells();
             }
             break;
-          case 32: //space
+
+          case 32: // space
             if (this.selected_cell && this.selected_word) {
-              // change the behavior based on the config
+              // check config
               if (this.config.space_bar === 'space_switch') {
-                // check that there is a word in the other direction
-                // if there's not, we just don't do anything
-                var selectedCellInactiveWord =
-                  this.inactive_clues.getMatchingWord(
-                    this.selected_cell.x,
-                    this.selected_cell.y,
-                    true
-                  );
-                if (selectedCellInactiveWord) {
-                  this.changeActiveClues();
-                  this.setActiveWord(selectedCellInactiveWord);
-                  this.setActiveCell(this.getCell(this.selected_cell.x, this.selected_cell.y));
+                const { x, y } = this.selected_cell;
+                const groups = this.clueGroups || [];
+                const n = groups.length;
+
+                if (n > 1) {
+                  // 1. Cycle through the remaining groups starting after the current one
+                  let newActiveWord = null;
+                  let newGroupIndex = this.activeClueGroupIndex;
+
+                  for (let offset = 1; offset < n; offset++) {
+                    const i = (this.activeClueGroupIndex + offset) % n;
+                    const group = groups[i];
+                    const match = group.getMatchingWord(x, y, true);
+                    if (match) {
+                      newActiveWord = match;
+                      newGroupIndex = i;
+                      break;
+                    }
+                  }
+
+                  // 2. If we found a valid word in another group, switch to it
+                  if (newActiveWord) {
+                    this.activeClueGroupIndex = newGroupIndex;
+                    this.setActiveWord(newActiveWord);
+                    this.setActiveCell(this.getCell(x, y));
+                  }
                 }
               } else {
+                // --- normal space behavior: clear and move to next cell
                 this.selected_cell.letter = '';
                 this.selected_cell.checked = false;
                 this.autofill();
-                var next_cell = this.selected_word.getNextCell(
+                const next_cell = this.selected_word.getNextCell(
                   this.selected_cell.x,
                   this.selected_cell.y
                 );
                 this.setActiveCell(next_cell);
               }
             }
+
             this.renderCells();
-            // Update this.isSolved
-            this.checkIfSolved();
+            this.checkIfSolved(); // update solved status
             break;
+
           case 27: // escape -- pulls up a rebus entry
             if (e.shiftKey) {
               e.preventDefault();
@@ -2433,7 +2505,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
           var cellFound = (cell) => {
             if (cell && !cell.empty) {
-              word = this.active_clues.getMatchingWord(cell.x, cell.y);
+              word = this.clueGroups[this.activeClueGroupIndex].getMatchingWord(cell.x, cell.y);
               if (word && word.id !== this.selected_word.id) {
                 word_cell = word.getFirstEmptyCell() || word.getFirstCell();
                 this.setActiveWord(word);
@@ -2484,46 +2556,50 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
       }
 
+      /**
+       * Move to the next or previous word, cycling through all clue groups.
+       */
       moveToNextWord(to_previous, skip_filled_words = false) {
-        if (!this.selected_word) {
-          return;
-        }
-        var next_word = null;
-        var this_word = this.selected_word;
-        //if (to_previous) {
-        while (next_word !== this.selected_word) {
-          next_word = (to_previous ? this.active_clues.getPreviousWord(this_word) : this.active_clues.getNextWord(this_word));
+        if (!this.selected_word || !this.clueGroups?.length) return;
+
+        let next_word = null;
+        let this_word = this.selected_word;
+        let groupIndex = this.activeClueGroupIndex ?? 0;
+        const totalGroups = this.clueGroups.length;
+        let safetyCounter = 0;
+
+        while (safetyCounter++ < totalGroups * 2) {
+          const currentGroup = this.clueGroups[groupIndex];
+
+          // try to get next/prev word within the current group
+          next_word = to_previous
+            ? currentGroup.getPreviousWord(this_word)
+            : currentGroup.getNextWord(this_word);
+
+          // if we reached end/start of this group, cycle to next/previous clue group
           if (!next_word) {
-            this.changeActiveClues();
-            next_word = (to_previous ? this.active_clues.getLastWord() : this.active_clues.getFirstWord());
+            groupIndex = (groupIndex + 1) % totalGroups;
+            this.activeClueGroupIndex = groupIndex;
+
+            const nextGroup = this.clueGroups[groupIndex];
+            next_word = to_previous
+              ? nextGroup.getLastWord()
+              : nextGroup.getFirstWord();
           }
-          if (!skip_filled_words || !next_word.isFilled()) {
-            break;
-          }
+
+          // stop if this word is acceptable
+          if (!skip_filled_words || !next_word.isFilled()) break;
+
           this_word = next_word;
         }
 
-        var cell;
+        // activate new word
         if (next_word) {
-          cell = next_word.getFirstEmptyCell() || next_word.getFirstCell();
+          const cell =
+            next_word.getFirstEmptyCell() || next_word.getFirstCell();
           this.setActiveWord(next_word);
           this.setActiveCell(cell);
           this.renderCells();
-        }
-      }
-
-      moveToNextWord_OLD(to_previous) {
-        if (this.selected_word) {
-          var next_word = to_previous ?
-            this.active_clues.getPreviousWord(this.selected_word) :
-            this.active_clues.getNextWord(this.selected_word),
-            cell;
-          if (next_word) {
-            cell = next_word.getFirstEmptyCell() || next_word.getFirstCell();
-            this.setActiveWord(next_word);
-            this.setActiveCell(cell);
-            this.renderCells();
-          }
         }
       }
 
@@ -2539,101 +2615,114 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
       }
 
-      // callback for arrow keys - moves selection by one cell
-      // can change direction
+      /**
+       * Callback for arrow keys
+       * Moves selection by one cell, possibly switching clue groups.
+       * Works with any number of clue lists.
+       */
       moveSelectionBy(delta_x, delta_y, jumping_over_black) {
+
+        // Diagramless mode
         if (this.diagramless_mode && this.selected_cell) {
           const x = this.selected_cell.x + delta_x;
           const y = this.selected_cell.y + delta_y;
           const new_cell = this.getCell(x, y);
-
-          if (new_cell) {
+          if (new_cell) { // skip normal crossword movement logic
             this.selected_cell = new_cell;
             this.renderCells();
           }
-          return; // skip normal crossword movement logic
+          return;
         }
-        var x, y, new_cell;
-        if (this.selected_cell) {
-          x = this.selected_cell.x + delta_x;
-          y = this.selected_cell.y + delta_y;
-          new_cell = this.getCell(x, y);
 
-          if (!new_cell) {
-            /* If we can't find a new cell, we do nothing. */
-            //this.changeActiveClues();
-            return;
-          }
+        // Don't do anything if there's no selected cell
+        if (!this.selected_cell) return;
 
-          // try to jump over empty cell
-          if (new_cell.empty) {
-            if (delta_x < 0) {
-              delta_x--;
-            } else if (delta_x > 0) {
-              delta_x++;
-            } else if (delta_y < 0) {
-              delta_y--;
-            } else if (delta_y > 0) {
-              delta_y++;
+        // Find the new cell in the specified direction
+        let x = this.selected_cell.x + delta_x;
+        let y = this.selected_cell.y + delta_y;
+        let new_cell = this.getCell(x, y);
+
+        if (!new_cell) return; // out of bounds
+
+        // Try to jump over black (empty) cells
+        if (new_cell.empty) {
+          if (delta_x < 0) delta_x--;
+          else if (delta_x > 0) delta_x++;
+          else if (delta_y < 0) delta_y--;
+          else if (delta_y > 0) delta_y++;
+          this.moveSelectionBy(delta_x, delta_y, true);
+          return;
+        }
+
+        // All clue groups
+        const groups = this.clueGroups || [];
+        const n = groups.length;
+        if (!n) return;
+
+        // Active clue group
+        let activeGroup = groups[this.activeClueGroupIndex];
+
+        // If new cell is outside current word
+        if (!this.selected_word.hasCell(x, y)) {
+          let selectedCellAltWord = null;
+          let newCellAltWord = null;
+          let altGroupIndex = this.activeClueGroupIndex;
+
+          // Try to find an alternate word (perhaps in an inactive clue list) that includes current + next cell
+          for (let offset = 1; offset < n; offset++) {
+            const i = (this.activeClueGroupIndex + offset) % n;
+            const group = groups[i];
+            const match1 = group.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true);
+            const match2 = group.getMatchingWord(new_cell.x, new_cell.y, true);
+            if (match1 && match2 && match1.id === match2.id) {
+              selectedCellAltWord = match1;
+              newCellAltWord = match2;
+              altGroupIndex = i;
+              break;
             }
-            this.moveSelectionBy(delta_x, delta_y, true);
-            return;
           }
 
-          // If the new cell is not in the current word
-          if (!this.selected_word.hasCell(x, y)) {
-            // If the selected cell and the new cell are in the same word, we switch directions
-            // We make sure that there is such a word as well (i.e. both are not null)
-            var selectedCellInactiveWord = this.inactive_clues.getMatchingWord(
-              this.selected_cell.x,
-              this.selected_cell.y,
-              true
-            );
-            var newCellInactiveWord = this.inactive_clues.getMatchingWord(
-              new_cell.x,
-              new_cell.y,
-              true
-            );
-            if (selectedCellInactiveWord) {
-              if (
-                selectedCellInactiveWord.hasCell(new_cell.x, new_cell.y) &&
-                newCellInactiveWord !== null
-              ) {
-                this.changeActiveClues();
-                /*
-                 * when do we keep the current cell selected? in two cases:
-                 * (a) this.config.arrow_direction === 'arrow_stay'
-                 * (b) arrow_direction is 'arrow_move_filled' and the current cell is empty
-                 */
-                if (this.config.arrow_direction === 'arrow_stay') {
-                  new_cell = this.selected_cell;
-                } else if (
-                  !this.selected_cell.letter &&
-                  this.config.arrow_direction === 'arrow_move_filled'
-                ) {
-                  new_cell = this.selected_cell;
-                }
+          // Case 1: Found a matching word in another group (switch direction)
+          if (selectedCellAltWord && newCellAltWord) {
+            this.activeClueGroupIndex = altGroupIndex;
+            this.changeActiveClues(altGroupIndex);
+            activeGroup = groups[altGroupIndex];
+
+            // arrow-stay / arrow-move_filled config logic
+            if (
+              this.config.arrow_direction === 'arrow_stay' ||
+              (!this.selected_cell.letter && this.config.arrow_direction === 'arrow_move_filled')
+            ) {
+              new_cell = this.selected_cell;
+            }
+          }
+
+          // Case 2: If the new cell has no word in the current group, switch groups
+          let newCellActiveWord = activeGroup.getMatchingWord(new_cell.x, new_cell.y, true);
+          if (!newCellActiveWord) {
+            // find the first group that *does* have a word here
+            for (let offset = 1; offset < n; offset++) {
+              const i = (this.activeClueGroupIndex + offset) % n;
+              const group = groups[i];
+              const candidate = group.getMatchingWord(x, y, true);
+              if (candidate) {
+                newCellActiveWord = candidate;
+                this.activeClueGroupIndex = i;
+                break;
               }
             }
-            // If the new cell does not have a word in the currently active direction,
-            // we change the direction
-            var newCellActiveWord = this.active_clues.getMatchingWord(
-              new_cell.x,
-              new_cell.y,
-              true
-            );
-            if (!newCellActiveWord) {
-              this.changeActiveClues();
-            }
-            // In any case we change the active word
-            this.setActiveWord(
-              this.active_clues.getMatchingWord(new_cell.x, new_cell.y)
-            );
           }
-          this.setActiveCell(new_cell);
-          this.renderCells();
+
+          // Always update active word
+          if (newCellActiveWord) {
+            this.setActiveWord(newCellActiveWord);
+          }
         }
-      }
+
+        this.setActiveCell(new_cell);
+        this.renderCells();
+      } // END moveSelectionBy()
+
 
       windowResized() {
         setBreakpointClasses(this.root);
@@ -2717,7 +2806,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           cell = word.getFirstEmptyCell() || word.getFirstCell();
         if (cell) {
           this.setActiveWord(word);
-          if (this.active_clues.id !== target.data('clues')) {
+          if (this.clueGroups[this.activeClueGroupIndex].id !== target.data('clues')) {
             this.changeActiveClues();
           }
           this.setActiveCell(cell);
@@ -3110,7 +3199,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                     this.config.color_none = '#252624';
                     this.config.font_color_fill = '#ddd4c5';
                     this.renderCells();
-                    console.log(1);
                   } else {
                     DarkReader.disable();
                     this.config.color_none = default_config.color_none;
@@ -3362,10 +3450,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       async printPuzzle(e) {
         // fill JSXW
         this.fillJsXw();
-        console.log(this.jsxw);
         try {
           let doc = await this.jsxw.toPDF();
-          console.log(doc);
           doc.autoPrint();
           // open in a new tab and trigger print dialog
           const blobUrl = doc.output("bloburl");
