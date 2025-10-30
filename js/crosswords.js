@@ -1498,35 +1498,65 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       /**
-       * Switch active clue group — cycles through all available lists.
-       * Works with any number of clue groups (1, 2, or N).
-       * If targetIndex is specified, we switch to that index.
+       * Switch active clue group.
+       * - If targetIndex is provided, jump there only if it matches the selected cell (when present).
+       * - Otherwise, cycle to the next group that matches the selected cell.
+       * - If no selected cell, just cycle normally.
+       * @returns {boolean} true if the active group changed, else false
        */
       changeActiveClues(targetIndex = null) {
         const groups = this.clueGroups || [];
-        if (groups.length === 0) return;
+        const n = groups.length;
+        if (!n) return false;
 
-        if (targetIndex !== null && targetIndex >= 0 && targetIndex < groups.length) {
-          // Jump directly to specified group
-          this.activeClueGroupIndex = targetIndex;
-        } else if (groups.length === 1) {
-          // if there's only one index, stay there
-          this.activeClueGroupIndex = 0;
-        } else {
-          // Cycle to next group
-          this.activeClueGroupIndex = (this.activeClueGroupIndex + 1) % groups.length;
+        const hasCell = !!this.selected_cell;
+        const cur = this.activeClueGroupIndex ?? 0;
+
+        // Helper: does group i have a word at the selected cell?
+        const matchAt = (i) => {
+          if (!hasCell) return null;
+          const g = groups[i];
+          return g?.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true) || null;
+        };
+
+        // 1) Explicit target index
+        if (targetIndex !== null && targetIndex >= 0 && targetIndex < n) {
+          if (!hasCell || matchAt(targetIndex)) {
+            this.activeClueGroupIndex = targetIndex;
+            if (hasCell) {
+              const w = matchAt(targetIndex);
+              if (w) this.setActiveWord(w);
+            }
+            return cur !== this.activeClueGroupIndex;
+          }
+          // No match at target; do not switch
+          return false;
         }
 
-        // if a cell is selected, try to select its matching word in the new group
-        if (this.selected_cell && this.clueGroups[this.activeClueGroupIndex]) {
-          const new_word = this.clueGroups[this.activeClueGroupIndex].getMatchingWord(
-            this.selected_cell.x,
-            this.selected_cell.y,
-            true
-          );
-          this.setActiveWord(new_word);
+        // 2) Only one group → stay put
+        if (n === 1) return false;
+
+        // 3) No selected cell → plain cycle
+        if (!hasCell) {
+          this.activeClueGroupIndex = (cur + 1) % n;
+          return cur !== this.activeClueGroupIndex;
         }
+
+        // 4) Selected cell → find the next group (after current) that matches
+        for (let off = 1; off < n; off++) {
+          const i = (cur + off) % n;
+          const w = matchAt(i);
+          if (w) {
+            this.activeClueGroupIndex = i;
+            this.setActiveWord(w);
+            return true;
+          }
+        }
+
+        // No other group matched at this cell; do not switch
+        return false;
       }
+
 
 
       getCell(x, y) {
@@ -2159,27 +2189,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 const n = groups.length;
 
                 if (n > 1) {
-                  // 1. Cycle through the remaining groups starting after the current one
-                  let newActiveWord = null;
-                  let newGroupIndex = this.activeClueGroupIndex;
-
-                  for (let offset = 1; offset < n; offset++) {
-                    const i = (this.activeClueGroupIndex + offset) % n;
-                    const group = groups[i];
-                    const match = group.getMatchingWord(x, y, true);
-                    if (match) {
-                      newActiveWord = match;
-                      newGroupIndex = i;
-                      break;
-                    }
-                  }
-
-                  // 2. If we found a valid word in another group, switch to it
-                  if (newActiveWord) {
-                    this.activeClueGroupIndex = newGroupIndex;
-                    this.setActiveWord(newActiveWord);
-                    this.setActiveCell(this.getCell(x, y));
-                  }
+                  this.changeActiveClues();
                 }
               } else {
                 // --- normal space behavior: clear and move to next cell
