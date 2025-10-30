@@ -751,8 +751,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         if (data instanceof JSCrossword) {
           puzzle = data;
         } else {
-          // otherwise, parse it directly â€” JSCrossword handles the format detection
-          puzzle = JSCrossword.fromData(new Uint8Array(data));
+          // otherwise, parse it directly -- JSCrossword handles the format detection
+          puzzle = JSCrossword.fromData(new Uint8Array(data), { lockedHandling: "mask" });
         }
 
         puzzle.kind = puzzle.metadata.kind;
@@ -859,6 +859,16 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           $('div.cw-top-text-wrapper').css({
             display: 'none'
           });
+        }
+
+        // disable check and reveal in certain cases
+        if (puzzle.metadata.has_reveal === false) {
+          this.has_reveal = false;
+          $('.cw-reveal').css({ display: 'none' });
+        }
+        if (puzzle.metadata.has_check === false) {
+          this.has_check = false;
+          $('.cw-check').css({ display: 'none' });
         }
 
         // === Build cells ===
