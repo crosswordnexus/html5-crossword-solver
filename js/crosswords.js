@@ -1021,7 +1021,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         holder.innerHTML = ''; // clear old ones
 
-        this.clueGroups.forEach(group => {
+        (this.displayClueGroups || this.clueGroups).forEach(group => {
           const div = document.createElement('div');
           div.classList.add('cw-clues');
           div.dataset.groupId = group.id;
