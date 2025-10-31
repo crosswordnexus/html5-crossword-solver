@@ -1008,7 +1008,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         var num_words = puzzle.words.length;
         var num_clues = puzzle.clues.map(x => x.clue).flat().length;
         if (this.fakeclues && num_words != num_clues) {
-          this.displayClueGroups = structuredClone(this.clueGroups);
+          // make a copy of the clue groups for display
+          this.displayClueGroups = [...this.clueGroups];
           var fake_clue_obj = this.make_fake_clues(puzzle);
           this.clueGroups = fake_clue_obj.clueGroups;
           clueMapping = fake_clue_obj.clue_mapping;
