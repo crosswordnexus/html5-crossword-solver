@@ -1,0 +1,1844 @@
+{
+  "version": "http://ipuz.org/v2",
+  "kind": [
+    "http://ipuz.org/crossword#1"
+  ],
+  "title": "You can't make me",
+  "copyright": "© 2025 Crossword Nexus. CC BY 4.0 License.",
+  "author": "Alex Boisvert",
+  "dimensions": {
+    "width": 10,
+    "height": 10
+  },
+  "puzzle": [
+    [
+      {
+        "cell": "1",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "2",
+        "style": {
+          "barred": "B",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "3",
+        "style": {
+          "barred": "B",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "color": "ffffff"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "0",
+        "style": {
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "12",
+        "style": {
+          "barred": "B",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "13",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "14",
+        "style": {
+          "barred": "B",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "4",
+        "style": {
+          "barred": "L",
+          "color": "c0c0c0"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "0",
+        "style": {
+          "barred": "R",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "20",
+        "style": {
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "21",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "22",
+        "style": {
+          "barred": "B",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "5",
+        "style": {
+          "barred": "L",
+          "color": "ffffff"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "11",
+        "style": {
+          "barred": "R",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "R",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "26",
+        "style": {
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "27",
+        "style": {
+          "barred": "B",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "15",
+        "style": {
+          "barred": "L",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "c0c0c0"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "10",
+        "style": {
+          "barred": "R",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "R",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "R",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "31",
+        "style": {
+          "barred": "B",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "ffffff"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "0",
+        "style": {
+          "barred": "R",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "19",
+        "style": {
+          "barred": "R",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "R",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "30",
+        "style": {
+          "barred": "R",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "c0c0c0"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "0",
+        "style": {
+          "barred": "R",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "R",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "25",
+        "style": {
+          "barred": "R",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "29",
+        "style": {
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "28",
+        "style": {
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "23",
+        "style": {
+          "barred": "L",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "ffffff"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "0",
+        "style": {
+          "barred": "R",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "R",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "24",
+        "style": {
+          "barred": "T",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "L",
+          "color": "c0c0c0"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "9",
+        "style": {
+          "barred": "R",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "18",
+        "style": {
+          "barred": "T",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "17",
+        "style": {
+          "barred": "T",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "16",
+        "style": {
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "6",
+        "style": {
+          "barred": "L",
+          "color": "ffffff"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "0",
+        "style": {
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "8",
+        "style": {
+          "barred": "T",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "c0c0c0"
+        }
+      },
+      {
+        "cell": "0",
+        "style": {
+          "barred": "T",
+          "color": "ffffff"
+        }
+      },
+      {
+        "cell": "7",
+        "style": {
+          "color": "c0c0c0"
+        }
+      }
+    ]
+  ],
+  "solution": [
+    [
+      "G",
+      "A",
+      "L",
+      "L",
+      "E",
+      "O",
+      "N",
+      "U",
+      "S",
+      "E"
+    ],
+    [
+      "S",
+      "T",
+      "A",
+      "I",
+      "R",
+      "F",
+      "O",
+      "R",
+      "C",
+      "R"
+    ],
+    [
+      "E",
+      "T",
+      "A",
+      "I",
+      "S",
+      "C",
+      "A",
+      "T",
+      "E",
+      "T"
+    ],
+    [
+      "T",
+      "I",
+      "Y",
+      "O",
+      "P",
+      "L",
+      "A",
+      "S",
+      "T",
+      "E"
+    ],
+    [
+      "Y",
+      "A",
+      "E",
+      "S",
+      "S",
+      "P",
+      "I",
+      "A",
+      "R",
+      "T"
+    ],
+    [
+      "A",
+      "M",
+      "K",
+      "A",
+      "N",
+      "U",
+      "T",
+      "T",
+      "E",
+      "L"
+    ],
+    [
+      "S",
+      "R",
+      "A",
+      "E",
+      "N",
+      "E",
+      "A",
+      "C",
+      "E",
+      "E"
+    ],
+    [
+      "S",
+      "A",
+      "C",
+      "T",
+      "O",
+      "R",
+      "R",
+      "A",
+      "T",
+      "Y"
+    ],
+    [
+      "E",
+      "E",
+      "G",
+      "N",
+      "I",
+      "A",
+      "R",
+      "P",
+      "O",
+      "S"
+    ],
+    [
+      "A",
+      "N",
+      "N",
+      "O",
+      "G",
+      "T",
+      "O",
+      "N",
+      "M",
+      "I"
+    ]
+  ],
+  "clues": {
+    "All Squares": [
+      {
+        "number": "1",
+        "cells": [
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            7,
+            1
+          ]
+        ],
+        "clue": "Ship in an armada"
+      },
+      {
+        "number": "3",
+        "cells": [
+          [
+            8,
+            1
+          ],
+          [
+            9,
+            1
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            10,
+            2
+          ]
+        ],
+        "clue": "One who logs in"
+      },
+      {
+        "number": "5",
+        "cells": [
+          [
+            10,
+            3
+          ],
+          [
+            10,
+            4
+          ],
+          [
+            10,
+            5
+          ],
+          [
+            10,
+            6
+          ],
+          [
+            10,
+            7
+          ],
+          [
+            10,
+            8
+          ],
+          [
+            10,
+            9
+          ]
+        ],
+        "clue": "Some tea bags"
+      },
+      {
+        "number": "7",
+        "cells": [
+          [
+            10,
+            10
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            8,
+            10
+          ],
+          [
+            7,
+            10
+          ],
+          [
+            6,
+            10
+          ],
+          [
+            5,
+            10
+          ],
+          [
+            4,
+            10
+          ],
+          [
+            3,
+            10
+          ],
+          [
+            2,
+            10
+          ],
+          [
+            1,
+            10
+          ]
+        ],
+        "clue": "\"You can't make me\" (3 words)"
+      },
+      {
+        "number": "9",
+        "cells": [
+          [
+            1,
+            9
+          ],
+          [
+            1,
+            8
+          ],
+          [
+            1,
+            7
+          ],
+          [
+            1,
+            6
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "clue": "English class assignment (2 words)"
+      },
+      {
+        "number": "12",
+        "cells": [
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            7,
+            2
+          ],
+          [
+            8,
+            2
+          ],
+          [
+            9,
+            2
+          ],
+          [
+            9,
+            3
+          ]
+        ],
+        "clue": "Service academy in Colorado (2 words)"
+      },
+      {
+        "number": "15",
+        "cells": [
+          [
+            9,
+            4
+          ],
+          [
+            9,
+            5
+          ],
+          [
+            9,
+            6
+          ],
+          [
+            9,
+            7
+          ],
+          [
+            9,
+            8
+          ],
+          [
+            9,
+            9
+          ],
+          [
+            8,
+            9
+          ]
+        ],
+        "clue": "Place to hang a star"
+      },
+      {
+        "number": "18",
+        "cells": [
+          [
+            7,
+            9
+          ],
+          [
+            6,
+            9
+          ],
+          [
+            5,
+            9
+          ],
+          [
+            4,
+            9
+          ],
+          [
+            3,
+            9
+          ],
+          [
+            2,
+            9
+          ],
+          [
+            2,
+            8
+          ],
+          [
+            2,
+            7
+          ]
+        ],
+        "clue": "Ponchos and gaiters, e.g."
+      },
+      {
+        "number": "19",
+        "cells": [
+          [
+            2,
+            6
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            5,
+            3
+          ]
+        ],
+        "clue": "Fruity drinks (2 words)"
+      },
+      {
+        "number": "22",
+        "cells": [
+          [
+            6,
+            3
+          ],
+          [
+            7,
+            3
+          ],
+          [
+            8,
+            3
+          ],
+          [
+            8,
+            4
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            8,
+            6
+          ]
+        ],
+        "clue": "Helped take care of a kitty"
+      },
+      {
+        "number": "23",
+        "cells": [
+          [
+            8,
+            7
+          ],
+          [
+            8,
+            8
+          ],
+          [
+            7,
+            8
+          ],
+          [
+            6,
+            8
+          ],
+          [
+            5,
+            8
+          ],
+          [
+            4,
+            8
+          ],
+          [
+            3,
+            8
+          ],
+          [
+            3,
+            7
+          ],
+          [
+            3,
+            6
+          ],
+          [
+            3,
+            5
+          ]
+        ],
+        "clue": "Dessert made from a root vegetable (2 words)"
+      },
+      {
+        "number": "26",
+        "cells": [
+          [
+            3,
+            4
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            5,
+            4
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            7,
+            4
+          ],
+          [
+            7,
+            5
+          ],
+          [
+            7,
+            6
+          ]
+        ],
+        "clue": "Company that makes Go-Gurt"
+      },
+      {
+        "number": "28",
+        "cells": [
+          [
+            7,
+            7
+          ],
+          [
+            6,
+            7
+          ],
+          [
+            5,
+            7
+          ],
+          [
+            4,
+            7
+          ],
+          [
+            4,
+            6
+          ],
+          [
+            4,
+            5
+          ]
+        ],
+        "clue": "Hero of a Virgil poem"
+      },
+      {
+        "number": "31",
+        "cells": [
+          [
+            5,
+            5
+          ],
+          [
+            6,
+            5
+          ],
+          [
+            6,
+            6
+          ],
+          [
+            5,
+            6
+          ]
+        ],
+        "clue": "Did a little twirl"
+      }
+    ],
+    "Gray Squares": [
+      {
+        "number": "1",
+        "cells": [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            7,
+            1
+          ],
+          [
+            9,
+            1
+          ]
+        ],
+        "clue": "Narrow valleys"
+      },
+      {
+        "number": "4",
+        "cells": [
+          [
+            10,
+            2
+          ],
+          [
+            10,
+            4
+          ],
+          [
+            10,
+            6
+          ],
+          [
+            10,
+            8
+          ]
+        ],
+        "clue": "Depend (on)"
+      },
+      {
+        "number": "7",
+        "cells": [
+          [
+            10,
+            10
+          ],
+          [
+            8,
+            10
+          ],
+          [
+            6,
+            10
+          ],
+          [
+            4,
+            10
+          ],
+          [
+            2,
+            10
+          ],
+          [
+            1,
+            9
+          ],
+          [
+            1,
+            7
+          ]
+        ],
+        "clue": "Vocalizes"
+      },
+      {
+        "number": "10",
+        "cells": [
+          [
+            1,
+            5
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            4,
+            2
+          ]
+        ],
+        "clue": "Cooler brand that would not allow Utah's hockey team to share their name"
+      },
+      {
+        "number": "13",
+        "cells": [
+          [
+            6,
+            2
+          ],
+          [
+            8,
+            2
+          ],
+          [
+            9,
+            3
+          ],
+          [
+            9,
+            5
+          ],
+          [
+            9,
+            7
+          ]
+        ],
+        "clue": "🎵 ___ Jacques, ___ Jacques 🎵"
+      },
+      {
+        "number": "16",
+        "cells": [
+          [
+            9,
+            9
+          ],
+          [
+            7,
+            9
+          ],
+          [
+            5,
+            9
+          ],
+          [
+            3,
+            9
+          ],
+          [
+            2,
+            8
+          ],
+          [
+            2,
+            6
+          ],
+          [
+            2,
+            4
+          ]
+        ],
+        "clue": "Pastime involving cranes"
+      },
+      {
+        "number": "21",
+        "cells": [
+          [
+            3,
+            3
+          ],
+          [
+            5,
+            3
+          ],
+          [
+            7,
+            3
+          ],
+          [
+            8,
+            4
+          ],
+          [
+            8,
+            6
+          ],
+          [
+            8,
+            8
+          ],
+          [
+            6,
+            8
+          ],
+          [
+            4,
+            8
+          ]
+        ],
+        "clue": "To begin with (3 words)"
+      },
+      {
+        "number": "25",
+        "cells": [
+          [
+            3,
+            7
+          ],
+          [
+            3,
+            5
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            7,
+            5
+          ],
+          [
+            7,
+            7
+          ],
+          [
+            5,
+            7
+          ]
+        ],
+        "clue": "Wind-related"
+      },
+      {
+        "number": "30",
+        "cells": [
+          [
+            4,
+            6
+          ],
+          [
+            5,
+            5
+          ],
+          [
+            6,
+            6
+          ]
+        ],
+        "clue": "The Sun Devils of the Big 12"
+      }
+    ],
+    "White Squares": [
+      {
+        "number": "2",
+        "cells": [
+          [
+            2,
+            1
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            8,
+            1
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            10,
+            3
+          ],
+          [
+            10,
+            5
+          ],
+          [
+            10,
+            7
+          ]
+        ],
+        "clue": "🎵 ___, gentille ___ 🎵"
+      },
+      {
+        "number": "6",
+        "cells": [
+          [
+            10,
+            9
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            7,
+            10
+          ],
+          [
+            5,
+            10
+          ]
+        ],
+        "clue": "One of the three main disadvantages of living in Los Angeles, along with cost of living and traffic"
+      },
+      {
+        "number": "8",
+        "cells": [
+          [
+            3,
+            10
+          ],
+          [
+            1,
+            10
+          ],
+          [
+            1,
+            8
+          ],
+          [
+            1,
+            6
+          ]
+        ],
+        "clue": "Agency in charge of the James Webb Space Telescope"
+      },
+      {
+        "number": "11",
+        "cells": [
+          [
+            1,
+            4
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            5,
+            2
+          ]
+        ],
+        "clue": "\"A ___ is Born\" (<i>Frasier</i> episode in which he tries to prove he's a descendant of the Romanov dynasty)"
+      },
+      {
+        "number": "14",
+        "cells": [
+          [
+            7,
+            2
+          ],
+          [
+            9,
+            2
+          ],
+          [
+            9,
+            4
+          ],
+          [
+            9,
+            6
+          ],
+          [
+            9,
+            8
+          ]
+        ],
+        "clue": "<i>Dave Brubeck ___</i> (1956 album featuring an eight-person group)"
+      },
+      {
+        "number": "17",
+        "cells": [
+          [
+            8,
+            9
+          ],
+          [
+            6,
+            9
+          ],
+          [
+            4,
+            9
+          ],
+          [
+            2,
+            9
+          ],
+          [
+            2,
+            7
+          ],
+          [
+            2,
+            5
+          ]
+        ],
+        "clue": "Chain that sells Mexican street corn chowder in a bread bowl"
+      },
+      {
+        "number": "20",
+        "cells": [
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            6,
+            3
+          ],
+          [
+            8,
+            3
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            8,
+            7
+          ]
+        ],
+        "clue": "Product first sold as \"Refreshing Mint(s)\" (2 words)"
+      },
+      {
+        "number": "24",
+        "cells": [
+          [
+            7,
+            8
+          ],
+          [
+            5,
+            8
+          ],
+          [
+            3,
+            8
+          ],
+          [
+            3,
+            6
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        "clue": "Best Picture winner at the 49th Academy Awards"
+      },
+      {
+        "number": "27",
+        "cells": [
+          [
+            5,
+            4
+          ],
+          [
+            7,
+            4
+          ],
+          [
+            7,
+            6
+          ],
+          [
+            6,
+            7
+          ]
+        ],
+        "clue": "French forcemeat"
+      },
+      {
+        "number": "29",
+        "cells": [
+          [
+            4,
+            7
+          ],
+          [
+            4,
+            5
+          ],
+          [
+            6,
+            5
+          ],
+          [
+            5,
+            6
+          ]
+        ],
+        "clue": "<i>Pardon the Interruption</i> network"
+      }
+    ]
+  }
+}

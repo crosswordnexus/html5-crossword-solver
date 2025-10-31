@@ -719,11 +719,11 @@ input[type='radio'] {
 }
 
 .cw-max-width-1200 .cw-clues {
-  width: 300px;
+  /* width: 300px; */
 }
 
 .cw-max-width-1200 .cw-clues-holder {
-  width: auto;
+  /* width: auto; */
 }
 
 .cw-max-width-1080.cw-main {
@@ -748,6 +748,7 @@ input[type='radio'] {
 
 .cw-max-width-850 .cw-clues-holder {
   flex-direction: column;
+  width: auto;
 }
 
 .cw-max-width-850 .cw-copyright {

@@ -205,14 +205,19 @@ $(document).ready(function() {
           const cell = word.getFirstEmptyCell() || word.getFirstCell();
           if (cell) {
             gCrossword.setActiveWord(word);
-            if (gCrossword.active_clues.id !== target.data('clues')) {
+            if (gCrossword.clueGroups[gCrossword.activeClueGroupIndex].id !== target.data('clues')) {
               gCrossword.changeActiveClues();
             }
             gCrossword.setActiveCell(cell);
 
             // ✅ Manually trigger clue highlighting
-            gCrossword.inactive_clues.markActive(cell.x, cell.y, true, gCrossword.fakeclues);
-            gCrossword.active_clues.markActive(cell.x, cell.y, false, gCrossword.fakeclues);
+            gCrossword.clueGroups.forEach(group => {
+              // The first param (`isInactive`) is true for all groups except the active one
+              const isInactive = group !== this.clueGroups[this.activeClueGroupIndex];
+              if (typeof group.markActive === 'function') {
+                group.markActive(cell.x, cell.y, isInactive, gCrossword.fakeclues);
+              }
+            });
 
             gCrossword.renderCells();
           }
@@ -329,7 +334,7 @@ $(document).ready(function() {
         touchStartY = null;
       });
       setTimeout(() => {
-        const firstWord = gCrossword.active_clues.getFirstWord();
+        const firstWord = gCrossword.clueGroups[gCrossword.activeClueGroupIndex].getFirstWord();
         gCrossword.setActiveWord(firstWord);
         gCrossword.setActiveCell(firstWord.getFirstCell());
         gCrossword.renderCells();
@@ -460,7 +465,7 @@ function createCustomKeyboard() {
       function performBackspace() {
         if (!gCrossword?.selected_cell) return;
         const cell = gCrossword.selected_cell;
-        const direction = gCrossword.active_clues?.id === 'clues_top' ? 'across' : 'down';
+        const direction = gCrossword.clueGroups[gCrossword.activeClueGroupIndex]?.id === 'clues_top' ? 'across' : 'down';
         const isAcross = direction === 'across';
 
         if (!cell.empty && cell.letter) {
