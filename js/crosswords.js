@@ -2179,6 +2179,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
                 if (n > 1) {
                   this.changeActiveClues();
+                  this.setActiveCell(this.selected_cell);
                 }
               } else {
                 // --- normal space behavior: clear and move to next cell
