@@ -119,6 +119,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       gray_completed_clues: false,
       forced_theme: null,
       lock_theme: false,
+      min_sidebar_clue_width: 220
     };
 
     // constants
@@ -446,24 +447,52 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         const COLOR_WORD = this.config.color_word;
         const COLOR_SELECTED = this.config.color_selected;
         // color for hovered cell (if enabled)
-        this.config.color_hover = Color.applyHsvTransform(COLOR_WORD, { dh: 6.38, ks: 0.333, kv: 1.004 });
+        this.config.color_hover = Color.applyHsvTransform(COLOR_WORD, {
+          dh: 6.38,
+          ks: 0.333,
+          kv: 1.004
+        });
         // color for corresponding cells (in acrostics and codewords)
-        this.config.color_hilite = Color.applyHsvTransform(COLOR_WORD, {dh: -2.64, ks: 0.536, kv: 0.976});
+        this.config.color_hilite = Color.applyHsvTransform(COLOR_WORD, {
+          dh: -2.64,
+          ks: 0.536,
+          kv: 0.976
+        });
         // color for cross-referenced cells (currently unused)
-        this.config.color_secondary = Color.applyHsvTransform(COLOR_WORD, {dh: -0.29, ks: 0.282, kv: 1.004});
+        this.config.color_secondary = Color.applyHsvTransform(COLOR_WORD, {
+          dh: -0.29,
+          ks: 0.282,
+          kv: 1.004
+        });
 
         /* Update CSS values based on `color_word` and `color_selected`*/
         // Buttons
         document.documentElement.style.setProperty("--button-bg-color",
-          Color.applyHsvTransform(COLOR_WORD, {dh: 0.13, ks: 0.753, kv: 1.004}));
+          Color.applyHsvTransform(COLOR_WORD, {
+            dh: 0.13,
+            ks: 0.753,
+            kv: 1.004
+          }));
         document.documentElement.style.setProperty("--button-hover-color",
-          Color.applyHsvTransform(COLOR_WORD, {dh: 0.28, ks: 0.502, kv: 1.004}));
+          Color.applyHsvTransform(COLOR_WORD, {
+            dh: 0.28,
+            ks: 0.502,
+            kv: 1.004
+          }));
 
         // Clues
         document.documentElement.style.setProperty("--clue-active-color",
-          Color.applyHsvTransform(COLOR_WORD, {dh: 0.13, ks: 0.753, kv: 1.004}));
+          Color.applyHsvTransform(COLOR_WORD, {
+            dh: 0.13,
+            ks: 0.753,
+            kv: 1.004
+          }));
         document.documentElement.style.setProperty("--top-text-wrapper-bg-color",
-          Color.applyHsvTransform(COLOR_WORD, {dh: -8.62, ks: 0.157, kv: 1.004}));
+          Color.applyHsvTransform(COLOR_WORD, {
+            dh: -8.62,
+            ks: 0.157,
+            kv: 1.004
+          }));
 
         // Scrollbars
         document.documentElement.style.setProperty("--clue-scrollbar-color-thumb",
@@ -738,7 +767,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           puzzle = data;
         } else {
           // otherwise, parse it directly -- JSCrossword handles the format detection
-          puzzle = JSCrossword.fromData(new Uint8Array(data), { lockedHandling: "mask" });
+          puzzle = JSCrossword.fromData(new Uint8Array(data), {
+            lockedHandling: "mask"
+          });
         }
 
         puzzle.kind = puzzle.metadata.kind;
@@ -850,11 +881,15 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         // disable check and reveal in certain cases
         if (puzzle.metadata.has_reveal === false) {
           this.has_reveal = false;
-          $('.cw-reveal').css({ display: 'none' });
+          $('.cw-reveal').css({
+            display: 'none'
+          });
         }
         if (puzzle.metadata.has_check === false) {
           this.has_check = false;
-          $('.cw-check').css({ display: 'none' });
+          $('.cw-check').css({
+            display: 'none'
+          });
         }
 
         // === Build cells ===
@@ -1149,7 +1184,38 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         if (this.config.timer_autostart) {
           this.toggleTimer();
         }
-      }
+
+        /** Some JS magic to deal with weird numbers of clue lists **/
+        const holder = document.querySelector('.cw-clues-holder');
+        if (!holder) return; // nothing to do if it doesn't exist
+
+        const clues = holder.querySelectorAll('.cw-clues');
+        if (!clues.length) return;
+
+        const MIN_AVG_WIDTH = this.config.min_sidebar_clue_width; // tweak this breakpoint
+
+        function updateClueLayout() {
+          // available width per clue list
+          const avgWidth = holder.offsetWidth / clues.length;
+          const useColumn = avgWidth < MIN_AVG_WIDTH;
+
+          // apply layout
+          holder.style.flexDirection = useColumn ? 'column' : 'row';
+          clues.forEach(clue => {
+            clue.style.width = useColumn ? 'auto' : '';
+          });
+
+          // optional debug log
+          // console.log(`→ avgWidth=${avgWidth.toFixed(1)}, layout=${useColumn ? 'column' : 'row'}`);
+        }
+
+        // run once on load
+        updateClueLayout();
+
+        // and whenever window resizes
+        window.addEventListener('resize', updateClueLayout);
+
+      } // end completeLoad
 
       remove() {
         this.removeListeners();
@@ -1539,7 +1605,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         // --- Update selected word if we have a cell ---
         if (this.selected_cell && activeGroup) {
-          const { x, y } = this.selected_cell;
+          const {
+            x,
+            y
+          } = this.selected_cell;
           const word = activeGroup.getMatchingWord(x, y, true);
           if (word) this.setActiveWord(word);
         }
@@ -1607,13 +1676,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         const $container = $(clues_container);
 
         // Locate title and items within the container
-        const $title = $container.find('div.cw-clues-title').length
-          ? $container.find('div.cw-clues-title')
-          : $container.closest('.cw-clues').find('div.cw-clues-title');
+        const $title = $container.find('div.cw-clues-title').length ?
+          $container.find('div.cw-clues-title') :
+          $container.closest('.cw-clues').find('div.cw-clues-title');
 
-        const $items = $container.find('div.cw-clues-items').length
-          ? $container.find('div.cw-clues-items')
-          : $container;
+        const $items = $container.find('div.cw-clues-items').length ?
+          $container.find('div.cw-clues-items') :
+          $container;
 
         const notes = this.notes;
         $items.find('div.cw-clue').remove();
@@ -1748,13 +1817,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         );
 
         /**
-        * Loop through the cells and write to SVG
-        * Note: for fill and bars: we do all the fill first, then all the bars
-        * This is so later fill doesn't overwrite later bars
-        **/
+         * Loop through the cells and write to SVG
+         * Note: for fill and bars: we do all the fill first, then all the bars
+         * This is so later fill doesn't overwrite later bars
+         **/
 
         const fillGroup = document.createElementNS(this.svgNS, 'g');
-        const barGroup  = document.createElementNS(this.svgNS, 'g');
+        const barGroup = document.createElementNS(this.svgNS, 'g');
         svg.appendChild(fillGroup);
         svg.appendChild(barGroup);
 
@@ -2183,7 +2252,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             if (this.selected_cell && this.selected_word) {
               // check config
               if (this.config.space_bar === 'space_switch') {
-                const { x, y } = this.selected_cell;
+                const {
+                  x,
+                  y
+                } = this.selected_cell;
                 const groups = this.clueGroups || [];
                 const n = groups.length;
 
@@ -2582,9 +2654,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           const currentGroup = this.clueGroups[groupIndex];
 
           // try to get next/prev word within the current group
-          next_word = to_previous
-            ? currentGroup.getPreviousWord(this_word)
-            : currentGroup.getNextWord(this_word);
+          next_word = to_previous ?
+            currentGroup.getPreviousWord(this_word) :
+            currentGroup.getNextWord(this_word);
 
           // if we reached end/start of this group, cycle to next/previous clue group
           if (!next_word) {
@@ -2592,9 +2664,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             this.activeClueGroupIndex = groupIndex;
 
             const nextGroup = this.clueGroups[groupIndex];
-            next_word = to_previous
-              ? nextGroup.getLastWord()
-              : nextGroup.getFirstWord();
+            next_word = to_previous ?
+              nextGroup.getLastWord() :
+              nextGroup.getFirstWord();
           }
 
           // stop if this word is acceptable
