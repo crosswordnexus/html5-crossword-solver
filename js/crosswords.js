@@ -1747,6 +1747,17 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           `-${padding} -${padding} ${this.grid_width * SIZE + padding * 2} ${this.grid_height * SIZE + padding * 2}`
         );
 
+        /**
+        * Loop through the cells and write to SVG
+        * Note: for fill and bars: we do all the fill first, then all the bars
+        * This is so later fill doesn't overwrite later bars
+        **/
+
+        const fillGroup = document.createElementNS(this.svgNS, 'g');
+        const barGroup  = document.createElementNS(this.svgNS, 'g');
+        svg.appendChild(fillGroup);
+        svg.appendChild(barGroup);
+
         for (let xStr in this.cells) {
           const x = parseInt(xStr, 10);
           for (let yStr in this.cells[x]) {
@@ -1807,7 +1818,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               }
 
               rect.setAttribute('fill', fillColor);
-              svg.appendChild(rect);
+              fillGroup.appendChild(rect);
             }
 
             if (cell.shape === 'circle') {
@@ -1824,26 +1835,25 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               circle.setAttribute('stroke', this.config.color_block || '#212121');
               circle.setAttribute('stroke-width', 1.1);
               circle.setAttribute('pointer-events', 'none');
-              svg.appendChild(circle);
+              fillGroup.appendChild(circle);
             }
 
             if (cell.bar) {
               const barWidth = this.config.bar_linewidth;
               const barColor = '#212121';
-              const halfBar = barWidth / 2;
 
               const barStart = {
-                top: [cellX, cellY + halfBar],
-                left: [cellX + halfBar, cellY],
-                right: [cellX + SIZE - halfBar, cellY + SIZE],
-                bottom: [cellX + SIZE, cellY + SIZE - halfBar],
+                top: [cellX, cellY],
+                left: [cellX, cellY],
+                right: [cellX + SIZE, cellY + SIZE],
+                bottom: [cellX + SIZE, cellY + SIZE],
               };
 
               const barEnd = {
-                top: [cellX + SIZE, cellY + halfBar],
-                left: [cellX + halfBar, cellY + SIZE],
-                right: [cellX + SIZE - halfBar, cellY],
-                bottom: [cellX, cellY + SIZE - halfBar],
+                top: [cellX + SIZE, cellY],
+                left: [cellX, cellY + SIZE],
+                right: [cellX + SIZE, cellY],
+                bottom: [cellX, cellY + SIZE],
               };
 
               for (const side in cell.bar) {
@@ -1859,7 +1869,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                   barLine.setAttribute('stroke-width', barWidth);
                   barLine.setAttribute('stroke-linecap', 'square');
                   barLine.setAttribute('pointer-events', 'none');
-                  svg.appendChild(barLine);
+                  barGroup.appendChild(barLine);
                 }
               }
             }
