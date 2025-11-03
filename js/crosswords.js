@@ -873,9 +873,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         }
 
         if (this.fakeclues) {
+          // top-text is meaningless for fakeclues puzzles
           $('div.cw-top-text-wrapper').css({
             display: 'none'
           });
+
+          // No need to leave room for the top-text
+          $('#cw-puzzle-grid').css('margin-top', '3px');
         }
 
         // disable check and reveal in certain cases
