@@ -718,14 +718,6 @@ input[type='radio'] {
   padding: 5px 10px 5px 10px;
 }
 
-.cw-max-width-1200 .cw-clues {
-  width: 300px;
-}
-
-.cw-max-width-1200 .cw-clues-holder {
-  width: auto;
-}
-
 .cw-max-width-1080.cw-main {
   font-size: 17px;
 }
@@ -740,14 +732,6 @@ input[type='radio'] {
 
 .cw-max-width-1080 .cw-top-text {
   padding: 4px 8px 4px 8px;
-}
-
-.cw-max-width-1080 .cw-clues {
-  width: 220px;
-}
-
-.cw-max-width-850 .cw-clues-holder {
-  flex-direction: column;
 }
 
 .cw-max-width-850 .cw-copyright {
