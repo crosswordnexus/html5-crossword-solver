@@ -864,6 +864,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.notepad = puzzle.metadata.description || '';
         this.grid_width = puzzle.metadata.width;
         this.grid_height = puzzle.metadata.height;
+        this.completion_message = puzzle.metadata.completion_message || "Puzzle solved!";
 
         if (this.title) {
           document.title = this.title + ' | ' + document.title;
@@ -2563,8 +2564,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
            winSound.play();*/
         const here = this
 
-        function showSuccessMsg() {
-          const rawMessage = "Puzzle solved!";
+        function showSuccessMsg(rawMessage) {
 
           let solvedMessage = escape(rawMessage).trim().replaceAll('\n', '<br />');
           solvedMessage += timerMessage;
@@ -2573,7 +2573,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         // show completion message if newly solved
         if (!wasSolved) {
-          showSuccessMsg()
+          showSuccessMsg(this.completion_message);
         }
       }
 
