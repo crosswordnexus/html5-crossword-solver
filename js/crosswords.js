@@ -873,8 +873,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.is_autofill = true;
         }
 
-        if (this.fakeclues) {
-          // top-text is meaningless for fakeclues puzzles
+        if (this.fakeclues || this.crossword_type === 'diagramless') {
+          // top-text is meaningless for fakeclues and diagramless puzzles
           $('div.cw-top-text-wrapper').css({
             display: 'none'
           });
@@ -1119,25 +1119,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.notepad_icon = this.root.find('.cw-button-notepad');
 
         // === Initial cell selection (diagramless or fakeclues) ===
-        if (this.diagramless_mode) {
+        if (this.diagramless_mode || this.fakeclues) {
           const firstCell = this.getCell(1, 1);
           if (firstCell) {
             this.selected_cell = firstCell;
             this.selected_word = null;
             this.top_text.html(''); // Clear top clue text
-            console.log('[Diagramless Init]', {
-              selected_cell: this.selected_cell,
-              selected_word: this.selected_word,
-              top_text: this.top_text.html()
-            });
-          }
-        } else if (this.fakeclues) {
-          const fallback = this.getCell(1, 1);
-          if (fallback) {
-            this.selected_cell = fallback;
-            this.selected_word = null;
-            this.top_text.html('');
-            console.log('[Fakeclues Init]', {
+            const initMessage = (this.diagramless_mode ? '[Diagramless Init]' : '[Fakeclues Init]');
+            console.log(initMessage, {
               selected_cell: this.selected_cell,
               selected_word: this.selected_word,
               top_text: this.top_text.html()
