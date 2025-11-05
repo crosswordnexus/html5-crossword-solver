@@ -2652,20 +2652,21 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         let this_word = this.selected_word;
         let groupIndex = this.activeClueGroupIndex ?? 0;
         const totalGroups = this.clueGroups.length;
-        let safetyCounter = 0;
+        let safetyCounter = 0; // counts how many times we've wrapped between groups
 
-        while (safetyCounter++ < totalGroups * 2) {
+        while (safetyCounter < totalGroups * 2) {
           const currentGroup = this.clueGroups[groupIndex];
 
-          // try to get next/prev word within the current group
+          // Try to get next/prev word within the current group
           next_word = to_previous ?
             currentGroup.getPreviousWord(this_word) :
             currentGroup.getNextWord(this_word);
 
-          // if we reached end/start of this group, cycle to next/previous clue group
           if (!next_word) {
+            // Reached end/start of group — wrap to next/previous group
             groupIndex = (groupIndex + 1) % totalGroups;
             this.activeClueGroupIndex = groupIndex;
+            safetyCounter++; // only increment when we move between groups
 
             const nextGroup = this.clueGroups[groupIndex];
             next_word = to_previous ?
@@ -2673,16 +2674,16 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               nextGroup.getFirstWord();
           }
 
-          // stop if this word is acceptable
+          // Stop if this word is acceptable (either not filled or skipping disabled)
           if (!skip_filled_words || !next_word.isFilled()) break;
 
+          // Otherwise, continue searching
           this_word = next_word;
         }
 
-        // activate new word
+        // Activate new word if found
         if (next_word) {
-          const cell =
-            next_word.getFirstEmptyCell() || next_word.getFirstCell();
+          const cell = next_word.getFirstEmptyCell() || next_word.getFirstCell();
           this.setActiveWord(next_word);
           this.setActiveCell(cell);
           this.renderCells();
