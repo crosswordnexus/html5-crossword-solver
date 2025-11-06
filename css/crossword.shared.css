@@ -10,7 +10,6 @@ This file contains shared styles always loaded (mobile or desktop)
     --main-bg-color: #ffffff;
     --header-bg-color: #E9E3DC;
     --content-bg-color: #E9E3DC;
-    --main-hilite-color: #e3a67b;
     --button-bg-color: #cbc4bd;
     --button-text-color: #000000;
     --button-hover-color: #B1A79C;
@@ -25,6 +24,7 @@ This file contains shared styles always loaded (mobile or desktop)
     --clue-active-text-color: #000000;
     --clue-hover-color: #c3c3c3;
     --cluenote-text-color: #000000;
+    --cluenote-hilite-color: #71706e;
     --clue-scrollbar-color-track: #ffffff;
     --clue-scrollbar-color-thumb: #bf3028;
     --clue-scrollbar-color-thumb-hover: #bf3028;
@@ -92,7 +92,7 @@ div.crossword {
 }
 
 .cw-cluenote-button:hover {
-  background-color: var(--main-hilite-color);
+  background-color: var(--cluenote-hilite-color);
 }
 
 div.cw-open-holder {
