@@ -2078,33 +2078,19 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         const width = this.grid_width;
         const height = this.grid_height;
 
-        // First clear all numbers
-        for (let x = 1; x <= width; x++) {
-          for (let y = 1; y <= height; y++) {
-            const cell = this.getCell(x, y);
-            if (cell) {
-              cell.number = null;
-            }
-          }
-        }
+        // Update the grid from the underlying jsxw object
+        this.fillJsXw();
+        console.log(this.jsxw);
+        const grid = this.jsxw.grid();
+        console.log(grid);
+        const numbering = grid.gridNumbering();
+        console.log(numbering);
 
         // Assign new numbers
         for (let y = 1; y <= height; y++) {
           for (let x = 1; x <= width; x++) {
             const cell = this.getCell(x, y);
-            if (!cell || cell.type === 'block') continue;
-
-            const left = this.getCell(x - 1, y);
-            const above = this.getCell(x, y - 1);
-            const right = this.getCell(x + 1, y);
-            const below = this.getCell(x, y + 1);
-
-            const startsAcross = (!left || left.type === 'block') && right && right.type !== 'block';
-            const startsDown = (!above || above.type === 'block') && below && below.type !== 'block';
-
-            if (startsAcross || startsDown) {
-              cell.number = number++;
-            }
+            cell.number = numbering[y-1][x-1] > 0 ? numbering[y-1][x-1] : null;
           }
         }
       }
@@ -3311,6 +3297,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
           c.letter = cellData.letter;
           c.top_right_number = cellData.top_right_number;
+
+          // for diagramless purposes
+          c.type = cellData.type;
 
           if (cellData.fixed === true) {
             c.fixed = true;
