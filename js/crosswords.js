@@ -752,7 +752,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       /**
-       * Parse puzzle data into Crossord structure.
+       * Parse puzzle data into Crossword structure.
        *
        * - Accepts either a JSCrossword object or raw string data.
        * - Normalizes coordinates (shift +1 to be 1-indexed).
@@ -2082,9 +2082,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.fillJsXw();
         console.log(this.jsxw);
         const grid = this.jsxw.grid();
-        console.log(grid);
         const numbering = grid.gridNumbering();
-        console.log(numbering);
 
         // Assign new numbers
         for (let y = 1; y <= height; y++) {
@@ -2093,7 +2091,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             cell.number = numbering[y-1][x-1] > 0 ? numbering[y-1][x-1] : null;
           }
         }
-      }
+
+
+
+      } /* END renumbergrid() */
 
       mouseMoved(e) {
         if (this.config.hover_enabled) {
