@@ -1,18 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Crossword Sharing | Crossword Nexus</title>
 
   <style>
-    h1 { font-size: 1.4rem; }
-    h3 { margin-top: 0.25rem; }
-    input[type=file] { margin-top: 0.25rem; margin-bottom: 1rem; }
-    textarea { width: 100%; font-family: monospace; font-size: 0.9rem; }
-    .hidden { display: none; }
-    .customization { margin-top: 0.5rem; border: 1px solid #ccc; padding: 0.8rem; border-radius: 0.5rem; }
-    .customization label { display: block; margin: 0.5rem 0; }
+    h1 {
+      font-size: 1.4rem;
+    }
+
+    h3 {
+      margin-top: 0.25rem;
+    }
+
+    input[type=file] {
+      margin-top: 0.25rem;
+      margin-bottom: 1rem;
+    }
+
+    textarea {
+      width: 100%;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .customization {
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      padding: 0.8rem;
+      border-radius: 0.5rem;
+    }
+
+    .customization label {
+      display: block;
+      margin: 0.5rem 0;
+    }
 
     body {
       font-family: system-ui, sans-serif;
@@ -23,13 +51,15 @@
       color: #222;
     }
 
-    h1, h3 {
+    h1,
+    h3 {
       color: #333;
     }
 
-    .customization, #results {
+    .customization,
+    #results {
       background: white;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
       border-radius: 0.5rem;
       padding: 1rem;
     }
@@ -58,19 +88,20 @@
       border: 1px solid #ddd;
       border-radius: 0.4rem;
       padding: 0.6rem 0.8rem;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
       transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
     }
 
     details:hover {
       border-color: #ccc;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
     summary {
       cursor: pointer;
       font-weight: 600;
-      list-style: none; /* remove default arrow */
+      list-style: none;
+      /* remove default arrow */
       display: flex;
       align-items: center;
       gap: 0.3rem;
@@ -90,14 +121,33 @@
     }
 
     details p {
-      margin: 0.5rem 0 0 1.3rem; /* indent content slightly */
+      margin: 0.5rem 0 0 1.3rem;
+      /* indent content slightly */
       color: #444;
       font-size: 0.95em;
       line-height: 1.4;
     }
 
+    /* --- Drag and Drop --- */
+    #dropZone {
+      margin-top: 0.5rem;
+      padding: 1.5rem;
+      border: 2px dashed #ccc;
+      border-radius: 0.5rem;
+      text-align: center;
+      color: #666;
+      transition: background 0.2s, border-color 0.2s;
+      margin-bottom: 1.5rem;
+    }
+
+    #dropZone.dragover {
+      border-color: #ffcc00;
+      background: #fff6cc;
+      color: #000;
+    }
   </style>
 </head>
+
 <body class="container">
   <h1>Crossword Sharing</h1>
 
@@ -117,6 +167,7 @@
 
   <p>Select a <code>.puz</code>, <code>.jpz</code>, <code>.ipuz</code>, or <code>.cfp</code> file:</p>
   <input type="file" id="fileInput" accept=".puz,.jpz,.ipuz,.cfp" />
+  <div id="dropZone">... or drop your puzzle file here</div>
   <div id="status"></div>
 
   <!-- 🧩 Customization section -->
@@ -170,11 +221,16 @@
 
     // Load any saved preferences or fallback to defaults
     function loadPrefs() {
-      let prefs = { ...DEFAULT_PREFS };
+      let prefs = {
+        ...DEFAULT_PREFS
+      };
       try {
         const saved = JSON.parse(localStorage.getItem(LS_KEY));
         if (saved && typeof saved === "object") {
-          prefs = { ...prefs, ...saved }; // merge saved over defaults
+          prefs = {
+            ...prefs,
+            ...saved
+          }; // merge saved over defaults
         }
       } catch (err) {
         console.warn("Could not load prefs:", err);
@@ -349,6 +405,48 @@
       form.submit();
       form.remove();
     };
+
+    // ---- Drag and Drop handling ----
+    const dropZone = document.getElementById("dropZone");
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, e => e.preventDefault());
+      document.body.addEventListener(eventName, e => e.preventDefault());
+    });
+
+    // Highlight on drag over
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'));
+    });
+
+    // Remove highlight on leave/drop
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'));
+    });
+
+    // Handle drop
+    dropZone.addEventListener('drop', async e => {
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+      fileInput.files = e.dataTransfer.files; // populate file input for consistency
+      status.textContent = `Reading ${file.name}...`;
+      results.classList.add("hidden");
+      customization.classList.add("hidden");
+
+      try {
+        const buf = await readFileAsArrayBuffer(file);
+        const xw = JSCrossword.fromData(new Uint8Array(buf));
+        originalPuzzle = xw;
+        workingPuzzle = clonePuzzle(originalPuzzle);
+        status.textContent = `✅ "${xw.metadata.title}" by ${xw.metadata.author}`;
+        customization.classList.remove("hidden");
+      } catch (err) {
+        console.error(err);
+        status.textContent = "❌ Could not parse puzzle: " + err.message;
+      }
+    });
   </script>
 </body>
+
 </html>
