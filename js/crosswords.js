@@ -530,6 +530,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         // TIMER
         this.timer_running = false;
 
+        this.diagramless_dir = 'across';
+
         // whether to show the reveal button
         this.has_reveal = true;
 
@@ -1100,6 +1102,33 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.completeLoad();
       }
 
+      // Return the next non-block, in-bounds cell from a start cell in a given direction.
+      // dir: 'across' (x+) or 'down' (y+). step = +1 (forward) or -1 (backward)
+      nextDiagramlessCell(fromCell, dir = this.diagramless_dir, step = 1) {
+        if (!fromCell) return null;
+        let {
+          x,
+          y
+        } = fromCell;
+
+        if (dir === 'across') {
+          for (let nx = x + step; nx >= 1 && nx <= this.grid_width; nx += step) {
+            const c = this.getCell(nx, y);
+            if (c && c.type !== 'block') return c;
+          }
+        } else {
+          for (let ny = y + step; ny >= 1 && ny <= this.grid_height; ny += step) {
+            const c = this.getCell(x, ny);
+            if (c && c.type !== 'block') return c;
+          }
+        }
+        return null;
+      }
+
+      toggleDiagramlessDir() {
+        this.diagramless_dir = (this.diagramless_dir === 'across') ? 'down' : 'across';
+      }
+
       completeLoad() {
         $('.cw-header').html(`
           <span class="cw-title">${escape(this.title)}</span>
@@ -1397,47 +1426,50 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             const clickedCell = this.getCell(x, y);
 
             if (this.diagramless_mode) {
-              // Diagramless: only select square
-              if (clickedCell) {
-                this.selected_cell = clickedCell;
-                this.selected_word = null;
-                this.top_text.html('');
+              // Toggle direction if double-click same cell
+              if (
+                clickedCell &&
+                this.selected_cell &&
+                this.selected_cell.x === x &&
+                this.selected_cell.y === y
+              ) {
+                this.toggleDiagramlessDir();
                 this.renderCells();
               }
-            } else {
-              // Normal puzzles
-              if (!clickedCell.empty) {
-                const groups = this.clueGroups || [];
-                const n = groups.length;
-                if (!n) return;
+              return; // prevent the normal puzzle branch below
+            }
 
-                let newActiveWord = null;
-                let newGroupIndex = this.activeClueGroupIndex;
+            if (!clickedCell.empty) {
+              const groups = this.clueGroups || [];
+              const n = groups.length;
+              if (!n) return;
 
-                // Try current group first
-                const currentGroup = groups[this.activeClueGroupIndex];
-                newActiveWord = currentGroup.getMatchingWord(x, y, true);
+              let newActiveWord = null;
+              let newGroupIndex = this.activeClueGroupIndex;
 
-                // If not found, cycle through remaining groups (2, 3, ..., N, 0, 1, ...)
-                if (!newActiveWord) {
-                  for (let offset = 1; offset < n; offset++) {
-                    const i = (this.activeClueGroupIndex + offset) % n;
-                    const group = groups[i];
-                    const match = group.getMatchingWord(x, y, true);
-                    if (match) {
-                      newActiveWord = match;
-                      newGroupIndex = i;
-                      break;
-                    }
+              // Try current group first
+              const currentGroup = groups[this.activeClueGroupIndex];
+              newActiveWord = currentGroup.getMatchingWord(x, y, true);
+
+              // If not found, cycle through remaining groups (2, 3, ..., N, 0, 1, ...)
+              if (!newActiveWord) {
+                for (let offset = 1; offset < n; offset++) {
+                  const i = (this.activeClueGroupIndex + offset) % n;
+                  const group = groups[i];
+                  const match = group.getMatchingWord(x, y, true);
+                  if (match) {
+                    newActiveWord = match;
+                    newGroupIndex = i;
+                    break;
                   }
                 }
+              }
 
-                if (newActiveWord) {
-                  this.activeClueGroupIndex = newGroupIndex;
-                  this.setActiveWord(newActiveWord);
-                  this.setActiveCell(clickedCell);
-                  this.renderCells();
-                }
+              if (newActiveWord) {
+                this.activeClueGroupIndex = newGroupIndex;
+                this.setActiveWord(newActiveWord);
+                this.setActiveCell(clickedCell);
+                this.renderCells();
               }
             }
           }
@@ -2028,6 +2060,48 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
         }
 
+        // Tiny direction chevron for diagramless
+        if (this.diagramless_mode && this.selected_cell) {
+          const SIZE = this.cell_size;
+          const {
+            x,
+            y
+          } = this.selected_cell;
+          const cellX = (x - 1) * SIZE;
+          const cellY = (y - 1) * SIZE;
+
+          const path = document.createElementNS(this.svgNS, 'path');
+
+          // slightly smaller overall
+          const pad = SIZE * 0.15; // smaller padding than before
+          const cxAcross = cellX + SIZE - pad;
+          const cyAcross = cellY + pad * 1.1;
+
+          const cxDown = cellX + SIZE - pad;
+          const cyDown = cellY + SIZE - pad * 1.1;
+
+          let d;
+          if (this.diagramless_dir === 'across') {
+            // ► chevron (upper-right corner)
+            d = `M ${cxAcross - pad * 0.8} ${cyAcross - pad / 2}
+        L ${cxAcross} ${cyAcross}
+        L ${cxAcross - pad * 0.8} ${cyAcross + pad / 2}`;
+          } else {
+            // ▼ chevron (lower-right corner)
+            d = `M ${cxDown - pad / 2} ${cyDown - pad * 0.8}
+        L ${cxDown} ${cyDown}
+        L ${cxDown + pad / 2} ${cyDown - pad * 0.8}`;
+          }
+
+          path.setAttribute('d', d);
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', this.config.font_color_clue || '#000');
+          path.setAttribute('stroke-width', 1.3);
+          path.setAttribute('pointer-events', 'none');
+          this.svgContainer.appendChild(path);
+        }
+
+
         if (!this.diagramless_mode && this.selected_word) {
           this.drawSelectedWordBorder(svg, this.selected_word);
         }
@@ -2088,7 +2162,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         for (let y = 1; y <= height; y++) {
           for (let x = 1; x <= width; x++) {
             const cell = this.getCell(x, y);
-            cell.number = numbering[y-1][x-1] > 0 ? numbering[y-1][x-1] : null;
+            cell.number = numbering[y - 1][x - 1] > 0 ? numbering[y - 1][x - 1] : null;
           }
         }
 
@@ -2127,13 +2201,28 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         if (!clickedCell) return;
 
         if (this.diagramless_mode) {
-          // Diagramless: select cell only, no active word
+          if (!clickedCell) return;
+
+          // If user clicks the same cell again, toggle direction (just like normal puzzles)
+          if (
+            this.selected_cell &&
+            this.selected_cell.x === index_x &&
+            this.selected_cell.y === index_y &&
+            clickedCell.type !== 'block'
+          ) {
+            this.toggleDiagramlessDir(); // <-- Step 2 helper
+            this.renderCells();
+            if (!isMobile) this.hidden_input.focus();
+            return;
+          }
+
+          // Otherwise, select the clicked cell without tying to any word
           this.selected_cell = clickedCell;
           this.selected_word = null;
           this.top_text.html('');
           this.renderCells();
-          if (!IS_MOBILE) this.hidden_input.focus();
-          return;
+          if (!isMobile) this.hidden_input.focus();
+          return; // prevent falling through to normal-puzzle logic
         }
 
         // --- Normal puzzle mode ---
@@ -2200,6 +2289,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             this.moveToFirstCell(false);
             break;
           case 37: // left
+            if (this.diagramless_mode) this.diagramless_dir = 'across'; // set BEFORE moving
             if (e.shiftKey) {
               this.skipToWord(SKIP_LEFT);
             } else {
@@ -2207,6 +2297,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
             break;
           case 38: // up
+            if (this.diagramless_mode) this.diagramless_dir = 'down'; // vertical mode (set BEFORE)
             if (e.shiftKey) {
               this.skipToWord(SKIP_UP);
             } else {
@@ -2214,6 +2305,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
             break;
           case 39: // right
+            if (this.diagramless_mode) this.diagramless_dir = 'across'; // set BEFORE moving
             if (e.shiftKey) {
               this.skipToWord(SKIP_RIGHT);
             } else {
@@ -2221,6 +2313,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
             break;
           case 40: // down
+            if (this.diagramless_mode) this.diagramless_dir = 'down'; // vertical mode (set BEFORE)
             if (e.shiftKey) {
               this.skipToWord(SKIP_DOWN);
             } else {
@@ -2230,6 +2323,16 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             break;
 
           case 32: // space
+
+            if (this.diagramless_mode) {
+              // Toggle direction in diagramless on Space
+              if (this.selected_cell) {
+                this.toggleDiagramlessDir();
+                this.renderCells();
+              }
+              break; // prevent falling into normal space behavior
+            }
+
             if (this.selected_cell && this.selected_word) {
               // check config
               if (this.config.space_bar === 'space_switch') {
@@ -2296,16 +2399,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               this.autofill();
 
               if (this.diagramless_mode) {
-                // move left to previous non-block square
-                const cx = this.selected_cell.x;
-                const cy = this.selected_cell.y;
-                for (let nx = cx - 1; nx >= 1; nx--) {
-                  const prev = this.getCell(nx, cy);
-                  if (prev && prev.type !== 'block') {
-                    this.setActiveCell(prev);
-                    break;
-                  }
-                }
+                // Move to the previous editable cell based on current diagramless direction
+                const prev = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, -1);
+                if (prev) this.setActiveCell(prev);
               } else if (this.selected_word) {
                 const prev_cell = this.selected_word.getPreviousCell(
                   this.selected_cell.x,
@@ -2384,16 +2480,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               let next_cell = null;
 
               if (this.diagramless_mode) {
-                // Diagramless: move to next non-block cell to the right
-                const cx = this.selected_cell.x;
-                const cy = this.selected_cell.y;
-                for (let nx = cx + 1; nx <= this.grid_width; nx++) {
-                  const next = this.getCell(nx, cy);
-                  if (next && next.type !== 'block') {
-                    next_cell = next;
-                    break;
-                  }
-                }
+                // Move in the current diagramless direction (across or down)
+                next_cell = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, +1);
               } else if (this.selected_word) {
                 // Regular crossword logic
                 if (this.config.skip_filled_letters && !this.selected_word.isFilled()) {
@@ -3702,7 +3790,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       // in clues list, marks clue for word that has cell with given coordinates
       markActive(x, y, is_passive, fakeclues = false) {
         // don't mark anything as active if fake clues
-        if (fakeclues) {
+        if (fakeclues || this.crossword.diagramless_mode) {
           return;
         }
         var classname = is_passive ? 'passive' : 'active',
