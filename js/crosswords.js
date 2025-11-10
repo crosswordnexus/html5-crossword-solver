@@ -15,7 +15,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 // Settings that we can save
 const CONFIGURABLE_SETTINGS = [
-  "skip_filled_letters", "arrow_direction", "space_bar", "tab_key", "timer_autostart", "dark_mode_enabled", "gray_completed_clues"
+  "skip_filled_letters", "arrow_direction", "space_bar", "tab_key",
+  "timer_autostart", "dark_mode_enabled", "gray_completed_clues",
+  "confetti_enabled"
 ];
 
 // Since DarkReader is an external library, make sure it exists
@@ -113,6 +115,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       space_bar: 'space_clear',
       filled_clue_color: '#999999',
       timer_autostart: false,
+      confetti_enabled: true,
       dark_mode_enabled: false,
       tab_key: 'tab_noskip',
       bar_linewidth: 3.2,
@@ -2616,13 +2619,15 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.check_reveal('puzzle', 'reveal');
         }
 
-        confetti({
-          particleCount: 280,
-          spread: 190,
-          origin: {
-            y: 0.4
-          }
-        });
+        if (this.config.confetti_enabled) {
+          confetti({
+            particleCount: 280,
+            spread: 190,
+            origin: {
+              y: 0.4
+            }
+          });
+        }
 
         /* const winSound = new Audio('./sounds/hny.mp3');
            winSound.play();*/
@@ -3298,15 +3303,22 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             </div>
           </div>
 
-          <!-- Miscellaneous (only timer for now) -->
+          <!-- Miscellaneous -->
           <div class="settings-setting">
             <div class="settings-description">
-              Timer
+              Miscellaneous
             </div>
             <div class="settings-option">
               <label class="settings-label">
                 <input id="timer_autostart" checked="" type="checkbox" name="timer_autostart" class="settings-changer">
                   Start timer on puzzle open
+                </input>
+              </label>
+            </div>
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="confetti_enabled" checked="" type="checkbox" name="confetti_enabled" class="settings-changer">
+                  Confetti on solve
                 </input>
               </label>
             </div>
