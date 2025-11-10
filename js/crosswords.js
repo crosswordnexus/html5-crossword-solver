@@ -875,8 +875,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.is_autofill = true;
         }
 
-        if (this.fakeclues || this.crossword_type === 'diagramless') {
-          // top-text is meaningless for fakeclues and diagramless puzzles
+        if (this.fakeclues || this.crossword_type === 'diagramless' || this.crossword_type === 'coded') {
+          // top-text is meaningless for fakeclues and diagramless puzzles (and coded!)
           $('div.cw-top-text-wrapper').css({
             display: 'none'
           });
