@@ -204,6 +204,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 <button class = "cw-menu-item cw-file-info">Info</button>
                 <button class = "cw-menu-item cw-file-notepad">Notepad</button>
                 <button class = "cw-menu-item cw-file-print">Print</button>
+                <button class = "cw-menu-item cw-file-save">Save as iPuz</button>
                 <button class = "cw-menu-item cw-file-clear">Clear</button>
                 </div>
               </div>
@@ -780,6 +781,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         puzzle.kind = puzzle.metadata.kind;
 
         this.jsxw = puzzle;
+
+        // Expose ipuz string
+        window.ipuz = this.jsxw.toIpuzString();
 
         this.diagramless_mode = false;
 
@@ -1377,12 +1381,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           $.proxy(this.check_reveal, this, 'puzzle', 'clear')
         );
 
-        // DOWNLOAD
-        //this.download_btn.on('click', $.proxy(this.exportJPZ, this));
+        // SAVE
+        this.save_btn.on('click', $.proxy(this.saveAsIpuz, this));
 
         /** We're disabling save and load buttons **/
-        // SAVE
-        //this.save_btn.on('click', $.proxy(this.saveGame, this));
         // LOAD
         //this.load_btn.on('click', $.proxy(this.loadGame, this));
 
@@ -3629,6 +3631,28 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         } catch (err) {
           console.error("PDF generation failed:", err);
         }
+      }
+
+      saveAsIpuz(e) {
+        console.log(e);
+        const json = window.ipuz; // this should be a JSON *string*
+
+        // Create a Blob from the text
+        const blob = new Blob([json], { type: "application/json" });
+
+        // Create a temporary <a> element
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+
+        a.href = url;
+        const filename = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.ipuz';
+        a.download = filename; // filename for the dialog
+
+        // Trigger a click
+        a.click();
+
+        // Cleanup
+        URL.revokeObjectURL(url);
       }
 
       toggleTimer() {
