@@ -1,9 +1,6 @@
 const CACHE_NAME = "xw-solver-v1";
 const ASSETS = [
   "./",
-  "./css",
-  "./js",
-  "./lib",
   "./index.html",
   "./css/crosswordnexus.css",
   "./css/crossword.shared.css",
@@ -24,6 +21,8 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then(response => response || fetch(event.request))
+    caches.match(event.request).then(cached => {
+      return cached || fetch(event.request).catch(() => cached);
+    })
   );
 });
