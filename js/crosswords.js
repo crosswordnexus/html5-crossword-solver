@@ -30,6 +30,39 @@ try {
 // one-time check for mobile device status
 const IS_MOBILE = CrosswordShared.isMobileDevice();
 
+// Helper function for PWA setup
+function setupPWAInstallButton(btn) {
+  if (!btn) {
+    console.warn("Install button not found.");
+    return; // Safe early exit
+  }
+
+  let deferredPrompt = null;  // <-- persist between handlers
+
+  // Listen only if button exists
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredPrompt = event;  // <-- now correctly stored
+
+    btn.show();
+
+    btn.off('click').on('click', async () => {
+      if (!deferredPrompt) return; // extra safety
+
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+
+      btn.hide();
+      deferredPrompt = null;  // prevents reuse
+    });
+  });
+
+  window.addEventListener('appinstalled', () => {
+    btn.hide();
+  });
+}
+
+
 // Helper function to draw an arrow in a square
 function drawArrow(context, top_x, top_y, square_size, direction = "right") {
   const headlen = square_size / 5; // length of the arrowhead
@@ -184,8 +217,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             <div class = "cw-open-puzzle-formats">
               <b>Accepted formats: </b> PUZ, JPZ, XML, CFP, and iPUZ (partial)
             </div>
+            <button id="installAppBtn" style="display: none; margin-top: 1.5rem;">
+              📥 Install this app for offline solving
+            </button>
           </div>
           <input type = "file" class = "cw-open-jpz" accept = ".puz,.xml,.jpz,.xpz,.ipuz,.cfp">
+
         </div>
         <!-- End overlay -->
         <header class = "cw-header"></header>
@@ -690,6 +727,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
           });
 
+          // Show PWA install button
+          const btn = this.root.find('#installAppBtn');
+          setupPWAInstallButton(btn);
+
           // drag-and-drop
           if (isAdvancedUpload) {
             const div_open_holder = this.root.find('div.cw-open-holder');
@@ -1104,7 +1145,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           });
         }
 
-        console.log(this);
+        //console.log(this);
 
         this.completeLoad();
       }
