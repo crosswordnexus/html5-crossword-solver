@@ -8,7 +8,6 @@ const ASSETS = [
   "./css/crosswordnexus.css",
   "./css/crossword.shared.css",
   "./css/crossword.mobile.css",
-  "./jscrossword_combined.js",
   "./js/crosswords.js",
   "./js/crossword.shared.js",
   "./js/crossword.mobile.js",
