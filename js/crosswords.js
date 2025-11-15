@@ -667,6 +667,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         this.info_btn = this.root.find('.cw-file-info');
         this.load_btn = this.root.find('.cw-file-load');
+        // hide the load button by default
+        this.load_btn.hide();
+
         this.print_btn = this.root.find('.cw-file-print');
         this.clear_btn = this.root.find('.cw-file-clear');
         this.save_btn = this.root.find('.cw-file-save');
@@ -714,6 +717,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
           this.open_button = this.root.find('.cw-button-open-puzzle');
           this.file_input = this.root.find('input[type="file"]');
+
+          // show the load button
+          this.load_btn.show();
 
           this.open_button.on('click', () => {
             this.file_input.click();
