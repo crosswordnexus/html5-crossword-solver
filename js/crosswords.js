@@ -240,6 +240,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 <div    class = "cw-menu">
                 <button class = "cw-menu-item cw-file-info">Info</button>
                 <button class = "cw-menu-item cw-file-notepad">Notepad</button>
+                <button class = "cw-menu-item cw-file-load">Open ...</button>
                 <button class = "cw-menu-item cw-file-print">Print</button>
                 <button class = "cw-menu-item cw-file-save">Save as iPuz</button>
                 <button class = "cw-menu-item cw-file-clear">Clear</button>
@@ -1425,9 +1426,11 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         // SAVE
         this.save_btn.on('click', $.proxy(this.saveAsIpuz, this));
 
-        /** We're disabling save and load buttons **/
         // LOAD
-        //this.load_btn.on('click', $.proxy(this.loadGame, this));
+        this.load_btn.on('click', () => {
+          this.init();   // re-initialize
+          this.file_input.click();
+        });
 
         // TIMER
         this.timer_button.on('click', $.proxy(this.toggleTimer, this));
