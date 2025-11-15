@@ -1427,7 +1427,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.save_btn.on('click', $.proxy(this.saveAsIpuz, this));
 
         // LOAD
-        this.load_btn.on('click', $.proxy(this.init, this));
+        this.load_btn.on('click', () => {
+          this.init();   // re-initialize
+          this.file_input.click();
+        });
 
         // TIMER
         this.timer_button.on('click', $.proxy(this.toggleTimer, this));
