@@ -2774,6 +2774,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         let groupIndex = this.activeClueGroupIndex ?? 0;
         const totalGroups = this.clueGroups.length;
         let safetyCounter = 0; // counts how many times we've wrapped between groups
+        const shouldSkipFilledWords =
+          skip_filled_words && this.hasUnfilledWords();
 
         while (safetyCounter < totalGroups * 2) {
           const currentGroup = this.clueGroups[groupIndex];
@@ -2796,7 +2798,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
 
           // Stop if this word is acceptable (either not filled or skipping disabled)
-          if (!skip_filled_words || !next_word.isFilled()) break;
+          if (!shouldSkipFilledWords || !next_word.isFilled()) break;
 
           // Otherwise, continue searching
           this_word = next_word;
@@ -2809,6 +2811,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.setActiveCell(cell);
           this.renderCells();
         }
+      }
+
+      hasUnfilledWords() {
+        return Object.values(this.words || {}).some(
+          (word) => word && !word.isFilled()
+        );
       }
 
       moveToFirstCell(to_last) {
