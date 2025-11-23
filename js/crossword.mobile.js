@@ -463,34 +463,25 @@ function createCustomKeyboard() {
       }
 
       function performBackspace() {
-        if (!gCrossword?.selected_cell) return;
-        const cell = gCrossword.selected_cell;
-        const direction = gCrossword.clueGroups[gCrossword.activeClueGroupIndex]?.id === 'clues_top' ? 'across' : 'down';
-        const isAcross = direction === 'across';
+        if (gCrossword.selected_cell && !gCrossword.selected_cell.fixed) {
+          gCrossword.selected_cell.letter = '';
+          gCrossword.selected_cell.checked = false;
+          gCrossword.autofill();
 
-        if (!cell.empty && cell.letter) {
-          cell.letter = '';
+          if (gCrossword.diagramless_mode) {
+            // Move to the previous editable cell based on current diagramless direction
+            const prev = gCrossword.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, -1);
+            if (prev) gCrossword.setActiveCell(prev);
+          } else if (gCrossword.selected_word) {
+            const prev_cell = gCrossword.selected_word.getPreviousCell(
+              gCrossword.selected_cell.x,
+              gCrossword.selected_cell.y
+            );
+            gCrossword.setActiveCell(prev_cell);
+          }
+
           gCrossword.renderCells();
-          return;
-        }
-
-        let x = cell.x,
-          y = cell.y;
-        while (true) {
-          if (isAcross ? x <= 1 : y <= 1) return;
-          isAcross ? x-- : y--;
-          const prev = gCrossword.getCell(x, y);
-          if (!prev || prev.empty) continue;
-
-          gCrossword.setActiveCell(prev);
-          const matchingWord = Object.values(gCrossword.words).find(word =>
-            word.dir === direction && word.cells.includes(`${prev.x}-${prev.y}`)
-          );
-          if (matchingWord) gCrossword.setActiveWord(matchingWord);
-
-          prev.letter = '';
-          gCrossword.renderCells();
-          return;
+          gCrossword.checkIfSolved();
         }
       }
 
