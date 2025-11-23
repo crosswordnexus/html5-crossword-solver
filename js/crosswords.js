@@ -2470,13 +2470,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
             break;
           case 9: // tab
-            var skip_filled_words = this.config.tab_key === 'tab_skip';
-            if (e.shiftKey) {
-              this.moveToNextWord(true, skip_filled_words);
-            } else {
-              this.moveToNextWord(false, skip_filled_words);
-            }
-            break;
           case 13: // enter key -- same as tab
             var skip_filled_words = this.config.tab_key === 'tab_skip';
             if (e.shiftKey) {
