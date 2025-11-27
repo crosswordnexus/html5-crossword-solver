@@ -2041,15 +2041,21 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             /* Determine the color of letters/numbers in the cell */
             // Default fill color
             let fontColorFill = this.config.font_color_fill;
-            // Brightness of the background and foreground
-            const bgBrightness = Color.getBrightness(fillColor || this.config.color_none);
-            const fgBrightness = Color.getBrightness(this.config.font_color_fill);
 
-            // If we fail to meet some threshold, invert
-            if (Math.abs(bgBrightness - fgBrightness) < 125) {
-              var thisRGB = Color.hexToRgb(this.config.font_color_fill);
-              var invertedRGB = thisRGB.map(x => 255 - x);
-              fontColorFill = Color.rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
+            if (cell.image) {
+              // Images should show text in black regardless of background brightness
+              fontColorFill = '#000000';
+            } else {
+              // Brightness of the background and foreground
+              const bgBrightness = Color.getBrightness(fillColor || this.config.color_none);
+              const fgBrightness = Color.getBrightness(this.config.font_color_fill);
+
+              // If we fail to meet some threshold, invert
+              if (Math.abs(bgBrightness - fgBrightness) < 125) {
+                var thisRGB = Color.hexToRgb(this.config.font_color_fill);
+                var invertedRGB = thisRGB.map(x => 255 - x);
+                fontColorFill = Color.rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
+              }
             }
 
             if (cell.letter) {
