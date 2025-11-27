@@ -975,6 +975,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             },
             color: rawCell['background-color'] || null,
             shape: rawCell['background-shape'] || null,
+            image: rawCell['image'] || null,
             top_right_number: rawCell.top_right_number,
             fixed: rawCell.fixed === true // Preserve fixed flag from saved data
           };
@@ -1969,6 +1970,19 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
               rect.setAttribute('fill', fillColor);
               fillGroup.appendChild(rect);
+
+              if (cell.image) {
+                const imageLayer = document.createElementNS(this.svgNS, 'image');
+                imageLayer.setAttribute('x', cellX);
+                imageLayer.setAttribute('y', cellY);
+                imageLayer.setAttribute('width', SIZE);
+                imageLayer.setAttribute('height', SIZE);
+                imageLayer.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+                imageLayer.setAttribute('class', 'cw-cell-image');
+                imageLayer.setAttribute('href', cell.image);
+                imageLayer.setAttributeNS('http://www.w3.org/1999/xlink', 'href', cell.image);
+                fillGroup.appendChild(imageLayer);
+              }
             }
 
             if (cell.shape === 'circle') {
