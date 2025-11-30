@@ -15,7 +15,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 // Settings that we can save
 const CONFIGURABLE_SETTINGS = [
-  "skip_filled_letters", "arrow_direction", "space_bar", "tab_key", "timer_autostart", "dark_mode_enabled", "gray_completed_clues"
+  "skip_filled_letters", "arrow_direction", "space_bar", "tab_key",
+  "timer_autostart", "dark_mode_enabled", "gray_completed_clues",
+  "confetti_enabled"
 ];
 
 // Since DarkReader is an external library, make sure it exists
@@ -27,6 +29,39 @@ try {
 
 // one-time check for mobile device status
 const IS_MOBILE = CrosswordShared.isMobileDevice();
+
+// Helper function for PWA setup
+function setupPWAInstallButton(btn) {
+  if (!btn) {
+    console.warn("Install button not found.");
+    return; // Safe early exit
+  }
+
+  let deferredPrompt = null;  // <-- persist between handlers
+
+  // Listen only if button exists
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredPrompt = event;  // <-- now correctly stored
+
+    btn.show();
+
+    btn.off('click').on('click', async () => {
+      if (!deferredPrompt) return; // extra safety
+
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+
+      btn.hide();
+      deferredPrompt = null;  // prevents reuse
+    });
+  });
+
+  window.addEventListener('appinstalled', () => {
+    btn.hide();
+  });
+}
+
 
 // Helper function to draw an arrow in a square
 function drawArrow(context, top_x, top_y, square_size, direction = "right") {
@@ -113,6 +148,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       space_bar: 'space_clear',
       filled_clue_color: '#999999',
       timer_autostart: false,
+      confetti_enabled: true,
       dark_mode_enabled: false,
       tab_key: 'tab_noskip',
       avcx: null,
@@ -182,8 +218,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             <div class = "cw-open-puzzle-formats">
               <b>Accepted formats: </b> PUZ, JPZ, XML, CFP, and iPUZ (partial)
             </div>
+            <button id="installAppBtn" style="display: none; margin-top: 1.5rem;">
+              📥 Install this app for offline solving
+            </button>
           </div>
           <input type = "file" class = "cw-open-jpz" accept = ".puz,.xml,.jpz,.xpz,.ipuz,.cfp">
+
         </div>
         <!-- End overlay -->
         <header class = "cw-header"></header>
@@ -201,7 +241,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
                 <div    class = "cw-menu">
                 <button class = "cw-menu-item cw-file-info">Info</button>
                 <button class = "cw-menu-item cw-file-notepad">Notepad</button>
+                <button class = "cw-menu-item cw-file-load">Open ...</button>
                 <button class = "cw-menu-item cw-file-print">Print</button>
+                <button class = "cw-menu-item cw-file-save">Save as iPuz</button>
                 <button class = "cw-menu-item cw-file-clear">Clear</button>
                 </div>
               </div>
@@ -674,6 +716,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         this.info_btn = this.root.find('.cw-file-info');
         this.load_btn = this.root.find('.cw-file-load');
+        // hide the load button by default
+        this.load_btn.hide();
+
         this.print_btn = this.root.find('.cw-file-print');
         this.clear_btn = this.root.find('.cw-file-clear');
         this.save_btn = this.root.find('.cw-file-save');
@@ -731,6 +776,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.open_button = this.root.find('.cw-button-open-puzzle');
           this.file_input = this.root.find('input[type="file"]');
 
+          // show the load button
+          this.load_btn.show();
+
           this.open_button.on('click', () => {
             this.file_input.click();
           });
@@ -743,6 +791,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               processFiles(files);
             }
           });
+
+          // Show PWA install button
+          const btn = this.root.find('#installAppBtn');
+          setupPWAInstallButton(btn);
 
           // drag-and-drop
           if (isAdvancedUpload) {
@@ -835,6 +887,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         puzzle.kind = puzzle.metadata.kind;
 
         this.jsxw = puzzle;
+
+        // Expose ipuz string
+        window.ipuz = this.jsxw.toIpuzString();
 
         this.diagramless_mode = false;
 
@@ -933,8 +988,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.is_autofill = true;
         }
 
-        if (this.fakeclues || this.crossword_type === 'diagramless') {
-          // top-text is meaningless for fakeclues and diagramless puzzles
+        if (this.fakeclues || this.crossword_type === 'diagramless' || this.crossword_type === 'coded') {
+          // top-text is meaningless for fakeclues and diagramless puzzles (and coded!)
           $('div.cw-top-text-wrapper').css({
             display: 'none'
           });
@@ -978,6 +1033,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             },
             color: rawCell['background-color'] || null,
             shape: rawCell['background-shape'] || null,
+            image: rawCell['image'] || null,
             top_right_number: rawCell.top_right_number,
             fixed: rawCell.fixed === true // Preserve fixed flag from saved data
           };
@@ -1155,7 +1211,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           });
         }
 
-        console.log(this);
+        //console.log(this);
 
         this.completeLoad();
       }
@@ -1432,14 +1488,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           $.proxy(this.check_reveal, this, 'puzzle', 'clear')
         );
 
-        // DOWNLOAD
-        //this.download_btn.on('click', $.proxy(this.exportJPZ, this));
-
-        /** We're disabling save and load buttons **/
         // SAVE
-        //this.save_btn.on('click', $.proxy(this.saveGame, this));
+        this.save_btn.on('click', $.proxy(this.saveAsIpuz, this));
+
         // LOAD
-        //this.load_btn.on('click', $.proxy(this.loadGame, this));
+        this.load_btn.on('click', () => {
+          this.init();   // re-initialize
+          this.file_input.click();
+        });
 
         // TIMER
         this.timer_button.on('click', $.proxy(this.toggleTimer, this));
@@ -1972,6 +2028,19 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
               rect.setAttribute('fill', fillColor);
               fillGroup.appendChild(rect);
+
+              if (cell.image) {
+                const imageLayer = document.createElementNS(this.svgNS, 'image');
+                imageLayer.setAttribute('x', cellX);
+                imageLayer.setAttribute('y', cellY);
+                imageLayer.setAttribute('width', SIZE);
+                imageLayer.setAttribute('height', SIZE);
+                imageLayer.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+                imageLayer.setAttribute('class', 'cw-cell-image');
+                imageLayer.setAttribute('href', cell.image);
+                imageLayer.setAttributeNS('http://www.w3.org/1999/xlink', 'href', cell.image);
+                fillGroup.appendChild(imageLayer);
+              }
             }
 
             if (cell.shape === 'circle') {
@@ -2030,15 +2099,21 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             /* Determine the color of letters/numbers in the cell */
             // Default fill color
             let fontColorFill = this.config.font_color_fill;
-            // Brightness of the background and foreground
-            const bgBrightness = Color.getBrightness(fillColor || this.config.color_none);
-            const fgBrightness = Color.getBrightness(this.config.font_color_fill);
 
-            // If we fail to meet some threshold, invert
-            if (Math.abs(bgBrightness - fgBrightness) < 125) {
-              var thisRGB = Color.hexToRgb(this.config.font_color_fill);
-              var invertedRGB = thisRGB.map(x => 255 - x);
-              fontColorFill = Color.rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
+            if (cell.image) {
+              // Images should show text in black regardless of background brightness
+              fontColorFill = '#000000';
+            } else {
+              // Brightness of the background and foreground
+              const bgBrightness = Color.getBrightness(fillColor || this.config.color_none);
+              const fgBrightness = Color.getBrightness(this.config.font_color_fill);
+
+              // If we fail to meet some threshold, invert
+              if (Math.abs(bgBrightness - fgBrightness) < 125) {
+                var thisRGB = Color.hexToRgb(this.config.font_color_fill);
+                var invertedRGB = thisRGB.map(x => 255 - x);
+                fontColorFill = Color.rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
+              }
             }
 
             if (cell.letter) {
@@ -2473,13 +2548,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
             break;
           case 9: // tab
-            var skip_filled_words = this.config.tab_key === 'tab_skip';
-            if (e.shiftKey) {
-              this.moveToNextWord(true, skip_filled_words);
-            } else {
-              this.moveToNextWord(false, skip_filled_words);
-            }
-            break;
           case 13: // enter key -- same as tab
             var skip_filled_words = this.config.tab_key === 'tab_skip';
             if (e.shiftKey) {
@@ -2674,13 +2742,15 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.check_reveal('puzzle', 'reveal');
         }
 
-        confetti({
-          particleCount: 280,
-          spread: 190,
-          origin: {
-            y: 0.4
-          }
-        });
+        if (this.config.confetti_enabled) {
+          confetti({
+            particleCount: 280,
+            spread: 190,
+            origin: {
+              y: 0.4
+            }
+          });
+        }
 
         /* const winSound = new Audio('./sounds/hny.mp3');
            winSound.play();*/
@@ -2775,6 +2845,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         let groupIndex = this.activeClueGroupIndex ?? 0;
         const totalGroups = this.clueGroups.length;
         let safetyCounter = 0; // counts how many times we've wrapped between groups
+        const shouldSkipFilledWords =
+          skip_filled_words && this.hasUnfilledWords();
 
         while (safetyCounter < totalGroups * 2) {
           const currentGroup = this.clueGroups[groupIndex];
@@ -2797,7 +2869,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           }
 
           // Stop if this word is acceptable (either not filled or skipping disabled)
-          if (!skip_filled_words || !next_word.isFilled()) break;
+          if (!shouldSkipFilledWords || !next_word.isFilled()) break;
 
           // Otherwise, continue searching
           this_word = next_word;
@@ -2810,6 +2882,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.setActiveCell(cell);
           this.renderCells();
         }
+      }
+
+      hasUnfilledWords() {
+        return Object.values(this.words || {}).some(
+          (word) => word && !word.isFilled()
+        );
       }
 
       moveToFirstCell(to_last) {
@@ -3356,15 +3434,22 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             </div>
           </div>
 
-          <!-- Miscellaneous (only timer for now) -->
+          <!-- Miscellaneous -->
           <div class="settings-setting">
             <div class="settings-description">
-              Timer
+              Miscellaneous
             </div>
             <div class="settings-option">
               <label class="settings-label">
                 <input id="timer_autostart" checked="" type="checkbox" name="timer_autostart" class="settings-changer">
                   Start timer on puzzle open
+                </input>
+              </label>
+            </div>
+            <div class="settings-option">
+              <label class="settings-label">
+                <input id="confetti_enabled" checked="" type="checkbox" name="confetti_enabled" class="settings-changer">
+                  Confetti on solve
                 </input>
               </label>
             </div>
@@ -3675,6 +3760,28 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         } catch (err) {
           console.error("PDF generation failed:", err);
         }
+      }
+
+      saveAsIpuz(e) {
+        console.log(e);
+        const json = window.ipuz; // this should be a JSON *string*
+
+        // Create a Blob from the text
+        const blob = new Blob([json], { type: "application/json" });
+
+        // Create a temporary <a> element
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+
+        a.href = url;
+        const filename = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.ipuz';
+        a.download = filename; // filename for the dialog
+
+        // Trigger a click
+        a.click();
+
+        // Cleanup
+        URL.revokeObjectURL(url);
       }
 
       toggleTimer() {

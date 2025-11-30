@@ -24,6 +24,11 @@
     <!-- Shared CSS -->
     <link rel="stylesheet" href="./css/crossword.shared.css">
 
+    <!-- For app downloads -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#111111">
+
+
     <script>
         const mobile = CrosswordShared.isMobileDevice();
         console.log('[Device Detection]', {
@@ -91,6 +96,15 @@
 
           window.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(script);
+          });
+        }
+      </script>
+
+      <!-- For saving the app locally -->
+      <script>
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('sw.js').then(() => {
+            console.log('Service Worker registered!');
           });
         }
       </script>
