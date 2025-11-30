@@ -1033,6 +1033,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             },
             color: rawCell['background-color'] || null,
             shape: rawCell['background-shape'] || null,
+            image: rawCell['image'] || null,
             top_right_number: rawCell.top_right_number,
             fixed: rawCell.fixed === true // Preserve fixed flag from saved data
           };
@@ -2027,6 +2028,19 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
               rect.setAttribute('fill', fillColor);
               fillGroup.appendChild(rect);
+
+              if (cell.image) {
+                const imageLayer = document.createElementNS(this.svgNS, 'image');
+                imageLayer.setAttribute('x', cellX);
+                imageLayer.setAttribute('y', cellY);
+                imageLayer.setAttribute('width', SIZE);
+                imageLayer.setAttribute('height', SIZE);
+                imageLayer.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+                imageLayer.setAttribute('class', 'cw-cell-image');
+                imageLayer.setAttribute('href', cell.image);
+                imageLayer.setAttributeNS('http://www.w3.org/1999/xlink', 'href', cell.image);
+                fillGroup.appendChild(imageLayer);
+              }
             }
 
             if (cell.shape === 'circle') {
@@ -2085,15 +2099,21 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             /* Determine the color of letters/numbers in the cell */
             // Default fill color
             let fontColorFill = this.config.font_color_fill;
-            // Brightness of the background and foreground
-            const bgBrightness = Color.getBrightness(fillColor || this.config.color_none);
-            const fgBrightness = Color.getBrightness(this.config.font_color_fill);
 
-            // If we fail to meet some threshold, invert
-            if (Math.abs(bgBrightness - fgBrightness) < 125) {
-              var thisRGB = Color.hexToRgb(this.config.font_color_fill);
-              var invertedRGB = thisRGB.map(x => 255 - x);
-              fontColorFill = Color.rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
+            if (cell.image) {
+              // Images should show text in black regardless of background brightness
+              fontColorFill = '#000000';
+            } else {
+              // Brightness of the background and foreground
+              const bgBrightness = Color.getBrightness(fillColor || this.config.color_none);
+              const fgBrightness = Color.getBrightness(this.config.font_color_fill);
+
+              // If we fail to meet some threshold, invert
+              if (Math.abs(bgBrightness - fgBrightness) < 125) {
+                var thisRGB = Color.hexToRgb(this.config.font_color_fill);
+                var invertedRGB = thisRGB.map(x => 255 - x);
+                fontColorFill = Color.rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
+              }
             }
 
             if (cell.letter) {
