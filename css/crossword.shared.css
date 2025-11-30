@@ -664,6 +664,10 @@ div.is-dragover {
   transform-origin: center;
 }
 
+.cw-cell-image {
+  pointer-events: none;
+}
+
 /** Inputs **/
 input[type='checkbox'] {
   accent-color: #000000;
