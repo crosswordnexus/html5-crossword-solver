@@ -53,6 +53,7 @@ h3 {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
   border-radius: 0.5rem;
   padding: 1rem;
+  margin-top: 1rem;
 }
 
 button {
@@ -135,8 +136,10 @@ details p {
   border: 1px solid #ddd;
   border-radius: 0.25rem;
   background: #222;
-  width: 100%;
-  padding: 0.15rem;
+  /** width: 100%; **/
+  padding-left: 0.5rem;
+  padding-bottom: 0.5rem;
+  /** padding: 0.15rem; **/
   grid-auto-rows: minmax(0, 1fr);
   align-items: stretch;
   justify-items: stretch;
