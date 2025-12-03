@@ -46,34 +46,32 @@
       <input type="checkbox" id="replaceCircles" />
       Replace circles with shade
     </label>
+    <details id="gridCustomization" class="hidden">
+      <summary>Customize individual cells</summary>
+      <p style="margin: 0.5rem 0 0;">Click a cell to assign a color or upload an image that will show up when the puzzle is shared.</p>
+      <div id="gridPreview" aria-live="polite" aria-label="Puzzle grid preview"></div>
+      <div id="cellActions" class="hidden">
+        <div>
+          <strong id="selectedCellLabel"></strong>
+        </div>
+        <label>
+          Pick a color:
+          <input type="color" id="cellColorPicker" value="#ffffff" />
+          <button type="button" id="chooseCellColor">Choose</button>
+        </label>
+        <div id="colorHistory" class="color-history" aria-label="Recently used colors"></div>
+        <label>
+          Upload an image:
+          <input type="file" id="cellImageInput" accept="image/*" />
+        </label>
+        <div class="cell-actions-footer">
+          <button type="button" id="clearCellOverrides">Clear overrides</button>
+          <button type="button" id="clearCellColor">Clear color</button>
+        </div>
+      </div>
+    </details>
+    <button id="submitCustomization" class="hidden">Submit</button>
   </div>
-
-  <details id="gridCustomization" class="hidden">
-    <summary>Customize individual cells</summary>
-    <p style="margin: 0.5rem 0 0;">Click a cell to assign a color or upload an image that will show up when the puzzle is shared.</p>
-    <div id="gridPreview" aria-live="polite" aria-label="Puzzle grid preview"></div>
-    <div id="cellActions" class="hidden">
-      <div>
-        <strong id="selectedCellLabel"></strong>
-      </div>
-      <label>
-        Pick a color:
-        <input type="color" id="cellColorPicker" value="#ffffff" />
-        <button type="button" id="chooseCellColor">Choose</button>
-      </label>
-      <div id="colorHistory" class="color-history" aria-label="Recently used colors"></div>
-      <label>
-        Upload an image:
-        <input type="file" id="cellImageInput" accept="image/*" />
-      </label>
-      <div class="cell-actions-footer">
-        <button type="button" id="clearCellOverrides">Clear overrides</button>
-        <button type="button" id="clearCellColor">Clear color</button>
-      </div>
-    </div>
-  </details>
-
-  <button id="submitCustomization" class="hidden">Submit</button>
 
   <div id="results" class="hidden">
     <h3>Shareable Link:</h3>

@@ -137,8 +137,8 @@
     const normalized = color.toLowerCase();
     colorHistory = colorHistory.filter(c => c.toLowerCase() !== normalized);
     colorHistory.unshift(color);
-    if (colorHistory.length > 12) {
-      colorHistory = colorHistory.slice(0, 12);
+    if (colorHistory.length > 11) {
+      colorHistory = colorHistory.slice(0, 11);
     }
     saveColorHistory();
     renderColorHistory();
