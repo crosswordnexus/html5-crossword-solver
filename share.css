@@ -1,0 +1,245 @@
+h1 {
+  font-size: 1.4rem;
+}
+
+h3 {
+  margin-top: 0.25rem;
+}
+
+input[type=file] {
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+textarea {
+  width: 100%;
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.hidden {
+  display: none;
+}
+
+.customization {
+  margin-top: 0.5rem;
+  border: 1px solid #ccc;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+}
+
+.customization label {
+  display: block;
+  margin: 0.5rem 0;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #fafafa;
+  color: #222;
+}
+
+h1,
+h3 {
+  color: #333;
+}
+
+.customization,
+#results {
+  background: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+button {
+  border: none;
+  background: #ffcc00;
+  color: #222;
+  font-weight: 600;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  padding: 0.3rem 0.8rem;
+}
+
+button:hover {
+  background: #ffe94f;
+}
+
+/* DETAILS: "Learn more" section styling */
+details {
+  margin-top: 0.75rem;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0.4rem;
+  padding: 0.6rem 0.8rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
+}
+
+details:hover {
+  border-color: #ccc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+details p {
+  margin: 0.5rem 0 0 1.3rem;
+  /* indent content slightly */
+  color: #444;
+  font-size: 0.95em;
+  line-height: 1.4;
+}
+
+/* --- Drag and Drop --- */
+#dropZone {
+  margin-top: 0.5rem;
+  padding: 1.5rem;
+  border: 2px dashed #ccc;
+  border-radius: 0.5rem;
+  text-align: center;
+  color: #666;
+  transition: background 0.2s, border-color 0.2s;
+  margin-bottom: 1.5rem;
+}
+
+#dropZone.dragover {
+  border-color: #ffcc00;
+  background: #fff6cc;
+  color: #000;
+}
+
+#gridCustomization {
+  margin-top: 1rem;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+#gridPreview {
+  display: grid;
+  margin-top: 0.75rem;
+  gap: 0.15rem;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  background: #222;
+  width: 100%;
+  padding: 0.15rem;
+  grid-auto-rows: minmax(0, 1fr);
+  align-items: stretch;
+  justify-items: stretch;
+}
+
+.grid-cell {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  min-width: 24px;
+  border-radius: 0.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #111;
+  user-select: none;
+  transition: box-shadow 0.15s;
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+
+.grid-cell.selected {
+  box-shadow: 0 0 0 2px #ffcc00 inset;
+}
+
+.grid-cell.block {
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: default;
+}
+
+.grid-cell .grid-letter {
+  font-size: 0.55rem;
+  position: absolute;
+  top: 0.1rem;
+  left: 0.2rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.grid-letter-solution {
+  font-size: 0.9rem;
+  font-weight: 700;
+  pointer-events: none;
+  user-select: none;
+}
+
+#cellActions {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+#cellActions label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#cellActions input[type="color"] {
+  width: 40px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.color-history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.color-history button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0;
+}
+
+.color-history button:focus-visible {
+  outline: 2px solid #ffcc00;
+}
+
+.cell-actions-footer {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cell-actions-footer button {
+  background: #f2f2f2;
+  color: #222;
+  border: 1px solid #ccc;
+  border-radius: 0.3rem;
+  padding: 0.35rem 0.9rem;
+}
+
+.cell-actions-footer button.primary {
+  background: #ffcc00;
+  font-weight: 600;
+  border-color: #e3b800;
+}
