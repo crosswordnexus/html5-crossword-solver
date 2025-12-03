@@ -321,6 +321,7 @@
     status.textContent = `Reading ${file.name}...`;
     results.classList.add("hidden");
     customization.classList.add("hidden");
+    submitCustomization.classList.add("hidden");
     try {
       const buf = await readFileAsArrayBuffer(file);
       const xw = JSCrossword.fromData(new Uint8Array(buf));
@@ -331,6 +332,7 @@
       gridCustomization.classList.remove("hidden");
       status.textContent = `✅ "${xw.metadata.title}" by ${xw.metadata.author}`;
       customization.classList.remove("hidden");
+      submitCustomization.classList.remove("hidden");
       rebuildWorkingPuzzle();
     } catch (err) {
       console.error(err);
@@ -397,6 +399,7 @@
       replace_circles: shade
     };
     const configB64 = btoa(JSON.stringify(config));
+    console.log(workingPuzzle);
     const encoded = workingPuzzle.serialize();
     const basePath = window.location.pathname.replace(/[^/]+$/, "");
     const baseUrl = `${window.location.origin}${basePath}`;
