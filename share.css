@@ -129,6 +129,7 @@ details p {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
 }
 
+/* Grid preview itself is just a wrapper around the cell buttons. */
 #gridPreview {
   display: grid;
   margin-top: 0.75rem;

@@ -36,6 +36,7 @@
   let cellCustomizations = {};
   let selectedCellKey = null;
 
+  // Convert a hex or rgba color string into an RGB object for brightness calculations.
   function hexToRgb(hex) {
     if (!hex || typeof hex !== "string") return null;
     let value = hex.trim();
@@ -63,6 +64,7 @@
     };
   }
 
+  // Choose either black or white depending on perceived brightness to keep letters legible.
   function getContrastColor(hex) {
     const rgb = hexToRgb(hex);
     if (!rgb) {
@@ -72,6 +74,7 @@
     return brightness > 150 ? "#111" : "#fff";
   }
 
+  // Load saved customization defaults (colors & circle shading) into the controls.
   function loadPrefs() {
     let prefs = { ...DEFAULT_PREFS };
     try {
@@ -87,6 +90,7 @@
     replaceCirclesCheckbox.checked = prefs.replaceCircles;
   }
 
+  // Persist control state so the user’s next visit sees the same defaults.
   function savePrefs() {
     const prefs = {
       primaryColor: document.getElementById("primaryColor").value || DEFAULT_PREFS.primaryColor,
@@ -100,6 +104,7 @@
     }
   }
 
+  // Pull the recent-color list from storage (fallback to an empty array).
   function loadColorHistory() {
     try {
       const saved = JSON.parse(localStorage.getItem(COLOR_HISTORY_KEY));
@@ -112,6 +117,7 @@
     return [];
   }
 
+  // Persist the recent-color list so it survives reloads.
   function saveColorHistory() {
     try {
       localStorage.setItem(COLOR_HISTORY_KEY, JSON.stringify(colorHistory));
@@ -120,6 +126,7 @@
     }
   }
 
+  // Render the recent-color pills into the UI and hook their click actions.
   function renderColorHistory() {
     colorHistoryEl.innerHTML = "";
     colorHistory.forEach(color => {
@@ -133,17 +140,19 @@
     });
   }
 
+  // Keep the recent-color list de-duplicated and sized within an eleven entry cap.
   function updateColorHistory(color) {
     const normalized = color.toLowerCase();
     colorHistory = colorHistory.filter(c => c.toLowerCase() !== normalized);
     colorHistory.unshift(color);
-    if (colorHistory.length > 11) {
-      colorHistory = colorHistory.slice(0, 11);
+    if (colorHistory.length > 10) {
+      colorHistory = colorHistory.slice(0, 10);
     }
     saveColorHistory();
     renderColorHistory();
   }
 
+  // Promise wrapper around FileReader to get raw puzzle bytes.
   async function readFileAsArrayBuffer(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -153,6 +162,7 @@
     });
   }
 
+  // Helper used by the image uploader to turn files into embeddable data URIs.
   async function readFileAsDataURL(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -162,6 +172,7 @@
     });
   }
 
+  // Deep-copy a JSCrossword instance so we can mutate a working copy safely.
   function clonePuzzle(xw) {
     const data = JSON.parse(JSON.stringify({
       metadata: xw.metadata,
@@ -172,6 +183,7 @@
     return new JSCrossword(data.metadata, data.cells, data.words, data.clues);
   }
 
+  // Keep the label near the cell editor in sync with the selected coordinates/image state.
   function updateSelectedCellLabel() {
     if (!selectedCellKey) return;
     const [x, y] = selectedCellKey.split("-").map(Number);
@@ -183,6 +195,7 @@
     selectedCellLabel.textContent = label;
   }
 
+  // Apply the currently picked color to the active cell and optionally refresh history.
   function applyColorToActiveCell(color, updateHistory = true) {
     if (!selectedCellKey) return;
     const customization = cellCustomizations[selectedCellKey] || {};
@@ -195,6 +208,7 @@
     }
   }
 
+  // Attach an uploaded image to the selected cell for sharing.
   function applyImageToActiveCell(dataUrl) {
     if (!selectedCellKey) return;
     const customization = cellCustomizations[selectedCellKey] || {};
@@ -204,6 +218,7 @@
     updateSelectedCellLabel();
   }
 
+  // Flood the UI with info for the selected grid cell.
   function selectCell(cellKey) {
     selectedCellKey = cellKey;
     const customization = cellCustomizations[cellKey];
@@ -213,6 +228,7 @@
     renderGridPreview();
   }
 
+  // Rebuild workingPuzzle (used for serialization) and respect any per-cell overrides.
   function rebuildWorkingPuzzle() {
     if (!originalPuzzle) return;
     workingPuzzle = clonePuzzle(originalPuzzle);
@@ -246,6 +262,7 @@
     renderGridPreview();
   }
 
+  // Redraw the grid preview so it reflects the current workingPuzzle and selection.
   function renderGridPreview() {
     if (!workingPuzzle) {
       gridPreview.innerHTML = "";
