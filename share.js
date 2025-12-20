@@ -20,6 +20,10 @@
   const embedCode = document.getElementById("embedCode");
   const submitCustomization = document.getElementById("submitCustomization");
   const dropZone = document.getElementById("dropZone");
+  // Keep the resized asset predictable so shared URLs stay short.
+  const CELL_IMAGE_MAX_DIMENSION = 150;
+  const CELL_IMAGE_QUALITY = 0.7;
+  const CELL_IMAGE_TYPE = "image/jpeg";
 
   const LS_KEY = "xwSharerPrefs";
   const COLOR_HISTORY_KEY = "xwSharerColorHistory";
@@ -169,6 +173,77 @@
       reader.onload = () => resolve(reader.result);
       reader.onerror = reject;
       reader.readAsDataURL(file);
+    });
+  }
+
+  async function loadImageForCompression(file) {
+    const url = URL.createObjectURL(file);
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      // Attach handlers to resolve/reject once the image finishes decoding.
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve(img);
+      };
+      img.onerror = err => {
+        URL.revokeObjectURL(url);
+        reject(err);
+      };
+      img.src = url;
+    });
+  }
+
+  // Estimate raw byte size from a base64 data URL so we can log what hits the share link.
+  function dataUrlByteSize(dataUrl) {
+    // Base64 strings expand storage by 33%, so reverse that to estimate raw bytes.
+    const base64 = dataUrl.split(",")[1] || "";
+    if (!base64) return 0;
+    const padding = base64.endsWith("==") ? 2 : base64.endsWith("=") ? 1 : 0;
+    return Math.round((base64.length * 3) / 4) - padding;
+  }
+
+  // Fallback resizing path when Compressor.js is unavailable; uses the canvas API directly.
+  async function canvasCompressCellImage(file) {
+    const img = await loadImageForCompression(file);
+    const maxSide = Math.max(img.width, img.height, 1);
+    const scale = Math.min(1, CELL_IMAGE_MAX_DIMENSION / maxSide);
+    const width = Math.max(1, Math.round(img.width * scale));
+    const height = Math.max(1, Math.round(img.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    // Redraw the decoded image into a smaller context to enforce the 150px cap.
+    ctx.drawImage(img, 0, 0, width, height);
+    const dataUrl = canvas.toDataURL(CELL_IMAGE_TYPE, CELL_IMAGE_QUALITY);
+    return {
+      dataUrl,
+      size: dataUrlByteSize(dataUrl)
+    };
+  }
+
+  // Prefer the CDN-provided Compressor.js constructor when possible but keep a canvas backup.
+  async function compressCellImage(file) {
+    const CompressorCtor = typeof globalThis !== "undefined" ? globalThis.Compressor : undefined;
+    if (!CompressorCtor) {
+      // Library not loaded yet? Use our own canvas path instead.
+      return canvasCompressCellImage(file);
+    }
+    return new Promise((resolve, reject) => {
+      new CompressorCtor(file, {
+        type: CELL_IMAGE_TYPE,
+        quality: CELL_IMAGE_QUALITY,
+        maxWidth: CELL_IMAGE_MAX_DIMENSION,
+        maxHeight: CELL_IMAGE_MAX_DIMENSION,
+        convertSize: 0,
+        success(blob) {
+          // The compressor always emits a Blob, but we store base64 so keep the logging data consistent.
+          readFileAsDataURL(blob).then(dataUrl => resolve({ dataUrl, size: blob.size }), reject);
+        },
+        error(err) {
+          reject(err);
+        }
+      });
     });
   }
 
@@ -372,7 +447,13 @@
     const file = cellImageInput.files[0];
     if (!file) return;
     try {
-      const dataUrl = await readFileAsDataURL(file);
+      const originalSize = file.size;
+      const { dataUrl, size: compressedSize } = await compressCellImage(file);
+      const ratio = originalSize ? (compressedSize / originalSize) * 100 : 0;
+      // Report the before/after sizes so we can judge how much the share URL shrinks.
+      console.log(
+        `[cell image] "${file.name}": ${originalSize} → ${compressedSize} bytes (${ratio.toFixed(1)}%)`
+      );
       applyImageToActiveCell(dataUrl);
     } finally {
       cellImageInput.value = "";
