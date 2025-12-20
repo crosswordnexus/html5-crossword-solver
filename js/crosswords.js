@@ -3740,7 +3740,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         const a = document.createElement("a");
 
         a.href = url;
-        const filename = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.ipuz';
+        // Try to sanitize the title for a filename
+        let filename1 = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        if (!filename1) {
+          // if this didn't work, revert to just "puzzle"
+          filename1 = 'puzzle';
+        }
+        const filename = filename1 + '.ipuz';
         a.download = filename; // filename for the dialog
 
         // Trigger a click
