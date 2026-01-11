@@ -197,6 +197,24 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     var load_error = false;
 
     var CROSSWORD_TYPES = ['crossword', 'coded', 'acrostic'];
+    const FILE_ACCEPT_EXTENSIONS = '.puz,.xml,.jpz,.xpz,.ipuz,.cfp';
+    const IS_IPAD_SAFARI_OR_FIREFOX = (function() {
+      if (typeof navigator === 'undefined') {
+        return false;
+      }
+      const ua = navigator.userAgent || '';
+      const platform = navigator.platform || '';
+      const isIpad =
+        ua.includes('iPad') ||
+        (platform === 'MacIntel' && navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+      if (!isIpad) {
+        return false;
+      }
+      const isSafari =
+        /\bSafari\b/i.test(ua) && !/Chrome|CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua);
+      const isFirefox = /FxiOS|Firefox/i.test(ua);
+      return isSafari || isFirefox;
+    })();
     var xw_timer,
       xw_timer_seconds = 0;
 
@@ -221,7 +239,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
               📥 Install this app for offline solving
             </button>
           </div>
-          <input type = "file" class = "cw-open-jpz" accept = ".puz,.xml,.jpz,.xpz,.ipuz,.cfp">
+          <input type = "file" class = "cw-open-jpz">
 
         </div>
         <!-- End overlay -->
@@ -647,6 +665,12 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         // build structures
         this.root = $(template);
+        const fileInput = this.root.find('input.cw-open-jpz');
+        if (IS_IPAD_SAFARI_OR_FIREFOX) {
+          fileInput.removeAttr('accept');
+        } else {
+          fileInput.attr('accept', FILE_ACCEPT_EXTENSIONS);
+        }
         this.top_text = this.root.find('div.cw-top-text');
         //this.bottom_text = this.root.find('div.cw-bottom-text');
         this.clues_holder = this.root.find('div.cw-clues-holder');
@@ -924,7 +948,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.completion_message = puzzle.metadata.completion_message || "Puzzle solved!";
 
         if (this.title) {
-          document.title = this.title + ' | ' + document.title;
+          document.title = this.title + ' | Crossword Nexus Solver';
         }
         if (this.crossword_type == 'acrostic' || this.crossword_type == 'coded') {
           this.is_autofill = true;
@@ -3722,7 +3746,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         const a = document.createElement("a");
 
         a.href = url;
-        const filename = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.ipuz';
+        // Try to sanitize the title for a filename
+        let filename1 = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        if (!filename1) {
+          // if this didn't work, revert to just "puzzle"
+          filename1 = 'puzzle';
+        }
+        const filename = filename1 + '.ipuz';
         a.download = filename; // filename for the dialog
 
         // Trigger a click
