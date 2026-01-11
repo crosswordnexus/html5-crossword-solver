@@ -38,6 +38,8 @@ This file contains shared styles always loaded (mobile or desktop)
     --modal-content-bg-color: #E9E3DC;
 
     --keyboard-button-bg-color: #cbc4bd;
+
+    --timer-running-bgcolor: #90ee90;
  }
 
 .cw-main,
@@ -462,6 +464,7 @@ div.is-dragover {
   --button-background-color-hover: var(--button-hover-color);
   color: var(--timer-running-text-color);
   text-shadow: var(--timer-runnning-text-shadow);
+  background-color: var(--timer-running-bgcolor);
 }
 
 /* small gray button for notes */
