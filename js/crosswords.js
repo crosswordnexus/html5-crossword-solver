@@ -3786,14 +3786,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           // Stop the timer
           clearTimeout(xw_timer);
           timer_btn.removeClass('running');
-          timer_btn.addClass('blink'); // Add blinking effect
+          timer_btn.addClass('paused');
           this.timer_running = false;
           if (!IS_MOBILE) {
             this.hidden_input.focus();
           }
         } else {
           // Start the timer
-          timer_btn.removeClass('blink'); // Remove blinking effect
+          timer_btn.removeClass('paused');
           this.timer_running = true;
           timer_btn.addClass('running');
           if (!IS_MOBILE) {
