@@ -149,8 +149,8 @@ $(document).ready(function() {
       let drawer;
       let touchStartY = null;
 
-      if (!canvas || !buttons || !content || !clues) {
-        return setTimeout(tryWrapLayout, 100);
+      if (!canvas || !buttons || !content || !clues || !clues.querySelector(".cw-clues, .cw-clues-top, .cw-clues-bottom")) {
+        return setTimeout(tryWrapLayout, 50);
       }
 
       // Safe to remove .cw-grid AFTER canvas is grabbed
@@ -169,12 +169,10 @@ $(document).ready(function() {
       mobileClues.className = 'cw-mobile-clues-holder';
 
       // Move top and bottom clues into this container
-      const across = document.querySelector('.cw-clues-top');
-      const down = document.querySelector('.cw-clues-bottom');
+      const clueBlocks = Array.from(clues.querySelectorAll(".cw-clues"));
 
-      if (across && down) {
-        mobileClues.appendChild(across);
-        mobileClues.appendChild(down);
+      if (clueBlocks.length) {
+        clueBlocks.forEach((block) => mobileClues.appendChild(block));
       }
 
       // Create container to hold grid + clues side by side
