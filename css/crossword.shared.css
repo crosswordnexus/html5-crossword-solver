@@ -40,6 +40,7 @@ This file contains shared styles always loaded (mobile or desktop)
     --keyboard-button-bg-color: #cbc4bd;
 
     --timer-running-bgcolor: #90ee90;
+    --timer-paused-bgcolor: #ffc107;
  }
 
 .cw-main,
@@ -294,10 +295,6 @@ div.is-dragover {
   }
 }
 
-.blink {
-  animation: blinking 1.5s infinite;
-}
-
 /* The Close Button */
 .modal-close {
   color: white;
@@ -465,6 +462,11 @@ div.is-dragover {
   color: var(--timer-running-text-color);
   text-shadow: var(--timer-runnning-text-shadow);
   background-color: var(--timer-running-bgcolor);
+}
+
+/* Paused timer */
+.cw-button-timer.paused {
+  background-color: var(--timer-paused-bgcolor);
 }
 
 /* small gray button for notes */
