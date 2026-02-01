@@ -2523,6 +2523,18 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
             break;
           case 190: // "." key pressed
+            if (this.selected_cell && (e.ctrlKey || e.metaKey)) {
+              // ctrl + "." toggles circle
+              const cell = this.selected_cell;
+              cell.shape = cell.shape === 'circle' ? null : 'circle';
+              this.renderCells();
+              if (!IS_MOBILE) {
+                this.hidden_input.focus();
+              }
+              prevent = true;
+              break;
+            }
+
             if (this.diagramless_mode && this.selected_cell) {
               const cell = this.selected_cell;
 
