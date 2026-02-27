@@ -17,7 +17,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 const CONFIGURABLE_SETTINGS = [
   "skip_filled_letters", "arrow_direction", "space_bar", "tab_key",
   "timer_autostart", "dark_mode_enabled", "gray_completed_clues",
-  "confetti_enabled"
+  "confetti_enabled", "notepad_name",
 ];
 
 // Since DarkReader is an external library, make sure it exists
@@ -29,90 +29,6 @@ try {
 
 // one-time check for mobile device status
 const IS_MOBILE = CrosswordShared.isMobileDevice();
-
-// Helper function for PWA setup
-function setupPWAInstallButton(btn) {
-  if (!btn) {
-    console.warn("Install button not found.");
-    return; // Safe early exit
-  }
-
-  let deferredPrompt = null;  // <-- persist between handlers
-
-  // Listen only if button exists
-  window.addEventListener('beforeinstallprompt', (event) => {
-    event.preventDefault();
-    deferredPrompt = event;  // <-- now correctly stored
-
-    btn.show();
-
-    btn.off('click').on('click', async () => {
-      if (!deferredPrompt) return; // extra safety
-
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-
-      btn.hide();
-      deferredPrompt = null;  // prevents reuse
-    });
-  });
-
-  window.addEventListener('appinstalled', () => {
-    btn.hide();
-  });
-}
-
-
-// Helper function to draw an arrow in a square
-function drawArrow(context, top_x, top_y, square_size, direction = "right") {
-  const headlen = square_size / 5; // length of the arrowhead
-  const centerX = top_x + square_size / 2;
-  const centerY = top_y + square_size / 2;
-  let fromX, fromY, toX, toY;
-
-  switch (direction) {
-    case "right":
-      fromX = top_x + square_size / 4;
-      fromY = centerY;
-      toX = top_x + (3 * square_size) / 4;
-      toY = centerY;
-      break;
-    case "left":
-      fromX = top_x + (3 * square_size) / 4;
-      fromY = centerY;
-      toX = top_x + square_size / 4;
-      toY = centerY;
-      break;
-    case "up":
-      fromX = centerX;
-      fromY = top_y + (3 * square_size) / 4;
-      toX = centerX;
-      toY = top_y + square_size / 4;
-      break;
-    case "down":
-      fromX = centerX;
-      fromY = top_y + square_size / 4;
-      toX = centerX;
-      toY = top_y + (3 * square_size) / 4;
-      break;
-  }
-
-  const dx = toX - fromX;
-  const dy = toY - fromY;
-  const angle = Math.atan2(dy, dx);
-
-  context.beginPath();
-  context.moveTo(fromX, fromY);
-  context.lineTo(toX, toY);
-  context.stroke();
-
-  context.beginPath();
-  context.moveTo(toX, toY);
-  context.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
-  context.moveTo(toX, toY);
-  context.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
-  context.stroke();
-}
 
 // Main crossword javascript for the Crossword Nexus HTML5 Solver
 (function(global, factory) {
@@ -156,7 +72,9 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       gray_completed_clues: false,
       forced_theme: null,
       lock_theme: false,
-      min_sidebar_clue_width: 220
+      min_sidebar_clue_width: 220,
+      save_game_limit: 10,
+      notepad_name: 'Notes',
     };
 
     // constants
@@ -500,6 +418,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
     );
 
     function escape(string) {
+      /** This is handled upstream, in JSCrossword **/
       //return String(string).replace(escapeRegex, (s) =>
       //  s.length > 1 ? s : entityMap[s]
       //);
@@ -526,6 +445,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       constructor(parent, user_config) {
         this.parent = parent;
         this.config = {};
+        this.saveTimeout = null;
         // Load solver config
         var saved_settings = {};
         try {
@@ -646,6 +566,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         this.handleClickWindow = this.handleClickWindow.bind(this);
         this.windowResized = this.windowResized.bind(this);
+        this.updateClueLayout = this.updateClueLayout.bind(this);
 
         this.init();
       }
@@ -712,6 +633,29 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.remove();
         }
 
+        // Reset state
+        this.activeClueGroupIndex = 0;
+        this.selected_word = null;
+        this.selected_cell = null;
+        this.hilited_word = null;
+        this.isSolved = false;
+        this.diagramless_mode = false;
+        this.savegame_name = null;
+        this.timer_running = false;
+        this.xw_timer_seconds = 0;
+        xw_timer_seconds = 0; // Reset global timer variable
+
+        this.cells = {};
+        this.words = {};
+        this.clueGroups = [];
+        this.displayClueGroups = null;
+
+        this.has_reveal = true;
+        this.has_check = true;
+        this.is_autofill = false;
+        this.completion_message = "Puzzle solved!";
+        this.notes = new Map();
+
         // build structures
         this.root = $(template);
         const fileInput = this.root.find('input.cw-open-jpz');
@@ -725,7 +669,6 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.clues_holder = this.root.find('div.cw-clues-holder');
 
         this.toptext = this.root.find('.cw-top-text-wrapper');
-        this.notes = new Map();
 
         this.settings_btn = this.root.find('.cw-settings-button');
 
@@ -804,6 +747,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.load_btn.show();
 
           this.open_button.on('click', () => {
+            this.file_input.val('');
             this.file_input.click();
           });
 
@@ -818,7 +762,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
           // Show PWA install button
           const btn = this.root.find('#installAppBtn');
-          setupPWAInstallButton(btn);
+          CrosswordShared.setupPWAInstallButton(btn);
 
           // drag-and-drop
           if (isAdvancedUpload) {
@@ -961,6 +905,8 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         };
         const myHash = simpleHash(JSON.stringify(puzzle));
         this.savegame_name = STORAGE_KEY + '_' + myHash;
+        localStorage.setItem(this.savegame_name + "_lastmodified", Date.now());
+        this.cleanupSaves();
 
         const versionKey = this.savegame_name + '_version';
         const savedVersion = localStorage.getItem(versionKey);
@@ -1000,6 +946,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.copyright = puzzle.metadata.copyright || '';
         this.crossword_type = puzzle.metadata.crossword_type;
         this.fakeclues = puzzle.metadata.fakeclues || false;
+        this.realwords = puzzle.metadata.realwords || false;
         this.notepad = puzzle.metadata.description || '';
         this.grid_width = puzzle.metadata.width;
         this.grid_height = puzzle.metadata.height;
@@ -1275,7 +1222,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           ${
             this.notepad
               ? `<button class="cw-button cw-button-notepad">
-                   <span class="cw-button-icon">📝</span> Notes
+                   <span class="cw-button-icon">📝</span> ${this.config.notepad_name}
                  </button>`
               : ''
           }
@@ -1346,6 +1293,13 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           this.toggleTimer();
         }
 
+        // and whenever window resizes
+        window.removeEventListener('resize', this.updateClueLayout);
+        window.addEventListener('resize', this.updateClueLayout);
+
+      } // end completeLoad
+
+      updateClueLayout() {
         /** Some JS magic to deal with weird numbers of clue lists **/
         const holder = document.querySelector('.cw-clues-holder');
         if (!holder) return; // nothing to do if it doesn't exist
@@ -1353,30 +1307,21 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         const clues = holder.querySelectorAll('.cw-clues');
         if (!clues.length) return;
 
-        const MIN_AVG_WIDTH = this.config.min_sidebar_clue_width; // tweak this breakpoint
+        const MIN_AVG_WIDTH = this.config.min_sidebar_clue_width || 220; // tweak this breakpoint
 
-        function updateClueLayout() {
-          // available width per clue list
-          const avgWidth = holder.offsetWidth / clues.length;
-          const useColumn = avgWidth < MIN_AVG_WIDTH;
+        // available width per clue list
+        const avgWidth = holder.offsetWidth / clues.length;
+        const useColumn = avgWidth < MIN_AVG_WIDTH;
 
-          // apply layout
-          holder.style.flexDirection = useColumn ? 'column' : 'row';
-          clues.forEach(clue => {
-            clue.style.width = useColumn ? 'auto' : '';
-          });
+        // apply layout
+        holder.style.flexDirection = useColumn ? 'column' : 'row';
+        clues.forEach(clue => {
+          clue.style.width = useColumn ? 'auto' : '';
+        });
 
-          // optional debug log
-          // console.log(`→ avgWidth=${avgWidth.toFixed(1)}, layout=${useColumn ? 'column' : 'row'}`);
-        }
-
-        // run once on load
-        updateClueLayout();
-
-        // and whenever window resizes
-        window.addEventListener('resize', updateClueLayout);
-
-      } // end completeLoad
+        // optional debug log
+        // console.log(`→ avgWidth=${avgWidth.toFixed(1)}, layout=${useColumn ? 'column' : 'row'}`);
+      }
 
       remove() {
         this.removeListeners();
@@ -1386,6 +1331,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       removeGlobalListeners() {
         $(window).off('click', this.handleClickWindow);
         $(window).off('resize', this.windowResized);
+        window.removeEventListener('resize', this.updateClueLayout);
       }
 
       removeListeners() {
@@ -1417,10 +1363,25 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         this.hidden_input.off('input');
         this.hidden_input.off('keydown');
+        $(document).off('keydown');
+
+        // Clear pending saves
+        if (this.saveTimeout) {
+          clearTimeout(this.saveTimeout);
+          this.saveTimeout = null;
+        }
+
+        // Stop timer
+        if (xw_timer) {
+          clearTimeout(xw_timer);
+          xw_timer = null;
+        }
       }
 
       addListeners() {
+        $(window).off('click', this.handleClickWindow);
         $(window).on('click', this.handleClickWindow);
+        $(window).off('resize', this.windowResized);
         $(window).on('resize', this.windowResized);
 
         this.root.delegate(
@@ -1517,7 +1478,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         // LOAD
         this.load_btn.on('click', () => {
-          this.init();   // re-initialize
+          // Re-initialize to a clean state
+          this.init();
+          // Reset file input value to allow opening the same file again
+          this.file_input.val('');
           this.file_input.click();
         });
 
@@ -1555,7 +1519,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
         this.notepad_btn.on('click', $.proxy(this.showNotepad, this));
 
-        $(document).on('keydown', $.proxy(this.keyPressed, this));
+        $(document).off('keydown').on('keydown', $.proxy(this.keyPressed, this));
 
         this.svgContainer.addEventListener('click', (e) => {
           if (e.target.tagName === 'rect') {
@@ -2550,26 +2514,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             this.checkIfSolved();
             break;
           case 8: // backspace
-            if (this.selected_cell && !this.selected_cell.fixed) {
-              this.selected_cell.letter = '';
-              this.selected_cell.checked = false;
-              this.autofill();
-
-              if (this.diagramless_mode) {
-                // Move to the previous editable cell based on current diagramless direction
-                const prev = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, -1);
-                if (prev) this.setActiveCell(prev);
-              } else if (this.selected_word) {
-                const prev_cell = this.selected_word.getPreviousCell(
-                  this.selected_cell.x,
-                  this.selected_cell.y
-                );
-                this.setActiveCell(prev_cell);
-              }
-
-              this.renderCells();
-              this.checkIfSolved();
-            }
+            this.backspace();
             break;
           case 9: // tab
           case 13: // enter key -- same as tab
@@ -2581,6 +2526,18 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
             }
             break;
           case 190: // "." key pressed
+            if (this.selected_cell && (e.ctrlKey || e.metaKey)) {
+              // ctrl + "." toggles circle
+              const cell = this.selected_cell;
+              cell.shape = cell.shape === 'circle' ? null : 'circle';
+              this.renderCells();
+              if (!IS_MOBILE) {
+                this.hidden_input.focus();
+              }
+              prevent = true;
+              break;
+            }
+
             if (this.diagramless_mode && this.selected_cell) {
               const cell = this.selected_cell;
 
@@ -2660,6 +2617,29 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         if (prevent) {
           e.preventDefault();
           e.stopPropagation();
+        }
+      }
+
+      backspace() {
+        if (this.selected_cell && !this.selected_cell.fixed) {
+          this.selected_cell.letter = '';
+          this.selected_cell.checked = false;
+          this.autofill();
+
+          if (this.diagramless_mode) {
+            // Move to the previous editable cell based on current diagramless direction
+            const prev = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, -1);
+            if (prev) this.setActiveCell(prev);
+          } else if (this.selected_word) {
+            const prev_cell = this.selected_word.getPreviousCell(
+              this.selected_cell.x,
+              this.selected_cell.y
+            );
+            this.setActiveCell(prev_cell);
+          }
+
+          this.renderCells();
+          this.checkIfSolved();
         }
       }
 
@@ -3106,11 +3086,17 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
       // callback for clicking a clue in the sidebar
       clueClicked(e) {
-        if (this.fakeclues || this.diagramless_mode) return;
-
         const target = $(e.currentTarget);
         const word = this.words[target.data('word')];
         if (!word) return;
+
+        if (this.fakeclues) {
+          word.fakeClueCompleted = !Boolean(word.fakeClueCompleted);
+          this.updateClueAppearance(word);
+          return;
+        }
+
+        if (this.diagramless_mode) return;
 
         const cell = word.getFirstEmptyCell() || word.getFirstCell();
         if (!cell) return;
@@ -3141,7 +3127,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       showNotepad() {
-        this.createModalBox('Notes', escape(this.notepad));
+        this.createModalBox(this.config.notepad_name, escape(this.notepad));
       }
 
       /**
@@ -3583,49 +3569,100 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
 
       /* Save the game to local storage */
       saveGame() {
+        if (this.saveTimeout) {
+          clearTimeout(this.saveTimeout);
+        }
+        this.saveTimeout = setTimeout(() => {
+          this.saveGameImmediate();
+          this.saveTimeout = null;
+        }, 500); // Debounce for 500ms
+      }
+
+      saveGameImmediate() {
         // fill jsxw
         this.fillJsXw();
         // stringify
         const jsxw_str = JSON.stringify(this.jsxw.cells);
-        localStorage.setItem(this.savegame_name, jsxw_str);
-        localStorage.setItem(this.savegame_name + "_notes", JSON.stringify(Array.from(this.notes.entries()).map(n => {
-          return {
-            key: n[0],
-            value: n[1]
+        try {
+          localStorage.setItem(this.savegame_name, jsxw_str);
+          localStorage.setItem(this.savegame_name + "_notes", JSON.stringify(Array.from(this.notes.entries()).map(n => {
+            return {
+              key: n[0],
+              value: n[1]
+            }
+          })));
+          localStorage.setItem(this.savegame_name + "_lastmodified", Date.now());
+          /*localStorage.setItem(this.savegame_name + '_version', PUZZLE_STORAGE_VERSION);*/
+        } catch (e) {
+          console.error('[Crossword] localStorage save failed. Attempting cleanup...', e);
+          const currentLimit = this.config.save_game_limit || 10;
+          this.cleanupSaves(Math.floor(currentLimit / 2)); // Be more aggressive if we hit quota
+          try {
+            // try again once
+            localStorage.setItem(this.savegame_name, jsxw_str);
+            localStorage.setItem(this.savegame_name + "_lastmodified", Date.now());
+          } catch (e2) {
+            console.error('[Crossword] localStorage save failed even after cleanup.', e2);
           }
-        })));
-        /*localStorage.setItem(this.savegame_name + '_version', PUZZLE_STORAGE_VERSION);*/
+        }
       }
 
-      /* Show "load game" menu" */
-      loadGameMenu() {
-        // Find all the savegames
-        var innerHTML = '';
-        for (var i = 0; i < localStorage.length; i++) {
-          var thisKey = localStorage.key(i);
-          if (thisKey.startsWith(STORAGE_KEY)) {
-            var thisJsXw = JSON.parse(localStorage.getItem(localStorage.key(i)));
-            var thisDisplay = thisKey.substr(STORAGE_KEY.length);
-            innerHTML += `
-            <label class="settings-label">
-              <input id="${thisKey}" checked="" type="radio" class="loadgame-changer">
-                ${thisDisplay}
-              </input>
-            </label>
-            `;
-          }
+      /* Keep only the most recent saves */
+      cleanupSaves(limit = null) {
+        if (limit === null) {
+          limit = this.config.save_game_limit || 10;
         }
-        if (!innerHTML) {
-          innerHTML = 'No save games found.';
+        const saves = [];
+        const keysToPurge = [];
+
+        // Identify all potential save keys first to avoid iterator issues during deletion
+        const allKeys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          allKeys.push(localStorage.key(i));
         }
 
-        // Create a modal box
-        var loadgameHTML = `
-        <div class="loadgame-wrapper">
-          ${innerHTML}
-        </div>
-        `;
-        this.createModalBox('Load Game', loadgameHTML);
+        allKeys.forEach(key => {
+          if (key.startsWith(STORAGE_KEY + '_') &&
+            !key.endsWith('_notes') &&
+            !key.endsWith('_version') &&
+            !key.endsWith('_lastmodified')) {
+
+            const lastModifiedStr = localStorage.getItem(key + '_lastmodified');
+
+            if (!lastModifiedStr && key !== this.savegame_name) {
+              // Legacy save without timestamp - user indicated it is safe to delete
+              keysToPurge.push(key);
+            } else {
+              saves.push({
+                key,
+                lastModified: parseInt(lastModifiedStr || Date.now().toString(), 10)
+              });
+            }
+          }
+        });
+
+        // 1. Purge legacy saves
+        keysToPurge.forEach(key => {
+          localStorage.removeItem(key);
+          localStorage.removeItem(key + '_notes');
+          localStorage.removeItem(key + '_version');
+          localStorage.removeItem(key + '_lastmodified');
+        });
+
+        // 2. enforce limit on remaining timestamped saves
+        if (saves.length <= limit) return;
+
+        // Sort by lastModified descending
+        saves.sort((a, b) => b.lastModified - a.lastModified);
+
+        // Delete older ones
+        for (let i = limit; i < saves.length; i++) {
+          const keyToDelete = saves[i].key;
+          localStorage.removeItem(keyToDelete);
+          localStorage.removeItem(keyToDelete + '_notes');
+          localStorage.removeItem(keyToDelete + '_version');
+          localStorage.removeItem(keyToDelete + '_lastmodified');
+        }
       }
 
       /* Load a game from local storage */
@@ -3862,12 +3899,10 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
       }
 
       updateClueAppearance(word) {
-        const clueEl = this.clues_holder.find(`.cw-clue.word-${word.id} .cw-clue-text`);
+        const clueEl = $(document).find(`.cw-clue.word-${word.id} .cw-clue-text`);
 
-        if (this.fakeclues) return;
-
-        if (!this.config.gray_completed_clues) {
-          // Reset clue styling if the setting is turned off
+        if (!this.config.gray_completed_clues && !this.fakeclues) {
+          // Reset clue styling if the setting is turned off and this is not fakeclues
           clueEl.css({
             "text-decoration": "",
             "color": ""
@@ -3875,17 +3910,14 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
           return;
         }
 
-        if (word.isFilled()) {
-          clueEl.css({
-            "text-decoration": "",
-            "color": "#aaa"
-          });
-        } else {
-          clueEl.css({
-            "text-decoration": "",
-            "color": ""
-          });
-        }
+        const shouldGray = this.fakeclues
+          ? Boolean(word.fakeClueCompleted)
+          : word.isFilled();
+
+        clueEl.css({
+          "text-decoration": "",
+          "color": shouldGray ? "#aaa" : ""
+        });
       }
     }
 
@@ -4052,6 +4084,7 @@ function drawArrow(context, top_x, top_y, square_size, direction = "right") {
         this.cells = [];
         this.clue = {};
         this.refs_raw = [];
+        this.fakeClueCompleted = false;
         this.crossword = crossword;
         if (data) {
           if (

@@ -43,6 +43,37 @@ window.CrosswordShared = {
     const isiPad = ua.includes("iPad") || (ua.includes("Mac") && navigator.maxTouchPoints > 1);
     const isMobileUA = /android|iphone|ipod|mobile/i.test(ua);
     return isTouch && (isMobileUA || isiPad);
+  },
+
+  setupPWAInstallButton(btn) {
+    if (!btn) {
+      console.warn("Install button not found.");
+      return; // Safe early exit
+    }
+
+    let deferredPrompt = null;  // <-- persist between handlers
+
+    // Listen only if button exists
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredPrompt = event;  // <-- now correctly stored
+
+      btn.show();
+
+      btn.off('click').on('click', async () => {
+        if (!deferredPrompt) return; // extra safety
+
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+
+        btn.hide();
+        deferredPrompt = null;  // prevents reuse
+      });
+    });
+
+    window.addEventListener('appinstalled', () => {
+      btn.hide();
+    });
   }
 };
 
