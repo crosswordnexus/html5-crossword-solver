@@ -191,35 +191,39 @@ $(document).ready(function() {
       // Append grid + clues layout into the main wrapper
       wrapper.appendChild(gridClueWrapper);
 
-      // Rebind clue clicks for mobile container
-      mobileClues.querySelectorAll('.cw-clue').forEach(el => {
-        el.addEventListener('click', (e) => {
-          const target = $(e.currentTarget);
-          const wordId = target.data('word');
-          const word = gCrossword.words[wordId];
+      // Use delegated events for clue clicks
+      $(mobileClues).on('click', '.cw-clue', (e) => {
+        const target = $(e.currentTarget);
+        const wordId = target.data('word');
+        const word = gCrossword.words[wordId];
 
-          if (!word) return;
+        if (!word) return;
 
-          const cell = word.getFirstEmptyCell() || word.getFirstCell();
-          if (cell) {
-            gCrossword.setActiveWord(word);
-            if (gCrossword.clueGroups[gCrossword.activeClueGroupIndex].id !== target.data('clues')) {
-              gCrossword.changeActiveClues();
-            }
-            gCrossword.setActiveCell(cell);
+        if (gCrossword.fakeclues) {
+          word.fakeClueCompleted = !Boolean(word.fakeClueCompleted);
+          gCrossword.updateClueAppearance(word);
+          return;
+        }
 
-            // ✅ Manually trigger clue highlighting
-            gCrossword.clueGroups.forEach(group => {
-              // The first param (`isInactive`) is true for all groups except the active one
-              const isInactive = group !== this.clueGroups[this.activeClueGroupIndex];
-              if (typeof group.markActive === 'function') {
-                group.markActive(cell.x, cell.y, isInactive, gCrossword.fakeclues);
-              }
-            });
-
-            gCrossword.renderCells();
+        const cell = word.getFirstEmptyCell() || word.getFirstCell();
+        if (cell) {
+          gCrossword.setActiveWord(word);
+          if (gCrossword.clueGroups[gCrossword.activeClueGroupIndex].id !== target.data('clues')) {
+            gCrossword.changeActiveClues();
           }
-        });
+          gCrossword.setActiveCell(cell);
+
+          // ✅ Manually trigger clue highlighting
+          gCrossword.clueGroups.forEach(group => {
+            // The first param (`isInactive`) is true for all groups except the active one
+            const isInactive = group !== this.clueGroups[this.activeClueGroupIndex];
+            if (typeof group.markActive === 'function') {
+              group.markActive(cell.x, cell.y, isInactive, gCrossword.fakeclues);
+            }
+          });
+
+          gCrossword.renderCells();
+        }
       });
 
       // Create drawer container
@@ -461,25 +465,8 @@ function createCustomKeyboard() {
       }
 
       function performBackspace() {
-        if (gCrossword.selected_cell && !gCrossword.selected_cell.fixed) {
-          gCrossword.selected_cell.letter = '';
-          gCrossword.selected_cell.checked = false;
-          gCrossword.autofill();
-
-          if (gCrossword.diagramless_mode) {
-            // Move to the previous editable cell based on current diagramless direction
-            const prev = gCrossword.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, -1);
-            if (prev) gCrossword.setActiveCell(prev);
-          } else if (gCrossword.selected_word) {
-            const prev_cell = gCrossword.selected_word.getPreviousCell(
-              gCrossword.selected_cell.x,
-              gCrossword.selected_cell.y
-            );
-            gCrossword.setActiveCell(prev_cell);
-          }
-
-          gCrossword.renderCells();
-          gCrossword.checkIfSolved();
+        if (gCrossword) {
+          gCrossword.backspace();
         }
       }
 
