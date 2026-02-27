@@ -888,6 +888,8 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         this.copyright = puzzle.metadata.copyright || '';
         this.crossword_type = puzzle.metadata.crossword_type;
         this.fakeclues = puzzle.metadata.fakeclues || false;
+        this.realwords = puzzle.metadata.realwords || false;
+        this.is_autofill = puzzle.metadata.autofill || false;
         this.notepad = puzzle.metadata.description || '';
         this.grid_width = puzzle.metadata.width;
         this.grid_height = puzzle.metadata.height;
@@ -896,6 +898,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         if (this.title) {
           document.title = this.title + ' | Crossword Nexus Solver';
         }
+        // Override default autofill setting for certain puzzle types
         if (this.crossword_type == 'acrostic' || this.crossword_type == 'coded') {
           this.is_autofill = true;
         }
