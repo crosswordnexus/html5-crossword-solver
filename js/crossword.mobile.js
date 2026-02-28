@@ -194,16 +194,19 @@ $(document).ready(function() {
       // Use delegated events for clue clicks
       $(mobileClues).on('click', '.cw-clue', (e) => {
         const target = $(e.currentTarget);
+        const clue = target.data('clue');
         const wordId = target.data('word');
         const word = gCrossword.words[wordId];
 
-        if (!word) return;
-
         if (gCrossword.fakeclues) {
-          word.fakeClueCompleted = !Boolean(word.fakeClueCompleted);
-          gCrossword.updateClueAppearance(word);
+          if (clue) {
+            clue.fakeClueCompleted = !Boolean(clue.fakeClueCompleted);
+            gCrossword.updateClueAppearance(clue, target);
+          }
           return;
         }
+
+        if (!word) return;
 
         const cell = word.getFirstEmptyCell() || word.getFirstCell();
         if (cell) {

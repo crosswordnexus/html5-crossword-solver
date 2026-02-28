@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<crossword-compiler-applet
+	xmlns="http://crossword.info/xml/crossword-compiler-applet">
+	<applet-settings cursor-color="#00b100" selected-cells-color="#80ff80">
+		<completion only-if-correct="true">Congratulations! The puzzle is solved correctly.</completion>
+		<actions buttons-layout="left">
+			<reveal-word label="Reveal Word"/>
+			<reveal-letter label="Reveal Letter"/>
+			<check label="Check"/>
+			<solution label="Solution"/>
+			<pencil label="Pencil"/>
+		</actions>
+	</applet-settings>
+	<rectangular-puzzle
+		xmlns="http://crossword.info/xml/rectangular-puzzle">
+		<metadata>
+			<title>I Keep Forgettin'</title>
+			<creator>Alex Boisvert</creator>
+			<copyright>© 2021 Crossword Nexus. CC BY 4.0 License.</copyright>
+			<instructions>In this puzzle the across clues are presented in order, but the down clues are alphabetized. You must figure out which down clue goes where.</instructions>
+		</metadata>
+		<crossword>
+			<grid width="8" height="8">
+				<grid-look numbering-scheme="normal"/>
+				<cell x="1" y="1" solution="R" number="1"/>
+				<cell x="2" y="1" solution="A" number="2"/>
+				<cell x="3" y="1" solution="D" number="3"/>
+				<cell x="4" y="1" type="block"/>
+				<cell x="5" y="1" type="block"/>
+				<cell x="6" y="1" solution="M" number="4"/>
+				<cell x="7" y="1" solution="P" number="5"/>
+				<cell x="8" y="1" solution="S" number="6"/>
+				<cell x="1" y="2" solution="A" number="7"/>
+				<cell x="2" y="2" solution="C"/>
+				<cell x="3" y="2" solution="D"/>
+				<cell x="4" y="2" solution="C" number="8"/>
+				<cell x="5" y="2" type="block"/>
+				<cell x="6" y="2" solution="R" number="9"/>
+				<cell x="7" y="2" solution="O"/>
+				<cell x="8" y="2" solution="T"/>
+				<cell x="1" y="3" solution="M" number="10"/>
+				<cell x="2" y="3" solution="A"/>
+				<cell x="3" y="3" solution="T"/>
+				<cell x="4" y="3" solution="A"/>
+				<cell x="5" y="3" type="block"/>
+				<cell x="6" y="3" solution="E" number="11"/>
+				<cell x="7" y="3" solution="L"/>
+				<cell x="8" y="3" solution="A"/>
+				<cell x="1" y="4" type="block"/>
+				<cell x="2" y="4" type="block"/>
+				<cell x="3" y="4" type="block"/>
+				<cell x="4" y="4" solution="R" number="12"/>
+				<cell x="5" y="4" solution="A" number="13"/>
+				<cell x="6" y="4" solution="D"/>
+				<cell x="7" y="4" solution="O"/>
+				<cell x="8" y="4" solution="N"/>
+				<cell x="1" y="5" solution="S" number="14"/>
+				<cell x="2" y="5" solution="A" number="15"/>
+				<cell x="3" y="5" solution="V" number="16"/>
+				<cell x="4" y="5" solution="O"/>
+				<cell x="5" y="5" solution="R"/>
+				<cell x="6" y="5" type="block"/>
+				<cell x="7" y="5" type="block"/>
+				<cell x="8" y="5" type="block"/>
+				<cell x="1" y="6" solution="A" number="17"/>
+				<cell x="2" y="6" solution="R"/>
+				<cell x="3" y="6" solution="E"/>
+				<cell x="4" y="6" type="block"/>
+				<cell x="5" y="6" solution="T" number="18"/>
+				<cell x="6" y="6" solution="A" number="19"/>
+				<cell x="7" y="6" solution="C" number="20"/>
+				<cell x="8" y="6" solution="T" number="21"/>
+				<cell x="1" y="7" solution="T" number="22"/>
+				<cell x="2" y="7" solution="E"/>
+				<cell x="3" y="7" solution="N"/>
+				<cell x="4" y="7" type="block"/>
+				<cell x="5" y="7" solution="E" number="23"/>
+				<cell x="6" y="7" solution="V"/>
+				<cell x="7" y="7" solution="A"/>
+				<cell x="8" y="7" solution="N"/>
+				<cell x="1" y="8" solution="E" number="24"/>
+				<cell x="2" y="8" solution="D"/>
+				<cell x="3" y="8" solution="T"/>
+				<cell x="4" y="8" type="block"/>
+				<cell x="5" y="8" type="block"/>
+				<cell x="6" y="8" solution="A" number="25"/>
+				<cell x="7" y="8" solution="N"/>
+				<cell x="8" y="8" solution="T"/>
+			</grid>
+			<word id="1">
+				<cells x="1" y="1"/>
+				<cells x="2" y="1"/>
+				<cells x="3" y="1"/>
+			</word>
+			<word id="4">
+				<cells x="6" y="1"/>
+				<cells x="7" y="1"/>
+				<cells x="8" y="1"/>
+			</word>
+			<word id="7">
+				<cells x="1" y="2"/>
+				<cells x="2" y="2"/>
+				<cells x="3" y="2"/>
+				<cells x="4" y="2"/>
+			</word>
+			<word id="9">
+				<cells x="6" y="2"/>
+				<cells x="7" y="2"/>
+				<cells x="8" y="2"/>
+			</word>
+			<word id="10">
+				<cells x="1" y="3"/>
+				<cells x="2" y="3"/>
+				<cells x="3" y="3"/>
+				<cells x="4" y="3"/>
+			</word>
+			<word id="11">
+				<cells x="6" y="3"/>
+				<cells x="7" y="3"/>
+				<cells x="8" y="3"/>
+			</word>
+			<word id="12">
+				<cells x="4" y="4"/>
+				<cells x="5" y="4"/>
+				<cells x="6" y="4"/>
+				<cells x="7" y="4"/>
+				<cells x="8" y="4"/>
+			</word>
+			<word id="14">
+				<cells x="1" y="5"/>
+				<cells x="2" y="5"/>
+				<cells x="3" y="5"/>
+				<cells x="4" y="5"/>
+				<cells x="5" y="5"/>
+			</word>
+			<word id="17">
+				<cells x="1" y="6"/>
+				<cells x="2" y="6"/>
+				<cells x="3" y="6"/>
+			</word>
+			<word id="18">
+				<cells x="5" y="6"/>
+				<cells x="6" y="6"/>
+				<cells x="7" y="6"/>
+				<cells x="8" y="6"/>
+			</word>
+			<word id="22">
+				<cells x="1" y="7"/>
+				<cells x="2" y="7"/>
+				<cells x="3" y="7"/>
+			</word>
+			<word id="23">
+				<cells x="5" y="7"/>
+				<cells x="6" y="7"/>
+				<cells x="7" y="7"/>
+				<cells x="8" y="7"/>
+			</word>
+			<word id="24">
+				<cells x="1" y="8"/>
+				<cells x="2" y="8"/>
+				<cells x="3" y="8"/>
+			</word>
+			<word id="25">
+				<cells x="6" y="8"/>
+				<cells x="7" y="8"/>
+				<cells x="8" y="8"/>
+			</word>
+			<word id="1001">
+				<cells x="1" y="1"/>
+				<cells x="1" y="2"/>
+				<cells x="1" y="3"/>
+			</word>
+			<word id="1002">
+				<cells x="2" y="1"/>
+				<cells x="2" y="2"/>
+				<cells x="2" y="3"/>
+			</word>
+			<word id="1003">
+				<cells x="3" y="1"/>
+				<cells x="3" y="2"/>
+				<cells x="3" y="3"/>
+			</word>
+			<word id="1004">
+				<cells x="6" y="1"/>
+				<cells x="6" y="2"/>
+				<cells x="6" y="3"/>
+				<cells x="6" y="4"/>
+			</word>
+			<word id="1005">
+				<cells x="7" y="1"/>
+				<cells x="7" y="2"/>
+				<cells x="7" y="3"/>
+				<cells x="7" y="4"/>
+			</word>
+			<word id="1006">
+				<cells x="8" y="1"/>
+				<cells x="8" y="2"/>
+				<cells x="8" y="3"/>
+				<cells x="8" y="4"/>
+			</word>
+			<word id="1008">
+				<cells x="4" y="2"/>
+				<cells x="4" y="3"/>
+				<cells x="4" y="4"/>
+				<cells x="4" y="5"/>
+			</word>
+			<word id="1013">
+				<cells x="5" y="4"/>
+				<cells x="5" y="5"/>
+				<cells x="5" y="6"/>
+				<cells x="5" y="7"/>
+			</word>
+			<word id="1014">
+				<cells x="1" y="5"/>
+				<cells x="1" y="6"/>
+				<cells x="1" y="7"/>
+				<cells x="1" y="8"/>
+			</word>
+			<word id="1015">
+				<cells x="2" y="5"/>
+				<cells x="2" y="6"/>
+				<cells x="2" y="7"/>
+				<cells x="2" y="8"/>
+			</word>
+			<word id="1016">
+				<cells x="3" y="5"/>
+				<cells x="3" y="6"/>
+				<cells x="3" y="7"/>
+				<cells x="3" y="8"/>
+			</word>
+			<word id="1019">
+				<cells x="6" y="6"/>
+				<cells x="6" y="7"/>
+				<cells x="6" y="8"/>
+			</word>
+			<word id="1020">
+				<cells x="7" y="6"/>
+				<cells x="7" y="7"/>
+				<cells x="7" y="8"/>
+			</word>
+			<word id="1021">
+				<cells x="8" y="6"/>
+				<cells x="8" y="7"/>
+				<cells x="8" y="8"/>
+			</word>
+			<clues>
+				<title>
+					<b>Across</b>
+				</title>
+				<clue word="1" number="1">Diameters' halves</clue>
+				<clue word="4" number="4">Little puckish sorts</clue>
+				<clue word="7" number="7">Tart</clue>
+				<clue word="9" number="9"><i>Quiet ___</i></clue>
+				<clue word="10" number="10">Tropical cocktail made with rum</clue>
+				<clue word="11" number="11">Director Kazan of <i>On The Waterfront</i></clue>
+				<clue word="12" number="12">Call police headquarters, maybe</clue>
+				<clue word="14" number="14">Hero</clue>
+				<clue word="17" number="17">Grammy winner India.___</clue>
+				<clue word="18" number="18">Unspoken</clue>
+				<clue word="22" number="22">Marketing connection, such as Happy Meal toys released in conjunction with a movie</clue>
+				<clue word="23" number="23">Dasani competitor</clue>
+				<clue word="24" number="24">Make some changes before print</clue>
+				<clue word="25" number="25">Contraction that's in the dictionary, so learn to live with it</clue>
+			</clues>
+			<clues fake="true">
+				<title>
+					<b>Down</b>
+				</title>
+				<clue word="1001" number="•">Bandleader Shaw</clue>
+				<clue word="1003" number="•">Bogged (down)</clue>
+				<clue word="1002" number="•">Berry with supposed health benefits</clue>
+				<clue word="1004" number="•">Clothing company that specializes in running and yoga wear</clue>
+				<clue word="1005" number="•">Disease that afflicted FDR</clue>
+				<clue word="1006" number="•">Egypt's capital</clue>
+				<clue word="1008" number="•"><i>Gymnopédie</i> Composer Erik</clue>
+				<clue word="1013" number="•">Hue</clue>
+				<clue word="1014" number="•">Mark left by red wine</clue>
+				<clue word="1015" number="•">Noted committer of fratricide</clue>
+				<clue word="1016" number="•">Oversized Starbucks order</clue>
+				<clue word="1019" number="•">Showed on TV</clue>
+				<clue word="1020" number="•"><i>Spider-Man</i> director Sam</clue>
+				<clue word="1021" number="•">Words of confession</clue>
+			</clues>
+		</crossword>
+	</rectangular-puzzle>
+</crossword-compiler-applet>
