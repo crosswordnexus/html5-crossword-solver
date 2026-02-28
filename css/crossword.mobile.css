@@ -296,6 +296,13 @@ html.mobile-mode {
   font-size: 0;
 }
 
+.crossword.mobile #cw-puzzle-grid text {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
 .crossword.mobile .custom-key.cw-key-left,
 .crossword.mobile .custom-key.cw-key-right {
   font-weight: bold;
