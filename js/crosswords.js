@@ -529,6 +529,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           title: 'Across',
           clues: [],
           words_ids: [],
+          fake: true,
         });
 
         let down_group = new CluesGroup(this, {
@@ -536,6 +537,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           title: 'Down',
           clues: [],
           words_ids: [],
+          fake: true,
         });
 
         const clueMapping = {};
@@ -1071,7 +1073,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               title,
               clues,
               words_ids,
-              fake: Boolean(clueSet.fake || this.fakeclues),
+              fake: Boolean(clueSet.fake),
             });
 
             this.clueGroups.push(group);
@@ -3908,7 +3910,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         this.clues_container = null;
         this.words_ids = [];
         this.crossword = crossword;
-        this.isFake = data.fake || false;
+        this.isFake = data.fake || this.crossword.fakeclues || false;
         if (data) {
           if (
             data.hasOwnProperty('id') &&
