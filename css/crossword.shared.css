@@ -7,6 +7,7 @@ This file contains shared styles always loaded (mobile or desktop)
 **/
 
 :root {
+    /* Colors */
     --main-bg-color: #ffffff;
     --header-bg-color: #E9E3DC;
     --content-bg-color: #E9E3DC;
@@ -14,7 +15,7 @@ This file contains shared styles always loaded (mobile or desktop)
     --button-text-color: #000000;
     --button-hover-color: #B1A79C;
     --button-note-timer-color: #EEEEEE;
-    --button-note-timer-hover: #99999;
+    --button-note-timer-hover: #999999;
     --button-note-timer-border: #888888;
     --button-menu-bg-color: #FFFFFF;
     --top-text-wrapper-bg-color: #fff5d7;
@@ -22,6 +23,8 @@ This file contains shared styles always loaded (mobile or desktop)
     --clues-holder-bg-color: #EDE7DF;
     --clue-active-color: #ffeb3f;
     --clue-active-text-color: #000000;
+    --clue-passive-color: #c3c3c3;
+    --clue-passive-text-color: #000000;
     --clue-hover-color: #c3c3c3;
     --cluenote-text-color: #000000;
     --cluenote-hilite-color: #71706e;
@@ -29,20 +32,75 @@ This file contains shared styles always loaded (mobile or desktop)
     --clue-scrollbar-color-thumb: #bf3028;
     --clue-scrollbar-color-thumb-hover: #bf3028;
     --main-text-color: #000000;
-    --grid-selected-square-color: #da854a;
-    --grid-selected-word-color: #eabc9b;
+
+    /* Grid Specific Colors */
+    --grid-selected-square-color: #FF4136;
+    --grid-selected-square-text-color: #ffffff;
+    --grid-selected-word-color: #FEE300;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #3F3F3F;
-    --grid-none-color: #FFE8F2;
+    --grid-none-color: #FFFFFF;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #F8E473;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #212121;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
+
+    /* Modals */
     --modal-header-bg-color: #999999;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #E9E3DC;
+    --modal-text-color: #000000;
 
-    --keyboard-button-bg-color: #cbc4bd;
+    /* Timer */
+    --timer-running-bgcolor: #90ee90;
+    --timer-running-text-color: #000000;
+    --timer-paused-bgcolor: #ffc107;
+    --timer-paused-text-color: #000000;
+
+    /* Shadows and Borders */
+    --main-shadow: 0px 2px 15px 6px rgba(0, 0, 0, 0.15);
+    --mobile-shadow: 0 -2px 6px var(--border-color);
+    --border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode {
+    --main-bg-color: #121212;
+    --header-bg-color: #1e1e1e;
+    --content-bg-color: #1e1e1e;
+    --main-text-color: #e0e0e0;
+    
+    --top-text-wrapper-bg-color: #2c2c2c;
+    --top-text-wrapper-text-color: #e0e0e0;
+    
+    --clues-holder-bg-color: #181818;
+    --clue-active-color: #444444;
+    --clue-active-text-color: #ffffff;
+    --clue-passive-color: #333333;
+    --clue-passive-text-color: #dddddd;
+    --clue-hover-color: #2a2a2a;
+    --cluenote-text-color: #cccccc;
+    
+    --grid-block-color: #000000;
+    --grid-none-color: #1e1e1e;
+    --grid-none-text-color: #e0e0e0;
+    --grid-stroke-color: #333333;
+    --grid-number-color: #bbbbbb;
+    --grid-letter-color: #ffffff;
+
+    --modal-content-bg-color: #2c2c2c;
+    --modal-text-color: #e0e0e0;
 
     --timer-running-bgcolor: #90ee90;
+    --timer-running-text-color: #000000;
     --timer-paused-bgcolor: #ffc107;
- }
-
+    --timer-paused-text-color: #000000;
+    
+    --main-shadow: 0px 2px 15px 6px rgba(0, 0, 0, 0.5);
+    --mobile-shadow: 0 -2px 6px rgba(0, 0, 0, 0.5);
+    --border-color: rgba(255, 255, 255, 0.1);
+}
 .cw-main,
 .cw-main * {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -116,7 +174,7 @@ div.cw-overflow {
   left: 0;
   height: 100%;
   width: 100%;
-  background: white;
+  background: var(--main-bg-color);
   z-index: -1;
 }
 
@@ -158,7 +216,7 @@ div.has-advanced-upload {
 }
 
 div.is-dragover {
-  background-color: #fff5d7;
+  background-color: var(--top-text-wrapper-bg-color);
 }
 
 .cw-main {
@@ -211,7 +269,7 @@ div.is-dragover {
   background: var(--modal-content-bg-color);
   margin: auto;
   padding: 0;
-  border: 1px solid #888;
+  border: 1px solid var(--button-note-timer-border);
   width: 80%;
   max-width: 600px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -335,8 +393,8 @@ div.is-dragover {
 
 .cw-menu {
   background-color: var(--button-menu-bg-color);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--main-shadow);
   padding: 0.2em 0;
   position: absolute;
   z-index: 1;
@@ -416,7 +474,7 @@ div.is-dragover {
   font-weight: 500;
   border: none;
   border-radius: 8px;
-  box-shadow: 0 1px 6px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--main-shadow);
   transition: background-color 0.25s ease, transform 0.1s ease;
   cursor: pointer;
   display: inline-flex;
@@ -428,7 +486,7 @@ div.is-dragover {
 .cw-button-timer {
   background-color: var(--button-note-timer-color);
   --button-background-color-hover: var(--button-note-timer-hover);
-  color: var(--timer-text-color);
+  color: var(--button-text-color);
   font-size: 0.8em;
   font-weight: 600;
   border-radius: 999px;
@@ -439,12 +497,12 @@ div.is-dragover {
 .cw-button:hover {
   background-color: var(--button-background-color-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--main-shadow);
 }
 
 .cw-button:active {
   transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--main-shadow);
 }
 
 /* large button for initial overlay */
@@ -467,6 +525,7 @@ div.is-dragover {
 /* Paused timer */
 .cw-button-timer.paused {
   background-color: var(--timer-paused-bgcolor);
+  color: var(--timer-paused-text-color) !important;
 }
 
 /* small gray button for notes */
@@ -549,7 +608,7 @@ div.is-dragover {
   color: var(--top-text-wrapper-text-color);
   flex-shrink: 0;
   border-radius: 4px;
-  box-shadow: 0px -2px 15px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--main-shadow);
 }
 
 .cw-clue-number {
@@ -611,10 +670,10 @@ div.is-dragover {
 }
 
 .cw-clue.passive {
-  /* box-shadow: 0 0 0 2px var(--clue-active-color) inset; */
+  background: var(--clue-passive-color);
+  color: var(--clue-passive-text-color);
   margin-right: 3px;
   transition: all 0.1s ease-in-out;
-  background: #ccc;
 }
 
 .cw-clue.completed {
@@ -675,14 +734,18 @@ div.is-dragover {
 
 /** Inputs **/
 input[type='checkbox'] {
-  accent-color: #000000;
+  accent-color: var(--main-text-color);
 }
 
 input[type='radio'] {
-  accent-color: #000000;
+  accent-color: var(--main-text-color);
 }
 
 /* Settings */
+.settings-wrapper {
+  color: var(--modal-text-color);
+}
+
 .settings-setting {
   padding-top: 5px;
   padding-bottom: 5px;

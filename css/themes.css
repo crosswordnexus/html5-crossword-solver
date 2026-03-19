@@ -16,6 +16,35 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 **/
 /* CSS for using the Crossweird Crossword Solver */
 
+.crosswordnexus-theme {
+    --main-bg-color: #ffffff;
+    --header-bg-color: #E9E3DC;
+    --content-bg-color: #E9E3DC;
+    --button-bg-color: #cbc4bd;
+    --button-text-color: #000000;
+    --button-hover-color: #B1A79C;
+    --top-text-wrapper-bg-color: #fff5d7;
+    --top-text-wrapper-text-color: #000000;
+    --clues-holder-bg-color: #EDE7DF;
+    --clue-active-color: #ffeb3f;
+    --clue-active-text-color: #000000;
+    --clue-hover-color: #c3c3c3;
+    --main-text-color: #000000;
+    --grid-selected-square-color: #da854a;
+    --grid-selected-square-text-color: #ffffff;
+    --grid-selected-word-color: #eabc9b;
+    --grid-selected-word-text-color: #000000;
+    --grid-block-color: #3F3F3F;
+    --grid-none-color: #FFE8F2;
+    --grid-none-text-color: #000000;
+    --grid-stroke-color: #212121;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
+    --modal-header-bg-color: #999999;
+    --modal-header-text-color: #000000;
+    --modal-content-bg-color: #E9E3DC;
+ }
+
 .pride-theme {
     --main-bg-color: #ffffff;
     --header-bg-color: #f4afc9;
@@ -43,9 +72,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb2: #2fcdfb;*/
     --main-text-color: #000000;
     --grid-selected-square-color: #f4afc9;
+    --grid-selected-square-text-color: #000000;
     --grid-selected-word-color: #fbe3ec;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #3F3F3F;
     --grid-none-color: #FFE8F2;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #b384d5;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #3F3F3F;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #f4afc9;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #fbe3ec;
@@ -78,9 +115,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb2: #2fcdfb;*/
     --main-text-color: #000000;
     --grid-selected-square-color: #916844;
+    --grid-selected-square-text-color: #ffffff;
     --grid-selected-word-color: #d2b7a0;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #3F3F3F;
     --grid-none-color: #FFE8F2;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #d2b7a0;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #3F3F3F;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #d2b7a0;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #e4deca;
@@ -113,9 +158,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb2: #2fcdfb;*/
     --main-text-color: #000000;
     --grid-selected-square-color: #e3addd;
+    --grid-selected-square-text-color: #000000;
     --grid-selected-word-color: #f7e8f5;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #3F3F3F;
     --grid-none-color: #FFE8F2;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #F0E690;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #3F3F3F;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #FAF1A0;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #FCFAD9;
@@ -148,9 +201,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb2: #2fcdfb;*/
     --main-text-color: #000000;
     --grid-selected-square-color: #da854a;
+    --grid-selected-square-text-color: #000000;
     --grid-selected-word-color: #eabc9b;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #3F3F3F;
     --grid-none-color: #FFE8F2;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #e3a67b;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #3F3F3F;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #e3a67b;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #E9E3DC;
@@ -183,9 +244,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb2: #2fcdfb;*/
     --main-text-color: #000000;
     --grid-selected-square-color: #b0bef7;
+    --grid-selected-square-text-color: #000000;
     --grid-selected-word-color: #e6eafc;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #3F3F3F;
     --grid-none-color: #FFE8F2;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #9ec9f5;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #3F3F3F;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #9ec9f5;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #EBF4FC;
@@ -218,9 +287,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb2: #2fcdfb;*/
     --main-text-color: #000000;
     --grid-selected-square-color: #56D6FC;
+    --grid-selected-square-text-color: #000000;
     --grid-selected-word-color: #FFCFE4;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #3F3F3F;
     --grid-none-color: #FFE8F2;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #D998B5;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #3F3F3F;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #56D6FC;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #FFC4DF;
@@ -252,9 +329,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb2: #b8cce3;*/
     --main-text-color: #000000;
     --grid-selected-square-color: #F25477;
+    --grid-selected-square-text-color: #000000;
     --grid-selected-word-color: #FFDCDC;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #3F3F3F;
     --grid-none-color: #FFFFFF;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #F5C4C4;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #3F3F3F;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #ffc1c1;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #ffe8e8;
@@ -285,9 +370,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb2: #4f6170;*/
     --main-text-color: #DEDCD9;
     --grid-selected-square-color: #322533;
+    --grid-selected-square-text-color: #FFFFFF;
     --grid-selected-word-color: #EFF5E9;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #0D0C0C;
     --grid-none-color: #3F4D59;
+    --grid-none-text-color: #FFFFFF;
+    --grid-hilite-color: #322533;
+    --grid-hilite-text-color: #FFFFFF;
+    --grid-stroke-color: #575a63;
+    --grid-number-color: #DEDCD9;
+    --grid-letter-color: #DEDCD9;
     --modal-header-bg-color: #3F4D59;
     --modal-header-text-color: #FFFFFF;
     --modal-content-bg-color: #202124;
@@ -319,9 +412,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb2: #424230;*/
     --main-text-color: #000000;
     --grid-selected-square-color: #754E42;
+    --grid-selected-square-text-color: #FFFFFF;
     --grid-selected-word-color: #F7DFD0;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #3F3F3F;
     --grid-none-color: #FFFFFF;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #B39C84;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #3F3F3F;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #F7DFD0;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #CCBBA9;
@@ -351,9 +452,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb-hover: #6e6a7a;
     --main-text-color: #000000;
     --grid-selected-square-color: #6F6C9D;
+    --grid-selected-square-text-color: #FFFFFF;
     --grid-selected-word-color: #dfdfea;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #2b256f;
     --grid-none-color: #FFFFFF;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #b3b1cb;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #2b256f;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #817d8e;
     --modal-header-text-color: #ffffff;
     --modal-content-bg-color: #dfdfea;
@@ -385,9 +494,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb2: #e67e4f;*/
     --main-text-color: #000000;
     --grid-selected-square-color: #506E85;
+    --grid-selected-square-text-color: #FFFFFF;
     --grid-selected-word-color: #C3D8E6;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #3F3F3F;
     --grid-none-color: #FFFFFF;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #CCC8C8;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #3F3F3F;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #9DBBD1;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #f2f2f2;
@@ -418,9 +535,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb2: #cce1bd;*/
     --main-text-color: #000000;
     --grid-selected-square-color: #9DB08F;
+    --grid-selected-square-text-color: #000000;
     --grid-selected-word-color: #EFF5E9;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #3F3F3F;
     --grid-none-color: #FFFFFF;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #E0D1B8;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #3F3F3F;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #E1EDD8;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #FFF3E0;
@@ -450,9 +575,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb-hover: #9eb933;
     --main-text-color: #000000;
     --grid-selected-square-color: #7976a4;
+    --grid-selected-square-text-color: #FFFFFF;
     --grid-selected-word-color: #dfdfea;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #2b256f;
     --grid-none-color: #FFFFFF;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #bed565;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #2b256f;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #bed565;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #F0F7CB;
@@ -484,9 +617,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-scrollbar-color-thumb2: #56321f;*/
     --main-text-color: #000000;
     --grid-selected-square-color: #9e2a2b;
+    --grid-selected-square-text-color: #FFFFFF;
     --grid-selected-word-color: #E3AF7B;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #3F3F3F;
     --grid-none-color: #FFFFFF;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #B87337;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #3F3F3F;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #E3AF7B;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #D99357;
@@ -512,15 +653,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     --clue-hover-color: #EBDEC7;
     --cluenote-text-color: #000000;
     --clue-scrollbar-color-track: #FFFBF2;
-    --clue-scrollbar-color-thumb: #ffe5b2;
+    --clue-scrollbar-color-thumb: #ffe4b9;
     --clue-scrollbar-color-thumb-hover: #ffd78b;
-    /*--clue-scrollbar-color-thumb1: #ffe5b2;
+    /*--clue-scrollbar-color-thumb1: #ffe4b9;
     --clue-scrollbar-color-thumb2: #f561a1;*/
     --main-text-color: #000000;
     --grid-selected-square-color: #289E94;
+    --grid-selected-square-text-color: #FFFFFF;
     --grid-selected-word-color: #3DF2E3;
+    --grid-selected-word-text-color: #000000;
     --grid-block-color: #502859;
     --grid-none-color: #FFD4E6;
+    --grid-none-text-color: #000000;
+    --grid-hilite-color: #D9CAB2;
+    --grid-hilite-text-color: #000000;
+    --grid-stroke-color: #502859;
+    --grid-number-color: #000000;
+    --grid-letter-color: #000000;
     --modal-header-bg-color: #30C2B6;
     --modal-header-text-color: #000000;
     --modal-content-bg-color: #FFF2D9;

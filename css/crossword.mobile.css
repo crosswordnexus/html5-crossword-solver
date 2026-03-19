@@ -92,6 +92,7 @@ html.mobile-mode {
   position: relative;
   margin-left: .5em;
   margin-right: .5em;
+  background-color: var(--content-bg-color);
 }
 
 .crossword.mobile .cw-canvas {
@@ -123,8 +124,8 @@ html.mobile-mode {
   overflow: hidden;
   padding: 4px;
   background: var(--clues-holder-bg-color);
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+  border-top: 1px solid var(--border-color);
+  box-shadow: var(--mobile-shadow);
 }
 
 .crossword.mobile .cw-clues-top,
@@ -204,7 +205,7 @@ html.mobile-mode {
   min-width: 0;
   max-width: 10em;
   text-align: center;
-  box-shadow: 0 1px 6px 1px rgb(0 0 0 / 5%);
+  box-shadow: var(--main-shadow);
 }
 
 /* Hide buttons before they're moved by the mobile code */
@@ -246,7 +247,7 @@ html.mobile-mode {
   background: var(--main-bg-color);
   padding-top: 6px;
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5px);
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--mobile-shadow);
   z-index: 10;
   flex-shrink: 0;
 }
@@ -340,7 +341,7 @@ html.mobile-mode {
   background: var(--main-bg-color);
   overflow: visible;
   pointer-events: auto;
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--mobile-shadow);
 }
 
 .crossword.mobile .cw-buttons-drawer.open {
@@ -414,7 +415,7 @@ html.mobile-mode {
   padding: 2px;
   box-sizing: border-box;
   background: var(--clues-holder-bg-color);
-  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--mobile-shadow);
   border-radius: 4px;
 }
 
