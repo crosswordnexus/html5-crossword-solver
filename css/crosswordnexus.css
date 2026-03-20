@@ -31,7 +31,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     margin-right: 0.5em;
 }
 .cw-copyright {
-    color: #555555;
+    color: var(--copyright-text-color);
     margin-right: 0.5em;
 }
 

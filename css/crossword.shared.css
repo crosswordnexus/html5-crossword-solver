@@ -14,8 +14,11 @@ This file contains shared styles always loaded (mobile or desktop)
     --button-bg-color: #cbc4bd;
     --button-text-color: #000000;
     --button-hover-color: #B1A79C;
-    --button-note-timer-color: #EEEEEE;
-    --button-note-timer-hover: #999999;
+    --button-hover-text-color: #000000;
+    --button-note-timer-bg-color: #EEEEEE;
+    --button-note-timer-text-color: #000000;
+    --button-note-timer-hover-bg-color: #999999;
+    --button-note-timer-hover-text-color: #000000;
     --button-note-timer-border: #888888;
     --button-menu-bg-color: #FFFFFF;
     --top-text-wrapper-bg-color: #fff5d7;
@@ -32,13 +35,14 @@ This file contains shared styles always loaded (mobile or desktop)
     --clue-scrollbar-color-thumb: #bf3028;
     --clue-scrollbar-color-thumb-hover: #bf3028;
     --main-text-color: #000000;
+    --copyright-text-color: #555555;
 
     /* Grid Specific Colors */
     --grid-selected-square-color: #FF4136;
     --grid-selected-square-text-color: #ffffff;
     --grid-selected-word-color: #FEE300;
     --grid-selected-word-text-color: #000000;
-    --grid-block-color: #3F3F3F;
+    --grid-block-color: #212121;
     --grid-none-color: #FFFFFF;
     --grid-none-text-color: #000000;
     --grid-hilite-color: #F8E473;
@@ -70,13 +74,14 @@ body.dark-mode {
     --header-bg-color: #1e1e1e;
     --content-bg-color: #1e1e1e;
     --main-text-color: #e0e0e0;
+    --copyright-text-color: #aaaaaa;
     
+    --button-menu-bg-color: #2c2c2c;
+
     --top-text-wrapper-bg-color: #2c2c2c;
     --top-text-wrapper-text-color: #e0e0e0;
     
     --clues-holder-bg-color: #181818;
-    --clue-active-color: #444444;
-    --clue-active-text-color: #ffffff;
     --clue-passive-color: #333333;
     --clue-passive-text-color: #dddddd;
     --clue-hover-color: #2a2a2a;
@@ -92,11 +97,6 @@ body.dark-mode {
     --modal-content-bg-color: #2c2c2c;
     --modal-text-color: #e0e0e0;
 
-    --timer-running-bgcolor: #90ee90;
-    --timer-running-text-color: #000000;
-    --timer-paused-bgcolor: #ffc107;
-    --timer-paused-text-color: #000000;
-    
     --main-shadow: 0px 2px 15px 6px rgba(0, 0, 0, 0.5);
     --mobile-shadow: 0 -2px 6px rgba(0, 0, 0, 0.5);
     --border-color: rgba(255, 255, 255, 0.1);
@@ -424,7 +424,7 @@ div.is-dragover {
   background: none;
   border: none;
   border-radius: 4px;
-  color: inherit;
+  color: var(--button-text-color);
   /* avoid Safari active style */
   cursor: pointer;
   display: block;
@@ -484,9 +484,9 @@ div.is-dragover {
 }
 
 .cw-button-timer {
-  background-color: var(--button-note-timer-color);
-  --button-background-color-hover: var(--button-note-timer-hover);
-  color: var(--button-text-color);
+  background-color: var(--button-note-timer-bg-color);
+  color: var(--button-note-timer-text-color);
+  --button-background-color-hover: var(--button-note-timer-hover-bg-color);
   font-size: 0.8em;
   font-weight: 600;
   border-radius: 999px;
@@ -496,8 +496,13 @@ div.is-dragover {
 
 .cw-button:hover {
   background-color: var(--button-background-color-hover);
+  color: var(--button-hover-text-color);
   transform: translateY(-1px);
   box-shadow: var(--main-shadow);
+}
+
+.cw-button-timer:hover, .cw-button-notepad:hover {
+  color: var(--button-note-timer-hover-text-color);
 }
 
 .cw-button:active {
@@ -530,8 +535,9 @@ div.is-dragover {
 
 /* small gray button for notes */
 .cw-button-notepad {
-  background-color: var(--button-note-timer-color);
-  --button-background-color-hover: var(--button-note-timer-hover);
+  background-color: var(--button-note-timer-bg-color);
+  color: var(--button-note-timer-text-color);
+  --button-background-color-hover: var(--button-note-timer-hover-bg-color);
   border: 1px solid var(--button-note-timer-border);
   margin: 0px;
 }
