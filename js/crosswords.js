@@ -221,6 +221,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
                   <svg id = "cw-puzzle-grid"></svg>
                 </div>
               </div>
+              <div class="cw-extra-clues-button-holder"></div>
             </div>
           <div class = "cw-clues-holder"></div>
         </div>
@@ -316,7 +317,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
 
     // Breakpoint widths used by the stylesheet.
-    const breakpoints = [420, 600, 850, 1080, 1200];
+    const breakpoints = [420, 600, 650, 850, 1080, 1200];
 
     function setBreakpointClasses(rootElement) {
       const rootWidth = rootElement.width();
@@ -650,7 +651,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         this.top_text = this.root.find('div.cw-top-text');
         //this.bottom_text = this.root.find('div.cw-bottom-text');
         this.clues_holder = this.root.find('div.cw-clues-holder');
-
+        this.extra_clues_holder = this.root.find('div.cw-extra-clues-button-holder');
         this.toptext = this.root.find('.cw-top-text-wrapper');
 
         this.settings_btn = this.root.find('.cw-settings-button');
@@ -1239,7 +1240,65 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         });
         this.addListeners();
 
+        // Add "Extra Clues" button if there are fake clue groups
+        if (this.clueGroups && this.clueGroups.some(g => g.isFake)) {
+          const extraCluesBtn = document.createElement('button');
+          extraCluesBtn.className = 'cw-button cw-button-extra-clues';
+          extraCluesBtn.innerHTML = '<span class="cw-button-icon">➕</span> Show unmatched clues';
+          extraCluesBtn.style.margin = '10px auto';
+          extraCluesBtn.style.maxWidth = '200px';
+          // Initial visibility state handled by CSS via breakpoints
+          
+          extraCluesBtn.onclick = () => {
+            let cluesHtml = '<div class="fake-clues-modal-content">';
+            // Use displayClueGroups if available, otherwise fallback to clueGroups
+            const groupsToShow = (this.displayClueGroups || this.clueGroups).filter(g => g.isFake);
+            groupsToShow.forEach(group => {
+              cluesHtml += `<h3>${group.title}</h3><ul class="cw-clues-items">`;
+              group.clues.forEach(clue => {
+                const isCompleted = clue.fakeClueCompleted ? 'completed' : '';
+                cluesHtml += `<li class="cw-clue ${isCompleted}" data-word="${clue.wordId}" data-clues="${group.id}">
+                  <span class="cw-clue-number">${clue.number}</span>
+                  <span class="cw-clue-text">${clue.text}</span>
+                </li>`;
+              });
+              cluesHtml += '</ul>';
+            });
+            cluesHtml += '</div>';
+
+            this.createModalBox('Unmatched Clues', cluesHtml);
+
+            // Add click handlers for clues in the modal
+            $('.fake-clues-modal-content').off('click').on('click', '.cw-clue', (e) => {
+              const target = $(e.currentTarget);
+              const groupId = target.attr('data-clues');
+              const wordId = target.attr('data-word');
+              
+              // Find group in either collection
+              const clueGroup = (this.displayClueGroups || this.clueGroups).find(g => g.id === groupId);
+              if (!clueGroup) return;
+              
+              const clue = clueGroup.clues.find(c => String(c.wordId) === String(wordId));
+
+              if (clue) {
+                clue.fakeClueCompleted = !Boolean(clue.fakeClueCompleted);
+                target.toggleClass('completed', clue.fakeClueCompleted);
+                // Also update the hidden clue in the main holder if it exists
+                const mainClue = $(`.cw-clues-holder [data-word="${wordId}"][data-clues="${groupId}"]`);
+                if (mainClue.length) {
+                  mainClue.toggleClass('completed', clue.fakeClueCompleted);
+                }
+              }
+            });
+          };
+
+          if (this.extra_clues_holder) {
+            this.extra_clues_holder.empty().append(extraCluesBtn);
+          }
+        }
+
         this.root.removeClass('loading');
+
         this.root.addClass('loaded');
 
         this.waitUntilSVGWidthStabilizes(() => {

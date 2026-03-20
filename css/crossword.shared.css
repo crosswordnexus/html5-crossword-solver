@@ -816,14 +816,21 @@ input[type='radio'] {
     display: none;
 }
 
-.cw-max-width-600 .cw-header {
+.cw-max-width-650 .cw-header {
     display: none;
 }
 
-.cw-max-width-600 .cw-clues-holder {
-    display: none;
+.cw-max-width-650 .cw-clues-holder {
+  display: none;
 }
 
+.cw-button-extra-clues {
+  display: none;
+}
+
+.cw-max-width-650 .cw-button-extra-clues {
+  display: block;
+}
 .cw-max-width-420 .cw-buttons-holder .cw-button {
   font-size: 0.85rem;
 }
