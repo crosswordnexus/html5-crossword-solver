@@ -12,7 +12,10 @@ const ASSETS = [
     "./js/crossword.mobile.js",
     "./lib/jquery.js",
     "./lib/jscrossword_combined.js",
-    "./lib/lscache.min.js"
+    "./lib/lscache.min.js",
+    "./manifest.json",
+    "./images/xw-solve-icon-192.png",
+    "./images/xw-solve-icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {
