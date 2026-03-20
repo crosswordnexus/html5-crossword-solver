@@ -118,7 +118,7 @@ window.Color = {
     ];
   },
 
-  applyHsvTransform(rgbHex, {dh, ks, kv}) {
+  applyHsvTransform(rgbHex, {dh = 0, ks = 1, kv = 1}) {
     let rgb = this.hexToRgb(rgbHex);
     let [h,s,v] = this.rgbToHsv(rgb);
     h = h + dh;
@@ -145,7 +145,11 @@ window.Color = {
 
   // perceived brightness of a color on a scale of 0-255
   getBrightness(hex) {
+    if (!hex || (typeof hex === 'string' && hex.startsWith('var('))) {
+      return 255; // Default to bright (white) if we can't tell
+    }
     const rgb = this.hexToRgb(hex);
+    if (!rgb) return 255;
     return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
   },
 
