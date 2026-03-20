@@ -1,4 +1,5 @@
-const CACHE_NAME = "xw-solver-v2026.3.18.0"; // CRITICAL: You MUST change this string (e.g., v3, v4) every time you deploy a new update!
+// CRITICAL: You MUST change this string (e.g., v3, v4) every time you deploy a new update!
+const CACHE_NAME = "xw-solver-v2026.3.19.0";
 
 const ASSETS = [
     "./",
@@ -16,8 +17,8 @@ const ASSETS = [
 
 self.addEventListener("install", (event) => {
     // FIX 1: Forces this new worker to become the active one immediately, skipping the "waiting" phase
-    self.skipWaiting(); 
-    
+    self.skipWaiting();
+
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
     );
@@ -30,7 +31,7 @@ self.addEventListener("activate", (event) => {
             return Promise.all(
                 cacheNames.map(cache => {
                     if (cache !== CACHE_NAME) {
-                        return caches.delete(cache); 
+                        return caches.delete(cache);
                     }
                 })
             );
