@@ -77,10 +77,8 @@ You can customize the solver's behavior by passing a parameters object. Here are
 | `gray_completed_clues` | `boolean`| `false` | If true, clues are automatically grayed out when the corresponding word is filled. |
 | `timer_autostart`| `boolean`| `false` | If true, the puzzle timer starts automatically on load. |
 | `confetti_enabled` | `boolean`| `true` | Enables a confetti animation when the puzzle is successfully solved. |
-| `dark_mode_enabled` | `boolean`| `false` | Enables dark mode by default. |
+| `dark_mode_enabled` | `boolean`| `false` | Enables dark mode by default. Can be toggled in the Settings menu. |
 | `notepad_name` | `string` | `'Notes'` | Customizes the title of the notepad feature. |
-| `forced_theme` | `string`| `null` | Forces a specific color theme (e.g., `'classic'`). |
-| `lock_theme` | `boolean`| `false` | If true, prevents the user from changing the color theme. |
 | `min_sidebar_clue_width` | `number`| `220` | Minimum width of the sidebar containing the clues. |
 | `save_game_limit` | `number`| `10` | Maximum number of saved games to keep in local storage. |
 
