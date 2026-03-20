@@ -2033,7 +2033,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               rect.setAttribute('y', cellY);
               rect.setAttribute('width', SIZE);
               rect.setAttribute('height', SIZE);
-              rect.setAttribute('stroke', 'var(--grid-stroke-color)');
+              
+              // Use block color for stroke if it's a block, otherwise normal stroke color
+              const rectStroke = (cell.type === 'block') ? 'var(--grid-block-color)' : 'var(--grid-stroke-color)';
+              rect.setAttribute('stroke', rectStroke);
+              
               rect.setAttribute('data-x', cell.x);
               rect.setAttribute('data-y', cell.y);
               rect.setAttribute('class', 'cw-cell');
@@ -2084,7 +2088,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
               circle.setAttribute('r', radius);
               circle.setAttribute('fill', 'none');
-              circle.setAttribute('stroke', this.config.color_block || '#212121');
+              circle.setAttribute('stroke', 'var(--grid-stroke-color)');
               circle.setAttribute('stroke-width', 1.1);
               circle.setAttribute('pointer-events', 'none');
               fillGroup.appendChild(circle);
@@ -2092,7 +2096,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
             if (cell.bar) {
               const barWidth = this.config.bar_linewidth;
-              const barColor = '#212121';
+              const barColor = 'var(--grid-stroke-color)';
 
               const barStart = {
                 top: [cellX, cellY],
@@ -2215,11 +2219,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
                   slash.setAttribute('stroke', 'red');
                   slash.setAttribute('stroke-width', 2.5);
                 } else {
-                  slash.setAttribute('stroke', '#000');
+                  slash.setAttribute('stroke', 'var(--grid-none-text-color)');
                   slash.setAttribute('stroke-width', 2);
                 }
               } else {
-                slash.setAttribute('stroke', '#000');
+                slash.setAttribute('stroke', 'var(--grid-none-text-color)');
                 slash.setAttribute('stroke-width', 2);
               }
 
@@ -2264,7 +2268,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
           path.setAttribute('d', d);
           path.setAttribute('fill', 'none');
-          path.setAttribute('stroke', this.config.font_color_clue || '#000');
+          path.setAttribute('stroke', 'var(--grid-none-text-color)');
           path.setAttribute('stroke-width', 1.3);
           path.setAttribute('pointer-events', 'none');
           this.svgContainer.appendChild(path);
