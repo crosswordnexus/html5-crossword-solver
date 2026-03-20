@@ -826,6 +826,25 @@ input[type='radio'] {
     display: none;
 }
 
+.fake-clues-modal-content .cw-clues-items {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.fake-clues-modal-content .cw-clue-number {
+  text-align: left;
+  min-width: 1rem;
+  margin-left: 0;
+}
+
+.fake-clues-modal-content h3 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--modal-text-color);
+}
+
 .cw-max-width-650 .cw-header {
     display: none;
 }
