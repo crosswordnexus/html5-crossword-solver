@@ -21,11 +21,7 @@ const CONFIGURABLE_SETTINGS = [
 ];
 
 // Since DarkReader is an external library, make sure it exists
-try {
-  DarkReader
-} catch {
-  DarkReader = false;
-}
+// (Removing DarkReader dependency)
 
 // one-time check for mobile device status
 const IS_MOBILE = CrosswordShared.isMobileDevice();
@@ -57,6 +53,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
       font_color_fill: '#000000',
       color_block: '#212121',
       puzzle_file: null,
+
       puzzle_object: null, // jsxw to load, if available
       puzzles: null,
       skip_filled_letters: true,
@@ -70,8 +67,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
       avcx: null,
       bar_linewidth: 3.2,
       gray_completed_clues: false,
-      forced_theme: null,
-      lock_theme: false,
       min_sidebar_clue_width: 220,
       save_game_limit: 10,
       notepad_name: 'Notes',
@@ -227,6 +222,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
                   <svg id = "cw-puzzle-grid"></svg>
                 </div>
               </div>
+              <div class="cw-extra-clues-button-holder"></div>
             </div>
           <div class = "cw-clues-holder"></div>
         </div>
@@ -370,7 +366,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
 
     // Breakpoint widths used by the stylesheet.
-    const breakpoints = [420, 600, 850, 1080, 1200];
+    const breakpoints = [420, 600, 650, 850, 1080, 1200];
 
     function setBreakpointClasses(rootElement) {
       const rootWidth = rootElement.width();
@@ -495,47 +491,89 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         });
 
         /* Update CSS values based on `color_word` and `color_selected`*/
-        // Buttons
-        document.documentElement.style.setProperty("--button-bg-color",
-          Color.applyHsvTransform(COLOR_WORD, {
-            dh: 0.13,
-            ks: 0.753,
-            kv: 1.004
-          }));
-        document.documentElement.style.setProperty("--button-hover-color",
-          Color.applyHsvTransform(COLOR_WORD, {
-            dh: 0.28,
-            ks: 0.502,
-            kv: 1.004
-          }));
+        this.updateCSS = (word, selected) => {
+          const root = document.documentElement;
+          const isDark = document.body.classList.contains('dark-mode');
+          
+          // If dark mode is on, darken the colors a bit (reduce Value by 15%)
+          let wordColor = word;
+          let selectedColor = selected;
+          
+          if (isDark) {
+            wordColor = Color.applyHsvTransform(word, { kv: 0.85 });
+            selectedColor = Color.applyHsvTransform(selected, { kv: 0.85 });
+          }
 
-        // Clues
-        document.documentElement.style.setProperty("--clue-active-color",
-          Color.applyHsvTransform(COLOR_WORD, {
-            dh: 0.13,
-            ks: 0.753,
-            kv: 1.004
-          }));
-        document.documentElement.style.setProperty("--top-text-wrapper-bg-color",
-          Color.applyHsvTransform(COLOR_WORD, {
-            dh: -8.62,
-            ks: 0.157,
-            kv: 1.004
-          }));
+          root.style.setProperty("--grid-selected-square-color", selectedColor);
+          root.style.setProperty("--grid-selected-word-color", wordColor);
+          root.style.setProperty("--grid-hilite-color", Color.applyHsvTransform(wordColor, { dh: -2.64, ks: 0.536, kv: 0.976 }));
 
-        // Scrollbars
-        document.documentElement.style.setProperty("--clue-scrollbar-color-thumb",
-          Color.averageColors(COLOR_SELECTED, '#333333', 0.5));
+          // For grid lines inside selected areas in dark mode
+          if (isDark) {
+            root.style.setProperty("--grid-selected-stroke-color", "rgba(0,0,0,0.2)");
+          } else {
+            root.style.setProperty("--grid-selected-stroke-color", "var(--grid-stroke-color)");
+          }
 
-        /** enable dark mode if available **/
-        if (this.config.dark_mode_enabled && DarkReader) {
-          DarkReader.enable({
-            brightness: 100,
-            contrast: 90,
-            sepia: 10
-          });
-          this.config.color_none = '#404040';
-          this.config.font_color_fill = '#ddd4c5';
+          // Helper for setting dynamic contrast text
+          const setContrastText = (varName, bgColor) => {
+            const brightness = Color.getBrightness(bgColor);
+            root.style.setProperty(varName, brightness < 128 ? "#ffffff" : "#000000");
+          };
+
+          // Buttons
+          const buttonBgColor = Color.applyHsvTransform(wordColor, { dh: 0.13, ks: 0.753, kv: 1.004 });
+          root.style.setProperty("--button-bg-color", buttonBgColor);
+          setContrastText("--button-text-color", buttonBgColor);
+
+          const buttonHoverColor = Color.applyHsvTransform(wordColor, { dh: 0.28, ks: 0.502, kv: 1.004 });
+          root.style.setProperty("--button-hover-color", buttonHoverColor);
+          setContrastText("--button-hover-text-color", buttonHoverColor);
+
+          // Note & Timer Buttons
+          const noteBgColor = isDark ? "#333333" : "#EEEEEE";
+          const noteHoverBgColor = isDark ? "#444444" : "#999999";
+          root.style.setProperty("--button-note-timer-bg-color", noteBgColor);
+          root.style.setProperty("--button-note-timer-hover-bg-color", noteHoverBgColor);
+          root.style.setProperty("--button-note-timer-border", isDark ? "#555555" : "#888888");
+          setContrastText("--button-note-timer-text-color", noteBgColor);
+          setContrastText("--button-note-timer-hover-text-color", noteHoverBgColor);
+
+          // Active Timer State
+          const runBg = "#90ee90"; // Always green
+          const pauseBg = "#ffc107"; // Always amber
+          root.style.setProperty("--timer-running-bgcolor", runBg);
+          root.style.setProperty("--timer-paused-bgcolor", pauseBg);
+          setContrastText("--timer-running-text-color", runBg);
+          setContrastText("--timer-paused-text-color", pauseBg);
+
+          // Clues
+          let clueActiveColor = Color.applyHsvTransform(wordColor, { dh: 0.13, ks: 0.753, kv: 1.004 });
+          if (isDark) {
+            clueActiveColor = Color.averageColors(clueActiveColor, '#808080', 0.75); // 75% original, 25% gray
+          }
+          root.style.setProperty("--clue-active-color", clueActiveColor);
+          setContrastText("--clue-active-text-color", clueActiveColor);
+
+          // Passive clues (same as grid highlight usually)
+          const cluePassiveColor = Color.applyHsvTransform(wordColor, { dh: -2.64, ks: 0.536, kv: 0.976 });
+          root.style.setProperty("--clue-passive-color", cluePassiveColor);
+          setContrastText("--clue-passive-text-color", cluePassiveColor);
+
+          const topTextBgColor = Color.applyHsvTransform(wordColor, { dh: -8.62, ks: 0.157, kv: 1.004 });
+          root.style.setProperty("--top-text-wrapper-bg-color", topTextBgColor);
+          setContrastText("--top-text-wrapper-text-color", topTextBgColor);
+
+          // Scrollbars
+          root.style.setProperty("--clue-scrollbar-color-thumb", Color.averageColors(selectedColor, '#333333', 0.5));
+        };
+
+        this.updateCSS(COLOR_WORD, COLOR_SELECTED);
+
+        /** enable dark mode if requested **/
+        if (this.config.dark_mode_enabled) {
+          document.body.classList.add('dark-mode');
+          this.updateCSS(COLOR_WORD, COLOR_SELECTED);
         }
 
         this.cell_size = 40;
@@ -669,7 +707,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         this.top_text = this.root.find('div.cw-top-text');
         //this.bottom_text = this.root.find('div.cw-bottom-text');
         this.clues_holder = this.root.find('div.cw-clues-holder');
-
+        this.extra_clues_holder = this.root.find('div.cw-extra-clues-button-holder');
         this.toptext = this.root.find('.cw-top-text-wrapper');
 
         this.settings_btn = this.root.find('.cw-settings-button');
@@ -1267,7 +1305,65 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         });
         this.addListeners();
 
+        // Add "Extra Clues" button if there are fake clue groups
+        if (this.clueGroups && this.clueGroups.some(g => g.isFake)) {
+          const extraCluesBtn = document.createElement('button');
+          extraCluesBtn.className = 'cw-button cw-button-extra-clues';
+          extraCluesBtn.innerHTML = '<span class="cw-button-icon">➕</span> Show unmatched clues';
+          extraCluesBtn.style.margin = '10px auto';
+          extraCluesBtn.style.maxWidth = '200px';
+          // Initial visibility state handled by CSS via breakpoints
+          
+          extraCluesBtn.onclick = () => {
+            let cluesHtml = '<div class="fake-clues-modal-content">';
+            // Use displayClueGroups if available, otherwise fallback to clueGroups
+            const groupsToShow = (this.displayClueGroups || this.clueGroups).filter(g => g.isFake);
+            groupsToShow.forEach(group => {
+              cluesHtml += `<h3>${group.title}</h3><ul class="cw-clues-items">`;
+              group.clues.forEach(clue => {
+                const isCompleted = clue.fakeClueCompleted ? 'completed' : '';
+                cluesHtml += `<li class="cw-clue ${isCompleted}" data-word="${clue.wordId}" data-clues="${group.id}">
+                  <span class="cw-clue-number">${clue.number}</span>
+                  <span class="cw-clue-text">${clue.text}</span>
+                </li>`;
+              });
+              cluesHtml += '</ul>';
+            });
+            cluesHtml += '</div>';
+
+            this.createModalBox('Unmatched Clues', cluesHtml);
+
+            // Add click handlers for clues in the modal
+            $('.fake-clues-modal-content').off('click').on('click', '.cw-clue', (e) => {
+              const target = $(e.currentTarget);
+              const groupId = target.attr('data-clues');
+              const wordId = target.attr('data-word');
+              
+              // Find group in either collection
+              const clueGroup = (this.displayClueGroups || this.clueGroups).find(g => g.id === groupId);
+              if (!clueGroup) return;
+              
+              const clue = clueGroup.clues.find(c => String(c.wordId) === String(wordId));
+
+              if (clue) {
+                clue.fakeClueCompleted = !Boolean(clue.fakeClueCompleted);
+                target.toggleClass('completed', clue.fakeClueCompleted);
+                // Also update the hidden clue in the main holder if it exists
+                const mainClue = $(`.cw-clues-holder [data-word="${wordId}"][data-clues="${groupId}"]`);
+                if (mainClue.length) {
+                  mainClue.toggleClass('completed', clue.fakeClueCompleted);
+                }
+              }
+            });
+          };
+
+          if (this.extra_clues_holder) {
+            this.extra_clues_holder.empty().append(extraCluesBtn);
+          }
+        }
+
         this.root.removeClass('loading');
+
         this.root.addClass('loaded');
 
         this.waitUntilSVGWidthStabilizes(() => {
@@ -2002,27 +2098,37 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               rect.setAttribute('y', cellY);
               rect.setAttribute('width', SIZE);
               rect.setAttribute('height', SIZE);
-              rect.setAttribute('stroke', '#212121');
+              
+              // Use block color for stroke if it's a block, otherwise normal stroke color
+              let rectStroke = (cell.type === 'block') ? 'var(--grid-block-color)' : 'var(--grid-stroke-color)';
+              
+              // If it's selected or in the selected word, use the specialized stroke color
+              if (cell.type !== 'block' && ((this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) || (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)))) {
+                rectStroke = 'var(--grid-selected-stroke-color)';
+              }
+              
+              rect.setAttribute('stroke', rectStroke);
+              
               rect.setAttribute('data-x', cell.x);
               rect.setAttribute('data-y', cell.y);
               rect.setAttribute('class', 'cw-cell');
 
               // Set the cell color
               if (cell.type === 'block') {
-                fillColor = cell.color || this.config.color_block;
+                fillColor = cell.color || 'var(--grid-block-color)';
               } else if (this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) {
-                fillColor = this.config.color_selected;
+                fillColor = 'var(--grid-selected-square-color)';
                 rect.classList.add('selected');
               } else if (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)) {
-                fillColor = cell.shade_highlight_color;
+                fillColor = cell.shade_highlight_color || 'var(--grid-selected-word-color)';
               } else if (linkedSet && linkedSet.has(`${cell.x}-${cell.y}`)) {
                 // highlight partners
-                fillColor = cell.shade_highlight_color;
+                fillColor = cell.shade_highlight_color || 'var(--grid-selected-word-color)';
                 rect.classList.add('linked'); // optional CSS hook
               } else if (cell.color) {
                 fillColor = cell.color;
               } else {
-                fillColor = this.config.color_none;
+                fillColor = 'var(--grid-none-color)';
               }
 
               rect.setAttribute('fill', fillColor);
@@ -2053,7 +2159,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
               circle.setAttribute('r', radius);
               circle.setAttribute('fill', 'none');
-              circle.setAttribute('stroke', this.config.color_block || '#212121');
+              circle.setAttribute('stroke', 'var(--grid-stroke-color)');
               circle.setAttribute('stroke-width', 1.1);
               circle.setAttribute('pointer-events', 'none');
               fillGroup.appendChild(circle);
@@ -2061,7 +2167,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
             if (cell.bar) {
               const barWidth = this.config.bar_linewidth;
-              const barColor = '#212121';
+              let barColor = 'var(--grid-stroke-color)';
+              
+              if (cell.type !== 'block' && ((this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) || (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)))) {
+                barColor = 'var(--grid-selected-stroke-color)';
+              }
 
               const barStart = {
                 top: [cellX, cellY],
@@ -2102,6 +2212,12 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             if (cell.image) {
               // Images should show text in black regardless of background brightness
               fontColorFill = '#000000';
+            } else if (typeof fillColor === 'string' && fillColor.startsWith('var(--grid-selected-square-color)')) {
+              fontColorFill = 'var(--grid-selected-square-text-color)';
+            } else if (typeof fillColor === 'string' && fillColor.startsWith('var(--grid-selected-word-color)')) {
+              fontColorFill = 'var(--grid-selected-word-text-color)';
+            } else if (typeof fillColor === 'string' && (fillColor.startsWith('var(--grid-none-color)') || fillColor.startsWith('var(--grid-block-color)'))) {
+              fontColorFill = fillColor.includes('block') ? 'white' : 'var(--grid-none-text-color)';
             } else {
               // Brightness of the background and foreground
               const bgBrightness = Color.getBrightness(fillColor || this.config.color_none);
@@ -2178,11 +2294,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
                   slash.setAttribute('stroke', 'red');
                   slash.setAttribute('stroke-width', 2.5);
                 } else {
-                  slash.setAttribute('stroke', '#000');
+                  slash.setAttribute('stroke', 'var(--grid-none-text-color)');
                   slash.setAttribute('stroke-width', 2);
                 }
               } else {
-                slash.setAttribute('stroke', '#000');
+                slash.setAttribute('stroke', 'var(--grid-none-text-color)');
                 slash.setAttribute('stroke-width', 2);
               }
 
@@ -2227,7 +2343,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
           path.setAttribute('d', d);
           path.setAttribute('fill', 'none');
-          path.setAttribute('stroke', this.config.font_color_clue || '#000');
+          path.setAttribute('stroke', 'var(--grid-none-text-color)');
           path.setAttribute('stroke-width', 1.3);
           path.setAttribute('pointer-events', 'none');
           this.svgContainer.appendChild(path);
@@ -3490,7 +3606,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
                 </input>
               </label>
             </div>
-            <!--
             <div class="settings-option">
               <label class="settings-label">
                 <input id="dark_mode_enabled" checked="" type="checkbox" name="dark_mode_enabled" class="settings-changer">
@@ -3498,7 +3613,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
                 </input>
               </label>
             </div>
-            -->
           </div>
         `;
 
@@ -3523,23 +3637,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               if (event.target.type === 'checkbox') {
                 this.config[event.target.name] = event.target.checked;
 
-                // need to add a special bit for dark mode
-                if (event.target.name == 'dark_mode_enabled' && DarkReader) {
-                  if (event.target.checked) {
-                    DarkReader.enable({
-                      brightness: 100,
-                      contrast: 90,
-                      sepia: 10
-                    });
-                    this.config.color_none = '#252624';
-                    this.config.font_color_fill = '#ddd4c5';
-                    this.renderCells();
-                  } else {
-                    DarkReader.disable();
-                    this.config.color_none = default_config.color_none;
-                    this.config.font_color_fill = default_config.font_color_fill;
-                    this.renderCells();
-                  }
+                // Toggle dark mode via CSS class
+                if (event.target.name == 'dark_mode_enabled') {
+                  document.body.classList.toggle('dark-mode', event.target.checked);
+                  this.updateCSS(this.config.color_word, this.config.color_selected);
+                  this.renderCells();
                 }
 
                 // If the toggled setting is gray_completed_clues, re-render clues immediately
