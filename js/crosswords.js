@@ -1401,11 +1401,17 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         window.removeEventListener('resize', this.updateClueLayout);
         window.addEventListener('resize', this.updateClueLayout);
 
+        // Initial layout pass
+        setTimeout(() => {
+          this.updateClueLayout();
+          this.windowResized();
+        }, 100);
+
       } // end completeLoad
 
       updateClueLayout() {
         /** Some JS magic to deal with weird numbers of clue lists **/
-        const holder = document.querySelector('.cw-clues-holder');
+        const holder = this.clues_holder ? this.clues_holder.get(0) : null;
         if (!holder) return; // nothing to do if it doesn't exist
 
         const clues = holder.querySelectorAll('.cw-clues');

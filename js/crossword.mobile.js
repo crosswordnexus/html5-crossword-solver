@@ -145,11 +145,14 @@ $(document).ready(function() {
       }
       const content = document.querySelector('.cw-content');
       const clues = document.querySelector('.cw-clues-holder');
+      const extraCluesHolder = document.querySelector('.cw-extra-clues-button-holder');
       let drawerOpen = false;
       let drawer;
       let touchStartY = null;
 
-      if (!canvas || !buttons || !content || !clues || !clues.querySelector(".cw-clues, .cw-clues-top, .cw-clues-bottom")) {
+      // Ensure we wait for core elements AND the extra clues holder if the puzzle has them
+      const hasFakeClues = gCrossword.clueGroups && gCrossword.clueGroups.some(g => g.isFake);
+      if (!canvas || !buttons || !content || !clues || !clues.querySelector(".cw-clues, .cw-clues-top, .cw-clues-bottom") || (hasFakeClues && !extraCluesHolder)) {
         return setTimeout(tryWrapLayout, 50);
       }
 
@@ -190,6 +193,11 @@ $(document).ready(function() {
 
       // Append grid + clues layout into the main wrapper
       wrapper.appendChild(gridClueWrapper);
+
+      // Move extra clues holder if it exists
+      if (extraCluesHolder) {
+        wrapper.appendChild(extraCluesHolder);
+      }
 
       // Use delegated events for clue clicks
       $(mobileClues).on('click', '.cw-clue', (e) => {
