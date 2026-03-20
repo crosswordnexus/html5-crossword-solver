@@ -58,6 +58,11 @@ This file contains shared styles always loaded (mobile or desktop)
     --modal-content-bg-color: #E9E3DC;
     --modal-text-color: #000000;
 
+    /* Keyboard */
+    --keyboard-bg-color: #ffffff;
+    --keyboard-button-bg-color: #cbc4bd;
+    --keyboard-button-text-color: #000000;
+
     /* Timer */
     --timer-running-bgcolor: #90ee90;
     --timer-running-text-color: #000000;
@@ -97,6 +102,9 @@ body.dark-mode {
 
     --modal-content-bg-color: #2c2c2c;
     --modal-text-color: #e0e0e0;
+
+    --keyboard-button-bg-color: #333333;
+    --keyboard-button-text-color: #e0e0e0;
 
     --main-shadow: 0px 2px 15px 6px rgba(0, 0, 0, 0.5);
     --mobile-shadow: 0 -2px 6px rgba(0, 0, 0, 0.5);

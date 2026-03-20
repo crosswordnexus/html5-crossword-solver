@@ -265,7 +265,7 @@ html.mobile-mode {
   text-align: center;
   font-size: 1rem;
   background: var(--keyboard-button-bg-color);
-  color: var(--button-text-color);
+  color: var(--keyboard-button-text-color);
   border-radius: 6px;
   user-select: none;
   cursor: pointer;
