@@ -48,6 +48,7 @@ This file contains shared styles always loaded (mobile or desktop)
     --grid-hilite-color: #F8E473;
     --grid-hilite-text-color: #000000;
     --grid-stroke-color: #212121;
+    --grid-selected-stroke-color: #212121;
     --grid-number-color: #000000;
     --grid-letter-color: #000000;
 
@@ -90,7 +91,7 @@ body.dark-mode {
     --grid-block-color: #000000;
     --grid-none-color: #1e1e1e;
     --grid-none-text-color: #e0e0e0;
-    --grid-stroke-color: #444444;
+    --grid-stroke-color: #555555;
     --grid-number-color: #bbbbbb;
     --grid-letter-color: #ffffff;
 

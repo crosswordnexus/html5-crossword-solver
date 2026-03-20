@@ -459,6 +459,13 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           root.style.setProperty("--grid-selected-word-color", wordColor);
           root.style.setProperty("--grid-hilite-color", Color.applyHsvTransform(wordColor, { dh: -2.64, ks: 0.536, kv: 0.976 }));
 
+          // For grid lines inside selected areas in dark mode
+          if (isDark) {
+            root.style.setProperty("--grid-selected-stroke-color", "rgba(0,0,0,0.2)");
+          } else {
+            root.style.setProperty("--grid-selected-stroke-color", "var(--grid-stroke-color)");
+          }
+
           // Helper for setting dynamic contrast text
           const setContrastText = (varName, bgColor) => {
             const brightness = Color.getBrightness(bgColor);
@@ -2035,7 +2042,13 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               rect.setAttribute('height', SIZE);
               
               // Use block color for stroke if it's a block, otherwise normal stroke color
-              const rectStroke = (cell.type === 'block') ? 'var(--grid-block-color)' : 'var(--grid-stroke-color)';
+              let rectStroke = (cell.type === 'block') ? 'var(--grid-block-color)' : 'var(--grid-stroke-color)';
+              
+              // If it's selected or in the selected word, use the specialized stroke color
+              if (cell.type !== 'block' && ((this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) || (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)))) {
+                rectStroke = 'var(--grid-selected-stroke-color)';
+              }
+              
               rect.setAttribute('stroke', rectStroke);
               
               rect.setAttribute('data-x', cell.x);
@@ -2096,7 +2109,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
             if (cell.bar) {
               const barWidth = this.config.bar_linewidth;
-              const barColor = 'var(--grid-stroke-color)';
+              let barColor = 'var(--grid-stroke-color)';
+              
+              if (cell.type !== 'block' && ((this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) || (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)))) {
+                barColor = 'var(--grid-selected-stroke-color)';
+              }
 
               const barStart = {
                 top: [cellX, cellY],
