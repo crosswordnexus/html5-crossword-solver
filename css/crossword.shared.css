@@ -48,6 +48,7 @@ This file contains shared styles always loaded (mobile or desktop)
     --grid-hilite-color: #F8E473;
     --grid-hilite-text-color: #000000;
     --grid-stroke-color: #212121;
+    --grid-selected-stroke-color: #212121;
     --grid-number-color: #000000;
     --grid-letter-color: #000000;
 
@@ -90,7 +91,7 @@ body.dark-mode {
     --grid-block-color: #000000;
     --grid-none-color: #1e1e1e;
     --grid-none-text-color: #e0e0e0;
-    --grid-stroke-color: #333333;
+    --grid-stroke-color: #555555;
     --grid-number-color: #bbbbbb;
     --grid-letter-color: #ffffff;
 
@@ -816,14 +817,21 @@ input[type='radio'] {
     display: none;
 }
 
-.cw-max-width-600 .cw-header {
+.cw-max-width-650 .cw-header {
     display: none;
 }
 
-.cw-max-width-600 .cw-clues-holder {
-    display: none;
+.cw-max-width-650 .cw-clues-holder {
+  display: none;
 }
 
+.cw-button-extra-clues {
+  display: none;
+}
+
+.cw-max-width-650 .cw-button-extra-clues {
+  display: block;
+}
 .cw-max-width-420 .cw-buttons-holder .cw-button {
   font-size: 0.85rem;
 }

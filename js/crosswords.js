@@ -221,6 +221,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
                   <svg id = "cw-puzzle-grid"></svg>
                 </div>
               </div>
+              <div class="cw-extra-clues-button-holder"></div>
             </div>
           <div class = "cw-clues-holder"></div>
         </div>
@@ -316,7 +317,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
 
     // Breakpoint widths used by the stylesheet.
-    const breakpoints = [420, 600, 850, 1080, 1200];
+    const breakpoints = [420, 600, 650, 850, 1080, 1200];
 
     function setBreakpointClasses(rootElement) {
       const rootWidth = rootElement.width();
@@ -457,6 +458,13 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           root.style.setProperty("--grid-selected-square-color", selectedColor);
           root.style.setProperty("--grid-selected-word-color", wordColor);
           root.style.setProperty("--grid-hilite-color", Color.applyHsvTransform(wordColor, { dh: -2.64, ks: 0.536, kv: 0.976 }));
+
+          // For grid lines inside selected areas in dark mode
+          if (isDark) {
+            root.style.setProperty("--grid-selected-stroke-color", "rgba(0,0,0,0.2)");
+          } else {
+            root.style.setProperty("--grid-selected-stroke-color", "var(--grid-stroke-color)");
+          }
 
           // Helper for setting dynamic contrast text
           const setContrastText = (varName, bgColor) => {
@@ -650,7 +658,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         this.top_text = this.root.find('div.cw-top-text');
         //this.bottom_text = this.root.find('div.cw-bottom-text');
         this.clues_holder = this.root.find('div.cw-clues-holder');
-
+        this.extra_clues_holder = this.root.find('div.cw-extra-clues-button-holder');
         this.toptext = this.root.find('.cw-top-text-wrapper');
 
         this.settings_btn = this.root.find('.cw-settings-button');
@@ -1239,7 +1247,65 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         });
         this.addListeners();
 
+        // Add "Extra Clues" button if there are fake clue groups
+        if (this.clueGroups && this.clueGroups.some(g => g.isFake)) {
+          const extraCluesBtn = document.createElement('button');
+          extraCluesBtn.className = 'cw-button cw-button-extra-clues';
+          extraCluesBtn.innerHTML = '<span class="cw-button-icon">➕</span> Show unmatched clues';
+          extraCluesBtn.style.margin = '10px auto';
+          extraCluesBtn.style.maxWidth = '200px';
+          // Initial visibility state handled by CSS via breakpoints
+          
+          extraCluesBtn.onclick = () => {
+            let cluesHtml = '<div class="fake-clues-modal-content">';
+            // Use displayClueGroups if available, otherwise fallback to clueGroups
+            const groupsToShow = (this.displayClueGroups || this.clueGroups).filter(g => g.isFake);
+            groupsToShow.forEach(group => {
+              cluesHtml += `<h3>${group.title}</h3><ul class="cw-clues-items">`;
+              group.clues.forEach(clue => {
+                const isCompleted = clue.fakeClueCompleted ? 'completed' : '';
+                cluesHtml += `<li class="cw-clue ${isCompleted}" data-word="${clue.wordId}" data-clues="${group.id}">
+                  <span class="cw-clue-number">${clue.number}</span>
+                  <span class="cw-clue-text">${clue.text}</span>
+                </li>`;
+              });
+              cluesHtml += '</ul>';
+            });
+            cluesHtml += '</div>';
+
+            this.createModalBox('Unmatched Clues', cluesHtml);
+
+            // Add click handlers for clues in the modal
+            $('.fake-clues-modal-content').off('click').on('click', '.cw-clue', (e) => {
+              const target = $(e.currentTarget);
+              const groupId = target.attr('data-clues');
+              const wordId = target.attr('data-word');
+              
+              // Find group in either collection
+              const clueGroup = (this.displayClueGroups || this.clueGroups).find(g => g.id === groupId);
+              if (!clueGroup) return;
+              
+              const clue = clueGroup.clues.find(c => String(c.wordId) === String(wordId));
+
+              if (clue) {
+                clue.fakeClueCompleted = !Boolean(clue.fakeClueCompleted);
+                target.toggleClass('completed', clue.fakeClueCompleted);
+                // Also update the hidden clue in the main holder if it exists
+                const mainClue = $(`.cw-clues-holder [data-word="${wordId}"][data-clues="${groupId}"]`);
+                if (mainClue.length) {
+                  mainClue.toggleClass('completed', clue.fakeClueCompleted);
+                }
+              }
+            });
+          };
+
+          if (this.extra_clues_holder) {
+            this.extra_clues_holder.empty().append(extraCluesBtn);
+          }
+        }
+
         this.root.removeClass('loading');
+
         this.root.addClass('loaded');
 
         this.waitUntilSVGWidthStabilizes(() => {
@@ -1974,7 +2040,17 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               rect.setAttribute('y', cellY);
               rect.setAttribute('width', SIZE);
               rect.setAttribute('height', SIZE);
-              rect.setAttribute('stroke', 'var(--grid-stroke-color)');
+              
+              // Use block color for stroke if it's a block, otherwise normal stroke color
+              let rectStroke = (cell.type === 'block') ? 'var(--grid-block-color)' : 'var(--grid-stroke-color)';
+              
+              // If it's selected or in the selected word, use the specialized stroke color
+              if (cell.type !== 'block' && ((this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) || (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)))) {
+                rectStroke = 'var(--grid-selected-stroke-color)';
+              }
+              
+              rect.setAttribute('stroke', rectStroke);
+              
               rect.setAttribute('data-x', cell.x);
               rect.setAttribute('data-y', cell.y);
               rect.setAttribute('class', 'cw-cell');
@@ -2025,7 +2101,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
               circle.setAttribute('r', radius);
               circle.setAttribute('fill', 'none');
-              circle.setAttribute('stroke', this.config.color_block || '#212121');
+              circle.setAttribute('stroke', 'var(--grid-stroke-color)');
               circle.setAttribute('stroke-width', 1.1);
               circle.setAttribute('pointer-events', 'none');
               fillGroup.appendChild(circle);
@@ -2033,7 +2109,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
             if (cell.bar) {
               const barWidth = this.config.bar_linewidth;
-              const barColor = '#212121';
+              let barColor = 'var(--grid-stroke-color)';
+              
+              if (cell.type !== 'block' && ((this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) || (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)))) {
+                barColor = 'var(--grid-selected-stroke-color)';
+              }
 
               const barStart = {
                 top: [cellX, cellY],
@@ -2156,11 +2236,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
                   slash.setAttribute('stroke', 'red');
                   slash.setAttribute('stroke-width', 2.5);
                 } else {
-                  slash.setAttribute('stroke', '#000');
+                  slash.setAttribute('stroke', 'var(--grid-none-text-color)');
                   slash.setAttribute('stroke-width', 2);
                 }
               } else {
-                slash.setAttribute('stroke', '#000');
+                slash.setAttribute('stroke', 'var(--grid-none-text-color)');
                 slash.setAttribute('stroke-width', 2);
               }
 
@@ -2205,7 +2285,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
           path.setAttribute('d', d);
           path.setAttribute('fill', 'none');
-          path.setAttribute('stroke', this.config.font_color_clue || '#000');
+          path.setAttribute('stroke', 'var(--grid-none-text-color)');
           path.setAttribute('stroke-width', 1.3);
           path.setAttribute('pointer-events', 'none');
           this.svgContainer.appendChild(path);
