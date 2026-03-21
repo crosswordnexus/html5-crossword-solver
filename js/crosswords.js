@@ -1257,26 +1257,26 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           // Initial visibility state handled by CSS via breakpoints
           
           extraCluesBtn.onclick = () => {
-            let cluesHtml = '<div class="fake-clues-modal-content">';
+            let cluesHtml = '<div class="unmatched-clues-modal-wrapper">';
             // Use displayClueGroups if available, otherwise fallback to clueGroups
             const groupsToShow = (this.displayClueGroups || this.clueGroups).filter(g => g.isFake);
             groupsToShow.forEach(group => {
-              cluesHtml += `<h3>${group.title}</h3><ul class="cw-clues-items">`;
+              cluesHtml += `<div class="unmatched-clue-group-title">${group.title}</div><div class="unmatched-clues-list">`;
               group.clues.forEach(clue => {
                 const isCompleted = clue.fakeClueCompleted ? 'completed' : '';
-                cluesHtml += `<li class="cw-clue ${isCompleted}" data-word="${clue.wordId}" data-clues="${group.id}">
-                  <span class="cw-clue-number">${clue.number}</span>
-                  <span class="cw-clue-text">${clue.text}</span>
-                </li>`;
+                cluesHtml += `<div class="unmatched-clue-item ${isCompleted}" data-word="${clue.wordId}" data-clues="${group.id}">
+                  <span class="unmatched-clue-number">${clue.number}</span>
+                  <span class="unmatched-clue-text">${clue.text}</span>
+                </div>`;
               });
-              cluesHtml += '</ul>';
+              cluesHtml += '</div>';
             });
             cluesHtml += '</div>';
 
             this.createModalBox('Unmatched Clues', cluesHtml);
 
             // Add click handlers for clues in the modal
-            $('.fake-clues-modal-content').off('click').on('click', '.cw-clue', (e) => {
+            $('.unmatched-clues-modal-wrapper').off('click').on('click', '.unmatched-clue-item', (e) => {
               const target = $(e.currentTarget);
               const groupId = target.attr('data-clues');
               const wordId = target.attr('data-word');

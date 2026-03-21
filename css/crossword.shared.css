@@ -826,23 +826,44 @@ input[type='radio'] {
     display: none;
 }
 
-.fake-clues-modal-content .cw-clues-items {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-.fake-clues-modal-content .cw-clue-number {
-  text-align: left;
-  min-width: 1rem;
-  margin-left: 0;
-}
-
-.fake-clues-modal-content h3 {
-  margin-top: 1em;
-  margin-bottom: 0.5em;
-  border-bottom: 1px solid var(--border-color);
+.unmatched-clues-modal-wrapper {
   color: var(--modal-text-color);
+  font-size: 1.1rem;
+}
+
+.unmatched-clue-group-title {
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+  font-weight: bold;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 1.2rem;
+}
+
+.unmatched-clue-item {
+  display: flex;
+  padding: 0.6em 0.4em;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+}
+
+.unmatched-clue-item:last-child {
+  border-bottom: none;
+}
+
+.unmatched-clue-item.completed {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.unmatched-clue-number {
+  font-weight: bold;
+  min-width: 2.2rem;
+  margin-right: 0.8rem;
+  flex-shrink: 0;
+}
+
+.unmatched-clue-text {
+  flex: 1;
 }
 
 .cw-max-width-650 .cw-header {
