@@ -1588,15 +1588,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             const clickedCell = this.getCell(x, y);
 
             if (this.diagramless_mode) {
-              // Toggle direction if double-click same cell
-              if (
-                clickedCell &&
-                this.selected_cell &&
-                this.selected_cell.x === x &&
-                this.selected_cell.y === y
-              ) {
-                this.toggleDiagramlessDir();
-              }
               return; // prevent the normal puzzle branch below
             }
 
@@ -2450,7 +2441,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             clickedCell.type !== 'block'
           ) {
             this.toggleDiagramlessDir(); // <-- Step 2 helper
-            if (!isMobile) this.hidden_input.focus();
+            if (!IS_MOBILE) this.hidden_input.focus();
             return;
           }
 
@@ -2458,7 +2449,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           this.setSelectedCell(clickedCell);
           this.setSelectedWord(null);
           this.top_text.html('');
-          if (!isMobile) this.hidden_input.focus();
+          if (!IS_MOBILE) this.hidden_input.focus();
           return; // prevent falling through to normal-puzzle logic
         }
 
