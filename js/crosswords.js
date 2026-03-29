@@ -1626,23 +1626,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           }
         });
 
-        this.svgContainer.addEventListener('dblclick', (e) => {
-          if (e.target.tagName === 'rect') {
-            const x = parseInt(e.target.getAttribute('data-x'));
-            const y = parseInt(e.target.getAttribute('data-y'));
-            const clickedCell = this.getCell(x, y);
-
-            if (
-              !clickedCell.empty &&
-              this.selected_cell &&
-              this.selected_cell.x === x &&
-              this.selected_cell.y === y
-            ) {
-              this.changeActiveClues(); // toggle direction
-            }
-          }
-        });
-
         // Right-click on the top clue bar → Ducktiles
         if (!IS_MOBILE) {
           this.top_text.on('contextmenu', (e) => {
