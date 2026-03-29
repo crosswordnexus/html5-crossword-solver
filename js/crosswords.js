@@ -39,7 +39,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
     'use strict';
 
     var default_config = {
-      hover_enabled: false,
       color_hover: '#FFFFAA',
       color_selected: '#FF4136',
       color_word: '#FEE300',
@@ -539,10 +538,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         this.displayClueGroups = null; // for "fakeclues" puzzles
         this.activeClueGroupIndex = 0;
 
-        this.hovered_x = null;
-        this.hovered_y = null;
         this.selected_word = null;
-        this.hilited_word = null;
         this.selected_cell = null;
         this.settings_open = false;
         // TIMER
@@ -628,7 +624,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         this.activeClueGroupIndex = 0;
         this.selected_word = null;
         this.selected_cell = null;
-        this.hilited_word = null;
         this.isSolved = false;
         this.diagramless_mode = false;
         this.savegame_name = null;
@@ -1450,16 +1445,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           $.proxy(this.handleClickOpenMenu, this)
         );
 
-        this.clues_holder.delegate(
-          'div.cw-clues-items div.cw-clue',
-          'mouseenter',
-          $.proxy(this.mouseEnteredClue, this)
-        );
-        this.clues_holder.delegate(
-          'div.cw-clues-items div.cw-clue',
-          'mouseleave',
-          $.proxy(this.mouseLeftClue, this)
-        );
         // Click to jump to clue, but DON'T if user just selected text (avoid nuking selection)
         this.clues_holder.delegate(
           'div.cw-clues-items div.cw-clue',
@@ -1489,10 +1474,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               this.openDucktilesOverlayWithClipboard(selectedText);
             }
           );
-        }
-
-        if (this.config.hover_enabled) {
-          this.svg.on('mousemove', $.proxy(this.mouseMoved, this));
         }
         this.svg.on('click', $.proxy(this.mouseClicked, this));
 
@@ -2384,21 +2365,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
       } /* END renumbergrid() */
 
-      mouseMoved(e) {
-        if (this.config.hover_enabled) {
-          var offset = this.svg.offset(),
-            mouse_x = e.pageX - offset.left,
-            mouse_y = e.pageY - offset.top,
-            index_x = Math.ceil(mouse_x / this.cell_size),
-            index_y = Math.ceil(mouse_y / this.cell_size);
-
-          if (index_x !== this.hovered_x || index_y !== this.hovered_y) {
-            this.hovered_x = index_x;
-            this.hovered_y = index_y;
-          }
-        }
-      }
-
       /**
        * Handle mouse clicks on the crossword grid.
        * Works with any number of clue groups (not just Across/Down).
@@ -3169,15 +3135,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         };
 
         check();
-      }
-
-      mouseEnteredClue(e) {
-        var target = $(e.currentTarget);
-        this.hilited_word = this.words[target.data('word')];
-      }
-
-      mouseLeftClue() {
-        this.hilited_word = null;
       }
 
       // callback for clicking a clue in the sidebar
