@@ -39,19 +39,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
     'use strict';
 
     var default_config = {
-      hover_enabled: false,
-      color_hover: '#FFFFAA',
       color_selected: '#FF4136',
       color_word: '#FEE300',
-      color_hilite: '#F8E473',
-      color_word_shade: '#BAAB56',
       color_none: '#FFFFFF',
       background_color_clue: '#666666',
-      default_background_color: '#c2ed7e',
-      color_secondary: '#fff7b7',
-      font_color_clue: '#FFFFFF',
       font_color_fill: '#000000',
-      color_block: '#212121',
       puzzle_file: null,
 
       puzzle_object: null, // jsxw to load, if available
@@ -59,7 +51,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
       skip_filled_letters: true,
       arrow_direction: 'arrow_move_filled',
       space_bar: 'space_clear',
-      filled_clue_color: '#999999',
       timer_autostart: false,
       confetti_enabled: true,
       dark_mode_enabled: false,
@@ -471,34 +462,16 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         /* Update config values based on `color_word` */
         const COLOR_WORD = this.config.color_word;
         const COLOR_SELECTED = this.config.color_selected;
-        // color for hovered cell (if enabled)
-        this.config.color_hover = Color.applyHsvTransform(COLOR_WORD, {
-          dh: 6.38,
-          ks: 0.333,
-          kv: 1.004
-        });
-        // color for corresponding cells (in acrostics and codewords)
-        this.config.color_hilite = Color.applyHsvTransform(COLOR_WORD, {
-          dh: -2.64,
-          ks: 0.536,
-          kv: 0.976
-        });
-        // color for cross-referenced cells (currently unused)
-        this.config.color_secondary = Color.applyHsvTransform(COLOR_WORD, {
-          dh: -0.29,
-          ks: 0.282,
-          kv: 1.004
-        });
 
         /* Update CSS values based on `color_word` and `color_selected`*/
         this.updateCSS = (word, selected) => {
           const root = document.documentElement;
           const isDark = document.body.classList.contains('dark-mode');
-          
+
           // If dark mode is on, darken the colors a bit (reduce Value by 15%)
           let wordColor = word;
           let selectedColor = selected;
-          
+
           if (isDark) {
             wordColor = Color.applyHsvTransform(word, { kv: 0.85 });
             selectedColor = Color.applyHsvTransform(selected, { kv: 0.85 });
@@ -588,10 +561,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         this.displayClueGroups = null; // for "fakeclues" puzzles
         this.activeClueGroupIndex = 0;
 
-        this.hovered_x = null;
-        this.hovered_y = null;
         this.selected_word = null;
-        this.hilited_word = null;
         this.selected_cell = null;
         this.settings_open = false;
         // TIMER
@@ -677,7 +647,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         this.activeClueGroupIndex = 0;
         this.selected_word = null;
         this.selected_cell = null;
-        this.hilited_word = null;
         this.isSolved = false;
         this.diagramless_mode = false;
         this.savegame_name = null;
@@ -1256,8 +1225,15 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         return null;
       }
 
+      setDiagramlessDir(dir) {
+        if (dir !== this.diagramless_dir) {
+          this.diagramless_dir = dir;
+          this.adjustChevron();
+        }
+      }
+
       toggleDiagramlessDir() {
-        this.diagramless_dir = (this.diagramless_dir === 'across') ? 'down' : 'across';
+        this.setDiagramlessDir((this.diagramless_dir === 'across') ? 'down' : 'across');
       }
 
       completeLoad() {
@@ -1282,8 +1258,8 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         if (this.diagramless_mode || this.fakeclues) {
           const firstCell = this.getCell(1, 1);
           if (firstCell) {
-            this.selected_cell = firstCell;
-            this.selected_word = null;
+            this.setSelectedCell(firstCell);
+            this.setSelectedWord(null);
             this.top_text.html(''); // Clear top clue text
             const initMessage = (this.diagramless_mode ? '[Diagramless Init]' : '[Fakeclues Init]');
             console.log(initMessage, {
@@ -1313,36 +1289,36 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           extraCluesBtn.style.margin = '10px auto';
           extraCluesBtn.style.maxWidth = '200px';
           // Initial visibility state handled by CSS via breakpoints
-          
+
           extraCluesBtn.onclick = () => {
-            let cluesHtml = '<div class="fake-clues-modal-content">';
+            let cluesHtml = '<div class="unmatched-clues-modal-wrapper">';
             // Use displayClueGroups if available, otherwise fallback to clueGroups
             const groupsToShow = (this.displayClueGroups || this.clueGroups).filter(g => g.isFake);
             groupsToShow.forEach(group => {
-              cluesHtml += `<h3>${group.title}</h3><ul class="cw-clues-items">`;
+              cluesHtml += `<div class="unmatched-clue-group-title">${group.title}</div><div class="unmatched-clues-list">`;
               group.clues.forEach(clue => {
                 const isCompleted = clue.fakeClueCompleted ? 'completed' : '';
-                cluesHtml += `<li class="cw-clue ${isCompleted}" data-word="${clue.wordId}" data-clues="${group.id}">
-                  <span class="cw-clue-number">${clue.number}</span>
-                  <span class="cw-clue-text">${clue.text}</span>
-                </li>`;
+                cluesHtml += `<div class="unmatched-clue-item ${isCompleted}" data-word="${clue.wordId}" data-clues="${group.id}">
+                  <span class="unmatched-clue-number">${clue.number}</span>
+                  <span class="unmatched-clue-text">${clue.text}</span>
+                </div>`;
               });
-              cluesHtml += '</ul>';
+              cluesHtml += '</div>';
             });
             cluesHtml += '</div>';
 
             this.createModalBox('Unmatched Clues', cluesHtml);
 
             // Add click handlers for clues in the modal
-            $('.fake-clues-modal-content').off('click').on('click', '.cw-clue', (e) => {
+            $('.unmatched-clues-modal-wrapper').off('click').on('click', '.unmatched-clue-item', (e) => {
               const target = $(e.currentTarget);
               const groupId = target.attr('data-clues');
               const wordId = target.attr('data-word');
-              
+
               // Find group in either collection
               const clueGroup = (this.displayClueGroups || this.clueGroups).find(g => g.id === groupId);
               if (!clueGroup) return;
-              
+
               const clue = clueGroup.clues.find(c => String(c.wordId) === String(wordId));
 
               if (clue) {
@@ -1371,15 +1347,16 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             resizeText(this.root, this.top_text);
           }
         });
+        this.renderCells();
+        this.styleClues();
 
         // === Post-render selection fallback ===
         if (this.diagramless_mode) {
           const firstCell = this.getCell(1, 1);
           if (firstCell) {
-            this.selected_cell = firstCell;
-            this.selected_word = null;
+            this.setSelectedCell(firstCell);
+            this.setSelectedWord(null);
             this.top_text.html('');
-            this.renderCells();
           }
         } else {
           const first_word = this.clueGroups[this.activeClueGroupIndex].getFirstWord?.();
@@ -1500,16 +1477,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           $.proxy(this.handleClickOpenMenu, this)
         );
 
-        this.clues_holder.delegate(
-          'div.cw-clues-items div.cw-clue',
-          'mouseenter',
-          $.proxy(this.mouseEnteredClue, this)
-        );
-        this.clues_holder.delegate(
-          'div.cw-clues-items div.cw-clue',
-          'mouseleave',
-          $.proxy(this.mouseLeftClue, this)
-        );
         // Click to jump to clue, but DON'T if user just selected text (avoid nuking selection)
         this.clues_holder.delegate(
           'div.cw-clues-items div.cw-clue',
@@ -1539,10 +1506,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               this.openDucktilesOverlayWithClipboard(selectedText);
             }
           );
-        }
-
-        if (this.config.hover_enabled) {
-          this.svg.on('mousemove', $.proxy(this.mouseMoved, this));
         }
         this.svg.on('click', $.proxy(this.mouseClicked, this));
 
@@ -1638,16 +1601,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             const clickedCell = this.getCell(x, y);
 
             if (this.diagramless_mode) {
-              // Toggle direction if double-click same cell
-              if (
-                clickedCell &&
-                this.selected_cell &&
-                this.selected_cell.x === x &&
-                this.selected_cell.y === y
-              ) {
-                this.toggleDiagramlessDir();
-                this.renderCells();
-              }
               return; // prevent the normal puzzle branch below
             }
 
@@ -1681,26 +1634,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
                 this.activeClueGroupIndex = newGroupIndex;
                 this.setActiveWord(newActiveWord);
                 this.setActiveCell(clickedCell);
-                this.renderCells();
               }
-            }
-          }
-        });
-
-        this.svgContainer.addEventListener('dblclick', (e) => {
-          if (e.target.tagName === 'rect') {
-            const x = parseInt(e.target.getAttribute('data-x'));
-            const y = parseInt(e.target.getAttribute('data-y'));
-            const clickedCell = this.getCell(x, y);
-
-            if (
-              !clickedCell.empty &&
-              this.selected_cell &&
-              this.selected_cell.x === x &&
-              this.selected_cell.y === y
-            ) {
-              this.changeActiveClues(); // toggle direction
-              this.renderCells(); // optionally re-render after direction switch
             }
           }
         });
@@ -1861,7 +1795,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
       setActiveWord(word) {
         if (word) {
-          this.selected_word = word;
+          this.setSelectedWord(word);
           const group = this.clueGroups[this.activeClueGroupIndex];
           if (this.fakeclues || (group && group.isFake)) {
             this.top_text.html('');
@@ -1882,7 +1816,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
       setActiveCell(cell) {
         if (!cell || cell.empty) return;
 
-        this.selected_cell = cell;
+        this.setSelectedCell(cell);
 
         // Mark active/inactive state for all clue groups
         const groups = this.clueGroups || [];
@@ -1908,8 +1842,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         if (!IS_MOBILE) {
           this.hidden_input.focus();
         }
-
-        this.renderCells();
       }
 
       renderClues(clues_group, clues_container) {
@@ -1986,6 +1918,9 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             $clue.find('.cw-edit-container').show().find('.cw-input').focus();
             $(this).hide();
           })
+          .on('click', '.cw-input', function(event) {
+            event.stopPropagation();
+          })
           .on('blur', '.cw-input', function() {
             const $input = $(this);
             const $clue = $input.closest('.cw-clue');
@@ -2013,6 +1948,31 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
       // Clears canvas and re-renders all cells
       renderCells() {
+        const svg = this.svgContainer;
+        svg.innerHTML = ''; // Clear SVG grid before redrawing
+        this.svgElements = {cells: {}};
+
+        const fillGroup = this.svgElements.fillGroup = document.createElementNS(this.svgNS, 'g');
+        const barGroup = this.svgElements.barGroup = document.createElementNS(this.svgNS, 'g');
+        svg.appendChild(fillGroup);
+        svg.appendChild(barGroup);
+
+        /**
+         * Loop through the cells and write to SVG
+         * Note: for fill and bars: we do all the fill first, then all the bars
+         * This is so later fill doesn't overwrite later bars
+         **/
+        for (let xStr in this.cells) {
+          this.svgElements.cells[xStr] = {};
+          for (let yStr in this.cells[xStr]) {
+            this.svgElements.cells[xStr][yStr] = {};
+            this.adjustCell(this.cells[xStr][yStr]);
+          }
+        }
+        this.positionGrid();
+      }
+
+      positionGrid() {
         // Responsive SVG sizing
         const canvasRect = this.canvas_holder.get(0).getBoundingClientRect();
         const svgTopMargin = getComputedStyle(this.svgContainer).marginTop;
@@ -2038,370 +1998,381 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         }
 
         const SIZE = this.cell_size;
-        const svg = this.svgContainer;
-        svg.innerHTML = ''; // Clear SVG grid before redrawing
-
-        let linkedSet = null;
-        if (this.is_autofill && this.selected_cell) {
-          const key = this.selected_cell.number || this.selected_cell.top_right_number;
-          if (key != null) {
-            linkedSet = new Set(
-              (this.number_to_cells[key] || []).map(c => `${c.x}-${c.y}`)
-            );
-          }
-        }
-
         const padding = 1;
-        svg.setAttribute(
+        this.svgContainer.setAttribute(
           'viewBox',
           `-${padding} -${padding} ${this.grid_width * SIZE + padding * 2} ${this.grid_height * SIZE + padding * 2}`
         );
 
-        /**
-         * Loop through the cells and write to SVG
-         * Note: for fill and bars: we do all the fill first, then all the bars
-         * This is so later fill doesn't overwrite later bars
-         **/
-
-        const fillGroup = document.createElementNS(this.svgNS, 'g');
-        const barGroup = document.createElementNS(this.svgNS, 'g');
-        svg.appendChild(fillGroup);
-        svg.appendChild(barGroup);
-
-        for (let xStr in this.cells) {
-          const x = parseInt(xStr, 10);
-          for (let yStr in this.cells[x]) {
-            const y = parseInt(yStr, 10);
-            const cell = this.cells[x][y];
-            const shouldRender = !cell.empty || cell.clue === true || cell.type === 'block' || cell.top_right_number;
-            if (!shouldRender) continue;
-
-            const cellX = (x - 1) * SIZE;
-            const cellY = (y - 1) * SIZE;
-
-            /*
-            // We don't use this
-            const isLabelOnly = (
-              this.crossword_type === 'acrostic' &&
-              cell.fixed === true &&
-              /^[A-Z]$/.test(cell.letter) &&
-              cell.letter === cell.solution &&
-              !cell.top_right_number
-            );
-            */
-
-            const isPunctuationOnly = (
-              cell.letter &&
-              /^[^A-Za-z0-9]$/.test(cell.letter) &&
-              !cell.solution
-            );
-
-            let fillColor;
-            // Previously this was done for !isLabelOnly
-            if (true) {
-              const rect = document.createElementNS(this.svgNS, 'rect');
-              rect.setAttribute('x', cellX);
-              rect.setAttribute('y', cellY);
-              rect.setAttribute('width', SIZE);
-              rect.setAttribute('height', SIZE);
-              
-              // Use block color for stroke if it's a block, otherwise normal stroke color
-              let rectStroke = (cell.type === 'block') ? 'var(--grid-block-color)' : 'var(--grid-stroke-color)';
-              
-              // If it's selected or in the selected word, use the specialized stroke color
-              if (cell.type !== 'block' && ((this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) || (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)))) {
-                rectStroke = 'var(--grid-selected-stroke-color)';
-              }
-              
-              rect.setAttribute('stroke', rectStroke);
-              
-              rect.setAttribute('data-x', cell.x);
-              rect.setAttribute('data-y', cell.y);
-              rect.setAttribute('class', 'cw-cell');
-
-              // Set the cell color
-              if (cell.type === 'block') {
-                fillColor = cell.color || 'var(--grid-block-color)';
-              } else if (this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) {
-                fillColor = 'var(--grid-selected-square-color)';
-                rect.classList.add('selected');
-              } else if (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)) {
-                fillColor = cell.shade_highlight_color || 'var(--grid-selected-word-color)';
-              } else if (linkedSet && linkedSet.has(`${cell.x}-${cell.y}`)) {
-                // highlight partners
-                fillColor = cell.shade_highlight_color || 'var(--grid-selected-word-color)';
-                rect.classList.add('linked'); // optional CSS hook
-              } else if (cell.color) {
-                fillColor = cell.color;
-              } else {
-                fillColor = 'var(--grid-none-color)';
-              }
-
-              rect.setAttribute('fill', fillColor);
-              fillGroup.appendChild(rect);
-
-              if (cell.image) {
-                const imageLayer = document.createElementNS(this.svgNS, 'image');
-                imageLayer.setAttribute('x', cellX);
-                imageLayer.setAttribute('y', cellY);
-                imageLayer.setAttribute('width', SIZE);
-                imageLayer.setAttribute('height', SIZE);
-                imageLayer.setAttribute('preserveAspectRatio', 'xMidYMid slice');
-                imageLayer.setAttribute('class', 'cw-cell-image');
-                imageLayer.setAttribute('href', cell.image);
-                imageLayer.setAttributeNS('http://www.w3.org/1999/xlink', 'href', cell.image);
-                fillGroup.appendChild(imageLayer);
-              }
-            }
-
-            if (cell.shape === 'circle') {
-              const circle = document.createElementNS(this.svgNS, 'circle');
-              circle.setAttribute('cx', cellX + SIZE / 2);
-              circle.setAttribute('cy', cellY + SIZE / 2);
-
-              // Slightly bigger than cell, so edges are clipped
-              const inset = 0.3; // lower is bigger
-              const radius = SIZE / 2 + inset;
-
-              circle.setAttribute('r', radius);
-              circle.setAttribute('fill', 'none');
-              circle.setAttribute('stroke', 'var(--grid-stroke-color)');
-              circle.setAttribute('stroke-width', 1.1);
-              circle.setAttribute('pointer-events', 'none');
-              fillGroup.appendChild(circle);
-            }
-
-            if (cell.bar) {
-              const barWidth = this.config.bar_linewidth;
-              let barColor = 'var(--grid-stroke-color)';
-              
-              if (cell.type !== 'block' && ((this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) || (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)))) {
-                barColor = 'var(--grid-selected-stroke-color)';
-              }
-
-              const barStart = {
-                top: [cellX, cellY],
-                left: [cellX, cellY],
-                right: [cellX + SIZE, cellY + SIZE],
-                bottom: [cellX + SIZE, cellY + SIZE],
-              };
-
-              const barEnd = {
-                top: [cellX + SIZE, cellY],
-                left: [cellX, cellY + SIZE],
-                right: [cellX + SIZE, cellY],
-                bottom: [cellX, cellY + SIZE],
-              };
-
-              for (const side in cell.bar) {
-                if (cell.bar[side]) {
-                  const [x1, y1] = barStart[side];
-                  const [x2, y2] = barEnd[side];
-                  const barLine = document.createElementNS(this.svgNS, 'line');
-                  barLine.setAttribute('x1', x1);
-                  barLine.setAttribute('y1', y1);
-                  barLine.setAttribute('x2', x2);
-                  barLine.setAttribute('y2', y2);
-                  barLine.setAttribute('stroke', barColor);
-                  barLine.setAttribute('stroke-width', barWidth);
-                  barLine.setAttribute('stroke-linecap', 'square');
-                  barLine.setAttribute('pointer-events', 'none');
-                  barGroup.appendChild(barLine);
-                }
-              }
-            }
-
-            /* Determine the color of letters/numbers in the cell */
-            // Default fill color
-            let fontColorFill = this.config.font_color_fill;
-
-            if (cell.image) {
-              // Images should show text in black regardless of background brightness
-              fontColorFill = '#000000';
-            } else if (typeof fillColor === 'string' && fillColor.startsWith('var(--grid-selected-square-color)')) {
-              fontColorFill = 'var(--grid-selected-square-text-color)';
-            } else if (typeof fillColor === 'string' && fillColor.startsWith('var(--grid-selected-word-color)')) {
-              fontColorFill = 'var(--grid-selected-word-text-color)';
-            } else if (typeof fillColor === 'string' && (fillColor.startsWith('var(--grid-none-color)') || fillColor.startsWith('var(--grid-block-color)'))) {
-              fontColorFill = fillColor.includes('block') ? 'white' : 'var(--grid-none-text-color)';
-            } else {
-              // Brightness of the background and foreground
-              const bgBrightness = Color.getBrightness(fillColor || this.config.color_none);
-              const fgBrightness = Color.getBrightness(this.config.font_color_fill);
-
-              // If we fail to meet some threshold, invert
-              if (Math.abs(bgBrightness - fgBrightness) < 125) {
-                var thisRGB = Color.hexToRgb(this.config.font_color_fill);
-                var invertedRGB = thisRGB.map(x => 255 - x);
-                fontColorFill = Color.rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
-              }
-            }
-
-            if (cell.letter) {
-              const text = document.createElementNS(this.svgNS, 'text');
-              text.setAttribute('x', cellX + SIZE / 2);
-              text.setAttribute('y', cellY + SIZE * 0.77);
-              text.setAttribute('text-anchor', 'middle');
-
-              const letterLength = cell.letter.length;
-              const maxScale = 0.6;
-              const minScale = 0.25;
-              const scale = Math.max(minScale, maxScale - 0.07 * (letterLength - 1));
-              text.setAttribute('font-size', `${SIZE * scale}px`);
-
-              text.setAttribute('font-family', 'Arial, sans-serif');
-              //text.setAttribute('font-weight', 'bold');
-              text.textContent = cell.letter;
-              text.classList.add('cw-cell-letter');
-              text.setAttribute('fill', fontColorFill);
-              svg.appendChild(text);
-            }
-
-            if (cell.number) {
-              const number = document.createElementNS(this.svgNS, 'text');
-              number.setAttribute('x', cellX + SIZE * 0.1);
-              number.setAttribute('y', cellY + SIZE * 0.3);
-              number.setAttribute('font-size', `${SIZE / 3.75}px`);
-              number.setAttribute('font-family', 'Arial, sans-serif');
-              number.textContent = cell.number;
-              number.setAttribute('fill', fontColorFill);
-              number.classList.add('cw-cell-number');
-              svg.appendChild(number);
-            }
-
-            if (
-              cell.top_right_number &&
-              cell.top_right_number !== cell.letter
-            ) {
-              const label = document.createElementNS(this.svgNS, 'text');
-              label.setAttribute('x', cellX + SIZE * 0.9);
-              label.setAttribute('y', cellY + SIZE * 0.3);
-              label.setAttribute('text-anchor', 'end');
-              label.setAttribute('font-size', `${SIZE / 3.75}px`);
-              label.setAttribute('font-family', 'Arial, sans-serif');
-              label.setAttribute('fill', fontColorFill);
-              label.setAttribute('pointer-events', 'none');
-              label.textContent = cell.top_right_number;
-              label.classList.add('cw-top-right-label');
-              svg.appendChild(label);
-            }
-
-            if (cell.checked) {
-              const slash = document.createElementNS(this.svgNS, 'line');
-              slash.setAttribute('x1', (cell.x - 1) * SIZE + 2);
-              slash.setAttribute('y1', (cell.y - 1) * SIZE + 2);
-              slash.setAttribute('x2', (cell.x - 1) * SIZE + SIZE - 2);
-              slash.setAttribute('y2', (cell.y - 1) * SIZE + SIZE - 2);
-
-              if (this.diagramless_mode) {
-                const solutionIsBlock = (cell.solution === '#');
-                const typeIsBlock = (cell.type === 'block');
-                if (solutionIsBlock !== typeIsBlock) {
-                  slash.setAttribute('stroke', 'red');
-                  slash.setAttribute('stroke-width', 2.5);
-                } else {
-                  slash.setAttribute('stroke', 'var(--grid-none-text-color)');
-                  slash.setAttribute('stroke-width', 2);
-                }
-              } else {
-                slash.setAttribute('stroke', 'var(--grid-none-text-color)');
-                slash.setAttribute('stroke-width', 2);
-              }
-
-              slash.setAttribute('stroke-linecap', 'round');
-              svg.appendChild(slash);
-            }
+        for (const col of Object.values(this.cells)) {
+          for (const cell of Object.values(col)) {
+            this.adjustCellPosition(cell);
           }
         }
+        this.adjustChevron();
+        setTimeout(() => this.syncTopTextWidth(), 0);
+      }
 
-        // Tiny direction chevron for diagramless
-        if (this.diagramless_mode && this.selected_cell) {
-          const SIZE = this.cell_size;
-          const {
-            x,
-            y
-          } = this.selected_cell;
-          const cellX = (x - 1) * SIZE;
-          const cellY = (y - 1) * SIZE;
+      adjustCell(cell) {
+        if (!this.svgElements) {
+          return;
+        }
+        const elements = this.svgElements.cells[cell.x][cell.y];
+        const shouldRender = !cell.empty || cell.clue === true || cell.type === 'block' || cell.top_right_number;
 
-          const path = document.createElementNS(this.svgNS, 'path');
+        const showRect = shouldRender;
+        if (showRect && !elements.rect) {
+          const rect = elements.rect = document.createElementNS(this.svgNS, 'rect');
+          rect.setAttribute('data-x', cell.x);
+          rect.setAttribute('data-y', cell.y);
+          rect.setAttribute('class', 'cw-cell');
+          this.svgElements.fillGroup.appendChild(rect);
+        } else if (!showRect && elements.rect) {
+          elements.rect.parentNode.removeChild(elements.rect);
+          delete elements.rect;
+        }
+        this.adjustCellRect(cell);
 
-          // slightly smaller overall
-          const pad = SIZE * 0.15; // smaller padding than before
-          const cxAcross = cellX + SIZE - pad;
-          const cyAcross = cellY + pad * 1.1;
+        const showImage = shouldRender && cell.image;
+        if (showImage && !elements.image) {
+          const imageLayer = elements.image = document.createElementNS(this.svgNS, 'image');
+          imageLayer.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+          imageLayer.setAttribute('class', 'cw-cell-image');
+          imageLayer.setAttribute('href', cell.image);
+          imageLayer.setAttributeNS('http://www.w3.org/1999/xlink', 'href', cell.image);
+          this.svgElements.fillGroup.appendChild(imageLayer);
+        } else if (!showImage && elements.image) {
+          elements.image.parentNode.removeChild(elements.image);
+          delete elements.image;
+        }
 
-          const cxDown = cellX + SIZE - pad;
-          const cyDown = cellY + SIZE - pad * 1.1;
+        const showCircle = shouldRender && cell.shape === 'circle';
+        if (showCircle && !elements.circle) {
+          const circle = elements.circle = document.createElementNS(this.svgNS, 'circle');
+          circle.setAttribute('fill', 'none');
+          circle.setAttribute('stroke', 'var(--grid-stroke-color)');
+          circle.setAttribute('stroke-width', 1.1);
+          circle.setAttribute('pointer-events', 'none');
+          this.svgElements.fillGroup.appendChild(circle);
+        } else if (!showCircle && elements.circle) {
+          elements.circle.parentNode.removeChild(elements.circle);
+          delete elements.circle;
+        }
 
-          let d;
-          if (this.diagramless_dir === 'across') {
-            // ► chevron (upper-right corner)
-            d = `M ${cxAcross - pad * 0.8} ${cyAcross - pad / 2}
-        L ${cxAcross} ${cyAcross}
-        L ${cxAcross - pad * 0.8} ${cyAcross + pad / 2}`;
-          } else {
-            // ▼ chevron (lower-right corner)
-            d = `M ${cxDown - pad / 2} ${cyDown - pad * 0.8}
-        L ${cxDown} ${cyDown}
-        L ${cxDown + pad / 2} ${cyDown - pad * 0.8}`;
+        for (const [side, show] of Object.entries(cell.bar ?? {})) {
+          const showBar = shouldRender && show;
+          const key = `bar-${side}`;
+          if (showBar && !elements[key]) {
+            const barLine = elements[key] = document.createElementNS(this.svgNS, 'line');
+            barLine.setAttribute('stroke-width', this.config.bar_linewidth);
+            barLine.setAttribute('stroke-linecap', 'square');
+            barLine.setAttribute('pointer-events', 'none');
+            this.svgElements.barGroup.appendChild(barLine);
+          } else if (!showBar && elements[key]) {
+            elements[key].parentNode.removeChild(elements[key]);
+            delete elements[key];
           }
+          this.adjustCellBar(cell, side);
+        }
 
-          path.setAttribute('d', d);
+        const showLetter = shouldRender && cell.letter;
+        if (showLetter && !elements.letter) {
+          const text = elements.letter = document.createElementNS(this.svgNS, 'text');
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('font-family', 'Arial, sans-serif');
+          text.classList.add('cw-cell-letter');
+          this.svgContainer.appendChild(text);
+        } else if (!showLetter && elements.letter) {
+          elements.letter.parentNode.removeChild(elements.letter);
+          delete elements.letter;
+        }
+        this.adjustCellLetter(cell);
+
+        const showNumber = shouldRender && cell.number;
+        if (showNumber && !elements.number) {
+          const number = elements.number = document.createElementNS(this.svgNS, 'text');
+          number.setAttribute('font-family', 'Arial, sans-serif');
+          number.classList.add('cw-cell-number');
+          this.svgContainer.appendChild(number);
+        } else if (!showNumber && elements.number) {
+          elements.number.parentNode.removeChild(elements.number);
+          delete elements.number;
+        }
+        this.adjustCellNumber(cell);
+
+        const showTopRightNumber = shouldRender && cell.top_right_number && cell.top_right_number !== cell.letter;
+        if (showTopRightNumber && !elements.top_right_number) {
+            const label = elements.top_right_number = document.createElementNS(this.svgNS, 'text');
+            label.setAttribute('text-anchor', 'end');
+            label.setAttribute('font-family', 'Arial, sans-serif');
+            label.setAttribute('pointer-events', 'none');
+            label.classList.add('cw-top-right-label');
+            this.svgContainer.appendChild(label);
+        } else if (!showTopRightNumber && elements.top_right_number) {
+          elements.top_right_number.parentNode.removeChild(elements.top_right_number);
+          delete elements.top_right_number;
+        }
+        this.adjustCellTopRightNumber(cell);
+
+        const showSlash = shouldRender && cell.checked;
+        if (showSlash && !elements.slash) {
+          const slash = elements.slash = document.createElementNS(this.svgNS, 'line');
+          slash.setAttribute('stroke-linecap', 'round');
+          this.svgContainer.appendChild(slash);
+        } else if (!showSlash && elements.slash) {
+          elements.slash.parentNode.removeChild(elements.slash);
+          delete elements.slash;
+        }
+        this.adjustCellSlash(cell);
+
+        this.adjustCellPosition(cell);
+      }
+
+      adjustCellPosition(cell) {
+        if (!this.svgElements) {
+          return;
+        }
+        const elements = this.svgElements.cells[cell.x][cell.y];
+        const size = this.cell_size;
+        const cellX = (cell.x - 1) * size;
+        const cellY = (cell.y - 1) * size;
+        const barCoords = {
+          top: [[cellX, cellY], [cellX + size, cellY]],
+          left: [[cellX, cellY], [cellX, cellY + size]],
+          right: [[cellX + size, cellY + size], [cellX + size, cellY]],
+          bottom: [[cellX + size, cellY + size], [cellX, cellY + size]],
+        };
+
+        if (elements.rect) {
+          elements.rect.setAttribute("x", cellX);
+          elements.rect.setAttribute("y", cellY);
+          elements.rect.setAttribute("width", size);
+          elements.rect.setAttribute("height", size);
+        }
+        if (elements.circle) {
+          elements.circle.setAttribute('cx', cellX + size / 2);
+          elements.circle.setAttribute('cy', cellY + size / 2);
+          // Slightly bigger than cell, so edges are clipped
+          const inset = 0.3; // lower is bigger
+          const radius = size / 2 + inset;
+          elements.circle.setAttribute('r', radius);
+        }
+        if (elements.image) {
+          elements.image.setAttribute('x', cellX);
+          elements.image.setAttribute('y', cellY);
+          elements.image.setAttribute('width', size);
+          elements.image.setAttribute('height', size);
+        }
+        for (const side of Object.keys(cell.bar ?? {})) {
+          const key = `bar-${side}`;
+          if (elements[key]) {
+            const [[x1, y1], [x2, y2]] = barCoords[side];
+            elements[key].setAttribute('x1', x1);
+            elements[key].setAttribute('y1', y1);
+            elements[key].setAttribute('x2', x2);
+            elements[key].setAttribute('y2', y2);
+          }
+        }
+        if (elements.letter) {
+          const letterLength = cell.letter.length;
+          const maxScale = 0.6;
+          const minScale = 0.25;
+          const scale = Math.max(minScale, maxScale - 0.07 * (letterLength - 1));
+          elements.letter.setAttribute('x', cellX + size / 2);
+          elements.letter.setAttribute('y', cellY + size * 0.77);
+          elements.letter.setAttribute('font-size', `${this.cell_size * scale}px`);
+        }
+        if (elements.number) {
+          elements.number.setAttribute('x', cellX + size * 0.1);
+          elements.number.setAttribute('y', cellY + size * 0.3);
+          elements.number.setAttribute('font-size', `${size / 3.75}px`);
+        }
+        if (elements.top_right_number) {
+          elements.top_right_number.setAttribute('x', cellX + size * 0.9);
+          elements.top_right_number.setAttribute('y', cellY + size * 0.3);
+          elements.top_right_number.setAttribute('font-size', `${size / 3.75}px`);
+        }
+        if (elements.slash) {
+          elements.slash.setAttribute('x1', cellX + 2);
+          elements.slash.setAttribute('y1', cellY + 2);
+          elements.slash.setAttribute('x2', cellX + size - 2);
+          elements.slash.setAttribute('y2', cellY + size - 2);
+        }
+      }
+
+      adjustCellRect(cell) {
+        const rect = this.svgElements.cells[cell.x][cell.y].rect;
+        if (!rect) {
+          return;
+        }
+
+        // Use block color for stroke if it's a block, otherwise normal stroke color
+        let rectStroke = (cell.type === 'block') ? 'var(--grid-block-color)' : 'var(--grid-stroke-color)';
+
+        // If it's selected or in the selected word, use the specialized stroke color
+        if (cell.type !== 'block' && ((this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) || (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)))) {
+          rectStroke = 'var(--grid-selected-stroke-color)';
+        }
+
+        const isSelected = !!(this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y);
+        const isLinked = !!(this.selected_cell && this.number_to_cells[this.selected_cell.number || this.selected_cell.top_right_number]?.includes(cell));
+        rect.classList.toggle('selected', isSelected);
+        rect.classList.toggle('linked', isLinked); // optional CSS hook
+        rect.setAttribute('fill', this.cellFillColor(cell));
+        rect.setAttribute('stroke', rectStroke);
+      }
+
+      adjustCellBar(cell, side) {
+        const barLine = this.svgElements.cells[cell.x][cell.y][`bar-${side}`];
+        if (!barLine) {
+          return;
+        }
+
+        let barColor = 'var(--grid-stroke-color)';
+
+        if (cell.type !== 'block' && ((this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) || (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)))) {
+          barColor = 'var(--grid-selected-stroke-color)';
+        }
+        barLine.setAttribute('stroke', barColor);
+      }
+
+      adjustCellLetter(cell) {
+        const letter = this.svgElements.cells[cell.x][cell.y].letter;
+        if (!letter) {
+          return;
+        }
+        letter.textContent = cell.letter;
+        letter.setAttribute('fill', this.cellFontColor(cell));
+      }
+
+      adjustCellNumber(cell) {
+        const number = this.svgElements.cells[cell.x][cell.y].number;
+        if (!number) {
+          return;
+        }
+
+        number.textContent = cell.number;
+        number.setAttribute('fill', this.cellFontColor(cell));
+      }
+
+      adjustCellTopRightNumber(cell) {
+        const label = this.svgElements.cells[cell.x][cell.y].top_right_number;
+        if (!label) {
+          return;
+        }
+
+        label.setAttribute('fill', this.cellFontColor(cell));
+        label.textContent = cell.top_right_number;
+      }
+
+      adjustCellSlash(cell) {
+        const slash = this.svgElements.cells[cell.x][cell.y].slash;
+        if (!slash) {
+          return;
+        }
+
+        if (this.diagramless_mode) {
+          const solutionIsBlock = (cell.solution === '#');
+          const typeIsBlock = (cell.type === 'block');
+          if (solutionIsBlock !== typeIsBlock) {
+            slash.setAttribute('stroke', 'red');
+            slash.setAttribute('stroke-width', 2.5);
+          } else {
+            slash.setAttribute('stroke', 'var(--grid-none-text-color)');
+            slash.setAttribute('stroke-width', 2);
+          }
+        } else {
+          slash.setAttribute('stroke', 'var(--grid-none-text-color)');
+          slash.setAttribute('stroke-width', 2);
+        }
+      }
+
+      adjustChevron() {
+        if (!this.svgElements) {
+          return;
+        }
+        // Tiny direction chevron for diagramless
+        const showChevron = this.diagramless_mode && this.selected_cell;
+        if (showChevron && !this.svgElements.chevron) {
+          const path = this.svgElements.chevron = document.createElementNS(this.svgNS, 'path');
           path.setAttribute('fill', 'none');
           path.setAttribute('stroke', 'var(--grid-none-text-color)');
           path.setAttribute('stroke-width', 1.3);
           path.setAttribute('pointer-events', 'none');
           this.svgContainer.appendChild(path);
+        } else if (!showChevron && this.svgElements.chevron) {
+          this.svgElements.chevron.parentNode.removeChild(this.svgElements.chevron);
+          delete this.svgElements.chevron;
         }
+        if (this.svgElements.chevron) {
+          // slightly smaller overall
+          const size = this.cell_size;
+          const cellX = (this.selected_cell.x - 1) * size;
+          const cellY = (this.selected_cell.y - 1) * size;
+          const pad = this.cell_size * 0.15; // smaller padding than before
+          const cxAcross = cellX + size - pad;
+          const cyAcross = cellY + pad * 1.1;
 
+          const cxDown = cellX + size - pad;
+          const cyDown = cellY + size - pad * 1.1;
 
-        if (!this.diagramless_mode && this.selected_word) {
-          this.drawSelectedWordBorder(svg, this.selected_word);
+          const d = (
+            this.diagramless_dir === 'across'
+            ? `M ${cxAcross - pad * 0.8} ${cyAcross - pad / 2}
+              L ${cxAcross} ${cyAcross}
+              L ${cxAcross - pad * 0.8} ${cyAcross + pad / 2}`
+              // ► chevron (upper-right corner)
+            : `M ${cxDown - pad / 2} ${cyDown - pad * 0.8}
+              L ${cxDown} ${cyDown}
+              L ${cxDown + pad / 2} ${cyDown - pad * 0.8}`
+              // ▼ chevron (lower-right corner)
+          );
+          this.svgElements.chevron.setAttribute('d', d);
         }
-        setTimeout(() => this.syncTopTextWidth(), 0);
-
-        // Update all clues in the sidebar
-        this.clues_holder.find('.cw-clue').each((i, el) => {
-          const $el = $(el);
-          const clue = $el.data('clue');
-          this.updateClueAppearance(clue, $el);
-        });
       }
 
-      drawSelectedWordBorder(svg, word) {
-        // this doesn't play well with irregularly shaped words
-        return;
-        /*
-        if (!word || !word.cells.length) return;
-
-        const SIZE = this.cell_size;
-
-        let minX = Infinity,
-          minY = Infinity,
-          maxX = -1,
-          maxY = -1;
-
-        for (const coord of word.cells) {
-          const [x, y] = coord.split('-').map(Number);
-          minX = Math.min(minX, x);
-          minY = Math.min(minY, y);
-          maxX = Math.max(maxX, x);
-          maxY = Math.max(maxY, y);
+      cellFillColor(cell) {
+        if (cell.type === 'block') {
+          return cell.color || 'var(--grid-block-color)';
+        } else if (this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) {
+          return 'var(--grid-selected-square-color)';
+        } else if (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)) {
+          return cell.shade_highlight_color || 'var(--grid-selected-word-color)';
+        } else if (this.selected_cell && this.number_to_cells[this.selected_cell.number || this.selected_cell.top_right_number]?.includes(cell)) {
+          // highlight partners
+          return cell.shade_highlight_color || 'var(--grid-selected-word-color)';
+        } else if (cell.color) {
+          return cell.color;
+        } else {
+          return 'var(--grid-none-color)';
         }
+      }
 
-        const rect = document.createElementNS(this.svgNS, 'rect');
-        rect.setAttribute('x', (minX - 1) * SIZE);
-        rect.setAttribute('y', (minY - 1) * SIZE);
-        rect.setAttribute('width', (maxX - minX + 1) * SIZE);
-        rect.setAttribute('height', (maxY - minY + 1) * SIZE);
-        rect.setAttribute('fill', 'none');
-        rect.setAttribute('stroke', this.config.color_selected);
-        rect.setAttribute('stroke-width', 1.5);
-        rect.setAttribute('pointer-events', 'none');
-        rect.setAttribute('class', 'selected-word-border');
-        svg.appendChild(rect);
-        */
+      cellFontColor(cell) {
+        const fillColor = this.cellFillColor(cell);
+        if (cell.image) {
+          // Images should show text in black regardless of background brightness
+          return '#000000';
+        } else if (typeof fillColor === 'string' && fillColor.startsWith('var(--grid-selected-square-color)')) {
+          return 'var(--grid-selected-square-text-color)';
+        } else if (typeof fillColor === 'string' && fillColor.startsWith('var(--grid-selected-word-color)')) {
+          return 'var(--grid-selected-word-text-color)';
+        } else if (typeof fillColor === 'string' && (fillColor.startsWith('var(--grid-none-color)') || fillColor.startsWith('var(--grid-block-color)'))) {
+          return fillColor.includes('block') ? 'white' : 'var(--grid-none-text-color)';
+        } else {
+          // Brightness of the background and foreground
+          const bgBrightness = Color.getBrightness(fillColor || this.config.color_none);
+          const fgBrightness = Color.getBrightness(this.config.font_color_fill);
+
+          // If we fail to meet some threshold, invert
+          if (Math.abs(bgBrightness - fgBrightness) < 125) {
+            var thisRGB = Color.hexToRgb(this.config.font_color_fill);
+            var invertedRGB = thisRGB.map(x => 255 - x);
+            return Color.rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
+          } else {
+            return this.config.font_color_fill;
+          }
+        }
       }
 
       renumberGrid() {
@@ -2419,29 +2390,15 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         for (let y = 1; y <= height; y++) {
           for (let x = 1; x <= width; x++) {
             const cell = this.getCell(x, y);
-            cell.number = numbering[y - 1][x - 1] > 0 ? numbering[y - 1][x - 1] : null;
+            this.updateCell(cell, {
+              number: numbering[y - 1][x - 1] > 0 ? numbering[y - 1][x - 1] : null
+            });
           }
         }
 
 
 
       } /* END renumbergrid() */
-
-      mouseMoved(e) {
-        if (this.config.hover_enabled) {
-          var offset = this.svg.offset(),
-            mouse_x = e.pageX - offset.left,
-            mouse_y = e.pageY - offset.top,
-            index_x = Math.ceil(mouse_x / this.cell_size),
-            index_y = Math.ceil(mouse_y / this.cell_size);
-
-          if (index_x !== this.hovered_x || index_y !== this.hovered_y) {
-            this.hovered_x = index_x;
-            this.hovered_y = index_y;
-            this.renderCells();
-          }
-        }
-      }
 
       /**
        * Handle mouse clicks on the crossword grid.
@@ -2468,17 +2425,15 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             clickedCell.type !== 'block'
           ) {
             this.toggleDiagramlessDir(); // <-- Step 2 helper
-            this.renderCells();
-            if (!isMobile) this.hidden_input.focus();
+            if (!IS_MOBILE) this.hidden_input.focus();
             return;
           }
 
           // Otherwise, select the clicked cell without tying to any word
-          this.selected_cell = clickedCell;
-          this.selected_word = null;
+          this.setSelectedCell(clickedCell);
+          this.setSelectedWord(null);
           this.top_text.html('');
-          this.renderCells();
-          if (!isMobile) this.hidden_input.focus();
+          if (!IS_MOBILE) this.hidden_input.focus();
           return; // prevent falling through to normal-puzzle logic
         }
 
@@ -2524,7 +2479,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
         // Update cell selection and redraw
         this.setActiveCell(clickedCell);
-        this.renderCells();
 
         if (!IS_MOBILE) {
           this.hidden_input.focus();
@@ -2552,7 +2506,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             this.moveToFirstCell(false);
             break;
           case 37: // left
-            if (this.diagramless_mode) this.diagramless_dir = 'across'; // set BEFORE moving
+            if (this.diagramless_mode) this.setDiagramlessDir('across'); // set BEFORE moving
             if (e.shiftKey) {
               this.skipToWord(SKIP_LEFT);
             } else {
@@ -2560,7 +2514,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             }
             break;
           case 38: // up
-            if (this.diagramless_mode) this.diagramless_dir = 'down'; // vertical mode (set BEFORE)
+            if (this.diagramless_mode) this.setDiagramlessDir('down'); // vertical mode (set BEFORE)
             if (e.shiftKey) {
               this.skipToWord(SKIP_UP);
             } else {
@@ -2568,7 +2522,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             }
             break;
           case 39: // right
-            if (this.diagramless_mode) this.diagramless_dir = 'across'; // set BEFORE moving
+            if (this.diagramless_mode) this.setDiagramlessDir('across'); // set BEFORE moving
             if (e.shiftKey) {
               this.skipToWord(SKIP_RIGHT);
             } else {
@@ -2576,12 +2530,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             }
             break;
           case 40: // down
-            if (this.diagramless_mode) this.diagramless_dir = 'down'; // vertical mode (set BEFORE)
+            if (this.diagramless_mode) this.setDiagramlessDir('down'); // vertical mode (set BEFORE)
             if (e.shiftKey) {
               this.skipToWord(SKIP_DOWN);
             } else {
               this.moveSelectionBy(0, 1);
-              this.renderCells();
             }
             break;
 
@@ -2591,7 +2544,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               // Toggle direction in diagramless on Space
               if (this.selected_cell) {
                 this.toggleDiagramlessDir();
-                this.renderCells();
               }
               break; // prevent falling into normal space behavior
             }
@@ -2612,8 +2564,10 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
                 }
               } else {
                 // --- normal space behavior: clear and move to next cell
-                this.selected_cell.letter = '';
-                this.selected_cell.checked = false;
+                this.updateCell(this.selected_cell, {
+                  letter: '',
+                  checked: false
+                });
                 this.autofill();
                 const next_cell = this.selected_word.getNextCell(
                   this.selected_cell.x,
@@ -2623,7 +2577,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               }
             }
 
-            this.renderCells();
             this.checkIfSolved(); // update solved status
             break;
 
@@ -2647,11 +2600,12 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             break;
           case 46: // delete
             if (this.selected_cell && !this.selected_cell.fixed) {
-              this.selected_cell.letter = '';
-              this.selected_cell.checked = false;
+              this.updateCell(this.selected_cell, {
+                letter: '',
+                checked: false
+              });
               this.autofill();
             }
-            this.renderCells();
             // Update this.isSolved
             this.checkIfSolved();
             break;
@@ -2671,8 +2625,9 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             if (this.selected_cell && (e.ctrlKey || e.metaKey)) {
               // ctrl + "." toggles circle
               const cell = this.selected_cell;
-              cell.shape = cell.shape === 'circle' ? null : 'circle';
-              this.renderCells();
+              this.updateCell(cell, {
+                shape: cell.shape === 'circle' ? null : 'circle'
+              });
               if (!IS_MOBILE) {
                 this.hidden_input.focus();
               }
@@ -2686,20 +2641,22 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               // Toggle block / white
               if (cell.type === 'block') {
                 // It is currently a block: make it white again
-                cell.type = null;
-                cell.empty = false;
+                this.updateCell(cell, {
+                  type: null,
+                  empty: false,
+                  letter: ''
+                });
               } else {
                 // It is currently white: make it a block
-                cell.type = 'block';
-                cell.empty = true;
+                this.updateCell(cell, {
+                  type: 'block',
+                  empty: true,
+                  letter: ''
+                });
               }
-
-              // Always clear any letter inside
-              cell.letter = '';
 
               // Renumber immediately
               this.renumberGrid();
-              this.renderCells(); // redraw right away
 
               if (!IS_MOBILE) {
                 this.hidden_input.focus();
@@ -2717,11 +2674,12 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             if (this.selected_cell && isPrintableChar && !this.selected_cell.fixed) {
               // Uppercase only letters, leave numbers/punctuation unchanged
               const ch = /[a-z]/i.test(e.key) ? e.key.toUpperCase() : e.key;
-              this.selected_cell.letter = ch;
-              this.selected_cell.checked = false;
+              this.updateCell(this.selected_cell, {
+                letter: ch,
+                checked: false
+              });
               this.autofill();
               this.checkIfSolved();
-              this.renderCells();
               if (!IS_MOBILE) {
                 this.hidden_input.focus();
               }
@@ -2764,8 +2722,10 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
       backspace() {
         if (this.selected_cell && !this.selected_cell.fixed) {
-          this.selected_cell.letter = '';
-          this.selected_cell.checked = false;
+          this.updateCell(this.selected_cell, {
+            letter: '',
+            checked: false
+          });
           this.autofill();
 
           if (this.diagramless_mode) {
@@ -2780,7 +2740,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             this.setActiveCell(prev_cell);
           }
 
-          this.renderCells();
           this.checkIfSolved();
         }
       }
@@ -2794,8 +2753,10 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
           for (const cell of same_number_cells) {
             if (cell !== this.selected_cell) {
-              cell.letter = this.selected_cell.letter;
-              cell.checked = this.selected_cell.checked;
+              this.updateCell(cell, {
+                letter: this.selected_cell.letter,
+                checked: this.selected_cell.checked
+              });
             }
           }
         }
@@ -2806,22 +2767,25 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         var next_cell;
         if (this.selected_cell) {
           if (rebus_string && rebus_string.trim()) {
-            this.selected_cell.letter = rebus_string.toUpperCase(); // ✅ Use rebus string if available
+            this.updateCell(this.selected_cell, {
+              letter: rebus_string.toUpperCase() // ✅ Use rebus string if available
+            });
           } else {
             const mychar = this.hidden_input.val().slice(0, 1).toUpperCase();
             if (mychar) {
-              this.selected_cell.letter = mychar;
+              this.updateCell(this.selected_cell, {
+                letter: mychar
+              });
             }
           }
-          this.selected_cell.checked = false;
+          this.updateCell(this.selected_cell, {
+            checked: false
+          });
 
           // If this is a coded or acrostic
           // find all cells with this number
           // and fill them with the same letter
           this.autofill();
-
-          // Within hiddenInputChanged():
-          this.renderCells(); // Re-render SVG grid immediately after user input
 
           // find empty cell, then next cell
           // Change this depending on config
@@ -2843,13 +2807,12 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           }
 
           this.setActiveCell(next_cell);
-          this.renderCells();
           this.checkIfSolved()
         }
         this.hidden_input.val('');
       }
 
-      checkIfSolved(do_reveal = false) {
+      checkIfSolved(do_reveal = true) {
         var wasSolved = this.isSolved;
         var i, j, cell;
         for (i in this.cells) {
@@ -2934,8 +2897,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
                 word_cell = word.getFirstEmptyCell() || word.getFirstCell();
                 this.setActiveWord(word);
                 this.setActiveCell(word_cell);
-                this.renderCells();
-                this.renderCells();
 
                 return true;
               }
@@ -3026,7 +2987,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           const cell = next_word.getFirstEmptyCell() || next_word.getFirstCell();
           this.setActiveWord(next_word);
           this.setActiveCell(cell);
-          this.renderCells();
         }
       }
 
@@ -3043,7 +3003,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             this.selected_word.getFirstCell();
           if (cell) {
             this.setActiveCell(cell);
-            this.renderCells();
           }
         }
       }
@@ -3061,8 +3020,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           const y = this.selected_cell.y + delta_y;
           const new_cell = this.getCell(x, y);
           if (new_cell) { // skip normal crossword movement logic
-            this.selected_cell = new_cell;
-            this.renderCells();
+            this.setSelectedCell(new_cell);
           }
           return;
         }
@@ -3153,14 +3111,13 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         }
 
         this.setActiveCell(new_cell);
-        this.renderCells();
       } // END moveSelectionBy()
 
 
       windowResized() {
         setBreakpointClasses(this.root);
         resizeText(this.root, this.top_text);
-        this.renderCells();
+        this.positionGrid();
         this.syncTopTextWidth();
       }
 
@@ -3215,17 +3172,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         check();
       }
 
-      mouseEnteredClue(e) {
-        var target = $(e.currentTarget);
-        this.hilited_word = this.words[target.data('word')];
-        this.renderCells();
-      }
-
-      mouseLeftClue() {
-        this.hilited_word = null;
-        this.renderCells();
-      }
-
       // callback for clicking a clue in the sidebar
       clueClicked(e) {
         const target = $(e.currentTarget);
@@ -3261,7 +3207,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
         this.setActiveWord(word);
         this.setActiveCell(cell);
-        this.renderCells();
       }
 
       showInfo() {
@@ -3652,7 +3597,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
                 // If the toggled setting is gray_completed_clues, re-render clues immediately
                 if (event.target.name === 'gray_completed_clues') {
-                  this.renderCells();
+                  this.styleClues();
                   this.syncTopTextWidth();
                 }
 
@@ -3864,56 +3809,80 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           if (reveal_or_check === 'clear') {
             if (c.fixed) continue;
             // CLEAR
-            c.letter = '';
-            c.checked = false;
-            c.revealed = false;
+            this.updateCell(c, {
+              letter: '',
+              checked: false,
+              revealed: false
+            });
             if (this.diagramless_mode) {
-              c.type = null; // clear black squares too
-              c.empty = false;
+              this.updateCell(c, {
+                type: null, // clear black squares too
+                empty: false
+              });
             }
           } else if (reveal_or_check === 'reveal') {
             if (this.diagramless_mode) {
               if (c.solution === '#') {
-                c.type = 'block';
-                c.empty = true;
-                c.letter = '';
+                this.updateCell(c, {
+                  type: 'block',
+                  empty: true,
+                  letter: ''
+                });
               } else {
-                c.type = null;
-                c.empty = false;
-                c.letter = c.solution;
+                this.updateCell(c, {
+                  type: null,
+                  empty: false,
+                  letter: c.solution
+                });
               }
-              c.checked = false;
-              c.revealed = false;
+              this.updateCell(c, {
+                checked: false,
+                revealed: false
+              });
             } else {
               // ✅ SAFEGUARD for normal puzzles: don't show "#" as a letter
               if (c.solution === '#') {
-                c.letter = '';
-                c.revealed = false;
-                c.checked = false;
+                this.updateCell(c, {
+                  letter: '',
+                  revealed: false,
+                  checked: false
+                });
               } else {
-                c.letter = c.solution;
-                c.revealed = true;
-                c.checked = false;
+                this.updateCell(c, {
+                  letter: c.solution,
+                  revealed: true,
+                  checked: false
+                });
               }
             }
           } else if (reveal_or_check === 'check') {
             if (this.diagramless_mode) {
               if (c.type === 'block') {
                 // If the user placed a black square
-                c.checked = (c.solution !== '#'); // Mark wrong if not supposed to be a black square
+                this.updateCell(c, {
+                  checked: c.solution != '#' // Mark wrong if not supposed to be a black square
+                });
               } else if (c.letter) {
                 // User typed something — check the letter
-                c.checked = !isCorrect(c.letter, c.solution);
+                this.updateCell(c, {
+                  checked: !isCorrect(c.letter, c.solution)
+                });
               } else {
                 // Empty white square — leave unchecked
-                c.checked = false;
+                this.updateCell(c, {
+                  checked: false
+                });
               }
             } else {
               // Regular crossword
               if (c.letter) {
-                c.checked = !isCorrect(c.letter, c.solution);
+                this.updateCell(c, {
+                  checked: !isCorrect(c.letter, c.solution)
+                });
               } else {
-                c.checked = false;
+                this.updateCell(c, {
+                  checked: false
+                });
               }
             }
           }
@@ -3927,15 +3896,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           this.renumberGrid();
         }
 
-        this.renderCells();
-
         if (reveal_or_check === 'reveal') {
           this.checkIfSolved(false);
         }
 
-        if (reveal_or_check === 'clear') {
-          this.saveGame();
-        }
+        this.saveGame();
 
         if (!IS_MOBILE) {
           this.hidden_input.focus();
@@ -4031,6 +3996,15 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         }
       }
 
+      styleClues() {
+       // Update all clues in the sidebar
+        this.clues_holder.find('.cw-clue').each((i, el) => {
+          const $el = $(el);
+          const clue = $el.data('clue');
+          this.updateClueAppearance(clue, $el);
+        });
+      }
+
       updateClueAppearance(clue, $el) {
         if (!clue) return;
 
@@ -4064,6 +4038,47 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           "text-decoration": "",
           "color": shouldGray ? "#aaa" : ""
         });
+      }
+
+      updateCell(cell, properties) {
+        Object.assign(cell, properties);
+        this.adjustCell(cell);
+        this.styleClues();
+      }
+
+      setSelectedCell(new_cell) {
+        const prev_cell = this.selected_cell;
+        if (prev_cell === new_cell) {
+          return;
+        }
+        this.selected_cell = new_cell;
+        for (const cell of [prev_cell, new_cell]) {
+          if (!cell) {
+            continue;
+          }
+          const number = cell.number || cell.top_right_number;
+          const linked_cells = this.number_to_cells[number] ?? [cell];
+          for (const linked_cell of linked_cells) {
+            this.adjustCell(linked_cell);
+          }
+        }
+        this.adjustChevron();
+      }
+
+      setSelectedWord(new_word) {
+        const prev_word = this.selected_word;
+        if (prev_word === new_word) {
+          return;
+        }
+        this.selected_word = new_word;
+        for (const word of [prev_word, new_word]) {
+          if (!word) {
+            continue;
+          }
+          for (const coord of word.cells) {
+            this.adjustCell(word.getCellByCoordinates(coord));
+          }
+        }
       }
     }
 
@@ -4396,7 +4411,9 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           (coordinates = this.cells[i]); i++) {
           cell = this.getCellByCoordinates(coordinates);
           if (cell) {
-            cell.letter = cell.solution;
+            this.crossword.updateCell(cell, {
+              letter: cell.solution
+            });
           }
         }
       }
