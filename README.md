@@ -99,16 +99,9 @@ The following parameters allow you to change the solver's color scheme.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `color_hover` | `string` | `'#FFFFAA'` | Color of a cell on hover. |
 | `color_selected`| `string` | `'#FF4136'` | Background color of the currently selected cell. |
 | `color_word` | `string` | `'#FEE300'` | Background color for all other cells in the active word. |
-| `color_hilite` | `string` | `'#F8E473'` | Color for related or cross-referenced cells. |
-| `color_word_shade` | `string`| `'#BAAB56'` | Shade color for words. |
 | `color_none` | `string` | `'#FFFFFF'` | Default background color for empty cells. |
-| `background_color_clue` | `string`| `'#666666'` | Background color for clues in the sidebar. |
-| `default_background_color` | `string`| `'#c2ed7e'` | Default background color for the puzzle container. |
-| `color_secondary` | `string`| `'#fff7b7'` | Secondary highlight color. |
-| `font_color_clue` | `string`| `'#FFFFFF'` | Font color for clues. |
+| `background_color_clue` | `string`| `'#666666'` | Background color for block cells containing text. |
 | `font_color_fill`| `string` | `'#000000'` | Font color for filled letters. |
-| `color_block` | `string` | `'#212121'` | Color of the black squares (blocked cells). |
 | `bar_linewidth` | `number`| `3.2` | Line width for cell borders (bars). |

@@ -39,18 +39,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
     'use strict';
 
     var default_config = {
-      color_hover: '#FFFFAA',
       color_selected: '#FF4136',
       color_word: '#FEE300',
-      color_hilite: '#F8E473',
-      color_word_shade: '#BAAB56',
       color_none: '#FFFFFF',
       background_color_clue: '#666666',
-      default_background_color: '#c2ed7e',
-      color_secondary: '#fff7b7',
-      font_color_clue: '#FFFFFF',
       font_color_fill: '#000000',
-      color_block: '#212121',
       puzzle_file: null,
 
       puzzle_object: null, // jsxw to load, if available
@@ -58,7 +51,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
       skip_filled_letters: true,
       arrow_direction: 'arrow_move_filled',
       space_bar: 'space_clear',
-      filled_clue_color: '#999999',
       timer_autostart: false,
       confetti_enabled: true,
       dark_mode_enabled: false,
@@ -421,24 +413,6 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         /* Update config values based on `color_word` */
         const COLOR_WORD = this.config.color_word;
         const COLOR_SELECTED = this.config.color_selected;
-        // color for hovered cell (if enabled)
-        this.config.color_hover = Color.applyHsvTransform(COLOR_WORD, {
-          dh: 6.38,
-          ks: 0.333,
-          kv: 1.004
-        });
-        // color for corresponding cells (in acrostics and codewords)
-        this.config.color_hilite = Color.applyHsvTransform(COLOR_WORD, {
-          dh: -2.64,
-          ks: 0.536,
-          kv: 0.976
-        });
-        // color for cross-referenced cells (currently unused)
-        this.config.color_secondary = Color.applyHsvTransform(COLOR_WORD, {
-          dh: -0.29,
-          ks: 0.282,
-          kv: 1.004
-        });
 
         /* Update CSS values based on `color_word` and `color_selected`*/
         this.updateCSS = (word, selected) => {
