@@ -418,11 +418,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         this.updateCSS = (word, selected) => {
           const root = document.documentElement;
           const isDark = document.body.classList.contains('dark-mode');
-          
+
           // If dark mode is on, darken the colors a bit (reduce Value by 15%)
           let wordColor = word;
           let selectedColor = selected;
-          
+
           if (isDark) {
             wordColor = Color.applyHsvTransform(word, { kv: 0.85 });
             selectedColor = Color.applyHsvTransform(selected, { kv: 0.85 });
@@ -1237,7 +1237,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           extraCluesBtn.style.margin = '10px auto';
           extraCluesBtn.style.maxWidth = '200px';
           // Initial visibility state handled by CSS via breakpoints
-          
+
           extraCluesBtn.onclick = () => {
             let cluesHtml = '<div class="unmatched-clues-modal-wrapper">';
             // Use displayClueGroups if available, otherwise fallback to clueGroups
@@ -1262,11 +1262,11 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               const target = $(e.currentTarget);
               const groupId = target.attr('data-clues');
               const wordId = target.attr('data-word');
-              
+
               // Find group in either collection
               const clueGroup = (this.displayClueGroups || this.clueGroups).find(g => g.id === groupId);
               if (!clueGroup) return;
-              
+
               const clue = clueGroup.clues.find(c => String(c.wordId) === String(wordId));
 
               if (clue) {
@@ -2153,10 +2153,10 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         if (!rect) {
           return;
         }
-        
+
         // Use block color for stroke if it's a block, otherwise normal stroke color
         let rectStroke = (cell.type === 'block') ? 'var(--grid-block-color)' : 'var(--grid-stroke-color)';
-        
+
         // If it's selected or in the selected word, use the specialized stroke color
         if (cell.type !== 'block' && ((this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) || (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)))) {
           rectStroke = 'var(--grid-selected-stroke-color)';
@@ -2208,7 +2208,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         if (!label) {
           return;
         }
-        
+
         label.setAttribute('fill', this.cellFontColor(cell));
         label.textContent = cell.top_right_number;
       }
@@ -2760,7 +2760,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         this.hidden_input.val('');
       }
 
-      checkIfSolved(do_reveal = false) {
+      checkIfSolved(do_reveal = true) {
         var wasSolved = this.isSolved;
         var i, j, cell;
         for (i in this.cells) {
