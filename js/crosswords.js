@@ -3842,9 +3842,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           this.checkIfSolved(false);
         }
 
-        if (reveal_or_check === 'clear') {
-          this.saveGame();
-        }
+        this.saveGame();
 
         if (!IS_MOBILE) {
           this.hidden_input.focus();
