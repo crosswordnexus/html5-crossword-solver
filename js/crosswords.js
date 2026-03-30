@@ -1860,6 +1860,9 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
             $clue.find('.cw-edit-container').show().find('.cw-input').focus();
             $(this).hide();
           })
+          .on('click', '.cw-input', function(event) {
+            event.stopPropagation();
+          })
           .on('blur', '.cw-input', function() {
             const $input = $(this);
             const $clue = $input.closest('.cw-clue');
