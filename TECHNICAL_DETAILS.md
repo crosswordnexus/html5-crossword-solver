@@ -57,6 +57,11 @@ The solver uses CSS variables for all major colors (e.g., `--grid-selected-word-
 ### Printing
 The "Print" feature generates a PDF client-side using a bundled version of `jsPDF`. The layout logic for the PDF is contained within the `jscrossword_combined.js` library.
 
+### Cache Management (Service Worker)
+The solver uses a Service Worker (`sw.js`) to provide offline capabilities and faster load times.
+- **Cache-First Strategy:** Most assets are served from the cache if available.
+- **Cache Invalidation:** Because of the cache-first strategy, the `CACHE_NAME` constant in `sw.js` **must be updated manually** with every deployment. This is the only way to ensure clients receive the latest code updates.
+
 ### Adding New Features
 When extending the solver:
 1.  **Check `js/crossword.shared.js`** for utility functions that should be consistent across platforms.
