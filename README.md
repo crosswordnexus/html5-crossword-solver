@@ -105,3 +105,6 @@ The following parameters allow you to change the solver's color scheme.
 | `background_color_clue` | `string`| `'#666666'` | Background color for block cells containing text. |
 | `font_color_fill`| `string` | `'#000000'` | Font color for filled letters. |
 | `bar_linewidth` | `number`| `3.2` | Line width for cell borders (bars). |
+
+## Deployment Note
+**CRITICAL:** Every time you deploy a new update to the solver, you **must** update the `CACHE_NAME` constant in `sw.js` (e.g., `const CACHE_NAME = "xw-solver-v2026.4.26";`). This ensures that users' browsers invalidate the old cache and download the latest versions of the files.
