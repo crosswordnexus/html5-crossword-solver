@@ -60,6 +60,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
       min_sidebar_clue_width: 220,
       save_game_limit: 10,
       notepad_name: 'Notes',
+      downsOnly: false,
     };
 
     // constants
@@ -1088,6 +1089,12 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
         }
 
+        if (this.config.downsOnly && this.clueGroups.length > 0) {
+          this.clueGroups[0].clues.forEach(clue => {
+            clue.text = '---';
+          });
+        }
+
         // Handle fake clues override
         var num_words = puzzle.words.length;
         var num_clues = puzzle.clues.map(x => x.clue).flat().length;
@@ -1105,9 +1112,12 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
         holder.innerHTML = ''; // clear old ones
 
-        (this.displayClueGroups || this.clueGroups).forEach(group => {
+        (this.displayClueGroups || this.clueGroups).forEach((group, index) => {
           const div = document.createElement('div');
           div.classList.add('cw-clues');
+          if (this.config.downsOnly && index === 0) {
+            div.style.display = 'none';
+          }
           div.dataset.groupId = group.id;
 
           div.innerHTML = `

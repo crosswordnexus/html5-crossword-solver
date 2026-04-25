@@ -6,8 +6,11 @@ window.CrosswordShared = {
   getCrosswordParams() {
     const url = new URL(window.location.href);
     const puzzle = url.searchParams.get("puzzle") || url.searchParams.get("file");
+    const downsOnly = url.searchParams.has("downsonly") && url.searchParams.get("downsonly") !== "false";
     const b64config = url.searchParams.get("config");
-    const params = {};
+    const params = {
+      downsOnly: downsOnly
+    };
     const lzpuz = window.location.hash.slice(1);
 
     if (puzzle) {
