@@ -211,7 +211,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             async function submitPuzzle(puzzleData, scoreInfo) {
                 if (!currentSolver) return;
-                if (puzzleData.isWarmup) { showSubmissionResult(scoreInfo, true); return; }
+                if (puzzleData.isWarmup) {
+                    try {
+                        const completed = JSON.parse(localStorage.getItem('completed_warmups') || '[]');
+                        if (!completed.includes(puzzleData.id)) {
+                            completed.push(puzzleData.id);
+                            localStorage.setItem('completed_warmups', JSON.stringify(completed));
+                        }
+                    } catch (e) {}
+                    showSubmissionResult(scoreInfo, true);
+                    return;
+                }
                 try {
                     await db.collection(SCORES_COLLECTION).doc(`${currentSolver.uid}_${puzzleData.id}`).set({
                         uid: currentSolver.uid, solverName: currentSolver.displayName, division: currentSolver.division,
@@ -363,10 +373,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (ws.length > 0) {
                         wS.innerHTML = `<h3>Warm-up Puzzle${ws.length>1?'s':''}</h3><ul class="puzzle-list"></ul>`;
                         const ul = wS.querySelector('ul');
+                        let completedWarmups = [];
+                        try {
+                            completedWarmups = JSON.parse(localStorage.getItem('completed_warmups') || '[]');
+                        } catch (e) {}
+
                         ws.forEach(p => {
-                            const isS = subs.has(p.id), isL = p.status === 'locked', li = document.createElement('li');
+                            const isS = subs.has(p.id) || completedWarmups.includes(p.id);
+                            const isL = p.status === 'locked', li = document.createElement('li');
                             li.className = `${isS?'submitted':''} ${isL?'locked':''}`;
-                            li.innerHTML = `<div class="puzzle-info"><span class="puz-name">${p.name}</span><span class="puz-author">by ${p.author}</span><span class="puz-time">(${p.timeLimitSeconds/60}m)</span></div><div class="puzzle-status">${isS?'<span class="status-tag">Submitted</span>':isL?'<span class="status-tag locked">Locked</span>':'<button data-id="'+p.id+'" class="start-puzzle-btn">Start Warm-up</button>'}</div>`;
+                            li.innerHTML = `<div class="puzzle-info"><span class="puz-name">${p.name}</span><span class="puz-author">by ${p.author}</span><span class="puz-time">(${p.timeLimitSeconds/60}m)</span></div><div class="puzzle-status">${isS?'<button data-id="'+p.id+'" class="start-puzzle-btn resume-btn">Review Warm-up</button>':isL?'<span class="status-tag locked">Locked</span>':'<button data-id="'+p.id+'" class="start-puzzle-btn">Start Warm-up</button>'}</div>`;
                             ul.appendChild(li);
                         });
                     } else wS.innerHTML = '';
