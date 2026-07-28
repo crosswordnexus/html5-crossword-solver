@@ -4033,6 +4033,12 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               (display_seconds > 9 ? display_seconds : '0' + display_seconds);
 
             timer_btn.html(display);
+
+            // In tournament mode, save progress to localStorage every 5 seconds
+            if (this.config.tournament_mode && xw_timer_seconds % 5 === 0) {
+              this.saveGameImmediate();
+            }
+
             xw_timer = setTimeout(add, 1000);
           };
           
