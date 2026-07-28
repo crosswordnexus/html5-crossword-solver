@@ -77,7 +77,7 @@ export async function renderSettingsTab(container, db) {
                                 Time Bonus (pts/sec)
                                 <span class="tooltip-container">
                                     <span class="tooltip-icon">i</span>
-                                    <span class="tooltip-text">Bonus points awarded per second remaining under the limit. Only awarded for 100% correct puzzles.</span>
+                                    <span class="tooltip-text">Bonus points awarded per second remaining under the limit. Solvers qualify if their accuracy meets the minimum accuracy threshold.</span>
                                 </span>
                             </label>
                             <input type="number" name="timeBonusPerSecond" value="${rules.timeBonusPerSecond}">
