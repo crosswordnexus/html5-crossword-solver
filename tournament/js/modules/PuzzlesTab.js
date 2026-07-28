@@ -74,6 +74,7 @@ export async function renderPuzzlesTab(container, db) {
                 if (confirm('Delete this puzzle?')) {
                     try {
                         await db.collection(PUZZLES_COLLECTION).doc(btn.dataset.id).delete();
+                        if (window.Toast) window.Toast.success('Puzzle deleted!');
                         renderPuzzlesTab(container, db);
                     } catch (err) {
                         if (window.Toast) window.Toast.error('Delete failed: ' + err.message);

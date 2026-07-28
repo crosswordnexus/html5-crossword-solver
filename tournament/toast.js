@@ -53,3 +53,6 @@ const Toast = {
 function showToast(message, type) {
     Toast.show(message, type);
 }
+
+// Expose on window object for ES module compatibility
+window.Toast = Toast;

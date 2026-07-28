@@ -212,6 +212,7 @@ export async function renderParticipantsTab(container, db) {
                 if (confirm('Remove ' + btn.dataset.email + '?')) {
                     try {
                         await db.collection(PARTICIPANTS_COLLECTION).doc(btn.dataset.email).delete();
+                        if (window.Toast) window.Toast.success('Participant removed!');
                         renderParticipantsTab(container, db);
                     } catch (err) {
                         if (window.Toast) window.Toast.error('Delete failed: ' + err.message);
