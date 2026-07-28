@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
              */
             async function renderSetupUI(user, authData) {
                 activeView = 'setup';
-                tournamentAppDiv.innerHTML = `
+                tournamentContentDiv.innerHTML = `
                     <div class="setup-container">
                         <h2>Finish Registration</h2>
                         <p>You are authorized for the <strong>${authData.division}</strong> division.</p>
