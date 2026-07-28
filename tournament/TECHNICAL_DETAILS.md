@@ -78,10 +78,16 @@ Puzzles follow a specific state machine controlled by the `status` field in the 
 3.  **Open (2):** Participants can click "Solve". This creates a `scores` document with `status: "started"` and a `startTime`.
 4.  **Closed (3):** Participants can no longer start the puzzle, but those who have already started can finish.
 
-### Timer API (`js/crosswords.js`)
+### Timer API & Persistence (`js/crosswords.js`)
 The core engine provides two methods for external control of the clock:
 - `startTimer()`: Resumes or starts the puzzle timer.
 - `stopTimer(shouldFocus)`: Stops the timer and syncs the final time. If `shouldFocus` is true (default false), it returns focus to the grid (desktop only).
+
+#### Tournament Auto-Save:
+To prevent solvers from closing the solver window to reset their elapsed time, the timer tick loop in `startTimer()` automatically calls `this.saveGameImmediate()` every **5 seconds** when `tournament_mode` is enabled. This saves both the current grid layout and the elapsed timer value to `localStorage`. When the page is re-opened, the engine restores the timer to the exact elapsed second.
+
+#### Warm-up Puzzle Lifecycle:
+Because warm-up puzzles are client-side only and not submitted to Firestore, completed warm-ups are tracked via `localStorage` (saved in the `completed_warmups` list). Completed warm-up puzzles will show a **"Review Warm-up"** button on the dashboard allowing participants to reopen and review their finished grid.
 
 ---
 
@@ -91,7 +97,7 @@ Scoring is calculated client-side in `solve.html` and verified (optionally) by t
 - **Base Points:** 10 points per correct word (Across + Down).
 - **Completion Bonus:** A flat bonus for finishing the grid perfectly.
 - **Time Bonus:** `(TargetTime - ElapsedSeconds) * BonusMultiplier`. 
-  - *Condition:* Only awarded if the grid is 100% correct.
+  - *Condition:* Awarded if the solver's accuracy (correct words / total words) meets or exceeds the configured minimum accuracy percentage (default is 50%).
 - **Overtime Penalty:** Deductions applied if the solver exceeds the `TargetTime`.
 
 Settings are managed in `tournament_config/scoring`.
@@ -116,5 +122,5 @@ Security is enforced via **Firestore Security Rules**.
 
 ## 6. Shared Components
 - **`leaderboard.js`:** A reusable class that renders a real-time grid of scores, listening for updates across all participants in a specific division.
-- **`toast.js`:** A simple notification system used across the tournament UI.
+- **`toast.js`:** A simple notification system used across the tournament UI. Bound to `window.Toast` to ensure compatibility inside the ES Module architecture of the Admin Dashboard tabs.
 - **`firebase-config.js`:** (Not tracked) Contains the project's API keys and identifiers.
