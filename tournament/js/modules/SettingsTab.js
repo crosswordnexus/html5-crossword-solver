@@ -50,15 +50,57 @@ export async function renderSettingsTab(container, db) {
                 <h3>Scoring Rules</h3>
                 <form id="scoringForm">
                     <div class="form-row">
-                        <div class="form-group"><label>Points Per Word</label><input type="number" name="pointsPerWord" value="${rules.pointsPerWord}"></div>
-                        <div class="form-group"><label>Completion Bonus</label><input type="number" name="completionBonus" value="${rules.completionBonus}"></div>
+                        <div class="form-group">
+                            <label>
+                                Points Per Word
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">i</span>
+                                    <span class="tooltip-text">Base points awarded for each correct word in the puzzle.</span>
+                                </span>
+                            </label>
+                            <input type="number" name="pointsPerWord" value="${rules.pointsPerWord}">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Completion Bonus
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">i</span>
+                                    <span class="tooltip-text">Flat bonus score awarded only if the puzzle grid is 100% correct.</span>
+                                </span>
+                            </label>
+                            <input type="number" name="completionBonus" value="${rules.completionBonus}">
+                        </div>
                     </div>
                     <div class="form-row" style="margin-top:15px">
-                        <div class="form-group"><label>Time Bonus (pts/sec)</label><input type="number" name="timeBonusPerSecond" value="${rules.timeBonusPerSecond}"></div>
-                        <div class="form-group"><label>Overtime Penalty</label><input type="number" name="overtimePenaltyPer4Seconds" value="${rules.overtimePenaltyPer4Seconds}"></div>
+                        <div class="form-group">
+                            <label>
+                                Time Bonus (pts/sec)
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">i</span>
+                                    <span class="tooltip-text">Bonus points awarded per second remaining under the limit. Only awarded for 100% correct puzzles.</span>
+                                </span>
+                            </label>
+                            <input type="number" name="timeBonusPerSecond" value="${rules.timeBonusPerSecond}">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Overtime Penalty
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">i</span>
+                                    <span class="tooltip-text">Points deducted for every 4 seconds that a solver exceeds the puzzle's time limit.</span>
+                                </span>
+                            </label>
+                            <input type="number" name="overtimePenaltyPer4Seconds" value="${rules.overtimePenaltyPer4Seconds}">
+                        </div>
                     </div>
                     <div class="form-group" style="margin-top:15px">
-                        <label>Min Accuracy for Time Bonus</label>
+                        <label>
+                            Min Accuracy for Time Bonus
+                            <span class="tooltip-container">
+                                <span class="tooltip-icon">i</span>
+                                <span class="tooltip-text">The minimum accuracy ratio (e.g., 0.5 is 50%, 1.0 is 100%) required to qualify for any time bonus.</span>
+                            </span>
+                        </label>
                         <input type="number" step="0.1" name="minCorrectPercentageForTimeBonus" value="${rules.minCorrectPercentageForTimeBonus}">
                     </div>
                     <div class="action-row"><button type="submit" class="primary-btn btn-success">Save Rules</button></div>

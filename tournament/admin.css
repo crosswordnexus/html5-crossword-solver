@@ -241,3 +241,66 @@ body, button, input, select, textarea {
     background-color: #fef9e7;
     outline: 2px solid #f1c40f;
 }
+
+/* Tooltips */
+.tooltip-container {
+    display: inline-block;
+    position: relative;
+    margin-left: 6px;
+    cursor: help;
+    vertical-align: middle;
+}
+
+.tooltip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #95a5a6;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 250px;
+    background-color: #2c3e50;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px 12px;
+    position: absolute;
+    z-index: 100;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.2s, visibility 0.2s;
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: normal;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    white-space: normal;
+}
+
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #2c3e50 transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
