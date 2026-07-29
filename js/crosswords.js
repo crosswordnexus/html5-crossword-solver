@@ -434,6 +434,14 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           this.config.has_reveal = false;
           this.config.has_check = false;
           this.config.timer_autostart = true;
+          if (this.config.is_warmup && this.config.puzzle_id) {
+            try {
+              const completed = JSON.parse(localStorage.getItem('completed_warmups') || '[]');
+              if (completed.includes(this.config.puzzle_id)) {
+                this.config.timer_autostart = false;
+              }
+            } catch (e) {}
+          }
           this.config.show_timer_option = false;
           this.config.allow_timer_toggle = false;
           this.config.confetti_enabled = false;
