@@ -112,6 +112,21 @@
                 // Stop the timer immediately upon submission
                 xw.stopTimer?.();
 
+                // Run a check on the puzzle so incorrect letters show up with a slash
+                const prevMode = xw.config.tournament_mode;
+                xw.config.tournament_mode = false;
+                xw.check_reveal?.('puzzle', 'check');
+                xw.config.tournament_mode = prevMode;
+
+                // Freeze the board and disable interactions to prevent post-submit edits
+                $(document).off('keydown');
+                if (xw.hidden_input) {
+                    xw.hidden_input.off('keydown keypress input');
+                    xw.hidden_input.prop('disabled', true);
+                }
+                xw.root.find('.cw-grid, .cw-clues-holder, .cw-menu, .cw-menu-container, .cw-topbar, .cw-button-timer').css('pointer-events', 'none');
+                xw.timer_button?.off('click');
+
                 const words = Object.values(xw.words);
                 const totalWords = words.length;
                 const correctWords = words.filter(w => w.isCorrect()).length;
