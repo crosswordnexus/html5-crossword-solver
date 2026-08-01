@@ -48,7 +48,8 @@ window.TournamentLeaderboard = {
                         score: data.totalScore,
                         time: data.timeTaken,
                         correctWords: data.correctWords,
-                        totalWords: data.totalWords
+                        totalWords: data.totalWords,
+                        isFullyCorrect: data.isFullyCorrect !== undefined ? data.isFullyCorrect : (data.correctWords === data.totalWords && data.totalWords > 0)
                     };
                 });
 
@@ -90,8 +91,9 @@ window.TournamentLeaderboard = {
                                 const pResult = entry.puzzles[p.id];
                                 if (pResult) {
                                     const clickableClass = onCellClick ? 'score-cell-clickable cursor-pointer' : '';
+                                    const cleanClass = pResult.isFullyCorrect ? 'clean-solve' : '';
                                     return `<td class="${clickableClass}" data-uid="${entry.uid}" data-pid="${p.id}" style="font-size: 0.85em; color: #666;">
-                                                <div style="font-weight: bold; color: #e67e22;">${pResult.score}</div>
+                                                <div class="puzzle-score ${cleanClass}">${pResult.score}</div>
                                                 <div>${Math.floor(pResult.time / 60)}m ${pResult.time % 60}s</div>
                                             </td>`;
                                 } else {
