@@ -69,8 +69,8 @@ window.TournamentLeaderboard = {
                             <tr>
                                 <th class="rank">Rank</th>
                                 <th>Solver</th>
-                                ${tournamentPuzzles.map(p => `<th>P${p.puzzleNumber}</th>`).join('')}
                                 <th>Total Score</th>
+                                ${tournamentPuzzles.map(p => `<th>P${p.puzzleNumber}</th>`).join('')}
                                 <th>Total Time</th>
                             </tr>
                         </thead>
@@ -85,6 +85,7 @@ window.TournamentLeaderboard = {
                             <td style="white-space: nowrap;">
                                 ${isMe ? `<strong>${entry.name} (You)</strong>` : entry.name}
                             </td>
+                            <td class="score-cell">${entry.totalScore}</td>
                             ${tournamentPuzzles.map(p => {
                                 const pResult = entry.puzzles[p.id];
                                 if (pResult) {
@@ -97,7 +98,6 @@ window.TournamentLeaderboard = {
                                     return `<td style="color: #ccc;">—</td>`;
                                 }
                             }).join('')}
-                            <td class="score-cell">${entry.totalScore}</td>
                             <td style="white-space: nowrap;">${Math.floor(entry.totalTime / 60)}m ${entry.totalTime % 60}s</td>
                         </tr>
                     `;
