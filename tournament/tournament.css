@@ -92,6 +92,15 @@ h1, h2, h3, h4 {
     color: #e67e22;
 }
 
+.leaderboard-table .puzzle-score {
+    font-weight: bold;
+    color: #e67e22;
+}
+
+.leaderboard-table .puzzle-score.clean-solve {
+    color: #d4af37;
+}
+
 body.dark-mode #divisionFilter, body.dark-mode #divFilter {
     background-color: #3d3d3d;
     color: #ffffff;

@@ -32,12 +32,12 @@ window.TournamentLeaderboard = {
                 scoresSnapshot.forEach(doc => {
                     const data = doc.data();
                     if (!solverScores[data.uid]) {
-                        solverScores[data.uid] = { 
+                        solverScores[data.uid] = {
                             uid: data.uid,
-                            name: data.solverName, 
-                            totalScore: 0, 
-                            totalTime: 0, 
-                            puzzles: {} 
+                            name: data.solverName,
+                            totalScore: 0,
+                            totalTime: 0,
+                            puzzles: {}
                         };
                     }
                     solverScores[data.uid].totalScore += data.totalScore;
@@ -48,7 +48,8 @@ window.TournamentLeaderboard = {
                         score: data.totalScore,
                         time: data.timeTaken,
                         correctWords: data.correctWords,
-                        totalWords: data.totalWords
+                        totalWords: data.totalWords,
+                        isFullyCorrect: data.isFullyCorrect !== undefined ? data.isFullyCorrect : (data.correctWords === data.totalWords && data.totalWords > 0)
                     };
                 });
 
@@ -69,8 +70,8 @@ window.TournamentLeaderboard = {
                             <tr>
                                 <th class="rank">Rank</th>
                                 <th>Solver</th>
-                                ${tournamentPuzzles.map(p => `<th>P${p.puzzleNumber}</th>`).join('')}
                                 <th>Total Score</th>
+                                ${tournamentPuzzles.map(p => `<th>P${p.puzzleNumber}</th>`).join('')}
                                 <th>Total Time</th>
                             </tr>
                         </thead>
@@ -85,19 +86,24 @@ window.TournamentLeaderboard = {
                             <td style="white-space: nowrap;">
                                 ${isMe ? `<strong>${entry.name} (You)</strong>` : entry.name}
                             </td>
+                            <td class="score-cell">${entry.totalScore}</td>
                             ${tournamentPuzzles.map(p => {
                                 const pResult = entry.puzzles[p.id];
                                 if (pResult) {
                                     const clickableClass = onCellClick ? 'score-cell-clickable cursor-pointer' : '';
+                                    const cleanClass = pResult.isFullyCorrect ? 'clean-solve' : '';
+                                    const wordRatio = (pResult.correctWords !== undefined && pResult.totalWords !== undefined)
+                                        ? `<div>${pResult.correctWords}/${pResult.totalWords}</div>`
+                                        : '';
                                     return `<td class="${clickableClass}" data-uid="${entry.uid}" data-pid="${p.id}" style="font-size: 0.85em; color: #666;">
-                                                <div style="font-weight: bold; color: #e67e22;">${pResult.score}</div>
-                                                <div>${Math.floor(pResult.time / 60)}m ${pResult.time % 60}s</div>
+                                                <div class="puzzle-score ${cleanClass}">${pResult.score}</div>
+                                                <div>${Math.floor(pResult.time / 60)}m&nbsp;${pResult.time % 60}s</div>
+                                                ${wordRatio}
                                             </td>`;
                                 } else {
                                     return `<td style="color: #ccc;">—</td>`;
                                 }
                             }).join('')}
-                            <td class="score-cell">${entry.totalScore}</td>
                             <td style="white-space: nowrap;">${Math.floor(entry.totalTime / 60)}m ${entry.totalTime % 60}s</td>
                         </tr>
                     `;

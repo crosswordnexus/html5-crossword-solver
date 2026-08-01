@@ -26,6 +26,7 @@
 
 ## 🚀 Near-Term Tasks
 - **Timer Bug Investigation:** Investigate reports of the timer continuing to tick after submission on some browsers (potential caching or sync issue).
+- **Searchable/Sortable Leaderboards:** Add pure JavaScript client-side search and sorting (by name, total score, total time) to the shared leaderboard without adding external libraries.
 
 ## 🛠 Maintenance
 - **Dependency Audit:** Check if Firebase SDK v9+ (Modular) should be adopted (currently using v8 compatibility mode).
