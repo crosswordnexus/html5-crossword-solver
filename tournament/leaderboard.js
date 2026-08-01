@@ -92,9 +92,13 @@ window.TournamentLeaderboard = {
                                 if (pResult) {
                                     const clickableClass = onCellClick ? 'score-cell-clickable cursor-pointer' : '';
                                     const cleanClass = pResult.isFullyCorrect ? 'clean-solve' : '';
+                                    const wordRatio = (pResult.correctWords !== undefined && pResult.totalWords !== undefined)
+                                        ? `<div>${pResult.correctWords}/${pResult.totalWords}</div>`
+                                        : '';
                                     return `<td class="${clickableClass}" data-uid="${entry.uid}" data-pid="${p.id}" style="font-size: 0.85em; color: #666;">
                                                 <div class="puzzle-score ${cleanClass}">${pResult.score}</div>
                                                 <div>${Math.floor(pResult.time / 60)}m ${pResult.time % 60}s</div>
+                                                ${wordRatio}
                                             </td>`;
                                 } else {
                                     return `<td style="color: #ccc;">—</td>`;
