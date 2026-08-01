@@ -86,7 +86,8 @@ service cloud.firestore {
     // Scores: Publicly readable, Users create their own, Admins can manage all
     match /scores/{scoreId} {
       allow read: if request.auth != null;
-      allow write: if isAdmin() || (request.auth != null && request.auth.uid == request.resource.data.uid);
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow update, delete: if isAdmin();
     }
   }
 }
