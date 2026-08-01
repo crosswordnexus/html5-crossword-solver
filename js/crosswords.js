@@ -4070,7 +4070,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
       }
 
       toggleTimer() {
-        if (!this.config.allow_timer_toggle) {
+        if (!this.config.allow_timer_toggle && this.timer_running) {
           console.log('Timer toggle disabled in tournament mode.');
           this.timer_button.css('cursor', 'default');
           return;
