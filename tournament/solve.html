@@ -112,6 +112,12 @@
                 // Stop the timer immediately upon submission
                 xw.stopTimer?.();
 
+                // Run a check on the puzzle so incorrect letters show up with a slash
+                const prevMode = xw.config.tournament_mode;
+                xw.config.tournament_mode = false;
+                xw.check_reveal?.('puzzle', 'check');
+                xw.config.tournament_mode = prevMode;
+
                 const words = Object.values(xw.words);
                 const totalWords = words.length;
                 const correctWords = words.filter(w => w.isCorrect()).length;
