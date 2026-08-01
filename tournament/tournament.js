@@ -397,10 +397,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             
                             let statusHtml = '';
                             if (isS) {
+                                const statsText = `${scoreData.totalScore} pts` + 
+                                    ((scoreData.correctWords !== undefined && scoreData.totalWords !== undefined) ? ` | ${scoreData.correctWords}/${scoreData.totalWords}` : '') + 
+                                    ` | ${Math.floor(scoreData.timeTaken/60)}m ${scoreData.timeTaken%60}s`;
                                 statusHtml = `
                                     <div class="submission-stats">
                                         <span class="status-tag">Submitted</span>
-                                        <div class="score-summary">${scoreData.totalScore} pts | ${Math.floor(scoreData.timeTaken/60)}m ${scoreData.timeTaken%60}s</div>
+                                        <div class="score-summary">${statsText}</div>
                                     </div>
                                 `;
                             } else if (isL) {

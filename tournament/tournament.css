@@ -547,3 +547,10 @@ body.dark-mode .tournament-footer a {
     color: #aaa !important;
 }
 
+body.dark-mode .score-card {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #3498db;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
