@@ -297,10 +297,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             window.addEventListener('message', async (event) => {
                 if (event.data && event.data.type === 'CROSSWORD_SOLVED') {
-                    const { puzzleId, timeTakenSeconds, correctWords, totalWords } = event.data;
+                    const { puzzleId, timeTakenSeconds, correctWords, totalWords, submittedGrid, gridWidth, gridHeight } = event.data;
                     try {
                         const pDoc = await db.collection(PUZZLES_COLLECTION).doc(puzzleId).get();
-                        if (pDoc.exists) await submitPuzzle({ id: pDoc.id, ...pDoc.data() }, calculateScore({ words: Array(parseInt(correctWords)).fill({ isCorrect:()=>true }).concat(Array(Math.max(0, parseInt(totalWords)-parseInt(correctWords))).fill({ isCorrect:()=>false })) }, pDoc.data(), parseInt(timeTakenSeconds)));
+                        if (pDoc.exists) {
+                            const scoreInfo = calculateScore({ words: Array(parseInt(correctWords)).fill({ isCorrect:()=>true }).concat(Array(Math.max(0, parseInt(totalWords)-parseInt(correctWords))).fill({ isCorrect:()=>false })) }, pDoc.data(), parseInt(timeTakenSeconds));
+                            if (submittedGrid) {
+                                scoreInfo.submittedGrid = submittedGrid;
+                                scoreInfo.gridWidth = gridWidth;
+                                scoreInfo.gridHeight = gridHeight;
+                            }
+                            await submitPuzzle({ id: pDoc.id, ...pDoc.data() }, scoreInfo);
+                        }
                     } catch (e) {}
                 }
             });

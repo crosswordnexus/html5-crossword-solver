@@ -132,6 +132,25 @@
                 const correctWords = words.filter(w => w.isCorrect()).length;
                 const finalTime = xw.xw_timer_seconds || 0;
                 
+                // Serialize the grid: _ for blanks, . for blocks, * for rebuses
+                let gridString = '';
+                const width = xw.grid_width || 0;
+                const height = xw.grid_height || 0;
+                for (let y = 1; y <= height; y++) {
+                    for (let x = 1; x <= width; x++) {
+                        const cell = xw.cells[x] ? xw.cells[x][y] : null;
+                        if (!cell || cell.empty) {
+                            gridString += '.';
+                        } else if (!cell.letter) {
+                            gridString += '_';
+                        } else if (cell.letter.length > 1) {
+                            gridString += '*';
+                        } else {
+                            gridString += cell.letter.toUpperCase();
+                        }
+                    }
+                }
+
                 if (!window.opener) {
                     Toast.error('Tournament window not found. Score could not be reported automatically.');
                     return;
@@ -143,7 +162,10 @@
                     puzzleId: params.puzzle_id,
                     timeTakenSeconds: finalTime,
                     correctWords: correctWords,
-                    totalWords: totalWords
+                    totalWords: totalWords,
+                    submittedGrid: gridString,
+                    gridWidth: width,
+                    gridHeight: height
                 }, '*');
                 
                 // Calculate score for display (logic matches tournament.js)
