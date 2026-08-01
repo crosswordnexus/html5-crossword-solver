@@ -32,12 +32,12 @@ window.TournamentLeaderboard = {
                 scoresSnapshot.forEach(doc => {
                     const data = doc.data();
                     if (!solverScores[data.uid]) {
-                        solverScores[data.uid] = { 
+                        solverScores[data.uid] = {
                             uid: data.uid,
-                            name: data.solverName, 
-                            totalScore: 0, 
-                            totalTime: 0, 
-                            puzzles: {} 
+                            name: data.solverName,
+                            totalScore: 0,
+                            totalTime: 0,
+                            puzzles: {}
                         };
                     }
                     solverScores[data.uid].totalScore += data.totalScore;
@@ -97,7 +97,7 @@ window.TournamentLeaderboard = {
                                         : '';
                                     return `<td class="${clickableClass}" data-uid="${entry.uid}" data-pid="${p.id}" style="font-size: 0.85em; color: #666;">
                                                 <div class="puzzle-score ${cleanClass}">${pResult.score}</div>
-                                                <div>${Math.floor(pResult.time / 60)}m ${pResult.time % 60}s</div>
+                                                <div>${Math.floor(pResult.time / 60)}m&nbsp;${pResult.time % 60}s</div>
                                                 ${wordRatio}
                                             </td>`;
                                 } else {
