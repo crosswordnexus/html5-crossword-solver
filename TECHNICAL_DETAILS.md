@@ -36,7 +36,7 @@ Game progress is automatically saved to the browser's `localStorage`.
 
 ### Downs-Only Mode
 - **Trigger:** URL parameter `?downs-only` or `?downsonly`.
-- **Implementation:** 
+- **Implementation:**
   - Automatically replaces the text of the first clue group (Across) with `---`.
   - Hides the corresponding clue container in the UI.
   - This prevents the user from accidentally seeing across clues while focusing on the "Downs Only" challenge.
@@ -62,9 +62,17 @@ The solver uses a Service Worker (`sw.js`) to provide offline capabilities and f
 - **Cache-First Strategy:** Most assets are served from the cache if available.
 - **Cache Invalidation:** Because of the cache-first strategy, the `CACHE_NAME` constant in `sw.js` **must be updated manually** with every deployment. This is the only way to ensure clients receive the latest code updates.
 
-### UI & Modals
-
+### Modal Boxes
 The UI relies heavily on a generic modal system for displaying info, settings, and help text.
 - **`createModalBox(title, content, button_text)`:** This method in `js/crosswords.js` is the standard way to display pop-ups. It injects HTML into the `.cw-modal` container and handles the display toggling.
 - **Adding new Modals:** If you need a new pop-up, follow the pattern of `showInfo()` or `showHelp()`: define the content as an HTML string, escape any dynamic user content (like `this.title`), and call `createModalBox`.
 
+### Adding New Features
+When extending the solver:
+1.  **Check `js/crossword.shared.js`** for utility functions that should be consistent across platforms.
+2.  **Verify `js/crosswords.js`** for core logic changes.
+3.  **Test on mobile** to ensure the custom keyboard and drawer system correctly handle any new UI elements.
+
+## 6. Tournament Extension
+
+For technical details regarding the Firebase-backed tournament system (Admin Dashboard, Leaderboards, and Scoring), see [tournament/TECHNICAL_DETAILS.md](tournament/TECHNICAL_DETAILS.md).

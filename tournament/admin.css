@@ -1,0 +1,306 @@
+body, button, input, select, textarea {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.admin-header {
+    background: #2c3e50;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0 0 12px 12px;
+}
+
+.admin-header h1 {
+    margin: 0;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.admin-nav {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.tab-btn {
+    background: transparent;
+    color: #bdc3c7;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: white;
+    background: rgba(255,255,255,0.1);
+}
+
+.tab-btn.active {
+    color: white;
+    background: #3498db;
+    font-weight: 600;
+}
+
+.admin-main {
+    padding: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Section specific */
+.admin-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.admin-section-header h2 { margin: 0; }
+
+.admin-list {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.list-item:last-child { border-bottom: none; }
+
+.list-item-info { flex: 1; }
+.list-item-info h4 { margin: 0 0 5px 0; }
+.list-item-info p { margin: 0; color: #7f8c8d; font-size: 0.9em; }
+
+.list-item-actions { display: flex; gap: 8px; }
+
+/* Forms */
+.admin-card {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.admin-card h3 { margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group input[type="number"], 
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.form-group textarea { height: 80px; resize: vertical; }
+
+.action-row {
+    margin-top: 25px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+/* Division mapping */
+.division-mapping {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #eee;
+    margin-top: 10px;
+}
+
+.mapping-help {
+    font-size: 0.85em;
+    color: #666;
+    margin-bottom: 15px;
+    padding: 12px;
+    background: #fff;
+    border-radius: 6px;
+    border-left: 4px solid #3498db;
+    line-height: 1.4;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.mapping-help strong { color: #3498db; }
+
+.mapping-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.mapping-row.default-row {
+    background-color: #eaf4fb;
+    border: 1px solid #3498db;
+}
+
+.mapping-row label { width: 100px; font-weight: bold; }
+
+.mapping-row .check-path-btn { 
+    white-space: nowrap; 
+    min-width: 80px;
+    padding: 8px 12px;
+}
+
+.check-path-btn.path-valid {
+    background-color: #2ecc71 !important;
+    color: white !important;
+    border-color: #27ae60 !important;
+}
+
+.check-path-btn.path-invalid {
+    background-color: #e74c3c !important;
+    color: white !important;
+    border-color: #c0392b !important;
+}
+
+.empty-state {
+    padding: 40px;
+    text-align: center;
+    color: #95a5a6;
+    font-style: italic;
+}
+
+/* Results Table */
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.results-table th, .results-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+/* Score Edit Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.edit-score-modal {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.edit-score-modal h3 {
+    margin-top: 0;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.modal-footer {
+    margin-top: 25px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.leaderboard-table td.score-cell-clickable:hover {
+    background-color: #fef9e7;
+    outline: 2px solid #f1c40f;
+}
+
+/* Tooltips */
+.tooltip-container {
+    display: inline-block;
+    position: relative;
+    margin-left: 6px;
+    cursor: help;
+    vertical-align: middle;
+}
+
+.tooltip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #95a5a6;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 250px;
+    background-color: #2c3e50;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px 12px;
+    position: absolute;
+    z-index: 100;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.2s, visibility 0.2s;
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: normal;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    white-space: normal;
+}
+
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #2c3e50 transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+

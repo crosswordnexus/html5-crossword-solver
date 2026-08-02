@@ -1,0 +1,603 @@
+/* ==========================================================================
+   Tournament Dashboard Stylesheet
+   Table of Contents:
+   1. Typography & Global Layout
+   2. Solver Information Banner
+   3. Standing / Leaderboard Dashboard
+   4. Buttons & Animations
+   5. Registration & Setup Form
+   6. Score Cards & Feedback
+   7. Puzzle List Grid
+   8. Solver Integration / Overrides
+   9. Dark Mode Theme Overrides
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Typography & Global Layout
+   -------------------------------------------------------------------------- */
+body, #tournament-app, button, input, select, textarea {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+#tournament-app {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    color: #333;
+}
+
+h1, h2, h3, h4 {
+    color: #2c3e50;
+    font-family: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   2. Solver Information Banner
+   Displays active participant credentials and current selected division.
+   -------------------------------------------------------------------------- */
+.solver-info {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 5px solid #3498db;
+}
+
+.solver-meta {
+    font-size: 0.9em;
+    color: #666;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.nav-actions {
+    margin-top: 10px;
+}
+
+/* --------------------------------------------------------------------------
+   3. Standing / Leaderboard Dashboard
+   Displays comparative solve ranks, scores, and clean-solve statuses.
+   -------------------------------------------------------------------------- */
+.leaderboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.leaderboard-table th, .leaderboard-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.leaderboard-table th {
+    background-color: #3498db;
+    color: white;
+    font-weight: 600;
+}
+
+.leaderboard-table tr:last-child td {
+    border-bottom: none;
+}
+
+.leaderboard-table tr.current-user {
+    background-color: #eaf4fb;
+    font-weight: bold;
+    border-left: 4px solid #3498db;
+}
+
+.leaderboard-table tr.current-user td {
+    color: #2c3e50;
+}
+
+.leaderboard-table .rank {
+    width: 60px;
+    text-align: center;
+    font-weight: bold;
+    color: inherit;
+}
+
+.leaderboard-table .score-cell {
+    font-weight: bold;
+    color: #e67e22;
+}
+
+.leaderboard-table .puzzle-score {
+    font-weight: bold;
+    color: #e67e22;
+}
+
+.leaderboard-table .puzzle-score.clean-solve {
+    color: #d4af37;
+}
+
+body.dark-mode #divisionFilter, body.dark-mode #divFilter {
+    background-color: #3d3d3d;
+    color: #ffffff;
+    border-color: #555;
+}
+
+body.dark-mode .leaderboard-controls label {
+    color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   4. Buttons & Animations
+   Global styling, hover effects, and keyframe animations for primary/secondary buttons.
+   -------------------------------------------------------------------------- */
+button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: opacity 0.2s, background-color 0.2s;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.start-puzzle-btn {
+    background-color: #3498db;
+    color: white;
+    animation: pulse-blue 2s infinite;
+}
+
+@keyframes pulse-blue {
+    0% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(52, 152, 219, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0); }
+}
+
+.status-dot {
+    height: 8px;
+    width: 8px;
+    background-color: #27ae60;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+    box-shadow: 0 0 5px #27ae60;
+}
+
+.secondary-btn {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+    border: 1px solid #bdc3c7;
+}
+
+.secondary-btn:hover {
+    background-color: #bdc3c7;
+}
+
+.primary-btn {
+    background-color: #e67e22;
+    color: white;
+}
+
+.primary-btn.ready {
+    background-color: #27ae60;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.puzzle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.puzzle-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.submission-result {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+/* --------------------------------------------------------------------------
+   5. Registration & Setup Form
+   Layout for nickname registration and pre-assigned division status display.
+   -------------------------------------------------------------------------- */
+.setup-container {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    max-width: 500px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+.setup-container h2 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.setup-container p {
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #34495e;
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.form-group input[type="text"]:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+.division-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.division-card {
+    border: 2px solid #eee;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.division-card:hover {
+    border-color: #3498db;
+    background-color: #f7fbfe;
+}
+
+.division-card.selected {
+    border-color: #3498db;
+    background-color: #eaf4fb;
+}
+
+.division-card h4 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.setup-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.setup-actions button {
+    padding: 14px;
+    font-size: 16px;
+}
+
+.error-message {
+    color: #e74c3c;
+    background-color: #fdeaea;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    display: none;
+}
+
+/* --------------------------------------------------------------------------
+   6. Score Cards & Feedback
+   Layouts for submission score breakdowns, bonuses, and penalties.
+   -------------------------------------------------------------------------- */
+.score-card {
+    background: white;
+    border: 2px solid #3498db;
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 400px;
+    margin: 20px auto;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.total-score {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+.total-score span {
+    font-size: 2em;
+    color: #e67e22;
+    display: block;
+    font-weight: bold;
+}
+
+.bonus { color: #27ae60; font-weight: bold; }
+.penalty { color: #c0392b; font-weight: bold; }
+
+/* --------------------------------------------------------------------------
+   7. Puzzle List Grid
+   Cards and list containers for active/completed/locked tournament puzzles.
+   -------------------------------------------------------------------------- */
+.puzzle-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.puzzle-list li {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-top: 4px solid #3498db;
+}
+
+.puzzle-list li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.puzzle-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.puz-num {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.puz-name {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.puz-author {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.puz-time {
+    font-size: 0.85em;
+    background: #ecf0f1;
+    color: #2c3e50;
+    padding: 4px 10px;
+    border-radius: 20px;
+    width: fit-content;
+}
+
+.puzzle-status {
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.puzzle-list li.submitted {
+    border-top-color: #bdc3c7;
+    background-color: #f8f9fa;
+}
+
+.puzzle-list li.locked {
+    border-top-color: #eee;
+    background-color: #fdfdfd;
+}
+
+.status-tag {
+    font-size: 0.8em;
+    background: #95a5a6;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.status-tag.locked {
+    background-color: #bdc3c7;
+}
+
+.submission-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.score-summary {
+    font-size: 0.85em;
+    font-weight: bold;
+    color: #e67e22;
+    white-space: nowrap;
+}
+
+body.dark-mode .score-summary {
+    color: #f39c12;
+}
+
+/* --------------------------------------------------------------------------
+   8. Solver Integration / Overrides
+   Specialized classes injected into or overlapping with solve.html.
+   -------------------------------------------------------------------------- */
+.cw-tournament-submit {
+    background-color: #27ae60 !important;
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 20px !important;
+    padding: 0.4em 1em !important;
+    margin-left: 5px !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+}
+
+.cw-tournament-submit:hover {
+    background-color: #219150 !important;
+    transform: translateY(-1px) !important;
+}
+
+/* --------------------------------------------------------------------------
+   9. Dark Mode Theme Overrides
+   Alternative styling mappings loaded when document.body has class .dark-mode.
+   -------------------------------------------------------------------------- */
+body.dark-mode {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+body.dark-mode #tournament-app {
+    color: #e0e0e0;
+}
+
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4 {
+    color: #ffffff;
+}
+
+body.dark-mode .solver-info {
+    background-color: #2d2d2d;
+    border-left-color: #3498db;
+    color: #e0e0e0;
+}
+
+body.dark-mode .solver-meta {
+    color: #aaa;
+}
+
+body.dark-mode .leaderboard-table {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .leaderboard-table th {
+    background-color: #2980b9;
+}
+
+body.dark-mode .leaderboard-table td {
+    border-bottom-color: #444;
+}
+
+body.dark-mode .leaderboard-table tr.current-user {
+    background-color: #3d3d3d;
+    border-left-color: #3498db;
+}
+
+body.dark-mode .leaderboard-table tr.current-user td {
+    color: #ffffff;
+}
+
+body.dark-mode .puzzle-list li {
+    background-color: #2d2d2d;
+    border-color: #444;
+    border-top-color: #3498db;
+    color: #e0e0e0;
+}
+
+body.dark-mode .puz-name {
+    color: #ffffff;
+}
+
+body.dark-mode .puz-time {
+    background-color: #444;
+    color: #e0e0e0;
+}
+
+body.dark-mode .puzzle-status {
+    border-top-color: #444;
+}
+
+body.dark-mode .secondary-btn {
+    background-color: #3d3d3d;
+    color: #ffffff;
+    border-color: #555;
+}
+
+body.dark-mode .secondary-btn:hover {
+    background-color: #555;
+}
+
+body.dark-mode .setup-container {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+
+body.dark-mode .setup-container h2 {
+    color: #ffffff;
+}
+
+body.dark-mode .form-group label {
+    color: #e0e0e0;
+}
+
+body.dark-mode .form-group input[type="text"] {
+    background-color: #3d3d3d;
+    border-color: #555;
+    color: #ffffff;
+}
+
+body.dark-mode .tournament-footer {
+    border-top-color: #444 !important;
+    color: #888 !important;
+}
+
+body.dark-mode .tournament-footer a {
+    color: #aaa !important;
+}
+
+body.dark-mode .score-card {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #3498db;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+

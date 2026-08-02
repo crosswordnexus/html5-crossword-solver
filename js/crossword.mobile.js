@@ -125,20 +125,23 @@ $(document).ready(function() {
         const check = allButtons.find(btn => btn.textContent.includes('Check'));
         const reveal = allButtons.find(btn => btn.textContent.includes('Reveal'));
         const settings = allButtons.find(btn => btn.textContent.includes('Settings'));
+        const done = allButtons.find(btn => btn.textContent.includes("I'm done!"));
         const timer = allButtons.find(btn => btn.textContent.match(/[\d:]+/)); // crude match for timer
 
-        // Only reflow if all buttons were found
-        if (file && check && reveal && settings && timer) {
+        // Only reflow if all buttons were found (except File/Reveal/Check which might be hidden)
+        if (settings && timer) {
 
           const row1 = document.createElement('div');
           row1.className = 'cw-buttons-row';
-          row1.append(file, check, reveal);
+
+          if (file && file.style.display !== 'none') row1.append(file);
+          if (check && check.style.display !== 'none') row1.append(check);
+          if (reveal && reveal.style.display !== 'none') row1.append(reveal);
 
           const row2 = document.createElement('div');
           row2.className = 'cw-buttons-row';
           row2.append(settings, timer);
-
-          // Clear and re-append
+          if (done) row2.append(done);          // Clear and re-append
           buttons.innerHTML = '';
           buttons.append(row1, row2);
         }
