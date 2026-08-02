@@ -164,7 +164,7 @@ As of **February 2026**, the **Blaze Plan (Pay-as-you-go)** is mandatory for all
 ### Why is Blaze required?
 *   **API Requirements:** Google now requires a billing account to provision new database instances and manage Cloud Storage buckets.
 *   **Connection Limit:** The old Free (Spark) plan had a hard limit of 100 simultaneous connections, which is insufficient for most tournaments.
-*   **Cost:** For a typical tournament of 100–500 solvers, your total bill will still likely be **$0.00**, as the Blaze plan includes the same generous free tiers as the old Spark plan.
+*   **Cost:** The Blaze plan includes the same generous free tiers as the old Spark plan. That said, you may reach 50,000 reads and have some cost associated to the tournament.
 
 ---
 
