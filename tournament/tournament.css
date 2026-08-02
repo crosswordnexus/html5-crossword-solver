@@ -1,3 +1,20 @@
+/* ==========================================================================
+   Tournament Dashboard Stylesheet
+   Table of Contents:
+   1. Typography & Global Layout
+   2. Solver Information Banner
+   3. Standing / Leaderboard Dashboard
+   4. Buttons & Animations
+   5. Registration & Setup Form
+   6. Score Cards & Feedback
+   7. Puzzle List Grid
+   8. Solver Integration / Overrides
+   9. Dark Mode Theme Overrides
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Typography & Global Layout
+   -------------------------------------------------------------------------- */
 body, #tournament-app, button, input, select, textarea {
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
@@ -14,6 +31,10 @@ h1, h2, h3, h4 {
     font-family: inherit;
 }
 
+/* --------------------------------------------------------------------------
+   2. Solver Information Banner
+   Displays active participant credentials and current selected division.
+   -------------------------------------------------------------------------- */
 .solver-info {
     background-color: #f8f9fa;
     padding: 15px;
@@ -36,6 +57,10 @@ h1, h2, h3, h4 {
     margin-top: 10px;
 }
 
+/* --------------------------------------------------------------------------
+   3. Standing / Leaderboard Dashboard
+   Displays comparative solve ranks, scores, and clean-solve statuses.
+   -------------------------------------------------------------------------- */
 .leaderboard-header {
     display: flex;
     justify-content: space-between;
@@ -111,6 +136,10 @@ body.dark-mode .leaderboard-controls label {
     color: #ffffff;
 }
 
+/* --------------------------------------------------------------------------
+   4. Buttons & Animations
+   Global styling, hover effects, and keyframe animations for primary/secondary buttons.
+   -------------------------------------------------------------------------- */
 button {
     padding: 8px 16px;
     border-radius: 4px;
@@ -191,7 +220,10 @@ button:hover {
     padding: 40px 20px;
 }
 
-/* Setup & Modal Styles */
+/* --------------------------------------------------------------------------
+   5. Registration & Setup Form
+   Layout for nickname registration and pre-assigned division status display.
+   -------------------------------------------------------------------------- */
 .setup-container {
     background: white;
     padding: 30px;
@@ -292,6 +324,10 @@ button:hover {
     display: none;
 }
 
+/* --------------------------------------------------------------------------
+   6. Score Cards & Feedback
+   Layouts for submission score breakdowns, bonuses, and penalties.
+   -------------------------------------------------------------------------- */
 .score-card {
     background: white;
     border: 2px solid #3498db;
@@ -317,6 +353,10 @@ button:hover {
 .bonus { color: #27ae60; font-weight: bold; }
 .penalty { color: #c0392b; font-weight: bold; }
 
+/* --------------------------------------------------------------------------
+   7. Puzzle List Grid
+   Cards and list containers for active/completed/locked tournament puzzles.
+   -------------------------------------------------------------------------- */
 .puzzle-list {
     list-style: none;
     padding: 0;
@@ -427,6 +467,10 @@ body.dark-mode .score-summary {
     color: #f39c12;
 }
 
+/* --------------------------------------------------------------------------
+   8. Solver Integration / Overrides
+   Specialized classes injected into or overlapping with solve.html.
+   -------------------------------------------------------------------------- */
 .cw-tournament-submit {
     background-color: #27ae60 !important;
     color: white !important;
@@ -442,7 +486,10 @@ body.dark-mode .score-summary {
     transform: translateY(-1px) !important;
 }
 
-/* Dark Mode Styles */
+/* --------------------------------------------------------------------------
+   9. Dark Mode Theme Overrides
+   Alternative styling mappings loaded when document.body has class .dark-mode.
+   -------------------------------------------------------------------------- */
 body.dark-mode {
     background-color: #1a1a1a;
     color: #e0e0e0;
