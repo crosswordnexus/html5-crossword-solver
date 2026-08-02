@@ -27,6 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
             let scoringRules = { pointsPerWord: 10, timeBonusPerSecond: 1, completionBonus: 180, overtimePenaltyPer4Seconds: 1, minCorrectPercentageForTimeBonus: 0.5 };
             let branding = { color_selected: '#FF4136', color_word: '#FEE300' };
 
+            /**
+             * Fetches tournament scoring configuration from Firestore.
+             * If metadata/config doesn't exist, defaults to pre-defined settings.
+             * 
+             * @async
+             * @returns {Promise<void>}
+             */
             async function fetchScoringRules() {
                 try {
                     const doc = await db.collection(CONFIG_COLLECTION).doc('scoring').get();
@@ -59,7 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             /**
-             * Entry Point: Handle Google Sign-in and Authorization Check
+             * Entry Point: Handles initialization of the solver application.
+             * Retrieves configuration, checks authentication state, validates if the
+             * signed-in user's email is present in the `participants` collection, 
+             * and routes the user to either the registration/setup view or the puzzle dashboard.
+             * 
+             * @async
+             * @returns {Promise<void>}
              */
             async function initSolver() {
                 await fetchScoringRules();
@@ -130,6 +143,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
+            /**
+             * Initializes the Google Sign-In button event listeners.
+             */
             function initLoginForm() {
                 const btn = document.getElementById('googleSignInBtn');
                 btn.onclick = async () => {
@@ -138,13 +154,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             }
 
+            /**
+             * Displays an authentication/login error message on the screen.
+             * 
+             * @param {string} msg - The error message to show.
+             */
             function showLoginError(msg) {
                 const errorDiv = document.getElementById('loginError');
                 errorDiv.textContent = msg; errorDiv.style.display = 'block';
             }
 
             /**
-             * VIEW: Participant Setup (Name entry ONLY - Division is pre-assigned)
+             * Renders the Participant Registration/Setup UI.
+             * This screen allows the user to choose their leaderboard nickname.
+             * Their division is pre-assigned and locked.
+             * 
+             * @async
+             * @param {firebase.User} user - The authenticated Firebase user.
+             * @param {object} authData - The authorization data retrieved from the 'participants' collection.
+             * @returns {Promise<void>}
              */
             async function renderSetupUI(user, authData) {
                 activeView = 'setup';
@@ -186,6 +214,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             }
 
+            /**
+             * Calculates the detailed score breakdown for a puzzle submission.
+             * Score calculations involve correct word counts, completion bonuses,
+             * time bonuses (if correctness percentage is high enough), and overtime penalties.
+             * 
+             * @param {object} xw - The crossword state structure (contains `.words` array or dict).
+             * @param {object} puzzleData - Metadata configuration of the puzzle (e.g. `timeLimitSeconds`).
+             * @param {number} timeTakenSeconds - The total time spent solving the puzzle, in seconds.
+             * @returns {object} The breakdown containing:
+             *   - totalScore {number}
+             *   - correctWords {number}
+             *   - totalWords {number}
+             *   - timeTaken {number}
+             *   - timeLimit {number}
+             *   - timeBonus {number}
+             *   - overtimePenalty {number}
+             *   - isFullyCorrect {boolean}
+             */
             function calculateScore(xw, puzzleData, timeTakenSeconds) {
                 let cCount, tWords;
                 if (xw.words && Array.isArray(xw.words)) {
@@ -209,6 +255,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 return { totalScore: Math.max(0, score + bonus - penalty), correctWords: cCount, totalWords: tWords, timeTaken: timeTakenSeconds, timeLimit: limit, timeBonus: bonus, overtimePenalty: penalty, isFullyCorrect: isFull };
             }
 
+            /**
+             * Submits computed score details to Firestore.
+             * If the puzzle is marked as a warmup, score registration is saved in local storage instead.
+             * 
+             * @async
+             * @param {object} puzzleData - The configuration/identity data of the puzzle.
+             * @param {object} scoreInfo - Computed scoring breakdown details.
+             * @returns {Promise<void>}
+             */
             async function submitPuzzle(puzzleData, scoreInfo) {
                 if (!currentSolver) return;
                 if (puzzleData.isWarmup) {
@@ -232,6 +287,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (e) { Toast.error('Error: ' + e.message); }
             }
 
+            /**
+             * Renders a dashboard success card summarizing the user's score after a submission.
+             * Provides navigation links to return to the puzzle list or view the leaderboard.
+             * 
+             * @param {object} scoreInfo - Computed scoring details.
+             * @param {boolean} [isWarmup=false] - Whether this was a warm-up puzzle.
+             */
             function showSubmissionResult(scoreInfo, isWarmup = false) {
                 activeView = 'result';
                 tournamentContentDiv.innerHTML = `
@@ -248,6 +310,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('viewLeaders').onclick = () => renderLeaderboard();
             }
 
+            /**
+             * Renders the tournament standings dashboard table/leaderboard.
+             * Sets up a real-time listener using `TournamentLeaderboard.render` for live standing updates.
+             * Allows selecting and filtering by division.
+             * 
+             * @async
+             * @param {string} [selectedDivision=currentSolver.division] - The initial division standings to display.
+             * @returns {Promise<void>}
+             */
             async function renderLeaderboard(selectedDivision = currentSolver.division) {
                 activeView = 'leaderboard';
                 if (puzzleListenerUnsubscribe) { puzzleListenerUnsubscribe(); puzzleListenerUnsubscribe = null; }
@@ -295,6 +366,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            /**
+             * Post-message communication channel receiver.
+             * Receives solution events dispatched from the solver iframe (`solve.html`).
+             */
             window.addEventListener('message', async (event) => {
                 if (event.data && event.data.type === 'CROSSWORD_SOLVED') {
                     const { puzzleId, timeTakenSeconds, correctWords, totalWords, submittedGrid, gridWidth, gridHeight } = event.data;
@@ -313,6 +388,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
+            /**
+             * Configures parameter parameters and redirects user to solve.html
+             * for a designated puzzle in a new browser tab.
+             * 
+             * @async
+             * @param {object} puzzleData - Identity and settings metadata for the puzzle.
+             * @returns {Promise<void>}
+             */
             async function loadPuzzle(puzzleData) {
                 let filename = null;
                 if (puzzleData.filesByDivision && currentSolver.division) filename = puzzleData.filesByDivision[currentSolver.division] || puzzleData.filesByDivision.default;
@@ -341,6 +424,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 url.searchParams.set('config', btoa(JSON.stringify(config)));
                 window.open(url.toString(), '_blank');
             }
+
+            /**
+             * Renders the tournament main page listing available puzzles.
+             * Sets up a real-time listener on active/completed puzzles, cross-referencing
+             * them against existing submissions to toggle Locked/Started/Submitted statuses.
+             * 
+             * @async
+             * @returns {Promise<void>}
+             */
             async function renderPuzzleList() {
                 if (!currentSolver) return;
                 activeView = 'puzzles';
