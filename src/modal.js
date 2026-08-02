@@ -9,6 +9,7 @@
  */
 
 import { IS_MOBILE } from './constants.js';
+import { escape } from './utils.js';
 
 export function createModalBox(title, content, button_text = 'Close') {
   // Set the contents of the modal box
@@ -251,7 +252,7 @@ export function openSettings() {
     });
 }
 
-const escape = (str) => str || '';
+
 
 export function showInfo() {
   this.createModalBox(

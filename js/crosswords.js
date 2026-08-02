@@ -68,6 +68,9 @@
       return entry == solution;
     }
   }
+  function escape(string) {
+    return string || "";
+  }
   class CluesGroup {
     constructor(crossword, data) {
       this.id = "";
@@ -1611,7 +1614,6 @@
       this.saveSettings();
     });
   }
-  const escape = (str) => str || "";
   function showInfo() {
     this.createModalBox(
       "Info",
@@ -1721,6 +1723,205 @@
       this.startTimer();
     }
   }
+  function check_reveal(to_solve, reveal_or_check, e) {
+    if (this.config.tournament_mode && reveal_or_check !== "clear") {
+      console.warn("Checks and Reveals are disabled in tournament mode.");
+      return;
+    }
+    var my_cells = [];
+    switch (to_solve) {
+      case "letter":
+        if (this.selected_cell) {
+          my_cells = [this.selected_cell];
+        }
+        break;
+      case "word":
+        if (this.selected_word) {
+          for (let coord of this.selected_word.cells) {
+            const c = this.selected_word.getCellByCoordinates(coord);
+            if (c) {
+              my_cells.push(c);
+            }
+          }
+        }
+        break;
+      case "puzzle":
+        for (let x in this.cells) {
+          for (let y in this.cells[x]) {
+            my_cells.push(this.cells[x][y]);
+          }
+        }
+        break;
+    }
+    if (this.is_autofill) {
+      const extra_cells = [];
+      for (let c of my_cells) {
+        const num = c.number;
+        if (num != null) {
+          const others = this.number_to_cells[num] || [];
+          for (let oc of others) {
+            const linkedCell = this.cells[oc.x][oc.y];
+            if (linkedCell && !my_cells.includes(linkedCell)) {
+              extra_cells.push(linkedCell);
+            }
+          }
+        }
+      }
+      my_cells = my_cells.concat(extra_cells);
+    }
+    for (let c of my_cells) {
+      if (reveal_or_check !== "clear" && !c.solution) {
+        continue;
+      }
+      if (reveal_or_check === "clear") {
+        if (c.fixed) continue;
+        this.updateCell(c, {
+          letter: "",
+          checked: false,
+          revealed: false
+        });
+        if (this.diagramless_mode) {
+          this.updateCell(c, {
+            type: null,
+            // clear black squares too
+            empty: false
+          });
+        }
+      } else if (reveal_or_check === "reveal") {
+        if (this.diagramless_mode) {
+          if (c.solution === "#") {
+            this.updateCell(c, {
+              type: "block",
+              empty: true,
+              letter: ""
+            });
+          } else {
+            this.updateCell(c, {
+              type: null,
+              empty: false,
+              letter: c.solution
+            });
+          }
+          this.updateCell(c, {
+            checked: false,
+            revealed: false
+          });
+        } else {
+          if (c.solution === "#") {
+            this.updateCell(c, {
+              letter: "",
+              revealed: false,
+              checked: false
+            });
+          } else {
+            this.updateCell(c, {
+              letter: c.solution,
+              revealed: true,
+              checked: false
+            });
+          }
+        }
+      } else if (reveal_or_check === "check") {
+        if (this.diagramless_mode) {
+          if (c.type === "block") {
+            this.updateCell(c, {
+              checked: c.solution != "#"
+              // Mark wrong if not supposed to be a black square
+            });
+          } else if (c.letter) {
+            this.updateCell(c, {
+              checked: !isCorrect(c.letter, c.solution)
+            });
+          } else {
+            this.updateCell(c, {
+              checked: false
+            });
+          }
+        } else {
+          if (c.letter) {
+            this.updateCell(c, {
+              checked: !isCorrect(c.letter, c.solution)
+            });
+          } else {
+            this.updateCell(c, {
+              checked: false
+            });
+          }
+        }
+      }
+    }
+    if (reveal_or_check === "reveal" && this.diagramless_mode) {
+      this.renumberGrid();
+    }
+    if (reveal_or_check === "clear" && this.diagramless_mode) {
+      this.renumberGrid();
+    }
+    if (reveal_or_check === "reveal") {
+      this.checkIfSolved(false);
+    }
+    this.saveGame();
+    if (!IS_MOBILE) {
+      this.hidden_input.focus();
+    }
+  }
+  function checkIfSolved(do_reveal = true) {
+    var wasSolved = this.isSolved;
+    var i, j, cell;
+    for (i in this.cells) {
+      for (j in this.cells[i]) {
+        cell = this.cells[i][j];
+        if (!cell.empty && (!cell.letter || !isCorrect(cell.letter, cell.solution)) || this.diagramless_mode && cell.type === "block" !== (cell.solution === "#")) {
+          this.isSolved = false;
+          return;
+        }
+      }
+    }
+    this.isSolved = true;
+    if (this.config.tournament_mode) {
+      this.xw_timer_seconds = getTimerSeconds();
+    } else {
+      var timerMessage = "";
+      if (this.timer_running) {
+        var display_seconds = getTimerSeconds() % 60;
+        var display_minutes = (getTimerSeconds() - display_seconds) / 60;
+        var minDisplay = display_minutes == 1 ? "minute" : "minutes";
+        var secDisplay = display_seconds == 1 ? "second" : "seconds";
+        var allMin = display_minutes > 0 ? `${display_minutes} ${minDisplay} ` : "";
+        timerMessage = `<br /><br /><center>You finished in ${allMin} ${display_seconds} ${secDisplay}.</center>`;
+        this.stopTimer();
+      }
+      this.xw_timer_seconds = getTimerSeconds();
+      if (do_reveal) {
+        this.check_reveal("puzzle", "reveal");
+      }
+      if (this.config.confetti_enabled) {
+        confetti({
+          particleCount: 280,
+          spread: 190,
+          origin: {
+            y: 0.4
+          }
+        });
+      }
+    }
+    const here = this;
+    function showSuccessMsg(rawMessage) {
+      if (here.config.tournament_mode) return;
+      let solvedMessage = escape(rawMessage).trim().replaceAll("\n", "<br />");
+      if (typeof timerMessage !== "undefined") {
+        solvedMessage += timerMessage;
+      }
+      here.createModalBox("🎉🎉🎉", solvedMessage);
+    }
+    if (!wasSolved) {
+      if (!this.config.tournament_mode) {
+        showSuccessMsg(this.completion_message);
+      }
+      if (typeof this.config.onSolved === "function") {
+        this.config.onSolved(this);
+      }
+    }
+  }
   (function(global, factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
       module.exports = factory(global);
@@ -1824,9 +2025,6 @@
             rootElement.removeClass(className);
           }
         }
-      }
-      function escape2(string) {
-        return string;
       }
       var CrosswordNexus = {
         createCrossword: function(parent, user_config) {
@@ -2099,14 +2297,14 @@
         completeLoad() {
           var _a, _b, _c;
           $(".cw-header").html(`
-          <span class="cw-title">${escape2(this.title)}</span>
+          <span class="cw-title">${escape(this.title)}</span>
           <span class="cw-header-separator">&nbsp;•&nbsp;</span>
-          <span class="cw-author">${escape2(this.author)}</span>
+          <span class="cw-author">${escape(this.author)}</span>
           ${this.notepad ? `<button class="cw-button cw-button-notepad">
                    <span class="cw-button-icon">📝</span> ${this.config.notepad_name}
                  </button>` : ""}
           <span class="cw-flex-spacer"></span>
-          <span class="cw-copyright">${escape2(this.copyright)}</span>
+          <span class="cw-copyright">${escape(this.copyright)}</span>
         `);
           this.notepad_icon = this.root.find(".cw-button-notepad");
           if (this.diagramless_mode || this.fakeclues) {
@@ -2471,10 +2669,10 @@
             }
             this.top_text.html(`
             <span class="cw-clue-number">
-              ${escape2(word.clue.number)}
+              ${escape(word.clue.number)}
             </span>
             <span class="cw-clue-text">
-              ${escape2(word.clue.text)}
+              ${escape(word.clue.text)}
             </span>
           `);
             resizeText(this.root, this.top_text);
@@ -2510,9 +2708,9 @@
           for (const clue of clues_group.clues) {
             const clue_el = $(`
             <div style="position: relative">
-              <span class="cw-clue-number">${escape2(clue.number)}</span>
+              <span class="cw-clue-number">${escape(clue.number)}</span>
               <span class="cw-clue-text">
-                ${escape2(clue.text)}
+                ${escape(clue.text)}
                 <div class="cw-edit-container" style="display: none;">
                   <input class="cw-input note-style" type="text">
                 </div>
@@ -2533,7 +2731,7 @@
             }
             $items.append(clue_el);
           }
-          if ($title.length) $title.text(escape2(clues_group.title));
+          if ($title.length) $title.text(escape(clues_group.title));
           clues_group.clues_container = $items;
           const save = () => this.saveGame();
           $items.on("mouseenter", ".cw-clue", function() {
@@ -2800,62 +2998,7 @@
           this.hidden_input.val("");
         }
         checkIfSolved(do_reveal = true) {
-          var wasSolved = this.isSolved;
-          var i, j, cell;
-          for (i in this.cells) {
-            for (j in this.cells[i]) {
-              cell = this.cells[i][j];
-              if (!cell.empty && (!cell.letter || !isCorrect(cell.letter, cell.solution)) || this.diagramless_mode && cell.type === "block" !== (cell.solution === "#")) {
-                this.isSolved = false;
-                return;
-              }
-            }
-          }
-          this.isSolved = true;
-          if (this.config.tournament_mode) {
-            this.xw_timer_seconds = getTimerSeconds();
-          } else {
-            var timerMessage = "";
-            if (this.timer_running) {
-              var display_seconds = getTimerSeconds() % 60;
-              var display_minutes = (getTimerSeconds() - display_seconds) / 60;
-              var minDisplay = display_minutes == 1 ? "minute" : "minutes";
-              var secDisplay = display_seconds == 1 ? "second" : "seconds";
-              var allMin = display_minutes > 0 ? `${display_minutes} ${minDisplay} ` : "";
-              timerMessage = `<br /><br /><center>You finished in ${allMin} ${display_seconds} ${secDisplay}.</center>`;
-              this.stopTimer();
-            }
-            this.xw_timer_seconds = getTimerSeconds();
-            if (do_reveal) {
-              this.check_reveal("puzzle", "reveal");
-            }
-            if (this.config.confetti_enabled) {
-              confetti({
-                particleCount: 280,
-                spread: 190,
-                origin: {
-                  y: 0.4
-                }
-              });
-            }
-          }
-          const here = this;
-          function showSuccessMsg(rawMessage) {
-            if (here.config.tournament_mode) return;
-            let solvedMessage = escape2(rawMessage).trim().replaceAll("\n", "<br />");
-            if (typeof timerMessage !== "undefined") {
-              solvedMessage += timerMessage;
-            }
-            here.createModalBox("🎉🎉🎉", solvedMessage);
-          }
-          if (!wasSolved) {
-            if (!this.config.tournament_mode) {
-              showSuccessMsg(this.completion_message);
-            }
-            if (typeof this.config.onSolved === "function") {
-              this.config.onSolved(this);
-            }
-          }
+          checkIfSolved.call(this, do_reveal);
         }
         // callback for shift+arrows
         // finds next cell in specified direction that does not belongs to current word
@@ -3164,145 +3307,7 @@
           return loadGame.call(this);
         }
         check_reveal(to_solve, reveal_or_check, e) {
-          if (this.config.tournament_mode && reveal_or_check !== "clear") {
-            console.warn("Checks and Reveals are disabled in tournament mode.");
-            return;
-          }
-          var my_cells = [];
-          switch (to_solve) {
-            case "letter":
-              if (this.selected_cell) {
-                my_cells = [this.selected_cell];
-              }
-              break;
-            case "word":
-              if (this.selected_word) {
-                for (let coord of this.selected_word.cells) {
-                  const c = this.selected_word.getCellByCoordinates(coord);
-                  if (c) {
-                    my_cells.push(c);
-                  }
-                }
-              }
-              break;
-            case "puzzle":
-              for (let x in this.cells) {
-                for (let y in this.cells[x]) {
-                  my_cells.push(this.cells[x][y]);
-                }
-              }
-              break;
-          }
-          if (this.is_autofill) {
-            const extra_cells = [];
-            for (let c of my_cells) {
-              const num = c.number;
-              if (num != null) {
-                const others = this.number_to_cells[num] || [];
-                for (let oc of others) {
-                  const linkedCell = this.cells[oc.x][oc.y];
-                  if (linkedCell && !my_cells.includes(linkedCell)) {
-                    extra_cells.push(linkedCell);
-                  }
-                }
-              }
-            }
-            my_cells = my_cells.concat(extra_cells);
-          }
-          for (let c of my_cells) {
-            if (reveal_or_check !== "clear" && !c.solution) {
-              continue;
-            }
-            if (reveal_or_check === "clear") {
-              if (c.fixed) continue;
-              this.updateCell(c, {
-                letter: "",
-                checked: false,
-                revealed: false
-              });
-              if (this.diagramless_mode) {
-                this.updateCell(c, {
-                  type: null,
-                  // clear black squares too
-                  empty: false
-                });
-              }
-            } else if (reveal_or_check === "reveal") {
-              if (this.diagramless_mode) {
-                if (c.solution === "#") {
-                  this.updateCell(c, {
-                    type: "block",
-                    empty: true,
-                    letter: ""
-                  });
-                } else {
-                  this.updateCell(c, {
-                    type: null,
-                    empty: false,
-                    letter: c.solution
-                  });
-                }
-                this.updateCell(c, {
-                  checked: false,
-                  revealed: false
-                });
-              } else {
-                if (c.solution === "#") {
-                  this.updateCell(c, {
-                    letter: "",
-                    revealed: false,
-                    checked: false
-                  });
-                } else {
-                  this.updateCell(c, {
-                    letter: c.solution,
-                    revealed: true,
-                    checked: false
-                  });
-                }
-              }
-            } else if (reveal_or_check === "check") {
-              if (this.diagramless_mode) {
-                if (c.type === "block") {
-                  this.updateCell(c, {
-                    checked: c.solution != "#"
-                    // Mark wrong if not supposed to be a black square
-                  });
-                } else if (c.letter) {
-                  this.updateCell(c, {
-                    checked: !isCorrect(c.letter, c.solution)
-                  });
-                } else {
-                  this.updateCell(c, {
-                    checked: false
-                  });
-                }
-              } else {
-                if (c.letter) {
-                  this.updateCell(c, {
-                    checked: !isCorrect(c.letter, c.solution)
-                  });
-                } else {
-                  this.updateCell(c, {
-                    checked: false
-                  });
-                }
-              }
-            }
-          }
-          if (reveal_or_check === "reveal" && this.diagramless_mode) {
-            this.renumberGrid();
-          }
-          if (reveal_or_check === "clear" && this.diagramless_mode) {
-            this.renumberGrid();
-          }
-          if (reveal_or_check === "reveal") {
-            this.checkIfSolved(false);
-          }
-          this.saveGame();
-          if (!IS_MOBILE) {
-            this.hidden_input.focus();
-          }
+          check_reveal.call(this, to_solve, reveal_or_check, e);
         }
         async printPuzzle(e) {
           this.fillJsXw();

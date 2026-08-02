@@ -17,3 +17,7 @@ export function isCorrect(entry, solution) {
     return entry == solution;
   }
 }
+
+export function escape(string) {
+  return string || '';
+}
