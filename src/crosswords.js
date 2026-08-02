@@ -13,7 +13,7 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 
-import { updateCSS, getShadeHighlightColor } from './colors.js';
+import { updateCSS, getShadeHighlightColor, cellFillColor, cellFontColor } from './colors.js';
 import { isCorrect, escape, resizeText } from './utils.js';
 import { CluesGroup } from './CluesGroup.js';
 import { Word } from './Word.js';
@@ -1253,58 +1253,12 @@ import {
         adjustChevron.call(this);
       }
 
-      /**
-       * Determines the fill color for a grid cell based on its state (selection, shading, blocks).
-       * @param {Object} cell - The cell model to color.
-       * @returns {string} Color hex or CSS variable representation.
-       */
       cellFillColor(cell) {
-        if (cell.type === 'block') {
-          return cell.color || 'var(--grid-block-color)';
-        } else if (this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) {
-          return 'var(--grid-selected-square-color)';
-        } else if (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)) {
-          return cell.shade_highlight_color || 'var(--grid-selected-word-color)';
-        } else if (this.selected_cell && this.number_to_cells[this.selected_cell.number || this.selected_cell.top_right_number]?.includes(cell)) {
-          // highlight partners
-          return cell.shade_highlight_color || 'var(--grid-selected-word-color)';
-        } else if (cell.color) {
-          return cell.color;
-        } else {
-          return 'var(--grid-none-color)';
-        }
+        return cellFillColor.call(this, cell);
       }
 
-      /**
-       * Determines the text/font color of a grid cell to maintain readable contrast.
-       * @param {Object} cell - The cell model.
-       * @returns {string} Contrast color (hex or CSS var).
-       */
       cellFontColor(cell) {
-        const fillColor = this.cellFillColor(cell);
-        if (cell.image) {
-          // Images should show text in black regardless of background brightness
-          return '#000000';
-        } else if (typeof fillColor === 'string' && fillColor.startsWith('var(--grid-selected-square-color)')) {
-          return 'var(--grid-selected-square-text-color)';
-        } else if (typeof fillColor === 'string' && fillColor.startsWith('var(--grid-selected-word-color)')) {
-          return 'var(--grid-selected-word-text-color)';
-        } else if (typeof fillColor === 'string' && (fillColor.startsWith('var(--grid-none-color)') || fillColor.startsWith('var(--grid-block-color)'))) {
-          return fillColor.includes('block') ? 'white' : 'var(--grid-none-text-color)';
-        } else {
-          // Brightness of the background and foreground
-          const bgBrightness = Color.getBrightness(fillColor || this.config.color_none);
-          const fgBrightness = Color.getBrightness(this.config.font_color_fill);
-
-          // If we fail to meet some threshold, invert
-          if (Math.abs(bgBrightness - fgBrightness) < 125) {
-            var thisRGB = Color.hexToRgb(this.config.font_color_fill);
-            var invertedRGB = thisRGB.map(x => 255 - x);
-            return Color.rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
-          } else {
-            return this.config.font_color_fill;
-          }
-        }
+        return cellFontColor.call(this, cell);
       }
 
       /**
