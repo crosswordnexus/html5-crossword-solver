@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "An HTML5 crossword solver",
   "scripts": {
+    "build": "vite build",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug"
