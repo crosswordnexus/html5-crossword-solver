@@ -64,9 +64,12 @@ The system is split into three primary components:
   - `startTime`: Firestore Timestamp.
   - `finishTime`: Firestore Timestamp.
   - `seconds`: Total time elapsed.
-  - `isCorrect`: Boolean (all cells match solution).
+  - `isCorrect` / `isFullyCorrect`: Boolean (all cells match solution).
   - `score`: Calculated point value.
   - `bonus`: Calculated time bonus.
+  - `submittedGrid`: String (the serialized grid: `_` for blanks, `.` for blocks, `*` for rebuses, uppercase letters).
+  - `gridWidth`: Integer.
+  - `gridHeight`: Integer.
 
 ---
 
