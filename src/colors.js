@@ -1,6 +1,14 @@
 /**
  * Helper to update CSS custom properties for crossword colors/themes.
  */
+export function getShadeHighlightColor(cellColor, colorWord, colorNone) {
+  if (cellColor && cellColor !== colorNone) {
+    return Color.averageColors(colorWord, Color.adjustColor(cellColor, -50));
+  } else {
+    return colorWord;
+  }
+}
+
 export function updateCSS(word, selected) {
   const root = document.documentElement;
   const isDark = document.body.classList.contains('dark-mode');

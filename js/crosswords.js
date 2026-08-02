@@ -1,5 +1,12 @@
 (function() {
   "use strict";
+  function getShadeHighlightColor(cellColor, colorWord, colorNone) {
+    if (cellColor && cellColor !== colorNone) {
+      return Color.averageColors(colorWord, Color.adjustColor(cellColor, -50));
+    } else {
+      return colorWord;
+    }
+  }
   function updateCSS(word, selected) {
     const root = document.documentElement;
     const isDark = document.body.classList.contains("dark-mode");
@@ -742,11 +749,7 @@
               fixed: rawCell.fixed === true
               // Preserve fixed flag from saved data
             };
-            if (c.color && c.color != this.config.color_none) {
-              c.shade_highlight_color = Color.averageColors(this.config.color_word, Color.adjustColor(c.color, -50));
-            } else {
-              c.shade_highlight_color = this.config.color_word;
-            }
+            c.shade_highlight_color = getShadeHighlightColor(c.color, this.config.color_word, this.config.color_none);
             if (rawCell.clue) {
               c.color = this.config.background_color_clue;
             }

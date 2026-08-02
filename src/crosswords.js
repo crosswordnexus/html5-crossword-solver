@@ -1,4 +1,4 @@
-import { updateCSS } from './colors.js';
+import { updateCSS, getShadeHighlightColor } from './colors.js';
 
 /**
 Copyright (c) 2025, Crossword Nexus & Crossweird LLC
@@ -945,11 +945,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           };
 
           /* set a "shade_highlight" color */
-          if (c.color && c.color != this.config.color_none) {
-            c.shade_highlight_color = Color.averageColors(this.config.color_word, Color.adjustColor(c.color, -50));
-          } else {
-            c.shade_highlight_color = this.config.color_word;
-          }
+          c.shade_highlight_color = getShadeHighlightColor(c.color, this.config.color_word, this.config.color_none);
 
           /* set the background color for "clue" cells */
           if (rawCell.clue) {
