@@ -722,6 +722,26 @@
       e.stopPropagation();
     }
   }
+  function backspace() {
+    if (this.selected_cell && !this.selected_cell.fixed) {
+      this.updateCell(this.selected_cell, {
+        letter: "",
+        checked: false
+      });
+      this.autofill();
+      if (this.diagramless_mode) {
+        const prev = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, -1);
+        if (prev) this.setActiveCell(prev);
+      } else if (this.selected_word) {
+        const prev_cell = this.selected_word.getPreviousCell(
+          this.selected_cell.x,
+          this.selected_cell.y
+        );
+        this.setActiveCell(prev_cell);
+      }
+      this.checkIfSolved();
+    }
+  }
   function mouseClicked(e) {
     const offset = this.svg.offset();
     const mouse_x = e.pageX - offset.left;
@@ -3185,28 +3205,8 @@
         keyPressed(e) {
           keyPressed.call(this, e);
         }
-        /**
-         * Deletes the letter value of the currently selected cell and moves cursor backwards.
-         */
         backspace() {
-          if (this.selected_cell && !this.selected_cell.fixed) {
-            this.updateCell(this.selected_cell, {
-              letter: "",
-              checked: false
-            });
-            this.autofill();
-            if (this.diagramless_mode) {
-              const prev = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, -1);
-              if (prev) this.setActiveCell(prev);
-            } else if (this.selected_word) {
-              const prev_cell = this.selected_word.getPreviousCell(
-                this.selected_cell.x,
-                this.selected_cell.y
-              );
-              this.setActiveCell(prev_cell);
-            }
-            this.checkIfSolved();
-          }
+          backspace.call(this);
         }
         /**
          * Replicates inputted letter across other cells bound by identical numbers (if autofill config is enabled).

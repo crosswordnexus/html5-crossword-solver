@@ -17,7 +17,7 @@ import { updateCSS, getShadeHighlightColor, cellFillColor, cellFontColor } from 
 import { isCorrect, escape, resizeText } from './utils.js';
 import { CluesGroup } from './CluesGroup.js';
 import { Word } from './Word.js';
-import { keyPressed, mouseClicked, clueClicked } from './input.js';
+import { keyPressed, mouseClicked, clueClicked, backspace } from './input.js';
 import {
   saveGame,
   saveGameImmediate,
@@ -1070,31 +1070,8 @@ import {
         keyPressed.call(this, e);
       }
 
-      /**
-       * Deletes the letter value of the currently selected cell and moves cursor backwards.
-       */
       backspace() {
-        if (this.selected_cell && !this.selected_cell.fixed) {
-          this.updateCell(this.selected_cell, {
-            letter: '',
-            checked: false
-          });
-          this.autofill();
-
-          if (this.diagramless_mode) {
-            // Move to the previous editable cell based on current diagramless direction
-            const prev = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, -1);
-            if (prev) this.setActiveCell(prev);
-          } else if (this.selected_word) {
-            const prev_cell = this.selected_word.getPreviousCell(
-              this.selected_cell.x,
-              this.selected_cell.y
-            );
-            this.setActiveCell(prev_cell);
-          }
-
-          this.checkIfSolved();
-        }
+        backspace.call(this);
       }
 
       /**

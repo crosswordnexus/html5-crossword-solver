@@ -249,6 +249,34 @@ export function keyPressed(e) {
 }
 
 /**
+ * Deletes the letter value of the currently selected cell and moves cursor backwards.
+ */
+export function backspace() {
+  if (this.selected_cell && !this.selected_cell.fixed) {
+    this.updateCell(this.selected_cell, {
+      letter: '',
+      checked: false
+    });
+    this.autofill();
+
+    if (this.diagramless_mode) {
+      // Move to the previous editable cell based on current diagramless direction
+      const prev = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, -1);
+      if (prev) this.setActiveCell(prev);
+    } else if (this.selected_word) {
+      const prev_cell = this.selected_word.getPreviousCell(
+        this.selected_cell.x,
+        this.selected_cell.y
+      );
+      this.setActiveCell(prev_cell);
+    }
+
+    this.checkIfSolved();
+  }
+}
+
+
+/**
  * Handle mouse clicks on the crossword grid.
  * Works with any number of clue groups.
  * @param {Event} e - Mouse click event.
