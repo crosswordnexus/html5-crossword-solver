@@ -4,10 +4,10 @@ This document provides a deep dive into the architecture, state management, and 
 
 ## 1. Core Engine & State Management
 
-The solver is built around the `CrossWord` class in `js/crosswords.js`. It manages the lifecycle of a crossword puzzle, from parsing and rendering to user interaction and saving.
+The solver is built around the `CrossWord` class in `src/crosswords.js` (compiled to `js/crosswords.js` by Vite). It manages the lifecycle of a crossword puzzle, from parsing and rendering to user interaction and saving.
 
 - **Data Model:** It relies on `lib/jscrossword_combined.js` (JSCrossword) for the underlying puzzle logic, such as determining word boundaries, numbering, and solution checking.
-- **UI Architecture:** The solver uses a template-based approach (defined as a string in `js/crosswords.js`) that is injected into a parent container.
+- **UI Architecture:** The solver uses a template-based approach (defined as a string in `src/constants.js`) that is injected into a parent container.
 - **Event Handling:** Interaction is handled via a mix of direct DOM listeners and a hidden `<input>` element used to capture mobile keyboard events and ensure consistent input behavior across platforms.
 
 ## 2. Platform-Specific Implementations
@@ -52,7 +52,7 @@ Game progress is automatically saved to the browser's `localStorage`.
 ## 5. Development & Extension
 
 ### CSS & Theming
-The solver uses CSS variables for all major colors (e.g., `--grid-selected-word-color`). These are dynamically updated by the `updateCSS` method in the `CrossWord` class, allowing for seamless Dark Mode and custom user color schemes.
+The solver uses CSS variables for all major colors (e.g., `--grid-selected-word-color`). These are dynamically updated by the `updateCSS` method in `src/colors.js`, allowing for seamless Dark Mode and custom user color schemes.
 
 ### Printing
 The "Print" feature generates a PDF client-side using a bundled version of `jsPDF`. The layout logic for the PDF is contained within the `jscrossword_combined.js` library.
@@ -60,17 +60,17 @@ The "Print" feature generates a PDF client-side using a bundled version of `jsPD
 ### Cache Management (Service Worker)
 The solver uses a Service Worker (`sw.js`) to provide offline capabilities and faster load times.
 - **Cache-First Strategy:** Most assets are served from the cache if available.
-- **Cache Invalidation:** Because of the cache-first strategy, the `CACHE_NAME` constant in `sw.js` **must be updated manually** with every deployment. This is the only way to ensure clients receive the latest code updates.
+- **Cache Invalidation:** Because of the cache-first strategy, the `CACHE_NAME` constant in `sw.js` is automatically updated with a timestamp-based cache name on every build by the Vite build plugin (`closeBundle` hook). This ensures clients receive the latest code updates automatically.
 
 ### Modal Boxes
 The UI relies heavily on a generic modal system for displaying info, settings, and help text.
-- **`createModalBox(title, content, button_text)`:** This method in `js/crosswords.js` is the standard way to display pop-ups. It injects HTML into the `.cw-modal` container and handles the display toggling.
+- **`createModalBox(title, content, button_text)`:** This method in `src/modal.js` is the standard way to display pop-ups. It injects HTML into the `.cw-modal` container and handles the display toggling.
 - **Adding new Modals:** If you need a new pop-up, follow the pattern of `showInfo()` or `showHelp()`: define the content as an HTML string, escape any dynamic user content (like `this.title`), and call `createModalBox`.
 
 ### Adding New Features
 When extending the solver:
 1.  **Check `js/crossword.shared.js`** for utility functions that should be consistent across platforms.
-2.  **Verify `js/crosswords.js`** for core logic changes.
+2.  **Verify `src/` modules** (e.g. `src/crosswords.js`, `src/navigation.js`, etc.) for core logic changes.
 3.  **Test on mobile** to ensure the custom keyboard and drawer system correctly handle any new UI elements.
 
 ## 6. Tournament Extension

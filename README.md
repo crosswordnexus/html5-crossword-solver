@@ -107,4 +107,4 @@ The following parameters allow you to change the solver's color scheme.
 | `bar_linewidth` | `number`| `3.2` | Line width for cell borders (bars). |
 
 ## Deployment Note
-**CRITICAL:** Every time you deploy a new update to the solver, you **must** update the `CACHE_NAME` constant in `sw.js` (e.g., `const CACHE_NAME = "xw-solver-v2026.4.26";`). This ensures that users' browsers invalidate the old cache and download the latest versions of the files.
+**Note:** When building the project, Vite's custom bundler plugin automatically updates the `CACHE_NAME` constant in `sw.js` with a new unique timestamp version (e.g. `const CACHE_NAME = "xw-solver-v20260802133000";`). This automates browser cache invalidation for client updates.
