@@ -1,4 +1,5 @@
 import { updateCSS, getShadeHighlightColor } from './colors.js';
+import { isCorrect } from './utils.js';
 
 /**
 Copyright (c) 2025, Crossword Nexus & Crossweird LLC
@@ -337,17 +338,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
       }
     }
 
-    // Function to check if a cell is solved correctly
-    function isCorrect(entry, solution) {
-      // if we have a rebus or non-alpha solution or no solution, accept anything
-      if (entry && (!solution || solution.length > 1 || /[^A-Za-z]/.test(solution))) {
-        return true;
-      }
-      // otherwise, only mark as okay if we have an exact match
-      else {
-        return entry == solution;
-      }
-    }
+
 
     /**
      * Sanitize HTML in the given string, except the simplest no-attribute

@@ -61,6 +61,13 @@
     setContrastText("--top-text-wrapper-text-color", topTextBgColor);
     root.style.setProperty("--clue-scrollbar-color-thumb", Color.averageColors(selectedColor, "#333333", 0.5));
   }
+  function isCorrect(entry, solution) {
+    if (entry && (!solution || solution.length > 1 || /[^A-Za-z]/.test(solution))) {
+      return true;
+    } else {
+      return entry == solution;
+    }
+  }
   const CONFIGURABLE_SETTINGS = [
     "skip_filled_letters",
     "arrow_direction",
@@ -309,13 +316,6 @@
           } else {
             rootElement.removeClass(className);
           }
-        }
-      }
-      function isCorrect(entry, solution) {
-        if (entry && (!solution || solution.length > 1 || /[^A-Za-z]/.test(solution))) {
-          return true;
-        } else {
-          return entry == solution;
         }
       }
       function escape(string) {
