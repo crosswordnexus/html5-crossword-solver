@@ -552,6 +552,86 @@
       e.stopPropagation();
     }
   }
+  function saveGame() {
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+    }
+    this.saveTimeout = setTimeout(() => {
+      this.saveGameImmediate();
+      this.saveTimeout = null;
+    }, 500);
+  }
+  function saveGameImmediate() {
+    this.fillJsXw();
+    const jsxw_str = JSON.stringify(this.jsxw.cells);
+    try {
+      localStorage.setItem(this.savegame_name, jsxw_str);
+      localStorage.setItem(this.savegame_name + "_notes", JSON.stringify(Array.from(this.notes.entries()).map((n) => {
+        return {
+          key: n[0],
+          value: n[1]
+        };
+      })));
+      localStorage.setItem(this.savegame_name + "_timer", (this.xw_timer_seconds || 0).toString());
+      localStorage.setItem(this.savegame_name + "_lastmodified", Date.now());
+    } catch (e) {
+      console.error("[Crossword] localStorage save failed. Attempting cleanup...", e);
+      const currentLimit = this.config.save_game_limit || 10;
+      this.cleanupSaves(Math.floor(currentLimit / 2));
+      try {
+        localStorage.setItem(this.savegame_name, jsxw_str);
+        localStorage.setItem(this.savegame_name + "_timer", (this.xw_timer_seconds || 0).toString());
+        localStorage.setItem(this.savegame_name + "_lastmodified", Date.now());
+      } catch (e2) {
+        console.error("[Crossword] localStorage save failed even after cleanup.", e2);
+      }
+    }
+  }
+  function cleanupSaves(limit = null) {
+    if (limit === null) {
+      limit = this.config.save_game_limit || 10;
+    }
+    const saves = [];
+    const keysToPurge = [];
+    const allKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      allKeys.push(localStorage.key(i));
+    }
+    allKeys.forEach((key) => {
+      if (key.startsWith(STORAGE_KEY + "_") && !key.endsWith("_notes") && !key.endsWith("_version") && !key.endsWith("_timer") && !key.endsWith("_lastmodified")) {
+        const lastModifiedStr = localStorage.getItem(key + "_lastmodified");
+        if (!lastModifiedStr && key !== this.savegame_name) {
+          keysToPurge.push(key);
+        } else {
+          saves.push({
+            key,
+            lastModified: parseInt(lastModifiedStr || Date.now().toString(), 10)
+          });
+        }
+      }
+    });
+    keysToPurge.forEach((key) => {
+      localStorage.removeItem(key);
+      localStorage.removeItem(key + "_notes");
+      localStorage.removeItem(key + "_version");
+      localStorage.removeItem(key + "_timer");
+      localStorage.removeItem(key + "_lastmodified");
+    });
+    if (saves.length <= limit) return;
+    saves.sort((a, b) => b.lastModified - a.lastModified);
+    for (let i = limit; i < saves.length; i++) {
+      const keyToDelete = saves[i].key;
+      localStorage.removeItem(keyToDelete);
+      localStorage.removeItem(keyToDelete + "_notes");
+      localStorage.removeItem(keyToDelete + "_version");
+      localStorage.removeItem(keyToDelete + "_timer");
+      localStorage.removeItem(keyToDelete + "_lastmodified");
+    }
+  }
+  function loadGame() {
+    var jsxw_cells = JSON.parse(localStorage.getItem(this.savegame_name));
+    return jsxw_cells;
+  }
   (function(global, factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
       module.exports = factory(global);
@@ -3149,86 +3229,18 @@
         }
         /* Save the game to local storage */
         saveGame() {
-          if (this.saveTimeout) {
-            clearTimeout(this.saveTimeout);
-          }
-          this.saveTimeout = setTimeout(() => {
-            this.saveGameImmediate();
-            this.saveTimeout = null;
-          }, 500);
+          saveGame.call(this);
         }
         saveGameImmediate() {
-          this.fillJsXw();
-          const jsxw_str = JSON.stringify(this.jsxw.cells);
-          try {
-            localStorage.setItem(this.savegame_name, jsxw_str);
-            localStorage.setItem(this.savegame_name + "_notes", JSON.stringify(Array.from(this.notes.entries()).map((n) => {
-              return {
-                key: n[0],
-                value: n[1]
-              };
-            })));
-            localStorage.setItem(this.savegame_name + "_timer", xw_timer_seconds.toString());
-            localStorage.setItem(this.savegame_name + "_lastmodified", Date.now());
-          } catch (e) {
-            console.error("[Crossword] localStorage save failed. Attempting cleanup...", e);
-            const currentLimit = this.config.save_game_limit || 10;
-            this.cleanupSaves(Math.floor(currentLimit / 2));
-            try {
-              localStorage.setItem(this.savegame_name, jsxw_str);
-              localStorage.setItem(this.savegame_name + "_timer", xw_timer_seconds.toString());
-              localStorage.setItem(this.savegame_name + "_lastmodified", Date.now());
-            } catch (e2) {
-              console.error("[Crossword] localStorage save failed even after cleanup.", e2);
-            }
-          }
+          saveGameImmediate.call(this);
         }
         /* Keep only the most recent saves */
         cleanupSaves(limit = null) {
-          if (limit === null) {
-            limit = this.config.save_game_limit || 10;
-          }
-          const saves = [];
-          const keysToPurge = [];
-          const allKeys = [];
-          for (let i = 0; i < localStorage.length; i++) {
-            allKeys.push(localStorage.key(i));
-          }
-          allKeys.forEach((key) => {
-            if (key.startsWith(STORAGE_KEY + "_") && !key.endsWith("_notes") && !key.endsWith("_version") && !key.endsWith("_timer") && !key.endsWith("_lastmodified")) {
-              const lastModifiedStr = localStorage.getItem(key + "_lastmodified");
-              if (!lastModifiedStr && key !== this.savegame_name) {
-                keysToPurge.push(key);
-              } else {
-                saves.push({
-                  key,
-                  lastModified: parseInt(lastModifiedStr || Date.now().toString(), 10)
-                });
-              }
-            }
-          });
-          keysToPurge.forEach((key) => {
-            localStorage.removeItem(key);
-            localStorage.removeItem(key + "_notes");
-            localStorage.removeItem(key + "_version");
-            localStorage.removeItem(key + "_timer");
-            localStorage.removeItem(key + "_lastmodified");
-          });
-          if (saves.length <= limit) return;
-          saves.sort((a, b) => b.lastModified - a.lastModified);
-          for (let i = limit; i < saves.length; i++) {
-            const keyToDelete = saves[i].key;
-            localStorage.removeItem(keyToDelete);
-            localStorage.removeItem(keyToDelete + "_notes");
-            localStorage.removeItem(keyToDelete + "_version");
-            localStorage.removeItem(keyToDelete + "_timer");
-            localStorage.removeItem(keyToDelete + "_lastmodified");
-          }
+          cleanupSaves.call(this, limit);
         }
         /* Load a game from local storage */
         loadGame() {
-          var jsxw_cells = JSON.parse(localStorage.getItem(this.savegame_name));
-          return jsxw_cells;
+          return loadGame.call(this);
         }
         check_reveal(to_solve, reveal_or_check, e) {
           if (this.config.tournament_mode && reveal_or_check !== "clear") {
