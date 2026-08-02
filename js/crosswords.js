@@ -61,6 +61,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
       save_game_limit: 10,
       notepad_name: 'Notes',
       downsOnly: false,
+      kelsey: false,
     };
 
     // constants
@@ -2200,7 +2201,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         if (!letter) {
           return;
         }
-        letter.textContent = cell.letter;
+        letter.textContent = this.config.kelsey ? (cell.letter || "").toLowerCase() : cell.letter;
         letter.setAttribute('fill', this.cellFontColor(cell));
       }
 
