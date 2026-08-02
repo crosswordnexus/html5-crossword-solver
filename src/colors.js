@@ -1,5 +1,11 @@
 /**
- * Helper to update CSS custom properties for crossword colors/themes.
+ * @file colors.js
+ * @description Manages crossword UI colors, themes, and CSS custom properties.
+ * 
+ * What belongs here:
+ * - Theme update functions (like updateCSS) that sync JavaScript state to CSS variables.
+ * - Dynamic color computation (like getShadeHighlightColor) based on user selections.
+ * - HSV, RGB, and Hex color utility helper wrappers specifically for styling the UI.
  */
 export function getShadeHighlightColor(cellColor, colorWord, colorNone) {
   if (cellColor && cellColor !== colorNone) {

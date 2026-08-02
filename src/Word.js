@@ -1,3 +1,12 @@
+/**
+ * @file Word.js
+ * @description Defines the Word class representing a single entry (word) in the crossword grid.
+ * 
+ * What belongs here:
+ * - Definition and methods of the Word class.
+ * - Logic for parsing cell ranges and locating/indexing cells belonging to the word.
+ * - Word-level correctness validation and navigation shifts (e.g. next/previous cell in word).
+ */
 import { isCorrect } from './utils.js';
 
 export class Word {

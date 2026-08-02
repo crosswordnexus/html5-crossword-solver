@@ -1,3 +1,12 @@
+/**
+ * @file input.js
+ * @description Manages keyboard event handling and grid navigation inputs.
+ * 
+ * What belongs here:
+ * - Keyboard listeners and hooks (like keyPressed).
+ * - Action mapping for specific keys (Arrow keys, Space, Backspace, Tab, Enter, Delete, Escape).
+ * - Diagramless grid adjustments triggered by keyboard controls.
+ */
 import { IS_MOBILE, SKIP_UP, SKIP_DOWN, SKIP_LEFT, SKIP_RIGHT } from './constants.js';
 
 export function keyPressed(e) {

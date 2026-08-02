@@ -1,3 +1,12 @@
+/**
+ * @file CluesGroup.js
+ * @description Defines the CluesGroup class which represents a collection of clues (e.g. "Across" or "Down").
+ * 
+ * What belongs here:
+ * - Definition and methods of the CluesGroup class.
+ * - Logic for searching, matching, and shifting between words inside a specific clue group.
+ * - UI updates specifically targeting the clue list rendering container.
+ */
 export class CluesGroup {
   constructor(crossword, data) {
     this.id = '';

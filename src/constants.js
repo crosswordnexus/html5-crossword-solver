@@ -1,3 +1,13 @@
+/**
+ * @file constants.js
+ * @description Central registry of configuration constants, shared settings, and environment detection.
+ * 
+ * What belongs here:
+ * - Shared configuration arrays (like CONFIGURABLE_SETTINGS).
+ * - Key/Value storage namespaces and localStorage suffixes.
+ * - Direction constants (e.g. SKIP_UP, SKIP_DOWN).
+ * - Immutable puzzle constants (e.g. file formats, size boundaries).
+ */
 // Device detection
 export const IS_MOBILE = CrosswordShared.isMobileDevice();
 
