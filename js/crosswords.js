@@ -20,6 +20,8 @@ const CONFIGURABLE_SETTINGS = [
   "confetti_enabled", "notepad_name",
 ];
 
+console.log('Logging from Crosswords.js');
+
 // Since DarkReader is an external library, make sure it exists
 // (Removing DarkReader dependency)
 
@@ -2445,6 +2447,35 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         }
       }
 
+      openRebusModal() {
+        const content = `<input type="text" id="rebus_input" style="font-size: 1.2em; width: 100%; box-sizing: border-box; padding: 5px; margin-top: 10px; text-transform: uppercase;" autocomplete="off" spellcheck="false" maxlength="10">`;
+        this.createModalBox('Rebus entry', content, 'Enter');
+        const inputEl = document.getElementById('rebus_input');
+        const modalEl = this.root.find('.cw-modal').get(0);
+        
+        const submitRebus = () => {
+          modalEl.style.display = 'none';
+          this.hiddenInputChanged(inputEl.value);
+          if (!IS_MOBILE) this.hidden_input.focus();
+        };
+
+        document.getElementById('modal-button').onclick = submitRebus;
+
+        inputEl.onkeydown = (e) => {
+          e.stopPropagation(); // Prevent bubbling up to document and triggering grid keystrokes
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            submitRebus();
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            modalEl.style.display = 'none';
+            if (!IS_MOBILE) this.hidden_input.focus();
+          }
+        };
+
+        setTimeout(() => inputEl.focus(), 10);
+      }
+
       keyPressed(e) {
         if (this.settings_open) {
           return;
@@ -2546,17 +2577,21 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
               this.toggleTimer();
             } else {
               if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
+                e.preventDefault();
+                e.stopPropagation();
                 this.hidden_input.val('');
-                var rebus_entry = prompt('Rebus entry', '');
-                this.hiddenInputChanged(rebus_entry);
+                this.openRebusModal();
               }
+              prevent = true;
             }
             break;
           case 45: // insert -- same as escape
             if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
-              var rebus_entry = prompt('Rebus entry', '');
-              this.hiddenInputChanged(rebus_entry);
+              e.preventDefault();
+              e.stopPropagation();
+              this.openRebusModal();
             }
+            prevent = true;
             break;
           case 46: // delete
             if (this.selected_cell && !this.selected_cell.fixed) {
