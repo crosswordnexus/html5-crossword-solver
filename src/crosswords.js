@@ -259,6 +259,11 @@ import {
     };
 
     class CrossWord {
+      /**
+       * Creates an instance of the CrossWord solver.
+       * @param {HTMLElement|string} parent - The DOM element or selector to append the solver to.
+       * @param {Object} [user_config] - User customization settings overriding default configuration.
+       */
       constructor(parent, user_config) {
         this.parent = parent;
         this.config = {};
@@ -362,10 +367,19 @@ import {
         this.init();
       }
 
+      /**
+       * Generates alternative clue lists when clues are stored in non-standard mappings.
+       * @param {Object} puzzle - The raw puzzle JSON structure.
+       * @param {Object} [clue_mapping] - Configured clue mapping properties.
+       * @returns {Array} List of processed clue groups.
+       */
       make_fake_clues(puzzle, clue_mapping = {}) {
         return make_fake_clues.call(this, puzzle, clue_mapping);
       }
 
+      /**
+       * Initializes or resets the solver variables, visual grids, and structures.
+       */
       init() {
         var parsePUZZLE_callback = $.proxy(this.parsePuzzle, this);
         var error_callback = $.proxy(this.error, this);
@@ -553,6 +567,10 @@ import {
         const svg = document.getElementById('cw-puzzle-grid');
       }
 
+      /**
+       * Triggers a fallback alert dialog for solver error messages.
+       * @param {string} message - The error description to show.
+       */
       error(message) {
         alert(message);
       }
@@ -566,8 +584,13 @@ import {
         setTimerSeconds(this.xw_timer_seconds || 0);
       }
 
-      // Return the next non-block, in-bounds cell from a start cell in a given direction.
-      // dir: 'across' (x+) or 'down' (y+). step = +1 (forward) or -1 (backward)
+      /**
+       * Return the next non-block, in-bounds cell from a start cell in a given direction.
+       * @param {Object} fromCell - Starting grid cell model.
+       * @param {string} [dir] - Direction ('across' or 'down').
+       * @param {number} [step] - Offset stepping factor (+1 or -1).
+       * @returns {Object|null}
+       */
       nextDiagramlessCell(fromCell, dir = this.diagramless_dir, step = 1) {
         if (!fromCell) return null;
         let {
@@ -589,6 +612,10 @@ import {
         return null;
       }
 
+      /**
+       * Sets the active editing direction for diagramless solves.
+       * @param {string} dir - The target direction ('across' or 'down').
+       */
       setDiagramlessDir(dir) {
         if (dir !== this.diagramless_dir) {
           this.diagramless_dir = dir;
@@ -596,10 +623,16 @@ import {
         }
       }
 
+      /**
+       * Toggles the diagramless editing direction between 'across' and 'down'.
+       */
       toggleDiagramlessDir() {
         this.setDiagramlessDir((this.diagramless_dir === 'across') ? 'down' : 'across');
       }
 
+      /**
+       * Orchestrates post-load UI initialization, linking elements, fallback selections, and layout passes.
+       */
       completeLoad() {
         $('.cw-header').html(`
           <span class="cw-title">${escape(this.title)}</span>
@@ -750,6 +783,9 @@ import {
 
       } // end completeLoad
 
+      /**
+       * Adjusts clue sidebar flex properties depending on available column width.
+       */
       updateClueLayout() {
         /** Some JS magic to deal with weird numbers of clue lists **/
         const holder = this.clues_holder ? this.clues_holder.get(0) : null;
@@ -774,17 +810,26 @@ import {
         // console.log(`→ avgWidth=${avgWidth.toFixed(1)}, layout=${useColumn ? 'column' : 'row'}`);
       }
 
+      /**
+       * Tears down DOM structures and removes all associated event listeners.
+       */
       remove() {
         this.removeListeners();
         this.root.remove();
       }
 
+      /**
+       * Detaches global window resize and click listener hooks.
+       */
       removeGlobalListeners() {
         $(window).off('click', this.handleClickWindow);
         $(window).off('resize', this.windowResized);
         window.removeEventListener('resize', this.updateClueLayout);
       }
 
+      /**
+       * Detaches all elements' delegates, keystroke handlers, and menu action bindings.
+       */
       removeListeners() {
         this.removeGlobalListeners();
         this.root.undelegate();
@@ -1208,6 +1253,11 @@ import {
         adjustChevron.call(this);
       }
 
+      /**
+       * Determines the fill color for a grid cell based on its state (selection, shading, blocks).
+       * @param {Object} cell - The cell model to color.
+       * @returns {string} Color hex or CSS variable representation.
+       */
       cellFillColor(cell) {
         if (cell.type === 'block') {
           return cell.color || 'var(--grid-block-color)';
@@ -1225,6 +1275,11 @@ import {
         }
       }
 
+      /**
+       * Determines the text/font color of a grid cell to maintain readable contrast.
+       * @param {Object} cell - The cell model.
+       * @returns {string} Contrast color (hex or CSS var).
+       */
       cellFontColor(cell) {
         const fillColor = this.cellFillColor(cell);
         if (cell.image) {
@@ -1252,6 +1307,9 @@ import {
         }
       }
 
+      /**
+       * Performs recalculation of grid numbers when blocks are dynamically altered (diagramless mode).
+       */
       renumberGrid() {
         let number = 1;
         const width = this.grid_width;
@@ -1370,6 +1428,9 @@ import {
         keyPressed.call(this, e);
       }
 
+      /**
+       * Deletes the letter value of the currently selected cell and moves cursor backwards.
+       */
       backspace() {
         if (this.selected_cell && !this.selected_cell.fixed) {
           this.updateCell(this.selected_cell, {
@@ -1394,6 +1455,9 @@ import {
         }
       }
 
+      /**
+       * Replicates inputted letter across other cells bound by identical numbers (if autofill config is enabled).
+       */
       autofill() {
         this.saveGame(); // keep saving
 
