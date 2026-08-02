@@ -80,17 +80,6 @@
                     console.warn('WARNING: Dashboard connection lost. Score reporting will fail.');
                 }
             }
-
-            // Disable autostart of timer if already submitted
-            if (params.puzzle_id) {
-                try {
-                    if (localStorage.getItem('tournament_submitted_' + params.puzzle_id)) {
-                        params.timer_autostart = false;
-                    }
-                } catch (e) {
-                    console.error(e);
-                }
-            }
             
             /**
              * The onSolved callback is triggered by the core engine when the grid is 100% correct.
@@ -255,7 +244,12 @@
                 const xw = window.gCrossword;
                 if (xw && xw.root) {
                     if (params.puzzle_id && localStorage.getItem('tournament_submitted_' + params.puzzle_id)) {
+                        xw.config.timer_autostart = false;
                         freezeBoard(xw);
+                        
+                        // Re-run freeze in case asynchronous load finishes later
+                        setTimeout(() => freezeBoard(xw), 100);
+                        setTimeout(() => freezeBoard(xw), 300);
                     }
                 } else {
                     setTimeout(check, 50);
