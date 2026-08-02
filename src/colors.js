@@ -1,7 +1,7 @@
 /**
  * @file colors.js
  * @description Manages crossword UI colors, themes, and CSS custom properties.
- * 
+ *
  * What belongs here:
  * - Theme update functions (like updateCSS) that sync JavaScript state to CSS variables.
  * - Dynamic color computation (like getShadeHighlightColor) based on user selections.
@@ -80,7 +80,8 @@ export function updateCSS(word, selected) {
   setContrastText("--clue-active-text-color", clueActiveColor);
 
   // Passive clues (gray)
-  const cluePassiveColor = Color.applyHsvTransform(wordColor, { ks: 0, kv: 0.8 });
+  const isWordColorDark = Color.getBrightness(wordColor) < 128;
+  const cluePassiveColor = Color.applyHsvTransform(wordColor, { ks: 0, kv: isWordColorDark ? 1.05 : 0.8 });
   root.style.setProperty("--clue-passive-color", cluePassiveColor);
   setContrastText("--clue-passive-text-color", cluePassiveColor);
 
