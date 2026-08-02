@@ -2307,6 +2307,190 @@
     }
     this.setActiveCell(new_cell);
   }
+  function removeGlobalListeners() {
+    if (this._boundHandleClickWindow) {
+      $(window).off("click", this._boundHandleClickWindow);
+    }
+    $(window).off("resize", this.windowResized);
+    window.removeEventListener("resize", this.updateClueLayout);
+  }
+  function removeListeners() {
+    this.removeGlobalListeners();
+    this.root.undelegate();
+    this.clues_holder.undelegate("div.cw-clues-items div.cw-clue", "click");
+    this.clues_holder.undelegate("div.cw-clues-items span", "click");
+    this.svg.off("mousemove click");
+    this.reveal_letter.off("click");
+    this.reveal_word.off("click");
+    this.reveal_puzzle.off("click");
+    this.check_letter.off("click");
+    this.check_word.off("click");
+    this.check_puzzle.off("click");
+    this.print_btn.off("click");
+    this.clear_btn.off("click");
+    this.load_btn.off("click");
+    this.save_btn.off("click");
+    this.download_btn.off("click");
+    this.timer_button.off("click");
+    this.settings_btn.off("click");
+    this.tournament_submit_btn.off("click");
+    this.info_btn.off("click");
+    this.help_btn.off("click");
+    this.notepad_btn.off("click");
+    this.notepad_icon.off("click");
+    this.hidden_input.off("input");
+    this.hidden_input.off("keydown");
+    $(document).off("keydown");
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+      this.saveTimeout = null;
+    }
+    clearTimer();
+  }
+  function addListeners() {
+    this.removeListeners();
+    this._boundHandleClickWindow = handleClickWindow.bind(this);
+    this._boundHandleClickOpenMenu = handleClickOpenMenu.bind(this);
+    $(window).on("click", this._boundHandleClickWindow);
+    $(window).on("resize", this.windowResized);
+    this.root.delegate(
+      ".cw-menu-container > button",
+      "click",
+      this._boundHandleClickOpenMenu
+    );
+    this.clues_holder.delegate(
+      "div.cw-clues-items div.cw-clue",
+      "click",
+      (e) => {
+        const sel = window.getSelection && window.getSelection();
+        if (sel && sel.toString().trim().length > 0) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return;
+        }
+        this.clueClicked(e);
+      }
+    );
+    this.svg.on("click", $.proxy(this.mouseClicked, this));
+    this.reveal_letter.on(
+      "click",
+      $.proxy(this.check_reveal, this, "letter", "reveal")
+    );
+    this.reveal_word.on(
+      "click",
+      $.proxy(this.check_reveal, this, "word", "reveal")
+    );
+    this.reveal_puzzle.on(
+      "click",
+      $.proxy(this.check_reveal, this, "puzzle", "reveal")
+    );
+    this.check_letter.on(
+      "click",
+      $.proxy(this.check_reveal, this, "letter", "check")
+    );
+    this.check_word.on(
+      "click",
+      $.proxy(this.check_reveal, this, "word", "check")
+    );
+    this.check_puzzle.on(
+      "click",
+      $.proxy(this.check_reveal, this, "puzzle", "check")
+    );
+    this.print_btn.on("click", (e) => this.printPuzzle(e));
+    this.clear_btn.on(
+      "click",
+      $.proxy(this.check_reveal, this, "puzzle", "clear")
+    );
+    this.save_btn.on("click", $.proxy(this.saveAsIpuz, this));
+    if (this.config.tournament_mode) {
+      this.print_btn.hide();
+      this.clear_btn.hide();
+      this.save_btn.hide();
+    }
+    this.load_btn.on("click", () => {
+      this.init();
+      this.file_input.val("");
+      this.file_input.click();
+    });
+    this.timer_button.on("click", $.proxy(this.toggleTimer, this));
+    this.settings_btn.on("click", $.proxy(this.openSettings, this));
+    this.tournament_submit_btn.on("click", () => {
+      if (this.config.tournament_mode && this.config.onSubmitted) {
+        this.config.onSubmitted(this);
+      }
+    });
+    this.info_btn.on("click", $.proxy(this.showInfo, this));
+    this.help_btn.on("click", $.proxy(this.showHelp, this));
+    this.root.find(".cw-button-prev-clue").on("click", () => {
+      this.moveToNextWord(true, this.config.tab_key === "tab_skip");
+      this.hidden_input.focus();
+    });
+    this.root.find(".cw-button-next-clue").on("click", () => {
+      this.moveToNextWord(false, this.config.tab_key === "tab_skip");
+      this.hidden_input.focus();
+    });
+    if (this.notepad) {
+      this.notepad_icon.on("click", $.proxy(this.showNotepad, this));
+      this.notepad_btn.show();
+    } else {
+      this.notepad_icon.hide();
+    }
+    if (this.jsxw.metadata.intro) {
+      setTimeout(() => this.showNotepad(), 300);
+    }
+    this.notepad_btn.on("click", $.proxy(this.showNotepad, this));
+    $(document).off("keydown").on("keydown", $.proxy(this.keyPressed, this));
+    this.svg.on("click", (e) => {
+      if (e.target.tagName === "rect") {
+        const x = parseInt(e.target.getAttribute("data-x"));
+        const y = parseInt(e.target.getAttribute("data-y"));
+        const clickedCell = this.getCell(x, y);
+        if (this.diagramless_mode) {
+          return;
+        }
+        if (!clickedCell.empty) {
+          const groups = this.clueGroups || [];
+          const n = groups.length;
+          if (!n) return;
+          let newActiveWord = null;
+          let newGroupIndex = this.activeClueGroupIndex;
+          const currentGroup = groups[this.activeClueGroupIndex];
+          newActiveWord = currentGroup.getMatchingWord(x, y, true);
+          if (!newActiveWord) {
+            for (let offset = 1; offset < n; offset++) {
+              const i = (this.activeClueGroupIndex + offset) % n;
+              const group = groups[i];
+              const match = group.getMatchingWord(x, y, true);
+              if (match) {
+                newActiveWord = match;
+                newGroupIndex = i;
+                break;
+              }
+            }
+          }
+          if (newActiveWord) {
+            this.activeClueGroupIndex = newGroupIndex;
+            this.setActiveWord(newActiveWord);
+            this.setActiveCell(clickedCell);
+          }
+        }
+      }
+    });
+  }
+  function handleClickWindow(event) {
+    this.root.find(".cw-menu").removeClass("open");
+  }
+  function handleClickOpenMenu(event) {
+    const menuContainer = $(event.target).closest(".cw-menu-container");
+    const menu = menuContainer.find(".cw-menu");
+    const isAlreadyOpen = menu.hasClass("open");
+    this.root.find(".cw-menu").removeClass("open");
+    if (!isAlreadyOpen) {
+      setTimeout(() => {
+        menu.addClass("open");
+      });
+    }
+  }
   (function(global, factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
       module.exports = factory(global);
@@ -2472,7 +2656,6 @@
           this.timer_running = false;
           this.diagramless_dir = "across";
           this.has_reveal = true;
-          this.handleClickWindow = this.handleClickWindow.bind(this);
           this.windowResized = this.windowResized.bind(this);
           this.updateClueLayout = this.updateClueLayout.bind(this);
           this.init();
@@ -2824,187 +3007,13 @@
          * Detaches global window resize and click listener hooks.
          */
         removeGlobalListeners() {
-          $(window2).off("click", this.handleClickWindow);
-          $(window2).off("resize", this.windowResized);
-          window2.removeEventListener("resize", this.updateClueLayout);
+          removeGlobalListeners.call(this);
         }
-        /**
-         * Detaches all elements' delegates, keystroke handlers, and menu action bindings.
-         */
         removeListeners() {
-          this.removeGlobalListeners();
-          this.root.undelegate();
-          this.clues_holder.undelegate("div.cw-clues-items div.cw-clue", "click");
-          this.clues_holder.undelegate("div.cw-clues-items span", "click");
-          this.svg.off("mousemove click");
-          this.reveal_letter.off("click");
-          this.reveal_word.off("click");
-          this.reveal_puzzle.off("click");
-          this.check_letter.off("click");
-          this.check_word.off("click");
-          this.check_puzzle.off("click");
-          this.print_btn.off("click");
-          this.clear_btn.off("click");
-          this.load_btn.off("click");
-          this.save_btn.off("click");
-          this.download_btn.off("click");
-          this.timer_button.off("click");
-          this.settings_btn.off("click");
-          this.tournament_submit_btn.off("click");
-          this.info_btn.off("click");
-          this.help_btn.off("click");
-          this.notepad_btn.off("click");
-          this.notepad_icon.off("click");
-          this.hidden_input.off("input");
-          this.hidden_input.off("keydown");
-          $(document).off("keydown");
-          if (this.saveTimeout) {
-            clearTimeout(this.saveTimeout);
-            this.saveTimeout = null;
-          }
-          clearTimer();
+          removeListeners.call(this);
         }
         addListeners() {
-          this.removeListeners();
-          $(window2).on("click", this.handleClickWindow);
-          $(window2).on("resize", this.windowResized);
-          this.root.delegate(
-            ".cw-menu-container > button",
-            "click",
-            $.proxy(this.handleClickOpenMenu, this)
-          );
-          this.clues_holder.delegate(
-            "div.cw-clues-items div.cw-clue",
-            "click",
-            (e) => {
-              const sel = window2.getSelection && window2.getSelection();
-              if (sel && sel.toString().trim().length > 0) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                return;
-              }
-              this.clueClicked(e);
-            }
-          );
-          this.svg.on("click", $.proxy(this.mouseClicked, this));
-          this.reveal_letter.on(
-            "click",
-            $.proxy(this.check_reveal, this, "letter", "reveal")
-          );
-          this.reveal_word.on(
-            "click",
-            $.proxy(this.check_reveal, this, "word", "reveal")
-          );
-          this.reveal_puzzle.on(
-            "click",
-            $.proxy(this.check_reveal, this, "puzzle", "reveal")
-          );
-          this.check_letter.on(
-            "click",
-            $.proxy(this.check_reveal, this, "letter", "check")
-          );
-          this.check_word.on(
-            "click",
-            $.proxy(this.check_reveal, this, "word", "check")
-          );
-          this.check_puzzle.on(
-            "click",
-            $.proxy(this.check_reveal, this, "puzzle", "check")
-          );
-          this.print_btn.on("click", (e) => this.printPuzzle(e));
-          this.clear_btn.on(
-            "click",
-            $.proxy(this.check_reveal, this, "puzzle", "clear")
-          );
-          this.save_btn.on("click", $.proxy(this.saveAsIpuz, this));
-          if (this.config.tournament_mode) {
-            this.print_btn.hide();
-            this.clear_btn.hide();
-            this.save_btn.hide();
-          }
-          this.load_btn.on("click", () => {
-            this.init();
-            this.file_input.val("");
-            this.file_input.click();
-          });
-          this.timer_button.on("click", $.proxy(this.toggleTimer, this));
-          this.settings_btn.on("click", $.proxy(this.openSettings, this));
-          this.tournament_submit_btn.on("click", () => {
-            if (this.config.tournament_mode && this.config.onSubmitted) {
-              this.config.onSubmitted(this);
-            }
-          });
-          this.info_btn.on("click", $.proxy(this.showInfo, this));
-          this.help_btn.on("click", $.proxy(this.showHelp, this));
-          this.root.find(".cw-button-prev-clue").on("click", () => {
-            this.moveToNextWord(true, this.config.tab_key === "tab_skip");
-            this.hidden_input.focus();
-          });
-          this.root.find(".cw-button-next-clue").on("click", () => {
-            this.moveToNextWord(false, this.config.tab_key === "tab_skip");
-            this.hidden_input.focus();
-          });
-          if (this.notepad) {
-            this.notepad_icon.on("click", $.proxy(this.showNotepad, this));
-            this.notepad_btn.show();
-          } else {
-            this.notepad_icon.hide();
-          }
-          if (this.jsxw.metadata.intro) {
-            setTimeout(() => this.showNotepad(), 300);
-          }
-          this.notepad_btn.on("click", $.proxy(this.showNotepad, this));
-          $(document).off("keydown").on("keydown", $.proxy(this.keyPressed, this));
-          this.svg.on("click", (e) => {
-            if (e.target.tagName === "rect") {
-              const x = parseInt(e.target.getAttribute("data-x"));
-              const y = parseInt(e.target.getAttribute("data-y"));
-              const clickedCell = this.getCell(x, y);
-              if (this.diagramless_mode) {
-                return;
-              }
-              if (!clickedCell.empty) {
-                const groups = this.clueGroups || [];
-                const n = groups.length;
-                if (!n) return;
-                let newActiveWord = null;
-                let newGroupIndex = this.activeClueGroupIndex;
-                const currentGroup = groups[this.activeClueGroupIndex];
-                newActiveWord = currentGroup.getMatchingWord(x, y, true);
-                if (!newActiveWord) {
-                  for (let offset = 1; offset < n; offset++) {
-                    const i = (this.activeClueGroupIndex + offset) % n;
-                    const group = groups[i];
-                    const match = group.getMatchingWord(x, y, true);
-                    if (match) {
-                      newActiveWord = match;
-                      newGroupIndex = i;
-                      break;
-                    }
-                  }
-                }
-                if (newActiveWord) {
-                  this.activeClueGroupIndex = newGroupIndex;
-                  this.setActiveWord(newActiveWord);
-                  this.setActiveCell(clickedCell);
-                }
-              }
-            }
-          });
-        }
-        handleClickWindow(event) {
-          this.root.find(".cw-menu").removeClass("open");
-        }
-        handleClickOpenMenu(event) {
-          const menuContainer = $(event.target).closest(".cw-menu-container");
-          const menu = menuContainer.find(".cw-menu");
-          const isAlreadyOpen = menu.hasClass("open");
-          this.root.find(".cw-menu").removeClass("open");
-          if (!isAlreadyOpen) {
-            setTimeout(() => {
-              menu.addClass("open");
-            });
-          }
+          addListeners.call(this);
         }
         // Create a generic modal box with content
         createModalBox(title, content, button_text = "Close") {
