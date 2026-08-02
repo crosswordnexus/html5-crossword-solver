@@ -518,8 +518,8 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           root.style.setProperty("--clue-active-color", clueActiveColor);
           setContrastText("--clue-active-text-color", clueActiveColor);
 
-          // Passive clues (same as grid highlight usually)
-          const cluePassiveColor = Color.applyHsvTransform(wordColor, { dh: -2.64, ks: 0.536, kv: 0.976 });
+          // Passive clues (gray)
+          const cluePassiveColor = Color.applyHsvTransform(wordColor, { ks: 0, kv: 1.05 });
           root.style.setProperty("--clue-passive-color", cluePassiveColor);
           setContrastText("--clue-passive-text-color", cluePassiveColor);
 
@@ -4058,7 +4058,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           this.timer_running = true;
           this.timer_button.removeClass('paused');
           this.timer_button.addClass('running');
-          
+
           const timer_btn = this.timer_button;
           const add = () => {
             xw_timer_seconds = xw_timer_seconds + 1;
@@ -4083,7 +4083,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
 
             xw_timer = setTimeout(add, 1000);
           };
-          
+
           xw_timer = setTimeout(add, 1000);
         }
       }
@@ -4096,7 +4096,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
           this.timer_running = false;
           // Final sync of the time
           this.xw_timer_seconds = xw_timer_seconds;
-          
+
           if (shouldFocus && !IS_MOBILE) {
             this.hidden_input.focus();
           }
