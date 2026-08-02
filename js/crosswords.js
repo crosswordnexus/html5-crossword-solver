@@ -53,7 +53,7 @@
     }
     root.style.setProperty("--clue-active-color", clueActiveColor);
     setContrastText("--clue-active-text-color", clueActiveColor);
-    const cluePassiveColor = Color.applyHsvTransform(wordColor, { ks: 0, kv: 1.05 });
+    const cluePassiveColor = Color.applyHsvTransform(wordColor, { ks: 0, kv: 0.8 });
     root.style.setProperty("--clue-passive-color", cluePassiveColor);
     setContrastText("--clue-passive-text-color", cluePassiveColor);
     const topTextBgColor = Color.applyHsvTransform(wordColor, { dh: -8.62, ks: 0.157, kv: 1.004 });
