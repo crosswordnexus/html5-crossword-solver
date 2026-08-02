@@ -961,6 +961,347 @@
       this.svgElements.chevron.setAttribute("d", d);
     }
   }
+  const ERR_FILE_LOAD = "Error loading file";
+  function loadFileFromServer(path, type) {
+    const deferred = $.Deferred();
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", path);
+    xhr.responseType = "arraybuffer";
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        const data = new Uint8Array(xhr.response);
+        deferred.resolve(data);
+      } else {
+        deferred.reject(ERR_FILE_LOAD);
+      }
+    };
+    xhr.onerror = function() {
+      deferred.reject(ERR_FILE_LOAD);
+    };
+    xhr.send();
+    return deferred;
+  }
+  function loadFromFile(file, type, deferred) {
+    const reader = new FileReader();
+    deferred = deferred || $.Deferred();
+    reader.onload = function(event) {
+      const data = new Uint8Array(event.target.result);
+      deferred.resolve(data);
+    };
+    reader.readAsArrayBuffer(file);
+    return deferred;
+  }
+  function make_fake_clues(puzzle, clue_mapping = {}) {
+    let across_group = new CluesGroup(this, {
+      id: "clues_0",
+      title: "Across",
+      clues: [],
+      words_ids: [],
+      fake: true
+    });
+    let down_group = new CluesGroup(this, {
+      id: "clues_1",
+      title: "Down",
+      clues: [],
+      words_ids: [],
+      fake: true
+    });
+    const clueMapping = {};
+    var clueGroups;
+    if (!this.realwords) {
+      const entry_mapping = puzzle.get_entry_mapping();
+      const thisGrid = JSCrossword.xwGrid(puzzle.cells);
+      const acrossSet = new Set(
+        Object.values(thisGrid.acrossEntries()).map((entry) => entry.word)
+      );
+      Object.keys(entry_mapping).forEach((id) => {
+        const entry = entry_mapping[id];
+        const clue = {
+          word: id,
+          number: id,
+          text: "--"
+        };
+        clueMapping[id] = clue;
+        if (acrossSet.has(entry)) {
+          across_group.clues.push(clue);
+          across_group.words_ids.push(id);
+        } else {
+          down_group.clues.push(clue);
+          down_group.words_ids.push(id);
+        }
+      });
+      clueGroups = [across_group, down_group];
+    } else {
+      clueGroups = this.clueGroups;
+    }
+    return {
+      clueGroups,
+      clue_mapping: clueMapping
+    };
+  }
+  function normalizeClueTitle(rawTitle) {
+    if (!rawTitle) return "";
+    const title = rawTitle.trim().toUpperCase();
+    if (title === "ACROSS") return "Across";
+    if (title === "DOWN") return "Down";
+    return rawTitle;
+  }
+  function parsePuzzle(data) {
+    var _a;
+    var puzzle;
+    if (data instanceof JSCrossword) {
+      puzzle = data;
+    } else {
+      puzzle = JSCrossword.fromData(new Uint8Array(data), {
+        lockedHandling: "mask"
+      });
+    }
+    puzzle.kind = puzzle.metadata.kind;
+    this.jsxw = puzzle;
+    window.ipuz = this.jsxw.toIpuzString();
+    this.diagramless_mode = false;
+    if (puzzle.metadata && puzzle.metadata.crossword_type) {
+      if (puzzle.metadata.crossword_type.toLowerCase() === "diagramless") {
+        this.diagramless_mode = true;
+        console.log("Diagramless detected: from metadata.crossword_type");
+      }
+    }
+    if (this.diagramless_mode) {
+      for (let i2 = 0; i2 < puzzle.cells.length; i2++) {
+        const cell = puzzle.cells[i2];
+        cell["top-bar"] = false;
+        cell["bottom-bar"] = false;
+        cell["left-bar"] = false;
+        cell["right-bar"] = false;
+        const sol = (_a = cell.solution) == null ? void 0 : _a.trim().toUpperCase();
+        if (!sol || sol === "#" || sol === "." || sol === "-") {
+          cell.solution = "#";
+        }
+        if (cell.solution === "#") {
+          cell.type = "block";
+          cell.letter = "";
+        } else {
+          cell.type = null;
+          cell.letter = "";
+        }
+        cell.number = null;
+      }
+    }
+    const simpleHash = (t) => {
+      let e = 0;
+      for (let r = 0; r < t.length; r++) {
+        e = (e << 5) - e + t.charCodeAt(r), e &= e;
+      }
+      return new Uint32Array([e])[0].toString(36);
+    };
+    const myHash = simpleHash(JSON.stringify(puzzle));
+    this.savegame_name = STORAGE_KEY + "_" + myHash;
+    localStorage.setItem(this.savegame_name + "_lastmodified", Date.now());
+    this.cleanupSaves();
+    const jsxw2_cells = this.loadGame();
+    if (jsxw2_cells) {
+      console.log("Loading puzzle from localStorage");
+      var noteObj = JSON.parse(localStorage.getItem(this.savegame_name + "_notes"));
+      if (noteObj && noteObj.length > 0) {
+        for (var entry of noteObj) {
+          this.notes.set(entry.key, entry.value);
+        }
+      }
+      const savedTimer = localStorage.getItem(this.savegame_name + "_timer");
+      if (savedTimer !== null) {
+        this.xw_timer_seconds = parseInt(savedTimer, 10) || 0;
+        console.log("Restored timer from localStorage:", this.xw_timer_seconds);
+      }
+      puzzle.cells = jsxw2_cells;
+    }
+    const loadedFromStorage = Boolean(jsxw2_cells);
+    puzzle.cells.forEach((c) => {
+      if (!c.top_right_number && c["top_right_number"]) {
+        c.top_right_number = c["top_right_number"];
+      }
+    });
+    this.title = puzzle.metadata.title || "";
+    this.author = puzzle.metadata.author || "";
+    this.copyright = puzzle.metadata.copyright || "";
+    this.crossword_type = puzzle.metadata.crossword_type;
+    this.fakeclues = puzzle.metadata.fakeclues || false;
+    this.realwords = puzzle.metadata.realwords || false;
+    this.is_autofill = puzzle.metadata.autofill || false;
+    this.notepad = puzzle.metadata.description || "";
+    this.grid_width = puzzle.metadata.width;
+    this.grid_height = puzzle.metadata.height;
+    this.completion_message = puzzle.metadata.completion_message || "Puzzle solved!";
+    if (this.title) {
+      document.title = this.title + " | Crossword Nexus Solver";
+    }
+    if (this.crossword_type == "acrostic" || this.crossword_type == "coded") {
+      this.is_autofill = true;
+    }
+    const allGroupsFake = this.fakeclues || (puzzle.clues || []).every((g) => g.fake);
+    if (allGroupsFake || this.crossword_type === "diagramless" || this.crossword_type === "coded") {
+      $("div.cw-top-text-wrapper").css({
+        display: "none"
+      });
+      $("#cw-puzzle-grid").css("margin-top", "3px");
+    }
+    if (this.has_reveal === false || puzzle.metadata.has_reveal === false) {
+      this.has_reveal = false;
+      $(".cw-reveal").css({
+        display: "none"
+      });
+    }
+    if (this.has_check === false || puzzle.metadata.has_check === false) {
+      this.has_check = false;
+      $(".cw-check").css({
+        display: "none"
+      });
+    }
+    this.cells = {};
+    this.number_to_cells = {};
+    for (var i = 0; i < puzzle.cells.length; i++) {
+      const rawCell = puzzle.cells[i];
+      const c = {
+        x: rawCell.x + 1,
+        y: rawCell.y + 1,
+        solution: rawCell.solution,
+        letter: rawCell.letter || "",
+        type: rawCell.type || null,
+        number: rawCell.number || null,
+        bar: {
+          top: rawCell["top-bar"] === true,
+          bottom: rawCell["bottom-bar"] === true,
+          left: rawCell["left-bar"] === true,
+          right: rawCell["right-bar"] === true
+        },
+        color: rawCell["background-color"] || null,
+        shape: rawCell["background-shape"] || null,
+        image: rawCell["image"] || null,
+        top_right_number: rawCell.top_right_number,
+        fixed: rawCell.fixed === true
+        // Preserve fixed flag from saved data
+      };
+      c.shade_highlight_color = getShadeHighlightColor(c.color, this.config.color_word, this.config.color_none);
+      if (rawCell.clue) {
+        c.color = this.config.background_color_clue;
+      }
+      if (!loadedFromStorage && !c.fixed) {
+        if (c.letter && !/[A-Za-z]/.test(c.letter)) {
+          c.fixed = true;
+        }
+        if (/^[A-Z]$/.test(c.letter) && c.top_right_number && c.top_right_number === c.letter) {
+          c.fixed = true;
+        }
+        if (/^[A-Z]$/.test(c.letter) && !c.top_right_number && c.solution === c.letter) {
+          c.fixed = true;
+        }
+      }
+      if (this.diagramless_mode) {
+        c.type = null;
+        c.empty = false;
+        c.clue = false;
+        c.color = null;
+        c.letter = "";
+        c.number = null;
+      } else {
+        c.empty = c.type === "block" || c.type === "void" || c.type === "clue";
+        c.clue = c.type === "clue";
+      }
+      if (!this.cells[c.x]) {
+        this.cells[c.x] = {};
+      }
+      this.cells[c.x][c.y] = c;
+      const key = c.number || c.top_right_number;
+      if (key) {
+        if (!this.number_to_cells[key]) {
+          this.number_to_cells[key] = [];
+        }
+        this.number_to_cells[key].push(c);
+      }
+    }
+    if (this.diagramless_mode) {
+      this.renumberGrid();
+    }
+    let clueMapping = {};
+    if (this.crossword_type === "coded") {
+      var fake_clue_obj = this.make_fake_clues(puzzle);
+      this.clueGroups = fake_clue_obj.clueGroups;
+      clueMapping = fake_clue_obj.clue_mapping;
+      $("div.cw-clues-holder").css({
+        display: "none"
+      });
+      $("div.cw-top-text-wrapper").css({
+        display: "none"
+      });
+      $("div.cw-buttons-holder").css({
+        padding: "0 10px"
+      });
+    } else {
+      this.clueGroups = [];
+      const clueSets = puzzle.clues || [];
+      clueSets.forEach((clueSet, index) => {
+        const title = this.normalizeClueTitle(clueSet.title || `Clue Set ${index + 1}`);
+        const clues = clueSet.clue || [];
+        clues.forEach((clue) => {
+          if (clue.word) clueMapping[clue.word] = clue;
+        });
+        const words_ids = clues.map((c) => c.word);
+        const group = new CluesGroup(this, {
+          id: `clues_${index}`,
+          title,
+          clues,
+          words_ids,
+          fake: Boolean(clueSet.fake)
+        });
+        this.clueGroups.push(group);
+      });
+    }
+    if (this.config.downsOnly && this.clueGroups.length > 0) {
+      this.clueGroups[0].clues.forEach((clue) => {
+        clue.text = "---";
+      });
+    }
+    var num_words = puzzle.words.length;
+    var num_clues = puzzle.clues.map((x) => x.clue).flat().length;
+    if (this.fakeclues && num_words != num_clues) {
+      this.displayClueGroups = [...this.clueGroups];
+      var fake_clue_obj = this.make_fake_clues(puzzle);
+      this.clueGroups = fake_clue_obj.clueGroups;
+      clueMapping = fake_clue_obj.clue_mapping;
+    }
+    const holder = document.querySelector(".cw-clues-holder");
+    if (!holder) return;
+    holder.innerHTML = "";
+    (this.displayClueGroups || this.clueGroups).forEach((group, index) => {
+      const div = document.createElement("div");
+      div.classList.add("cw-clues");
+      if (this.config.downsOnly && index === 0) {
+        div.style.display = "none";
+      }
+      div.dataset.groupId = group.id;
+      div.innerHTML = `
+      <div class="cw-clues-title">${group.title}</div>
+      <div class="cw-clues-items"></div>
+    `;
+      holder.appendChild(div);
+    });
+    this.words = {};
+    for (var i = 0; i < puzzle.words.length; i++) {
+      const word = puzzle.words[i];
+      this.words[word.id] = new Word(this, {
+        id: word.id,
+        dir: word.dir,
+        refs_raw: null,
+        cell_ranges: word.cells.map(function(c) {
+          return {
+            x: (c[0] + 1).toString(),
+            y: (c[1] + 1).toString()
+          };
+        }),
+        clue: clueMapping[word.id]
+      });
+    }
+    this.completeLoad();
+  }
   (function(global, factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
       module.exports = factory(global);
@@ -1001,7 +1342,6 @@
         kelsey: false
       };
       var TYPE_UNDEFINED = "undefined";
-      var ERR_FILE_LOAD = "Error loading file";
       var ERR_NO_JQUERY = "jQuery not found";
       const FILE_ACCEPT_EXTENSIONS = ".puz,.xml,.jpz,.xpz,.ipuz,.cfp";
       const IS_IPAD_SAFARI_OR_FIREFOX = (function() {
@@ -1117,39 +1457,10 @@
           <div class = "cw-clues-holder"></div>
         </div>
       </div>`;
-      function loadFileFromServer(path, type) {
-        const deferred = $.Deferred();
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", path);
-        xhr.responseType = "arraybuffer";
-        xhr.onload = function() {
-          if (xhr.status === 200) {
-            const data = new Uint8Array(xhr.response);
-            deferred.resolve(data);
-          } else {
-            deferred.reject(ERR_FILE_LOAD);
-          }
-        };
-        xhr.onerror = function() {
-          deferred.reject(ERR_FILE_LOAD);
-        };
-        xhr.send();
-        return deferred;
-      }
       var isAdvancedUpload = (function() {
         var div = document.createElement("div");
         return ("draggable" in div || "ondragstart" in div && "ondrop" in div) && "FormData" in window2 && "FileReader" in window2;
       })();
-      function loadFromFile(file, type, deferred) {
-        const reader = new FileReader();
-        deferred = deferred || $.Deferred();
-        reader.onload = function(event) {
-          const data = new Uint8Array(event.target.result);
-          deferred.resolve(data);
-        };
-        reader.readAsArrayBuffer(file);
-        return deferred;
-      }
       const maxClueSizes = [
         [1080, 15],
         [1200, 17],
@@ -1289,52 +1600,7 @@
           this.init();
         }
         make_fake_clues(puzzle, clue_mapping = {}) {
-          let across_group = new CluesGroup(this, {
-            id: "clues_0",
-            title: "Across",
-            clues: [],
-            words_ids: [],
-            fake: true
-          });
-          let down_group = new CluesGroup(this, {
-            id: "clues_1",
-            title: "Down",
-            clues: [],
-            words_ids: [],
-            fake: true
-          });
-          const clueMapping = {};
-          var clueGroups;
-          if (!this.realwords) {
-            const entry_mapping = puzzle.get_entry_mapping();
-            const thisGrid = JSCrossword.xwGrid(puzzle.cells);
-            const acrossSet = new Set(
-              Object.values(thisGrid.acrossEntries()).map((entry) => entry.word)
-            );
-            Object.keys(entry_mapping).forEach((id) => {
-              const entry = entry_mapping[id];
-              const clue = {
-                word: id,
-                number: id,
-                text: "--"
-              };
-              clueMapping[id] = clue;
-              if (acrossSet.has(entry)) {
-                across_group.clues.push(clue);
-                across_group.words_ids.push(id);
-              } else {
-                down_group.clues.push(clue);
-                down_group.words_ids.push(id);
-              }
-            });
-            clueGroups = [across_group, down_group];
-          } else {
-            clueGroups = this.clueGroups;
-          }
-          return {
-            clueGroups,
-            clue_mapping: clueMapping
-          };
+          return make_fake_clues.call(this, puzzle, clue_mapping);
         }
         init() {
           var parsePUZZLE_callback = $.proxy(this.parsePuzzle, this);
@@ -1473,278 +1739,11 @@
           alert(message);
         }
         normalizeClueTitle(rawTitle) {
-          if (!rawTitle) return "";
-          const title = rawTitle.trim().toUpperCase();
-          if (title === "ACROSS") return "Across";
-          if (title === "DOWN") return "Down";
-          return rawTitle;
+          return normalizeClueTitle.call(this, rawTitle);
         }
-        /**
-         * Parse puzzle data into Crossword structure.
-         *
-         * - Accepts either a JSCrossword object or raw string data.
-         * - Normalizes coordinates (shift +1 to be 1-indexed).
-         * - Detects puzzle type (crossword, acrostic, coded).
-         * - Initializes cells, words, and clues (real or fake).
-         * - Enables autofill for acrostic/coded puzzles.
-         */
         parsePuzzle(data) {
-          var _a;
-          var puzzle;
-          if (data instanceof JSCrossword) {
-            puzzle = data;
-          } else {
-            puzzle = JSCrossword.fromData(new Uint8Array(data), {
-              lockedHandling: "mask"
-            });
-          }
-          puzzle.kind = puzzle.metadata.kind;
-          this.jsxw = puzzle;
-          window2.ipuz = this.jsxw.toIpuzString();
-          this.diagramless_mode = false;
-          if (puzzle.metadata && puzzle.metadata.crossword_type) {
-            if (puzzle.metadata.crossword_type.toLowerCase() === "diagramless") {
-              this.diagramless_mode = true;
-              console.log("Diagramless detected: from metadata.crossword_type");
-            }
-          }
-          if (this.diagramless_mode) {
-            for (let i2 = 0; i2 < puzzle.cells.length; i2++) {
-              const cell = puzzle.cells[i2];
-              cell["top-bar"] = false;
-              cell["bottom-bar"] = false;
-              cell["left-bar"] = false;
-              cell["right-bar"] = false;
-              const sol = (_a = cell.solution) == null ? void 0 : _a.trim().toUpperCase();
-              if (!sol || sol === "#" || sol === "." || sol === "-") {
-                cell.solution = "#";
-              }
-              if (cell.solution === "#") {
-                cell.type = "block";
-                cell.letter = "";
-              } else {
-                cell.type = null;
-                cell.letter = "";
-              }
-              cell.number = null;
-            }
-          }
-          const simpleHash = (t) => {
-            let e = 0;
-            for (let r = 0; r < t.length; r++) {
-              e = (e << 5) - e + t.charCodeAt(r), e &= e;
-            }
-            return new Uint32Array([e])[0].toString(36);
-          };
-          const myHash = simpleHash(JSON.stringify(puzzle));
-          this.savegame_name = STORAGE_KEY + "_" + myHash;
-          localStorage.setItem(this.savegame_name + "_lastmodified", Date.now());
-          this.cleanupSaves();
-          const versionKey = this.savegame_name + "_version";
-          localStorage.getItem(versionKey);
-          const jsxw2_cells = this.loadGame();
-          if (jsxw2_cells) {
-            console.log("Loading puzzle from localStorage");
-            var noteObj = JSON.parse(localStorage.getItem(this.savegame_name + "_notes"));
-            if (noteObj && noteObj.length > 0) {
-              for (var entry of noteObj) {
-                this.notes.set(entry.key, entry.value);
-              }
-            }
-            const savedTimer = localStorage.getItem(this.savegame_name + "_timer");
-            if (savedTimer !== null) {
-              xw_timer_seconds = parseInt(savedTimer, 10) || 0;
-              console.log("Restored timer from localStorage:", xw_timer_seconds);
-            }
-            puzzle.cells = jsxw2_cells;
-          }
-          const loadedFromStorage = Boolean(jsxw2_cells);
-          puzzle.cells.forEach((c) => {
-            if (!c.top_right_number && c["top_right_number"]) {
-              c.top_right_number = c["top_right_number"];
-            }
-          });
-          this.title = puzzle.metadata.title || "";
-          this.author = puzzle.metadata.author || "";
-          this.copyright = puzzle.metadata.copyright || "";
-          this.crossword_type = puzzle.metadata.crossword_type;
-          this.fakeclues = puzzle.metadata.fakeclues || false;
-          this.realwords = puzzle.metadata.realwords || false;
-          this.is_autofill = puzzle.metadata.autofill || false;
-          this.notepad = puzzle.metadata.description || "";
-          this.grid_width = puzzle.metadata.width;
-          this.grid_height = puzzle.metadata.height;
-          this.completion_message = puzzle.metadata.completion_message || "Puzzle solved!";
-          if (this.title) {
-            document.title = this.title + " | Crossword Nexus Solver";
-          }
-          if (this.crossword_type == "acrostic" || this.crossword_type == "coded") {
-            this.is_autofill = true;
-          }
-          const allGroupsFake = this.fakeclues || (puzzle.clues || []).every((g) => g.fake);
-          if (allGroupsFake || this.crossword_type === "diagramless" || this.crossword_type === "coded") {
-            $("div.cw-top-text-wrapper").css({
-              display: "none"
-            });
-            $("#cw-puzzle-grid").css("margin-top", "3px");
-          }
-          if (this.has_reveal === false || puzzle.metadata.has_reveal === false) {
-            this.has_reveal = false;
-            $(".cw-reveal").css({
-              display: "none"
-            });
-          }
-          if (this.has_check === false || puzzle.metadata.has_check === false) {
-            this.has_check = false;
-            $(".cw-check").css({
-              display: "none"
-            });
-          }
-          this.cells = {};
-          this.number_to_cells = {};
-          for (var i = 0; i < puzzle.cells.length; i++) {
-            const rawCell = puzzle.cells[i];
-            const c = {
-              x: rawCell.x + 1,
-              y: rawCell.y + 1,
-              solution: rawCell.solution,
-              letter: rawCell.letter || "",
-              type: rawCell.type || null,
-              number: rawCell.number || null,
-              bar: {
-                top: rawCell["top-bar"] === true,
-                bottom: rawCell["bottom-bar"] === true,
-                left: rawCell["left-bar"] === true,
-                right: rawCell["right-bar"] === true
-              },
-              color: rawCell["background-color"] || null,
-              shape: rawCell["background-shape"] || null,
-              image: rawCell["image"] || null,
-              top_right_number: rawCell.top_right_number,
-              fixed: rawCell.fixed === true
-              // Preserve fixed flag from saved data
-            };
-            c.shade_highlight_color = getShadeHighlightColor(c.color, this.config.color_word, this.config.color_none);
-            if (rawCell.clue) {
-              c.color = this.config.background_color_clue;
-            }
-            if (!loadedFromStorage && !c.fixed) {
-              if (c.letter && !/[A-Za-z]/.test(c.letter)) {
-                c.fixed = true;
-              }
-              if (/^[A-Z]$/.test(c.letter) && c.top_right_number && c.top_right_number === c.letter) {
-                c.fixed = true;
-              }
-              if (/^[A-Z]$/.test(c.letter) && !c.top_right_number && c.solution === c.letter) {
-                c.fixed = true;
-              }
-            }
-            if (this.diagramless_mode) {
-              c.type = null;
-              c.empty = false;
-              c.clue = false;
-              c.color = null;
-              c.letter = "";
-              c.number = null;
-            } else {
-              c.empty = c.type === "block" || c.type === "void" || c.type === "clue";
-              c.clue = c.type === "clue";
-            }
-            if (!this.cells[c.x]) {
-              this.cells[c.x] = {};
-            }
-            this.cells[c.x][c.y] = c;
-            const key = c.number || c.top_right_number;
-            if (key) {
-              if (!this.number_to_cells[key]) {
-                this.number_to_cells[key] = [];
-              }
-              this.number_to_cells[key].push(c);
-            }
-          }
-          if (this.diagramless_mode) {
-            this.renumberGrid();
-          }
-          let clueMapping = {};
-          if (this.crossword_type === "coded") {
-            var fake_clue_obj = this.make_fake_clues(puzzle);
-            this.clueGroups = fake_clue_obj.clueGroups;
-            clueMapping = fake_clue_obj.clue_mapping;
-            $("div.cw-clues-holder").css({
-              display: "none"
-            });
-            $("div.cw-top-text-wrapper").css({
-              display: "none"
-            });
-            $("div.cw-buttons-holder").css({
-              padding: "0 10px"
-            });
-          } else {
-            this.clueGroups = [];
-            const clueSets = puzzle.clues || [];
-            clueSets.forEach((clueSet, index) => {
-              const title = this.normalizeClueTitle(clueSet.title || `Clue Set ${index + 1}`);
-              const clues = clueSet.clue || [];
-              clues.forEach((clue) => {
-                if (clue.word) clueMapping[clue.word] = clue;
-              });
-              const words_ids = clues.map((c) => c.word);
-              const group = new CluesGroup(this, {
-                id: `clues_${index}`,
-                title,
-                clues,
-                words_ids,
-                fake: Boolean(clueSet.fake)
-              });
-              this.clueGroups.push(group);
-            });
-          }
-          if (this.config.downsOnly && this.clueGroups.length > 0) {
-            this.clueGroups[0].clues.forEach((clue) => {
-              clue.text = "---";
-            });
-          }
-          var num_words = puzzle.words.length;
-          var num_clues = puzzle.clues.map((x) => x.clue).flat().length;
-          if (this.fakeclues && num_words != num_clues) {
-            this.displayClueGroups = [...this.clueGroups];
-            var fake_clue_obj = this.make_fake_clues(puzzle);
-            this.clueGroups = fake_clue_obj.clueGroups;
-            clueMapping = fake_clue_obj.clue_mapping;
-          }
-          const holder = document.querySelector(".cw-clues-holder");
-          if (!holder) return;
-          holder.innerHTML = "";
-          (this.displayClueGroups || this.clueGroups).forEach((group, index) => {
-            const div = document.createElement("div");
-            div.classList.add("cw-clues");
-            if (this.config.downsOnly && index === 0) {
-              div.style.display = "none";
-            }
-            div.dataset.groupId = group.id;
-            div.innerHTML = `
-            <div class="cw-clues-title">${group.title}</div>
-            <div class="cw-clues-items"></div>
-          `;
-            holder.appendChild(div);
-          });
-          this.words = {};
-          for (var i = 0; i < puzzle.words.length; i++) {
-            const word = puzzle.words[i];
-            this.words[word.id] = new Word(this, {
-              id: word.id,
-              dir: word.dir,
-              refs_raw: null,
-              cell_ranges: word.cells.map(function(c) {
-                return {
-                  x: (c[0] + 1).toString(),
-                  y: (c[1] + 1).toString()
-                };
-              }),
-              clue: clueMapping[word.id]
-            });
-          }
-          this.completeLoad();
+          parsePuzzle.call(this, data);
+          xw_timer_seconds = this.xw_timer_seconds || 0;
         }
         // Return the next non-block, in-bounds cell from a start cell in a given direction.
         // dir: 'across' (x+) or 'down' (y+). step = +1 (forward) or -1 (backward)
