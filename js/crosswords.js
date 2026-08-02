@@ -71,6 +71,37 @@
   function escape(string) {
     return string || "";
   }
+  const maxClueSizes = [
+    [1080, 15],
+    [1200, 17],
+    [Infinity, 21]
+  ];
+  function resizeText(rootElement, nodeList) {
+    var _a;
+    const minSize = 7;
+    const rootWidth = rootElement.width();
+    const maxSize = ((_a = maxClueSizes.find((bp) => bp[0] > rootWidth)) == null ? void 0 : _a[1]) ?? 24;
+    const unit = "px";
+    for (var j = 0; j < nodeList.length; j++) {
+      const el = nodeList[j];
+      const parent = el.parentNode;
+      let low = minSize;
+      let high = maxSize;
+      let best = minSize;
+      while (low <= high) {
+        const mid = Math.ceil((low + high) / 2);
+        el.style.fontSize = `${mid}${unit}`;
+        const overflow = el.scrollHeight > parent.clientHeight || el.scrollWidth > parent.clientWidth;
+        if (overflow) {
+          high = mid - 1;
+        } else {
+          best = mid;
+          low = mid + 1;
+        }
+      }
+      el.style.fontSize = `${best}${unit}`;
+    }
+  }
   class CluesGroup {
     constructor(crossword, data) {
       this.id = "";
@@ -1922,6 +1953,247 @@
       }
     }
   }
+  function changeActiveClues(targetIndex = null) {
+    var _a;
+    const groups = this.clueGroups || [];
+    const n = groups.length;
+    if (n <= 1) return;
+    let curIndex = this.activeClueGroupIndex ?? 0;
+    let newIndex = curIndex;
+    if (targetIndex !== null && targetIndex >= 0 && targetIndex < n) {
+      newIndex = targetIndex;
+    } else {
+      for (let i = 1; i <= n; i++) {
+        const idx = (curIndex + i) % n;
+        if (!this.selected_cell) {
+          newIndex = idx;
+          break;
+        }
+        const g = groups[idx];
+        if (g == null ? void 0 : g.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true)) {
+          newIndex = idx;
+          break;
+        }
+        if (i === n) newIndex = (curIndex + 1) % n;
+      }
+    }
+    this.activeClueGroupIndex = newIndex;
+    const activeGroup = groups[newIndex];
+    if (this.selected_cell && activeGroup) {
+      const {
+        x,
+        y
+      } = this.selected_cell;
+      const word = activeGroup.getMatchingWord(x, y, true);
+      if (word) this.setActiveWord(word);
+    }
+    (_a = this.refreshSidebarHighlighting) == null ? void 0 : _a.call(this);
+  }
+  function getCell(x, y) {
+    return this.cells[x] ? this.cells[x][y] : null;
+  }
+  function setActiveWord(word) {
+    if (word) {
+      this.setSelectedWord(word);
+      const group = this.clueGroups[this.activeClueGroupIndex];
+      if (this.fakeclues || group && group.isFake) {
+        this.top_text.html("");
+        return;
+      }
+      this.top_text.html(`
+      <span class="cw-clue-number">
+        ${escape(word.clue.number)}
+      </span>
+      <span class="cw-clue-text">
+        ${escape(word.clue.text)}
+      </span>
+    `);
+      resizeText(this.root, this.top_text);
+    }
+  }
+  function setActiveCell(cell) {
+    if (!cell || cell.empty) return;
+    this.setSelectedCell(cell);
+    const groups = this.clueGroups || [];
+    groups.forEach((group) => {
+      const isInactive = group !== this.clueGroups[this.activeClueGroupIndex];
+      if (typeof group.markActive === "function") {
+        group.markActive(cell.x, cell.y, isInactive, this.fakeclues);
+      }
+    });
+    const offset = this.svg.offset();
+    const input_top = offset.top + (cell.y - 1) * this.cell_size;
+    const input_left = offset.left + (cell.x - 1) * this.cell_size;
+    this.hidden_input.css({
+      left: input_left,
+      top: input_top
+    });
+    if (!IS_MOBILE) {
+      this.hidden_input.focus();
+    }
+  }
+  function skipToWord(direction) {
+    if (this.selected_cell && this.selected_word) {
+      var i, cell, word, word_cell, x = this.selected_cell.x, y = this.selected_cell.y;
+      var cellFound = (cell2) => {
+        if (cell2 && !cell2.empty) {
+          word = this.clueGroups[this.activeClueGroupIndex].getMatchingWord(cell2.x, cell2.y);
+          if (word && word.id !== this.selected_word.id) {
+            word_cell = word.getFirstEmptyCell() || word.getFirstCell();
+            this.setActiveWord(word);
+            this.setActiveCell(word_cell);
+            return true;
+          }
+        }
+        return false;
+      };
+      switch (direction) {
+        case SKIP_UP:
+          for (i = y - 1; i >= 0; i--) {
+            cell = this.getCell(x, i);
+            if (cellFound(cell)) {
+              return;
+            }
+          }
+          break;
+        case SKIP_DOWN:
+          for (i = y + 1; i <= this.grid_height; i++) {
+            cell = this.getCell(x, i);
+            if (cellFound(cell)) {
+              return;
+            }
+          }
+          break;
+        case SKIP_LEFT:
+          for (i = x - 1; i >= 0; i--) {
+            cell = this.getCell(i, y);
+            if (cellFound(cell)) {
+              return;
+            }
+          }
+          break;
+        case SKIP_RIGHT:
+          for (i = x + 1; i <= this.grid_width; i++) {
+            cell = this.getCell(i, y);
+            if (cellFound(cell)) {
+              return;
+            }
+          }
+          break;
+      }
+    }
+  }
+  function moveToNextWord(to_previous, skip_filled_words = false) {
+    var _a;
+    if (!this.selected_word || !((_a = this.clueGroups) == null ? void 0 : _a.length)) return;
+    let next_word = null;
+    let this_word = this.selected_word;
+    let groupIndex = this.activeClueGroupIndex ?? 0;
+    const totalGroups = this.clueGroups.length;
+    let safetyCounter = 0;
+    const shouldSkipFilledWords = skip_filled_words && this.hasUnfilledWords();
+    while (safetyCounter < totalGroups * 2) {
+      const currentGroup = this.clueGroups[groupIndex];
+      next_word = to_previous ? currentGroup.getPreviousWord(this_word) : currentGroup.getNextWord(this_word);
+      if (!next_word) {
+        groupIndex = (groupIndex + 1) % totalGroups;
+        this.activeClueGroupIndex = groupIndex;
+        safetyCounter++;
+        const nextGroup = this.clueGroups[groupIndex];
+        next_word = to_previous ? nextGroup.getLastWord() : nextGroup.getFirstWord();
+      }
+      if (!shouldSkipFilledWords || !next_word.isFilled()) break;
+      this_word = next_word;
+    }
+    if (next_word) {
+      const cell = next_word.getFirstEmptyCell() || next_word.getFirstCell();
+      this.setActiveWord(next_word);
+      this.setActiveCell(cell);
+    }
+  }
+  function hasUnfilledWords() {
+    return Object.values(this.words || {}).some(
+      (word) => word && !word.isFilled()
+    );
+  }
+  function moveToFirstCell(to_last) {
+    if (this.selected_word) {
+      var cell = to_last ? this.selected_word.getLastCell() : this.selected_word.getFirstCell();
+      if (cell) {
+        this.setActiveCell(cell);
+      }
+    }
+  }
+  function moveSelectionBy(delta_x, delta_y, jumping_over_black) {
+    if (this.diagramless_mode && this.selected_cell) {
+      const x2 = this.selected_cell.x + delta_x;
+      const y2 = this.selected_cell.y + delta_y;
+      const new_cell2 = this.getCell(x2, y2);
+      if (new_cell2) {
+        this.setSelectedCell(new_cell2);
+      }
+      return;
+    }
+    if (!this.selected_cell) return;
+    let x = this.selected_cell.x + delta_x;
+    let y = this.selected_cell.y + delta_y;
+    let new_cell = this.getCell(x, y);
+    if (!new_cell) return;
+    if (new_cell.empty) {
+      if (delta_x < 0) delta_x--;
+      else if (delta_x > 0) delta_x++;
+      else if (delta_y < 0) delta_y--;
+      else if (delta_y > 0) delta_y++;
+      this.moveSelectionBy(delta_x, delta_y, true);
+      return;
+    }
+    const groups = this.clueGroups || [];
+    const n = groups.length;
+    if (!n) return;
+    let activeGroup = groups[this.activeClueGroupIndex];
+    if (!this.selected_word.hasCell(x, y)) {
+      let selectedCellAltWord = null;
+      let newCellAltWord = null;
+      let altGroupIndex = this.activeClueGroupIndex;
+      for (let offset = 1; offset < n; offset++) {
+        const i = (this.activeClueGroupIndex + offset) % n;
+        const group = groups[i];
+        const match1 = group.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true);
+        const match2 = group.getMatchingWord(new_cell.x, new_cell.y, true);
+        if (match1 && match2 && match1.id === match2.id) {
+          selectedCellAltWord = match1;
+          newCellAltWord = match2;
+          altGroupIndex = i;
+          break;
+        }
+      }
+      if (selectedCellAltWord && newCellAltWord) {
+        this.activeClueGroupIndex = altGroupIndex;
+        this.changeActiveClues(altGroupIndex);
+        activeGroup = groups[altGroupIndex];
+        if (this.config.arrow_direction === "arrow_stay" || !this.selected_cell.letter && this.config.arrow_direction === "arrow_move_filled") {
+          new_cell = this.selected_cell;
+        }
+      }
+      let newCellActiveWord = activeGroup.getMatchingWord(new_cell.x, new_cell.y, true);
+      if (!newCellActiveWord) {
+        for (let offset = 1; offset < n; offset++) {
+          const i = (this.activeClueGroupIndex + offset) % n;
+          const group = groups[i];
+          const candidate = group.getMatchingWord(x, y, true);
+          if (candidate) {
+            newCellActiveWord = candidate;
+            this.activeClueGroupIndex = i;
+            break;
+          }
+        }
+      }
+      if (newCellActiveWord) {
+        this.setActiveWord(newCellActiveWord);
+      }
+    }
+    this.setActiveCell(new_cell);
+  }
   (function(global, factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
       module.exports = factory(global);
@@ -1983,37 +2255,6 @@
         var div = document.createElement("div");
         return ("draggable" in div || "ondragstart" in div && "ondrop" in div) && "FormData" in window2 && "FileReader" in window2;
       })();
-      const maxClueSizes = [
-        [1080, 15],
-        [1200, 17],
-        [Infinity, 21]
-      ];
-      function resizeText(rootElement, nodeList) {
-        var _a;
-        const minSize = 7;
-        const rootWidth = rootElement.width();
-        const maxSize = ((_a = maxClueSizes.find((bp) => bp[0] > rootWidth)) == null ? void 0 : _a[1]) ?? 24;
-        const unit = "px";
-        for (var j = 0; j < nodeList.length; j++) {
-          const el = nodeList[j];
-          const parent = el.parentNode;
-          let low = minSize;
-          let high = maxSize;
-          let best = minSize;
-          while (low <= high) {
-            const mid = Math.ceil((low + high) / 2);
-            el.style.fontSize = `${mid}${unit}`;
-            const overflow = el.scrollHeight > parent.clientHeight || el.scrollWidth > parent.clientWidth;
-            if (overflow) {
-              high = mid - 1;
-            } else {
-              best = mid;
-              low = mid + 1;
-            }
-          }
-          el.style.fontSize = `${best}${unit}`;
-        }
-      }
       const breakpoints = [420, 600, 650, 850, 1080, 1200];
       function setBreakpointClasses(rootElement) {
         const rootWidth = rootElement.width();
@@ -2621,83 +2862,16 @@
          * - If none match, just stay on the next group.
          */
         changeActiveClues(targetIndex = null) {
-          var _a;
-          const groups = this.clueGroups || [];
-          const n = groups.length;
-          if (n <= 1) return;
-          let curIndex = this.activeClueGroupIndex ?? 0;
-          let newIndex = curIndex;
-          if (targetIndex !== null && targetIndex >= 0 && targetIndex < n) {
-            newIndex = targetIndex;
-          } else {
-            for (let i = 1; i <= n; i++) {
-              const idx = (curIndex + i) % n;
-              if (!this.selected_cell) {
-                newIndex = idx;
-                break;
-              }
-              const g = groups[idx];
-              if (g == null ? void 0 : g.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true)) {
-                newIndex = idx;
-                break;
-              }
-              if (i === n) newIndex = (curIndex + 1) % n;
-            }
-          }
-          this.activeClueGroupIndex = newIndex;
-          const activeGroup = groups[newIndex];
-          if (this.selected_cell && activeGroup) {
-            const {
-              x,
-              y
-            } = this.selected_cell;
-            const word = activeGroup.getMatchingWord(x, y, true);
-            if (word) this.setActiveWord(word);
-          }
-          (_a = this.refreshSidebarHighlighting) == null ? void 0 : _a.call(this);
+          changeActiveClues.call(this, targetIndex);
         }
         getCell(x, y) {
-          return this.cells[x] ? this.cells[x][y] : null;
+          return getCell.call(this, x, y);
         }
         setActiveWord(word) {
-          if (word) {
-            this.setSelectedWord(word);
-            const group = this.clueGroups[this.activeClueGroupIndex];
-            if (this.fakeclues || group && group.isFake) {
-              this.top_text.html("");
-              return;
-            }
-            this.top_text.html(`
-            <span class="cw-clue-number">
-              ${escape(word.clue.number)}
-            </span>
-            <span class="cw-clue-text">
-              ${escape(word.clue.text)}
-            </span>
-          `);
-            resizeText(this.root, this.top_text);
-          }
+          setActiveWord.call(this, word);
         }
         setActiveCell(cell) {
-          if (!cell || cell.empty) return;
-          this.setSelectedCell(cell);
-          const groups = this.clueGroups || [];
-          groups.forEach((group) => {
-            const isInactive = group !== this.clueGroups[this.activeClueGroupIndex];
-            if (typeof group.markActive === "function") {
-              group.markActive(cell.x, cell.y, isInactive, this.fakeclues);
-            }
-          });
-          const offset = this.svg.offset();
-          const input_top = offset.top + (cell.y - 1) * this.cell_size;
-          const input_left = offset.left + (cell.x - 1) * this.cell_size;
-          this.hidden_input.css({
-            left: input_left,
-            top: input_top
-          });
-          if (!IS_MOBILE) {
-            this.hidden_input.focus();
-          }
+          setActiveCell.call(this, cell);
         }
         renderClues(clues_group, clues_container) {
           const $container = $(clues_container);
@@ -3004,174 +3178,19 @@
         // finds next cell in specified direction that does not belongs to current word
         // then selects that word and selects its first empty || first cell
         skipToWord(direction) {
-          if (this.selected_cell && this.selected_word) {
-            var i, cell, word, word_cell, x = this.selected_cell.x, y = this.selected_cell.y;
-            var cellFound = (cell2) => {
-              if (cell2 && !cell2.empty) {
-                word = this.clueGroups[this.activeClueGroupIndex].getMatchingWord(cell2.x, cell2.y);
-                if (word && word.id !== this.selected_word.id) {
-                  word_cell = word.getFirstEmptyCell() || word.getFirstCell();
-                  this.setActiveWord(word);
-                  this.setActiveCell(word_cell);
-                  return true;
-                }
-              }
-              return false;
-            };
-            switch (direction) {
-              case SKIP_UP:
-                for (i = y - 1; i >= 0; i--) {
-                  cell = this.getCell(x, i);
-                  if (cellFound(cell)) {
-                    return;
-                  }
-                }
-                break;
-              case SKIP_DOWN:
-                for (i = y + 1; i <= this.grid_height; i++) {
-                  cell = this.getCell(x, i);
-                  if (cellFound(cell)) {
-                    return;
-                  }
-                }
-                break;
-              case SKIP_LEFT:
-                for (i = x - 1; i >= 0; i--) {
-                  cell = this.getCell(i, y);
-                  if (cellFound(cell)) {
-                    return;
-                  }
-                }
-                break;
-              case SKIP_RIGHT:
-                for (i = x + 1; i <= this.grid_width; i++) {
-                  cell = this.getCell(i, y);
-                  if (cellFound(cell)) {
-                    return;
-                  }
-                }
-                break;
-            }
-          }
+          skipToWord.call(this, direction);
         }
-        /**
-         * Move to the next or previous word, cycling through all clue groups.
-         */
         moveToNextWord(to_previous, skip_filled_words = false) {
-          var _a;
-          if (!this.selected_word || !((_a = this.clueGroups) == null ? void 0 : _a.length)) return;
-          let next_word = null;
-          let this_word = this.selected_word;
-          let groupIndex = this.activeClueGroupIndex ?? 0;
-          const totalGroups = this.clueGroups.length;
-          let safetyCounter = 0;
-          const shouldSkipFilledWords = skip_filled_words && this.hasUnfilledWords();
-          while (safetyCounter < totalGroups * 2) {
-            const currentGroup = this.clueGroups[groupIndex];
-            next_word = to_previous ? currentGroup.getPreviousWord(this_word) : currentGroup.getNextWord(this_word);
-            if (!next_word) {
-              groupIndex = (groupIndex + 1) % totalGroups;
-              this.activeClueGroupIndex = groupIndex;
-              safetyCounter++;
-              const nextGroup = this.clueGroups[groupIndex];
-              next_word = to_previous ? nextGroup.getLastWord() : nextGroup.getFirstWord();
-            }
-            if (!shouldSkipFilledWords || !next_word.isFilled()) break;
-            this_word = next_word;
-          }
-          if (next_word) {
-            const cell = next_word.getFirstEmptyCell() || next_word.getFirstCell();
-            this.setActiveWord(next_word);
-            this.setActiveCell(cell);
-          }
+          moveToNextWord.call(this, to_previous, skip_filled_words);
         }
         hasUnfilledWords() {
-          return Object.values(this.words || {}).some(
-            (word) => word && !word.isFilled()
-          );
+          return hasUnfilledWords.call(this);
         }
         moveToFirstCell(to_last) {
-          if (this.selected_word) {
-            var cell = to_last ? this.selected_word.getLastCell() : this.selected_word.getFirstCell();
-            if (cell) {
-              this.setActiveCell(cell);
-            }
-          }
+          moveToFirstCell.call(this, to_last);
         }
-        /**
-         * Callback for arrow keys
-         * Moves selection by one cell, possibly switching clue groups.
-         * Works with any number of clue lists.
-         */
         moveSelectionBy(delta_x, delta_y, jumping_over_black) {
-          if (this.diagramless_mode && this.selected_cell) {
-            const x2 = this.selected_cell.x + delta_x;
-            const y2 = this.selected_cell.y + delta_y;
-            const new_cell2 = this.getCell(x2, y2);
-            if (new_cell2) {
-              this.setSelectedCell(new_cell2);
-            }
-            return;
-          }
-          if (!this.selected_cell) return;
-          let x = this.selected_cell.x + delta_x;
-          let y = this.selected_cell.y + delta_y;
-          let new_cell = this.getCell(x, y);
-          if (!new_cell) return;
-          if (new_cell.empty) {
-            if (delta_x < 0) delta_x--;
-            else if (delta_x > 0) delta_x++;
-            else if (delta_y < 0) delta_y--;
-            else if (delta_y > 0) delta_y++;
-            this.moveSelectionBy(delta_x, delta_y, true);
-            return;
-          }
-          const groups = this.clueGroups || [];
-          const n = groups.length;
-          if (!n) return;
-          let activeGroup = groups[this.activeClueGroupIndex];
-          if (!this.selected_word.hasCell(x, y)) {
-            let selectedCellAltWord = null;
-            let newCellAltWord = null;
-            let altGroupIndex = this.activeClueGroupIndex;
-            for (let offset = 1; offset < n; offset++) {
-              const i = (this.activeClueGroupIndex + offset) % n;
-              const group = groups[i];
-              const match1 = group.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true);
-              const match2 = group.getMatchingWord(new_cell.x, new_cell.y, true);
-              if (match1 && match2 && match1.id === match2.id) {
-                selectedCellAltWord = match1;
-                newCellAltWord = match2;
-                altGroupIndex = i;
-                break;
-              }
-            }
-            if (selectedCellAltWord && newCellAltWord) {
-              this.activeClueGroupIndex = altGroupIndex;
-              this.changeActiveClues(altGroupIndex);
-              activeGroup = groups[altGroupIndex];
-              if (this.config.arrow_direction === "arrow_stay" || !this.selected_cell.letter && this.config.arrow_direction === "arrow_move_filled") {
-                new_cell = this.selected_cell;
-              }
-            }
-            let newCellActiveWord = activeGroup.getMatchingWord(new_cell.x, new_cell.y, true);
-            if (!newCellActiveWord) {
-              for (let offset = 1; offset < n; offset++) {
-                const i = (this.activeClueGroupIndex + offset) % n;
-                const group = groups[i];
-                const candidate = group.getMatchingWord(x, y, true);
-                if (candidate) {
-                  newCellActiveWord = candidate;
-                  this.activeClueGroupIndex = i;
-                  break;
-                }
-              }
-            }
-            if (newCellActiveWord) {
-              this.setActiveWord(newCellActiveWord);
-            }
-          }
-          this.setActiveCell(new_cell);
+          moveSelectionBy.call(this, delta_x, delta_y, jumping_over_black);
         }
         // END moveSelectionBy()
         windowResized() {
