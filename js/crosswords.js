@@ -2605,6 +2605,9 @@
          * @param {HTMLElement|string} parent - The DOM element or selector to append the solver to.
          * @param {Object} [user_config] - User customization settings overriding default configuration.
          */
+        // =========================================================================
+        // 1. CORE SOLVER LIFECYCLE & CONFIG
+        // =========================================================================
         constructor(parent, user_config) {
           this.parent = parent;
           this.config = {};
@@ -2680,6 +2683,9 @@
           this.updateClueLayout = this.updateClueLayout.bind(this);
           this.init();
         }
+        // =========================================================================
+        // 2. PUZZLE DATA PARSING & LOADER DELEGATES
+        // =========================================================================
         /**
          * Generates alternative clue lists when clues are stored in non-standard mappings.
          * @param {Object} puzzle - The raw puzzle JSON structure.
@@ -2839,6 +2845,9 @@
           parsePuzzle.call(this, data);
           setTimerSeconds(this.xw_timer_seconds || 0);
         }
+        // =========================================================================
+        // 3. DIAGRAMLESS SOLVE ALGORITHMS
+        // =========================================================================
         /**
          * Return the next non-block, in-bounds cell from a start cell in a given direction.
          * @param {Object} fromCell - Starting grid cell model.
@@ -2881,6 +2890,9 @@
         toggleDiagramlessDir() {
           this.setDiagramlessDir(this.diagramless_dir === "across" ? "down" : "across");
         }
+        // =========================================================================
+        // 4. UI INITIALIZATION & ORCHESTRATION
+        // =========================================================================
         /**
          * Orchestrates post-load UI initialization, linking elements, fallback selections, and layout passes.
          */
@@ -3000,6 +3012,9 @@
           }, 100);
         }
         // end completeLoad
+        // =========================================================================
+        // 5. VIEWPORT LAYOUT & RESIZING
+        // =========================================================================
         /**
          * Adjusts clue sidebar flex properties depending on available column width.
          */
@@ -3016,6 +3031,9 @@
             clue.style.width = useColumn ? "auto" : "";
           });
         }
+        // =========================================================================
+        // 6. EVENT LISTENERS & DOM EVENT HOOKS
+        // =========================================================================
         /**
          * Tears down DOM structures and removes all associated event listeners.
          */
@@ -3166,6 +3184,9 @@
         adjustChevron() {
           adjustChevron.call(this);
         }
+        // =========================================================================
+        // 7. GRID CELL STYLING & COLOR CONTRAST (delegates)
+        // =========================================================================
         cellFillColor(cell) {
           return cellFillColor.call(this, cell);
         }
@@ -3192,10 +3213,9 @@
           }
         }
         /* END renumbergrid() */
-        /**
-         * Handle mouse clicks on the crossword grid.
-         * Works with any number of clue groups (not just Across/Down).
-         */
+        // =========================================================================
+        // 8. USER INTERACTION EVENT HANDLERS (delegates)
+        // =========================================================================
         mouseClicked(e) {
           mouseClicked.call(this, e);
         }
@@ -3208,6 +3228,9 @@
         backspace() {
           backspace.call(this);
         }
+        // =========================================================================
+        // 9. AUTOFILL & INPUT FIELD SYNCHRONIZATION
+        // =========================================================================
         /**
          * Replicates inputted letter across other cells bound by identical numbers (if autofill config is enabled).
          */
@@ -3356,6 +3379,9 @@
         openSettings() {
           openSettings.call(this);
         }
+        // =========================================================================
+        // 10. FILE EXPORTS, PRINT & SAVES
+        // =========================================================================
         fillJsXw() {
           const cells = this.cells;
           this.jsxw.cells.forEach((c) => {
@@ -3470,6 +3496,9 @@
             "color": shouldGray ? "#aaa" : ""
           });
         }
+        // =========================================================================
+        // 11. GRID SELECTORS & MUTATORS
+        // =========================================================================
         updateCell(cell, properties) {
           Object.assign(cell, properties);
           this.adjustCell(cell);
