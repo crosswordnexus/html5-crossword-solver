@@ -722,6 +722,81 @@
       e.stopPropagation();
     }
   }
+  function mouseClicked(e) {
+    const offset = this.svg.offset();
+    const mouse_x = e.pageX - offset.left;
+    const mouse_y = e.pageY - offset.top;
+    const index_x = Math.ceil(mouse_x / this.cell_size);
+    const index_y = Math.ceil(mouse_y / this.cell_size);
+    const clickedCell = this.getCell(index_x, index_y);
+    if (!clickedCell) return;
+    if (this.diagramless_mode) {
+      if (!clickedCell) return;
+      if (this.selected_cell && this.selected_cell.x === index_x && this.selected_cell.y === index_y && clickedCell.type !== "block") {
+        this.toggleDiagramlessDir();
+        if (!IS_MOBILE) this.hidden_input.focus();
+        return;
+      }
+      this.setSelectedCell(clickedCell);
+      this.setSelectedWord(null);
+      this.top_text.html("");
+      if (!IS_MOBILE) this.hidden_input.focus();
+      return;
+    }
+    const sameCellClicked = this.selected_cell && this.selected_cell.x === index_x && this.selected_cell.y === index_y;
+    if (sameCellClicked) {
+      this.changeActiveClues();
+    }
+    let currentGroup = this.clueGroups[this.activeClueGroupIndex];
+    let matchingWord = currentGroup.getMatchingWord(index_x, index_y, true);
+    if (!matchingWord) {
+      for (let i = 0; i < this.clueGroups.length; i++) {
+        if (i === this.activeClueGroupIndex) continue;
+        const testGroup = this.clueGroups[i];
+        const testWord = testGroup.getMatchingWord(index_x, index_y, true);
+        if (testWord) {
+          matchingWord = testWord;
+          this.activeClueGroupIndex = i;
+          break;
+        }
+      }
+    }
+    if (matchingWord) {
+      this.setActiveWord(matchingWord);
+    } else {
+      const currentGroup2 = this.clueGroups[this.activeClueGroupIndex];
+      if (this.fakeclues || currentGroup2 && currentGroup2.isFake) {
+        this.top_text.html("");
+      }
+    }
+    this.setActiveCell(clickedCell);
+    if (!IS_MOBILE) {
+      this.hidden_input.focus();
+    }
+  }
+  function clueClicked(e) {
+    const target = $(e.currentTarget);
+    const clue = target.data("clue");
+    const wordId = target.data("word");
+    const word = this.words[wordId];
+    const clickedGroupId = target.data("clues");
+    const groupIndex = this.clueGroups.findIndex((g) => g.id === clickedGroupId);
+    const group = this.clueGroups[groupIndex];
+    if (this.fakeclues || group && group.isFake) {
+      clue.fakeClueCompleted = !Boolean(clue.fakeClueCompleted);
+      this.updateClueAppearance(clue, target);
+      return;
+    }
+    if (!word) return;
+    if (this.diagramless_mode) return;
+    const cell = word.getFirstEmptyCell() || word.getFirstCell();
+    if (!cell) return;
+    if (groupIndex !== -1 && groupIndex !== this.activeClueGroupIndex) {
+      this.changeActiveClues(groupIndex);
+    }
+    this.setActiveWord(word);
+    this.setActiveCell(cell);
+  }
   function saveGame() {
     if (this.saveTimeout) {
       clearTimeout(this.saveTimeout);
@@ -3093,56 +3168,7 @@
          * Works with any number of clue groups (not just Across/Down).
          */
         mouseClicked(e) {
-          const offset = this.svg.offset();
-          const mouse_x = e.pageX - offset.left;
-          const mouse_y = e.pageY - offset.top;
-          const index_x = Math.ceil(mouse_x / this.cell_size);
-          const index_y = Math.ceil(mouse_y / this.cell_size);
-          const clickedCell = this.getCell(index_x, index_y);
-          if (!clickedCell) return;
-          if (this.diagramless_mode) {
-            if (!clickedCell) return;
-            if (this.selected_cell && this.selected_cell.x === index_x && this.selected_cell.y === index_y && clickedCell.type !== "block") {
-              this.toggleDiagramlessDir();
-              if (!IS_MOBILE) this.hidden_input.focus();
-              return;
-            }
-            this.setSelectedCell(clickedCell);
-            this.setSelectedWord(null);
-            this.top_text.html("");
-            if (!IS_MOBILE) this.hidden_input.focus();
-            return;
-          }
-          const sameCellClicked = this.selected_cell && this.selected_cell.x === index_x && this.selected_cell.y === index_y;
-          if (sameCellClicked) {
-            this.changeActiveClues();
-          }
-          let currentGroup = this.clueGroups[this.activeClueGroupIndex];
-          let matchingWord = currentGroup.getMatchingWord(index_x, index_y, true);
-          if (!matchingWord) {
-            for (let i = 0; i < this.clueGroups.length; i++) {
-              if (i === this.activeClueGroupIndex) continue;
-              const testGroup = this.clueGroups[i];
-              const testWord = testGroup.getMatchingWord(index_x, index_y, true);
-              if (testWord) {
-                matchingWord = testWord;
-                this.activeClueGroupIndex = i;
-                break;
-              }
-            }
-          }
-          if (matchingWord) {
-            this.setActiveWord(matchingWord);
-          } else {
-            const currentGroup2 = this.clueGroups[this.activeClueGroupIndex];
-            if (this.fakeclues || currentGroup2 && currentGroup2.isFake) {
-              this.top_text.html("");
-            }
-          }
-          this.setActiveCell(clickedCell);
-          if (!IS_MOBILE) {
-            this.hidden_input.focus();
-          }
+          mouseClicked.call(this, e);
         }
         openRebusModal() {
           openRebusModal.call(this);
@@ -3301,27 +3327,7 @@
         }
         // callback for clicking a clue in the sidebar
         clueClicked(e) {
-          const target = $(e.currentTarget);
-          const clue = target.data("clue");
-          const wordId = target.data("word");
-          const word = this.words[wordId];
-          const clickedGroupId = target.data("clues");
-          const groupIndex = this.clueGroups.findIndex((g) => g.id === clickedGroupId);
-          const group = this.clueGroups[groupIndex];
-          if (this.fakeclues || group && group.isFake) {
-            clue.fakeClueCompleted = !Boolean(clue.fakeClueCompleted);
-            this.updateClueAppearance(clue, target);
-            return;
-          }
-          if (!word) return;
-          if (this.diagramless_mode) return;
-          const cell = word.getFirstEmptyCell() || word.getFirstCell();
-          if (!cell) return;
-          if (groupIndex !== -1 && groupIndex !== this.activeClueGroupIndex) {
-            this.changeActiveClues(groupIndex);
-          }
-          this.setActiveWord(word);
-          this.setActiveCell(cell);
+          clueClicked.call(this, e);
         }
         showInfo() {
           showInfo.call(this);
