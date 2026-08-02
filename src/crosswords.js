@@ -1,3 +1,18 @@
+/**
+Copyright (c) 2025, Crossword Nexus & Crossweird LLC
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**/
+
 import { updateCSS, getShadeHighlightColor } from './colors.js';
 import { isCorrect } from './utils.js';
 import { CluesGroup } from './CluesGroup.js';
@@ -38,6 +53,15 @@ import {
   showNotepad
 } from './modal.js';
 import {
+  startTimer,
+  stopTimer,
+  toggleTimer,
+  resetTimer,
+  clearTimer,
+  getTimerSeconds,
+  setTimerSeconds
+} from './timer.js';
+import {
   IS_MOBILE,
   CONFIGURABLE_SETTINGS,
   STORAGE_KEY,
@@ -51,21 +75,6 @@ import {
   MIN_SIZE,
   MAX_SIZE
 } from './constants.js';
-
-/**
-Copyright (c) 2025, Crossword Nexus & Crossweird LLC
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-**/
 
 // Main crossword javascript for the Crossword Nexus HTML5 Solver
 (function(global, factory) {
@@ -157,8 +166,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       const isFirefox = /FxiOS|Firefox/i.test(ua);
       return isSafari || isFirefox;
     })();
-    var xw_timer,
-      xw_timer_seconds = 0;
+
 
     /** Template will have to change along with CSS **/
     var template = `
@@ -500,7 +508,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         this.savegame_name = null;
         this.timer_running = false;
         this.xw_timer_seconds = 0;
-        xw_timer_seconds = 0; // Reset global timer variable
+        resetTimer(); // Reset global timer variable
 
         this.cells = {};
         this.words = {};
@@ -680,7 +688,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
       parsePuzzle(data) {
         parsePuzzle.call(this, data);
-        xw_timer_seconds = this.xw_timer_seconds || 0;
+        setTimerSeconds(this.xw_timer_seconds || 0);
       }
 
       // Return the next non-block, in-bounds cell from a start cell in a given direction.
@@ -942,10 +950,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
 
         // Stop timer
-        if (xw_timer) {
-          clearTimeout(xw_timer);
-          xw_timer = null;
-        }
+        clearTimer();
       }
 
       addListeners() {
@@ -1689,14 +1694,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
         // In tournament mode, we don't stop the timer or reveal anything automatically
         if (this.config.tournament_mode) {
-           this.xw_timer_seconds = xw_timer_seconds;
+           this.xw_timer_seconds = getTimerSeconds();
         } else {
             // stop the timer
             var timerMessage = '';
             if (this.timer_running) {
               // prepare message based on time
-              var display_seconds = xw_timer_seconds % 60;
-              var display_minutes = (xw_timer_seconds - display_seconds) / 60;
+              var display_seconds = getTimerSeconds() % 60;
+              var display_minutes = (getTimerSeconds() - display_seconds) / 60;
               var minDisplay = display_minutes == 1 ? 'minute' : 'minutes';
               var secDisplay = display_seconds == 1 ? 'second' : 'seconds';
               var allMin = display_minutes > 0 ? `${display_minutes} ${minDisplay} ` : '';
@@ -1705,7 +1710,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
               // stop the timer
               this.stopTimer();
             }
-            this.xw_timer_seconds = xw_timer_seconds;
+            this.xw_timer_seconds = getTimerSeconds();
             // reveal all (in case there were rebuses)
             if (do_reveal) {
               this.check_reveal('puzzle', 'reveal');
@@ -2356,67 +2361,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       }
 
       startTimer() {
-        if (!this.timer_running) {
-          this.timer_running = true;
-          this.timer_button.removeClass('paused');
-          this.timer_button.addClass('running');
-
-          const timer_btn = this.timer_button;
-          const add = () => {
-            xw_timer_seconds = xw_timer_seconds + 1;
-            const display_seconds = xw_timer_seconds % 60;
-            const display_minutes = (xw_timer_seconds - display_seconds) / 60;
-
-            const display =
-              (display_minutes ?
-                display_minutes > 9 ?
-                display_minutes :
-                '0' + display_minutes :
-                '00') +
-              ':' +
-              (display_seconds > 9 ? display_seconds : '0' + display_seconds);
-
-            timer_btn.html(display);
-
-            // In tournament mode, save progress to localStorage every 5 seconds
-            if (this.config.tournament_mode && xw_timer_seconds % 5 === 0) {
-              this.saveGameImmediate();
-            }
-
-            xw_timer = setTimeout(add, 1000);
-          };
-
-          xw_timer = setTimeout(add, 1000);
-        }
+        startTimer.call(this);
       }
 
       stopTimer(shouldFocus = false) {
-        if (this.timer_running) {
-          clearTimeout(xw_timer);
-          this.timer_button.removeClass('running');
-          this.timer_button.addClass('paused');
-          this.timer_running = false;
-          // Final sync of the time
-          this.xw_timer_seconds = xw_timer_seconds;
-
-          if (shouldFocus && !IS_MOBILE) {
-            this.hidden_input.focus();
-          }
-        }
+        stopTimer.call(this, shouldFocus);
       }
 
       toggleTimer() {
-        if (!this.config.allow_timer_toggle && this.timer_running) {
-          console.log('Timer toggle disabled in tournament mode.');
-          this.timer_button.css('cursor', 'default');
-          return;
-        }
-
-        if (this.timer_running) {
-          this.stopTimer(true);
-        } else {
-          this.startTimer();
-        }
+        toggleTimer.call(this);
       }
 
       styleClues() {
@@ -2504,9 +2457,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         }
       }
     }
-
-
-
 
 
     if (typeof define === 'function' && define.amd) {

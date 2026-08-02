@@ -1554,6 +1554,75 @@
   function showNotepad() {
     this.createModalBox(this.config.notepad_name, escape(this.notepad));
   }
+  let xw_timer = null;
+  let xw_timer_seconds = 0;
+  function getTimerSeconds() {
+    return xw_timer_seconds;
+  }
+  function setTimerSeconds(val) {
+    xw_timer_seconds = val;
+  }
+  function resetTimer() {
+    xw_timer_seconds = 0;
+    if (xw_timer) {
+      clearTimeout(xw_timer);
+      xw_timer = null;
+    }
+  }
+  function clearTimer() {
+    if (xw_timer) {
+      clearTimeout(xw_timer);
+      xw_timer = null;
+    }
+  }
+  function startTimer() {
+    if (!this.timer_running) {
+      this.timer_running = true;
+      this.timer_button.removeClass("paused");
+      this.timer_button.addClass("running");
+      const timer_btn = this.timer_button;
+      const add = () => {
+        xw_timer_seconds = xw_timer_seconds + 1;
+        this.xw_timer_seconds = xw_timer_seconds;
+        const display_seconds = xw_timer_seconds % 60;
+        const display_minutes = (xw_timer_seconds - display_seconds) / 60;
+        const display = (display_minutes ? display_minutes > 9 ? display_minutes : "0" + display_minutes : "00") + ":" + (display_seconds > 9 ? display_seconds : "0" + display_seconds);
+        timer_btn.html(display);
+        if (this.config.tournament_mode && xw_timer_seconds % 5 === 0) {
+          this.saveGameImmediate();
+        }
+        xw_timer = setTimeout(add, 1e3);
+      };
+      xw_timer = setTimeout(add, 1e3);
+    }
+  }
+  function stopTimer(shouldFocus = false) {
+    if (this.timer_running) {
+      if (xw_timer) {
+        clearTimeout(xw_timer);
+        xw_timer = null;
+      }
+      this.timer_button.removeClass("running");
+      this.timer_button.addClass("paused");
+      this.timer_running = false;
+      this.xw_timer_seconds = xw_timer_seconds;
+      if (shouldFocus && !IS_MOBILE) {
+        this.hidden_input.focus();
+      }
+    }
+  }
+  function toggleTimer() {
+    if (!this.config.allow_timer_toggle && this.timer_running) {
+      console.log("Timer toggle disabled in tournament mode.");
+      this.timer_button.css("cursor", "default");
+      return;
+    }
+    if (this.timer_running) {
+      this.stopTimer(true);
+    } else {
+      this.startTimer();
+    }
+  }
   (function(global, factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
       module.exports = factory(global);
@@ -1610,7 +1679,6 @@
         const isFirefox = /FxiOS|Firefox/i.test(ua);
         return isSafari || isFirefox;
       })();
-      var xw_timer, xw_timer_seconds = 0;
       var template = `
       <div class = "cw-main auto normal">
         <!-- Overlay for opening puzzles -->
@@ -1868,7 +1936,7 @@
           this.savegame_name = null;
           this.timer_running = false;
           this.xw_timer_seconds = 0;
-          xw_timer_seconds = 0;
+          resetTimer();
           this.cells = {};
           this.words = {};
           this.clueGroups = [];
@@ -1995,7 +2063,7 @@
         }
         parsePuzzle(data) {
           parsePuzzle.call(this, data);
-          xw_timer_seconds = this.xw_timer_seconds || 0;
+          setTimerSeconds(this.xw_timer_seconds || 0);
         }
         // Return the next non-block, in-bounds cell from a start cell in a given direction.
         // dir: 'across' (x+) or 'down' (y+). step = +1 (forward) or -1 (backward)
@@ -2196,10 +2264,7 @@
             clearTimeout(this.saveTimeout);
             this.saveTimeout = null;
           }
-          if (xw_timer) {
-            clearTimeout(xw_timer);
-            xw_timer = null;
-          }
+          clearTimer();
         }
         addListeners() {
           this.removeListeners();
@@ -2747,19 +2812,19 @@
           }
           this.isSolved = true;
           if (this.config.tournament_mode) {
-            this.xw_timer_seconds = xw_timer_seconds;
+            this.xw_timer_seconds = getTimerSeconds();
           } else {
             var timerMessage = "";
             if (this.timer_running) {
-              var display_seconds = xw_timer_seconds % 60;
-              var display_minutes = (xw_timer_seconds - display_seconds) / 60;
+              var display_seconds = getTimerSeconds() % 60;
+              var display_minutes = (getTimerSeconds() - display_seconds) / 60;
               var minDisplay = display_minutes == 1 ? "minute" : "minutes";
               var secDisplay = display_seconds == 1 ? "second" : "seconds";
               var allMin = display_minutes > 0 ? `${display_minutes} ${minDisplay} ` : "";
               timerMessage = `<br /><br /><center>You finished in ${allMin} ${display_seconds} ${secDisplay}.</center>`;
               this.stopTimer();
             }
-            this.xw_timer_seconds = xw_timer_seconds;
+            this.xw_timer_seconds = getTimerSeconds();
             if (do_reveal) {
               this.check_reveal("puzzle", "reveal");
             }
@@ -3266,48 +3331,13 @@
           URL.revokeObjectURL(url);
         }
         startTimer() {
-          if (!this.timer_running) {
-            this.timer_running = true;
-            this.timer_button.removeClass("paused");
-            this.timer_button.addClass("running");
-            const timer_btn = this.timer_button;
-            const add = () => {
-              xw_timer_seconds = xw_timer_seconds + 1;
-              const display_seconds = xw_timer_seconds % 60;
-              const display_minutes = (xw_timer_seconds - display_seconds) / 60;
-              const display = (display_minutes ? display_minutes > 9 ? display_minutes : "0" + display_minutes : "00") + ":" + (display_seconds > 9 ? display_seconds : "0" + display_seconds);
-              timer_btn.html(display);
-              if (this.config.tournament_mode && xw_timer_seconds % 5 === 0) {
-                this.saveGameImmediate();
-              }
-              xw_timer = setTimeout(add, 1e3);
-            };
-            xw_timer = setTimeout(add, 1e3);
-          }
+          startTimer.call(this);
         }
         stopTimer(shouldFocus = false) {
-          if (this.timer_running) {
-            clearTimeout(xw_timer);
-            this.timer_button.removeClass("running");
-            this.timer_button.addClass("paused");
-            this.timer_running = false;
-            this.xw_timer_seconds = xw_timer_seconds;
-            if (shouldFocus && !IS_MOBILE) {
-              this.hidden_input.focus();
-            }
-          }
+          stopTimer.call(this, shouldFocus);
         }
         toggleTimer() {
-          if (!this.config.allow_timer_toggle && this.timer_running) {
-            console.log("Timer toggle disabled in tournament mode.");
-            this.timer_button.css("cursor", "default");
-            return;
-          }
-          if (this.timer_running) {
-            this.stopTimer(true);
-          } else {
-            this.startTimer();
-          }
+          toggleTimer.call(this);
         }
         styleClues() {
           this.clues_holder.find(".cw-clue").each((i, el) => {
