@@ -2,6 +2,21 @@ import { updateCSS, getShadeHighlightColor } from './colors.js';
 import { isCorrect } from './utils.js';
 import { CluesGroup } from './CluesGroup.js';
 import { Word } from './Word.js';
+import { keyPressed } from './input.js';
+import {
+  IS_MOBILE,
+  CONFIGURABLE_SETTINGS,
+  STORAGE_KEY,
+  SETTINGS_STORAGE_KEY,
+  SKIP_UP,
+  SKIP_DOWN,
+  SKIP_LEFT,
+  SKIP_RIGHT,
+  FILE_JPZ,
+  FILE_PUZ,
+  MIN_SIZE,
+  MAX_SIZE
+} from './constants.js';
 
 /**
 Copyright (c) 2025, Crossword Nexus & Crossweird LLC
@@ -17,19 +32,6 @@ Redistribution and use in source and binary forms, with or without modification,
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
-
-// Settings that we can save
-const CONFIGURABLE_SETTINGS = [
-  "skip_filled_letters", "arrow_direction", "space_bar", "tab_key",
-  "timer_autostart", "dark_mode_enabled", "gray_completed_clues",
-  "confetti_enabled", "notepad_name",
-];
-
-// Since DarkReader is an external library, make sure it exists
-// (Removing DarkReader dependency)
-
-// one-time check for mobile device status
-const IS_MOBILE = CrosswordShared.isMobileDevice();
 
 // Main crossword javascript for the Crossword Nexus HTML5 Solver
 (function(global, factory) {
@@ -74,17 +76,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
       kelsey: false,
     };
 
-    // constants
-    var FILE_JPZ = 'jpz';
-    var FILE_PUZ = 'puz';
-    var MIN_SIZE = 10;
-    var MAX_SIZE = 100;
-    var SKIP_UP = 'up';
-    var SKIP_DOWN = 'down';
-    var SKIP_LEFT = 'left';
-    var SKIP_RIGHT = 'right';
-    var STORAGE_KEY = 'crossword_nexus_savegame';
-    var SETTINGS_STORAGE_KEY = 'crossword_nexus_settings';
+
 
     /*const PUZZLE_STORAGE_VERSION = 'v3';  // bump this anytime you change the structure*/
 
@@ -2452,242 +2444,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
       }
 
       keyPressed(e) {
-        if (this.settings_open) {
-          return;
-        }
-
-        // Prevent typing letters into the grid if an editable clue note is focused
-        if (document.activeElement.classList.contains('cw-input')) {
-          return;
-        }
-
-        // to prevent event propagation for specified keys
-        var prevent = [35, 36, 37, 38, 39, 40, 32, 46, 8, 9, 13].indexOf(e.keyCode) >= 0;
-
-        switch (e.keyCode) {
-          case 35: // end
-            this.moveToFirstCell(true);
-            break;
-          case 36: // home
-            this.moveToFirstCell(false);
-            break;
-          case 37: // left
-            if (this.diagramless_mode) this.setDiagramlessDir('across'); // set BEFORE moving
-            if (e.shiftKey) {
-              this.skipToWord(SKIP_LEFT);
-            } else {
-              this.moveSelectionBy(-1, 0);
-            }
-            break;
-          case 38: // up
-            if (this.diagramless_mode) this.setDiagramlessDir('down'); // vertical mode (set BEFORE)
-            if (e.shiftKey) {
-              this.skipToWord(SKIP_UP);
-            } else {
-              this.moveSelectionBy(0, -1);
-            }
-            break;
-          case 39: // right
-            if (this.diagramless_mode) this.setDiagramlessDir('across'); // set BEFORE moving
-            if (e.shiftKey) {
-              this.skipToWord(SKIP_RIGHT);
-            } else {
-              this.moveSelectionBy(1, 0);
-            }
-            break;
-          case 40: // down
-            if (this.diagramless_mode) this.setDiagramlessDir('down'); // vertical mode (set BEFORE)
-            if (e.shiftKey) {
-              this.skipToWord(SKIP_DOWN);
-            } else {
-              this.moveSelectionBy(0, 1);
-            }
-            break;
-
-          case 32: // space
-
-            if (this.diagramless_mode) {
-              // Toggle direction in diagramless on Space
-              if (this.selected_cell) {
-                this.toggleDiagramlessDir();
-              }
-              break; // prevent falling into normal space behavior
-            }
-
-            if (this.selected_cell && this.selected_word) {
-              // check config
-              if (this.config.space_bar === 'space_switch') {
-                const {
-                  x,
-                  y
-                } = this.selected_cell;
-                const groups = this.clueGroups || [];
-                const n = groups.length;
-
-                if (n > 1) {
-                  this.changeActiveClues();
-                  this.setActiveCell(this.selected_cell);
-                }
-              } else {
-                // --- normal space behavior: clear and move to next cell
-                this.updateCell(this.selected_cell, {
-                  letter: '',
-                  checked: false
-                });
-                this.autofill();
-                const next_cell = this.selected_word.getNextCell(
-                  this.selected_cell.x,
-                  this.selected_cell.y
-                );
-                this.setActiveCell(next_cell);
-              }
-            }
-
-            this.checkIfSolved(); // update solved status
-            break;
-
-          case 27: // escape -- pulls up a rebus entry
-            if (e.shiftKey) {
-              e.preventDefault();
-              this.toggleTimer();
-            } else {
-              if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
-                e.preventDefault();
-                e.stopPropagation();
-                this.hidden_input.val('');
-                this.openRebusModal();
-              }
-              prevent = true;
-            }
-            break;
-          case 45: // insert -- same as escape
-            if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
-              e.preventDefault();
-              e.stopPropagation();
-              this.openRebusModal();
-            }
-            prevent = true;
-            break;
-          case 46: // delete
-            if (this.selected_cell && !this.selected_cell.fixed) {
-              this.updateCell(this.selected_cell, {
-                letter: '',
-                checked: false
-              });
-              this.autofill();
-            }
-            // Update this.isSolved
-            this.checkIfSolved();
-            break;
-          case 8: // backspace
-            this.backspace();
-            break;
-          case 9: // tab
-          case 13: // enter key -- same as tab
-            var skip_filled_words = this.config.tab_key === 'tab_skip';
-            if (e.shiftKey) {
-              this.moveToNextWord(true, skip_filled_words);
-            } else {
-              this.moveToNextWord(false, skip_filled_words);
-            }
-            break;
-          case 190: // "." key pressed
-            if (this.selected_cell && (e.ctrlKey || e.metaKey)) {
-              // ctrl + "." toggles circle
-              const cell = this.selected_cell;
-              this.updateCell(cell, {
-                shape: cell.shape === 'circle' ? null : 'circle'
-              });
-              if (!IS_MOBILE) {
-                this.hidden_input.focus();
-              }
-              prevent = true;
-              break;
-            }
-
-            if (this.diagramless_mode && this.selected_cell) {
-              const cell = this.selected_cell;
-
-              // Toggle block / white
-              if (cell.type === 'block') {
-                // It is currently a block: make it white again
-                this.updateCell(cell, {
-                  type: null,
-                  empty: false,
-                  letter: ''
-                });
-              } else {
-                // It is currently white: make it a block
-                this.updateCell(cell, {
-                  type: 'block',
-                  empty: true,
-                  letter: ''
-                });
-              }
-
-              // Renumber immediately
-              this.renumberGrid();
-
-              if (!IS_MOBILE) {
-                this.hidden_input.focus();
-              }
-            }
-            prevent = true;
-            break;
-          default: {
-            // Allow any single printable character except space (space has special meaning)
-            const isPrintableChar =
-              e.key.length === 1 &&
-              e.key !== ' ' &&
-              !e.ctrlKey && !e.metaKey && !e.altKey;
-
-            if (this.selected_cell && isPrintableChar && !this.selected_cell.fixed) {
-              // Uppercase only letters, leave numbers/punctuation unchanged
-              const ch = /[a-z]/i.test(e.key) ? e.key.toUpperCase() : e.key;
-              this.updateCell(this.selected_cell, {
-                letter: ch,
-                checked: false
-              });
-              this.autofill();
-              this.checkIfSolved();
-              if (!IS_MOBILE) {
-                this.hidden_input.focus();
-              }
-
-              let next_cell = null;
-
-              if (this.diagramless_mode) {
-                // Move in the current diagramless direction (across or down)
-                next_cell = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, +1);
-              } else if (this.selected_word) {
-                // Regular crossword logic
-                if (this.config.skip_filled_letters && !this.selected_word.isFilled()) {
-                  next_cell = this.selected_word.getFirstEmptyCell(
-                    this.selected_cell.x,
-                    this.selected_cell.y
-                  ) || this.selected_word.getNextCell(
-                    this.selected_cell.x,
-                    this.selected_cell.y
-                  );
-                } else {
-                  next_cell = this.selected_word.getNextCell(
-                    this.selected_cell.x,
-                    this.selected_cell.y
-                  );
-                }
-              }
-
-              if (next_cell) {
-                this.setActiveCell(next_cell);
-              }
-            }
-            break;
-          }
-        }
-        if (prevent) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
+        keyPressed.call(this, e);
       }
 
       backspace() {

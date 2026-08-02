@@ -330,6 +330,7 @@
       }
     }
   }
+  const IS_MOBILE = CrosswordShared.isMobileDevice();
   const CONFIGURABLE_SETTINGS = [
     "skip_filled_letters",
     "arrow_direction",
@@ -341,7 +342,216 @@
     "confetti_enabled",
     "notepad_name"
   ];
-  const IS_MOBILE = CrosswordShared.isMobileDevice();
+  const STORAGE_KEY = "crossword_nexus_savegame";
+  const SETTINGS_STORAGE_KEY = "crossword_nexus_settings";
+  const SKIP_UP = "up";
+  const SKIP_DOWN = "down";
+  const SKIP_LEFT = "left";
+  const SKIP_RIGHT = "right";
+  function keyPressed(e) {
+    if (this.settings_open) {
+      return;
+    }
+    if (document.activeElement.classList.contains("cw-input")) {
+      return;
+    }
+    var prevent = [35, 36, 37, 38, 39, 40, 32, 46, 8, 9, 13].indexOf(e.keyCode) >= 0;
+    switch (e.keyCode) {
+      case 35:
+        this.moveToFirstCell(true);
+        break;
+      case 36:
+        this.moveToFirstCell(false);
+        break;
+      case 37:
+        if (this.diagramless_mode) this.setDiagramlessDir("across");
+        if (e.shiftKey) {
+          this.skipToWord(SKIP_LEFT);
+        } else {
+          this.moveSelectionBy(-1, 0);
+        }
+        break;
+      case 38:
+        if (this.diagramless_mode) this.setDiagramlessDir("down");
+        if (e.shiftKey) {
+          this.skipToWord(SKIP_UP);
+        } else {
+          this.moveSelectionBy(0, -1);
+        }
+        break;
+      case 39:
+        if (this.diagramless_mode) this.setDiagramlessDir("across");
+        if (e.shiftKey) {
+          this.skipToWord(SKIP_RIGHT);
+        } else {
+          this.moveSelectionBy(1, 0);
+        }
+        break;
+      case 40:
+        if (this.diagramless_mode) this.setDiagramlessDir("down");
+        if (e.shiftKey) {
+          this.skipToWord(SKIP_DOWN);
+        } else {
+          this.moveSelectionBy(0, 1);
+        }
+        break;
+      case 32:
+        if (this.diagramless_mode) {
+          if (this.selected_cell) {
+            this.toggleDiagramlessDir();
+          }
+          break;
+        }
+        if (this.selected_cell && this.selected_word) {
+          if (this.config.space_bar === "space_switch") {
+            const {
+              x,
+              y
+            } = this.selected_cell;
+            const groups = this.clueGroups || [];
+            const n = groups.length;
+            if (n > 1) {
+              this.changeActiveClues();
+              this.setActiveCell(this.selected_cell);
+            }
+          } else {
+            this.updateCell(this.selected_cell, {
+              letter: "",
+              checked: false
+            });
+            this.autofill();
+            const next_cell = this.selected_word.getNextCell(
+              this.selected_cell.x,
+              this.selected_cell.y
+            );
+            this.setActiveCell(next_cell);
+          }
+        }
+        this.checkIfSolved();
+        break;
+      case 27:
+        if (e.shiftKey) {
+          e.preventDefault();
+          this.toggleTimer();
+        } else {
+          if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.hidden_input.val("");
+            this.openRebusModal();
+          }
+          prevent = true;
+        }
+        break;
+      case 45:
+        if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.openRebusModal();
+        }
+        prevent = true;
+        break;
+      case 46:
+        if (this.selected_cell && !this.selected_cell.fixed) {
+          this.updateCell(this.selected_cell, {
+            letter: "",
+            checked: false
+          });
+          this.autofill();
+        }
+        this.checkIfSolved();
+        break;
+      case 8:
+        this.backspace();
+        break;
+      case 9:
+      // tab
+      case 13:
+        var skip_filled_words = this.config.tab_key === "tab_skip";
+        if (e.shiftKey) {
+          this.moveToNextWord(true, skip_filled_words);
+        } else {
+          this.moveToNextWord(false, skip_filled_words);
+        }
+        break;
+      case 190:
+        if (this.selected_cell && (e.ctrlKey || e.metaKey)) {
+          const cell = this.selected_cell;
+          this.updateCell(cell, {
+            shape: cell.shape === "circle" ? null : "circle"
+          });
+          if (!IS_MOBILE) {
+            this.hidden_input.focus();
+          }
+          prevent = true;
+          break;
+        }
+        if (this.diagramless_mode && this.selected_cell) {
+          const cell = this.selected_cell;
+          if (cell.type === "block") {
+            this.updateCell(cell, {
+              type: null,
+              empty: false,
+              letter: ""
+            });
+          } else {
+            this.updateCell(cell, {
+              type: "block",
+              empty: true,
+              letter: ""
+            });
+          }
+          this.renumberGrid();
+          if (!IS_MOBILE) {
+            this.hidden_input.focus();
+          }
+        }
+        prevent = true;
+        break;
+      default: {
+        const isPrintableChar = e.key.length === 1 && e.key !== " " && !e.ctrlKey && !e.metaKey && !e.altKey;
+        if (this.selected_cell && isPrintableChar && !this.selected_cell.fixed) {
+          const ch = /[a-z]/i.test(e.key) ? e.key.toUpperCase() : e.key;
+          this.updateCell(this.selected_cell, {
+            letter: ch,
+            checked: false
+          });
+          this.autofill();
+          this.checkIfSolved();
+          if (!IS_MOBILE) {
+            this.hidden_input.focus();
+          }
+          let next_cell = null;
+          if (this.diagramless_mode) {
+            next_cell = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, 1);
+          } else if (this.selected_word) {
+            if (this.config.skip_filled_letters && !this.selected_word.isFilled()) {
+              next_cell = this.selected_word.getFirstEmptyCell(
+                this.selected_cell.x,
+                this.selected_cell.y
+              ) || this.selected_word.getNextCell(
+                this.selected_cell.x,
+                this.selected_cell.y
+              );
+            } else {
+              next_cell = this.selected_word.getNextCell(
+                this.selected_cell.x,
+                this.selected_cell.y
+              );
+            }
+          }
+          if (next_cell) {
+            this.setActiveCell(next_cell);
+          }
+        }
+        break;
+      }
+    }
+    if (prevent) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
   (function(global, factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
       module.exports = factory(global);
@@ -381,12 +591,6 @@
         downsOnly: false,
         kelsey: false
       };
-      var SKIP_UP = "up";
-      var SKIP_DOWN = "down";
-      var SKIP_LEFT = "left";
-      var SKIP_RIGHT = "right";
-      var STORAGE_KEY = "crossword_nexus_savegame";
-      var SETTINGS_STORAGE_KEY = "crossword_nexus_settings";
       var TYPE_UNDEFINED = "undefined";
       var ERR_FILE_LOAD = "Error loading file";
       var ERR_NO_JQUERY = "jQuery not found";
@@ -2177,208 +2381,7 @@
           setTimeout(() => inputEl.focus(), 10);
         }
         keyPressed(e) {
-          if (this.settings_open) {
-            return;
-          }
-          if (document.activeElement.classList.contains("cw-input")) {
-            return;
-          }
-          var prevent = [35, 36, 37, 38, 39, 40, 32, 46, 8, 9, 13].indexOf(e.keyCode) >= 0;
-          switch (e.keyCode) {
-            case 35:
-              this.moveToFirstCell(true);
-              break;
-            case 36:
-              this.moveToFirstCell(false);
-              break;
-            case 37:
-              if (this.diagramless_mode) this.setDiagramlessDir("across");
-              if (e.shiftKey) {
-                this.skipToWord(SKIP_LEFT);
-              } else {
-                this.moveSelectionBy(-1, 0);
-              }
-              break;
-            case 38:
-              if (this.diagramless_mode) this.setDiagramlessDir("down");
-              if (e.shiftKey) {
-                this.skipToWord(SKIP_UP);
-              } else {
-                this.moveSelectionBy(0, -1);
-              }
-              break;
-            case 39:
-              if (this.diagramless_mode) this.setDiagramlessDir("across");
-              if (e.shiftKey) {
-                this.skipToWord(SKIP_RIGHT);
-              } else {
-                this.moveSelectionBy(1, 0);
-              }
-              break;
-            case 40:
-              if (this.diagramless_mode) this.setDiagramlessDir("down");
-              if (e.shiftKey) {
-                this.skipToWord(SKIP_DOWN);
-              } else {
-                this.moveSelectionBy(0, 1);
-              }
-              break;
-            case 32:
-              if (this.diagramless_mode) {
-                if (this.selected_cell) {
-                  this.toggleDiagramlessDir();
-                }
-                break;
-              }
-              if (this.selected_cell && this.selected_word) {
-                if (this.config.space_bar === "space_switch") {
-                  const {
-                    x,
-                    y
-                  } = this.selected_cell;
-                  const groups = this.clueGroups || [];
-                  const n = groups.length;
-                  if (n > 1) {
-                    this.changeActiveClues();
-                    this.setActiveCell(this.selected_cell);
-                  }
-                } else {
-                  this.updateCell(this.selected_cell, {
-                    letter: "",
-                    checked: false
-                  });
-                  this.autofill();
-                  const next_cell = this.selected_word.getNextCell(
-                    this.selected_cell.x,
-                    this.selected_cell.y
-                  );
-                  this.setActiveCell(next_cell);
-                }
-              }
-              this.checkIfSolved();
-              break;
-            case 27:
-              if (e.shiftKey) {
-                e.preventDefault();
-                this.toggleTimer();
-              } else {
-                if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  this.hidden_input.val("");
-                  this.openRebusModal();
-                }
-                prevent = true;
-              }
-              break;
-            case 45:
-              if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
-                e.preventDefault();
-                e.stopPropagation();
-                this.openRebusModal();
-              }
-              prevent = true;
-              break;
-            case 46:
-              if (this.selected_cell && !this.selected_cell.fixed) {
-                this.updateCell(this.selected_cell, {
-                  letter: "",
-                  checked: false
-                });
-                this.autofill();
-              }
-              this.checkIfSolved();
-              break;
-            case 8:
-              this.backspace();
-              break;
-            case 9:
-            // tab
-            case 13:
-              var skip_filled_words = this.config.tab_key === "tab_skip";
-              if (e.shiftKey) {
-                this.moveToNextWord(true, skip_filled_words);
-              } else {
-                this.moveToNextWord(false, skip_filled_words);
-              }
-              break;
-            case 190:
-              if (this.selected_cell && (e.ctrlKey || e.metaKey)) {
-                const cell = this.selected_cell;
-                this.updateCell(cell, {
-                  shape: cell.shape === "circle" ? null : "circle"
-                });
-                if (!IS_MOBILE) {
-                  this.hidden_input.focus();
-                }
-                prevent = true;
-                break;
-              }
-              if (this.diagramless_mode && this.selected_cell) {
-                const cell = this.selected_cell;
-                if (cell.type === "block") {
-                  this.updateCell(cell, {
-                    type: null,
-                    empty: false,
-                    letter: ""
-                  });
-                } else {
-                  this.updateCell(cell, {
-                    type: "block",
-                    empty: true,
-                    letter: ""
-                  });
-                }
-                this.renumberGrid();
-                if (!IS_MOBILE) {
-                  this.hidden_input.focus();
-                }
-              }
-              prevent = true;
-              break;
-            default: {
-              const isPrintableChar = e.key.length === 1 && e.key !== " " && !e.ctrlKey && !e.metaKey && !e.altKey;
-              if (this.selected_cell && isPrintableChar && !this.selected_cell.fixed) {
-                const ch = /[a-z]/i.test(e.key) ? e.key.toUpperCase() : e.key;
-                this.updateCell(this.selected_cell, {
-                  letter: ch,
-                  checked: false
-                });
-                this.autofill();
-                this.checkIfSolved();
-                if (!IS_MOBILE) {
-                  this.hidden_input.focus();
-                }
-                let next_cell = null;
-                if (this.diagramless_mode) {
-                  next_cell = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, 1);
-                } else if (this.selected_word) {
-                  if (this.config.skip_filled_letters && !this.selected_word.isFilled()) {
-                    next_cell = this.selected_word.getFirstEmptyCell(
-                      this.selected_cell.x,
-                      this.selected_cell.y
-                    ) || this.selected_word.getNextCell(
-                      this.selected_cell.x,
-                      this.selected_cell.y
-                    );
-                  } else {
-                    next_cell = this.selected_word.getNextCell(
-                      this.selected_cell.x,
-                      this.selected_cell.y
-                    );
-                  }
-                }
-                if (next_cell) {
-                  this.setActiveCell(next_cell);
-                }
-              }
-              break;
-            }
-          }
-          if (prevent) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
+          keyPressed.call(this, e);
         }
         backspace() {
           if (this.selected_cell && !this.selected_cell.fixed) {
