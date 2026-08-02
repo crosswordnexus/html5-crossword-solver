@@ -20,8 +20,6 @@ const CONFIGURABLE_SETTINGS = [
   "confetti_enabled", "notepad_name",
 ];
 
-console.log('Logging from Crosswords.js');
-
 // Since DarkReader is an external library, make sure it exists
 // (Removing DarkReader dependency)
 
@@ -2452,7 +2450,7 @@ const IS_MOBILE = CrosswordShared.isMobileDevice();
         this.createModalBox('Rebus entry', content, 'Enter');
         const inputEl = document.getElementById('rebus_input');
         const modalEl = this.root.find('.cw-modal').get(0);
-        
+
         const submitRebus = () => {
           modalEl.style.display = 'none';
           this.hiddenInputChanged(inputEl.value);
