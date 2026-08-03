@@ -105,3 +105,6 @@ The following parameters allow you to change the solver's color scheme.
 | `background_color_clue` | `string`| `'#666666'` | Background color for block cells containing text. |
 | `font_color_fill`| `string` | `'#000000'` | Font color for filled letters. |
 | `bar_linewidth` | `number`| `3.2` | Line width for cell borders (bars). |
+
+## Deployment Note
+**Note:** When building the project, Vite's custom bundler plugin automatically updates the `CACHE_NAME` constant in `sw.js` with a new unique timestamp version (e.g. `const CACHE_NAME = "xw-solver-v20260802133000";`). This automates browser cache invalidation for client updates.

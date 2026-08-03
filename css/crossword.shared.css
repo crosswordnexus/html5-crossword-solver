@@ -21,6 +21,7 @@ This file contains shared styles always loaded (mobile or desktop)
     --button-note-timer-hover-text-color: #000000;
     --button-note-timer-border: #888888;
     --button-menu-bg-color: #FFFFFF;
+    --button-menu-text-color: #000000;
     --top-text-wrapper-bg-color: #fff5d7;
     --top-text-wrapper-text-color: #000000;
     --clues-holder-bg-color: #EDE7DF;
@@ -83,6 +84,7 @@ body.dark-mode {
     --copyright-text-color: #aaaaaa;
     
     --button-menu-bg-color: #2c2c2c;
+    --button-menu-text-color: #e0e0e0;
 
     --top-text-wrapper-bg-color: #2c2c2c;
     --top-text-wrapper-text-color: #e0e0e0;
@@ -434,7 +436,7 @@ div.is-dragover {
   background: none;
   border: none;
   border-radius: 4px;
-  color: var(--button-text-color);
+  color: var(--button-menu-text-color);
   /* avoid Safari active style */
   cursor: pointer;
   display: block;
@@ -447,6 +449,7 @@ div.is-dragover {
 
 .cw-menu-item:hover {
   background-color: var(--button-hover-color);
+  color: var(--button-hover-text-color);
   transition: all 0.3s ease-in-out;
 }
 
