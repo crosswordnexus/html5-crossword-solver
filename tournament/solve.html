@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
+    <meta name="HandheldFriendly" content="True">
+    <title>Tournament Solver | Crossword Nexus</title>
+
+    <!-- External Dependencies -->
+    <script src="../lib/jquery.js"></script>
+    <script src="../lib/jscrossword_combined.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OyTttBxEGkTsoIVsiP1iaTtM8b3+hu2kB6pQ4Clr5yug==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Core Solver Assets -->
+    <script src="../js/crossword.shared.js"></script>
+    <link rel="stylesheet" href="../css/crossword.shared.css">
+    <link rel="stylesheet" href="tournament.css">
+    <link rel="stylesheet" href="toast.css">
+    <script src="toast.js"></script>
+
+    <style>
+      /* Full-screen layout for the solver */
+      body {
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          overflow: hidden;
+          font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+      
+      /* Distinct banner to remind users they are in tournament mode */
+      .tournament-banner {
+          background: #e67e22;
+          color: white;
+          text-align: center;
+          padding: 8px;
+          font-weight: bold;
+          font-size: 0.9em;
+          letter-spacing: 1px;
+          flex-shrink: 0;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          z-index: 100;
+      }
+
+      /* Solver container fills the remaining viewport height */
+      .crossword {
+          flex: 1;
+          position: relative;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+      }
+    </style>
+
+    <script>
+        /**
+         * solve.html - Dedicated Tournament Solver Bridge
+         * 
+         * This page hosts the main crossword engine but wraps it with tournament-specific
+         * behavior: auto-starting the timer, disabling help features, and reporting
+         * the final score back to the dashboard via postMessage.
+         */
+
+        const mobile = CrosswordShared.isMobileDevice();
+        
+        /**
+         * Fetches parameters from the URL and applies tournament overrides.
+         */
+        function getTournamentParams() {
+            const params = CrosswordShared.getCrosswordParams();
+            
+            // Centralized tournament mode - engine handles secondary logic
+            if (params.tournament_mode) {
+                params.tournament_mode = true; 
+
+                if (!window.opener) {
+                    console.warn('WARNING: Dashboard connection lost. Score reporting will fail.');
+                }
+            }
+            
+            /**
+             * The onSolved callback is triggered by the core engine when the grid is 100% correct.
+             * For tournament mode, we don't show a message to keep the solver's focus.
+             */
+            params.onSolved = (xw) => {
+                // No-op to suppress pop-ups
+            };
+
+            /**
+             * The onSubmitted callback is triggered when the user clicks the manual submit button.
+             */
+            params.onSubmitted = (xw) => {
+                // 1. Check for blank squares
+                let blanks = 0;
+                for (let x in xw.cells) {
+                    for (let y in xw.cells[x]) {
+                        const cell = xw.cells[x][y];
+                        if (!cell.empty && !cell.letter) {
+                            blanks++;
+                        }
+                    }
+                }
+
+                if (blanks > 0) {
+                    const confirmSubmit = confirm(`WARNING: You have ${blanks} blank square(s) remaining.\n\nAre you sure you want to submit? Click "OK" to submit anyway, or "Cancel" to go back and finish.`);
+                    if (!confirmSubmit) return;
+                }
+
+                // Stop the timer immediately and freeze the board upon submission
+                freezeBoard(xw);
+
+                // Run a check on the puzzle so incorrect letters show up with a slash
+                const prevMode = xw.config.tournament_mode;
+                xw.config.tournament_mode = false;
+                xw.check_reveal?.('puzzle', 'check');
+                xw.config.tournament_mode = prevMode;
+
+                const words = Object.values(xw.words);
+                const totalWords = words.length;
+                const correctWords = words.filter(w => w.isCorrect()).length;
+                const finalTime = xw.xw_timer_seconds || 0;
+                
+                // Serialize the grid: _ for blanks, . for blocks, * for rebuses
+                let gridString = '';
+                const width = xw.grid_width || 0;
+                const height = xw.grid_height || 0;
+                for (let y = 1; y <= height; y++) {
+                    for (let x = 1; x <= width; x++) {
+                        const cell = xw.cells[x] ? xw.cells[x][y] : null;
+                        if (!cell || cell.empty) {
+                            gridString += '.';
+                        } else if (!cell.letter) {
+                            gridString += '_';
+                        } else if (cell.letter.length > 1) {
+                            gridString += '*';
+                        } else {
+                            gridString += cell.letter.toUpperCase();
+                        }
+                    }
+                }
+
+                if (!window.opener) {
+                    Toast.error('Tournament window not found. Score could not be reported automatically.');
+                    return;
+                }
+
+                // Report back to the dashboard (tournament.html)
+                window.opener.postMessage({
+                    type: 'CROSSWORD_SOLVED',
+                    puzzleId: params.puzzle_id,
+                    timeTakenSeconds: finalTime,
+                    correctWords: correctWords,
+                    totalWords: totalWords,
+                    submittedGrid: gridString,
+                    gridWidth: width,
+                    gridHeight: height
+                }, '*');
+                
+                // Calculate score for display (logic matches tournament.js)
+                const scoring = params.scoring || {};
+                const isFull = correctWords === totalWords && totalWords > 0;
+                const limit = params.time_limit || 0;
+                let score = correctWords * (scoring.pointsPerWord || 10);
+                if (isFull) score += (scoring.completionBonus || 180);
+
+                let bonus = 0, penalty = 0;
+                if (finalTime <= limit) {
+                    if ((correctWords/totalWords) >= (scoring.minCorrectPercentageForTimeBonus || 0.5)) 
+                        bonus = (limit - finalTime) * (scoring.timeBonusPerSecond || 1);
+                } else {
+                    penalty = Math.floor((finalTime - limit) / 4) * (scoring.overtimePenaltyPer4Seconds || 1);
+                }
+                const totalScore = Math.max(0, score + bonus - penalty);
+
+                // Save submission state to localStorage to prevent post-reload edits
+                if (params.puzzle_id) {
+                    try {
+                        localStorage.setItem('tournament_submitted_' + params.puzzle_id, 'true');
+                    } catch (e) {
+                        console.error('Failed to save submission status to localStorage', e);
+                    }
+                }
+
+                // Custom success message for tournament players
+                setTimeout(() => {
+                    const msg = `
+                        <div style="text-align:center; padding: 10px;">
+                            <div style="font-size: 1.5em; font-weight: bold; color: #27ae60; margin-bottom: 10px;">Puzzle Submitted!</div>
+                            <div style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #eee;">
+                                <div style="font-size: 0.9em; color: #666; margin-bottom: 5px;">TOTAL SCORE</div>
+                                <div style="font-size: 2.5em; font-weight: bold; color: #2c3e50;">${totalScore}</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95em;">
+                                <div style="background: #f8f9fa; padding: 10px; border-radius: 6px;">
+                                    <div style="color: #666; font-size: 0.8em;">CORRECT</div>
+                                    <strong>${correctWords}/${totalWords}</strong>
+                                </div>
+                                <div style="background: #f8f9fa; padding: 10px; border-radius: 6px;">
+                                    <div style="color: #666; font-size: 0.8em;">TIME</div>
+                                    <strong>${Math.floor(finalTime/60)}m ${finalTime%60}s</strong>
+                                </div>
+                            </div>
+                            <div style="margin-top: 20px; font-size: 0.9em; color: #666;">
+                                ${params.is_warmup ? '<em>Warm-up results are not saved to the leaderboard.</em><br><br>' : ''}
+                                Tournament result reported! You can now close this tab and return to the tournament dashboard.
+                            </div>
+                        </div>
+                    `;
+                    xw.createModalBox('✅ Success', msg);
+                }, 100);
+            };
+            
+            return params;
+        }
+
+        /**
+         * Freezes the crossword board and disables inputs/timers to prevent interaction.
+         */
+        function freezeBoard(xw) {
+            xw.stopTimer?.();
+
+            // Freeze the board and disable interactions to prevent post-submit/post-reload edits
+            $(document).off('keydown');
+            if (xw.hidden_input) {
+                xw.hidden_input.off('keydown keypress input');
+                xw.hidden_input.prop('disabled', true);
+            }
+            xw.root.find('.cw-grid, .cw-clues-holder, .cw-menu, .cw-menu-container, .cw-topbar, .cw-button-timer').css('pointer-events', 'none');
+            xw.timer_button?.off('click');
+
+            // Hide the submit button
+            const submitBtn = document.querySelector('.cw-tournament-submit');
+            if (submitBtn) submitBtn.style.display = 'none';
+            xw.tournament_submit_btn?.hide();
+        }
+
+        // Initialize localStorage check after crossword object creation
+        $(document).ready(() => {
+            const check = () => {
+                const params = CrosswordShared.getCrosswordParams();
+                const xw = window.gCrossword;
+                if (xw && xw.root) {
+                    if (params.puzzle_id && localStorage.getItem('tournament_submitted_' + params.puzzle_id)) {
+                        xw.config.timer_autostart = false;
+                        freezeBoard(xw);
+                        
+                        // Re-run freeze in case asynchronous load finishes later
+                        setTimeout(() => freezeBoard(xw), 100);
+                        setTimeout(() => freezeBoard(xw), 300);
+                    }
+                } else {
+                    setTimeout(check, 50);
+                }
+            };
+            check();
+        });
+
+        // --- Platform-specific Initialization ---
+
+        if (mobile) {
+          /**
+           * Mobile Init: Loads mobile CSS and bootstrapper.
+           */
+          const core = document.createElement('script');
+          core.src = '../js/crosswords.js';
+
+          core.onload = () => {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = '../css/crossword.mobile.css';
+            document.head.appendChild(link);
+
+            // Override parameter fetching before mobile JS initializes
+            CrosswordShared.getCrosswordParams = getTournamentParams;
+
+            const mobileScript = document.createElement('script');
+            mobileScript.src = '../js/crossword.mobile.js';
+            document.body.appendChild(mobileScript);
+          };
+
+          window.addEventListener('DOMContentLoaded', () => {
+            document.body.appendChild(core);
+          });
+
+        } else {
+          /**
+           * Desktop Init: Loads desktop CSS and initializes the crossword instance.
+           */
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = '../css/crosswordnexus.css';
+          document.head.appendChild(link);
+
+          const script = document.createElement('script');
+          script.src = '../js/crosswords.js';
+          script.onload = () => {
+            const params = getTournamentParams();
+            window.gCrossword = CrosswordNexus.createCrossword($('div.crossword'), params);
+
+            // Ensure grid rendering syncs with the viewport
+            setTimeout(() => {
+              const svg = document.getElementById('cw-puzzle-grid');
+              const cw = window.gCrossword;
+              if (svg && cw?.renderCells) {
+                cw.renderCells();
+                cw.windowResized?.();
+              }
+            }, 350);
+          };
+
+          window.addEventListener('DOMContentLoaded', () => {
+            document.body.appendChild(script);
+          });
+        }
+      </script>
+</head>
+<body>
+    <!-- <div class="tournament-banner">TOURNAMENT MODE — SCORE WILL BE REPORTED UPON COMPLETION</div> -->
+    <div class="crossword crosswordnexus-theme"></div>
+</body>
+</html>

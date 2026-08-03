@@ -1,0 +1,21 @@
+# Apache Rewrite Rules for Crossword Tournament Solver
+# Rename this file to .htaccess and place it in the root directory of your web host
+# (the parent directory of the 'tournament' folder) to host the tournament
+# directly at your domain root (e.g., https://tournament.crosswordnexus.com)
+
+RewriteEngine On
+RewriteBase /
+
+# 1. If visiting the root "/", internally rewrite to the tournament dashboard
+RewriteRule ^$ tournament/index.html [L]
+
+# 2. Prioritize the "tournament" folder: If the file exists inside "tournament", serve it.
+# This prevents collisions like 'index.html', which exists in both root and tournament folders.
+RewriteCond %{DOCUMENT_ROOT}/tournament/$1 -f
+RewriteRule ^(.*)$ tournament/$1 [L]
+
+# 3. Fallback to the root folder: If the requested file or directory exists at the root, serve it directly.
+# (This handles: /css/crossword.shared.css, /js/crossword.shared.js, /lib/jquery.js, etc.)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
