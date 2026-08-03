@@ -1,7 +1,7 @@
 /**
  * @file loader.js
  * @description Manages crossword fetching, file parsing, and puzzle model initialization.
- * 
+ *
  * What belongs here:
  * - Puzzle file loaders reading data from servers or local uploads (like loadFileFromServer, loadFromFile).
  * - Parser orchestrator (parsePuzzle) transforming raw iPuz/JPZ bytes into grid cells and word objects.
@@ -455,6 +455,12 @@ export function parsePuzzle(data) {
       }),
       clue: clueMapping[word.id]
     });
+  }
+
+  // Hide the "loading" overlay
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+      overlay.style.visibility = 'hidden';
   }
 
   this.completeLoad();
