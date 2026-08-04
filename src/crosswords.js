@@ -804,6 +804,77 @@ import {
         updateClueLayout.call(this);
       }
 
+      /**
+       * Handles global viewport resize events by re-evaluating responsive classes,
+       * resizing current top text, repositioning the SVG grid layout, and synchronizing widths.
+       */
+      windowResized() {
+        setBreakpointClasses(this.root);
+        resizeText(this.root, this.top_text);
+        this.positionGrid();
+        this.syncTopTextWidth();
+      }
+
+      /**
+       * Dynamically aligns the width and horizontal position of the top clue text wrapper
+       * with the rendered bounding box of the SVG grid container.
+       */
+      syncTopTextWidth() {
+        const svgEl = this.svgContainer;
+        const wrapper = this.toptext?.get(0);
+
+        if (!svgEl || !wrapper) return;
+
+        const bbox = svgEl.getBoundingClientRect();
+        const containerBox = svgEl.parentNode.getBoundingClientRect();
+
+        const leftOffset = bbox.left - containerBox.left;
+        const width = Math.round(bbox.width);
+
+        wrapper.style.position = 'absolute';
+        wrapper.style.left = `${leftOffset}px`;
+        wrapper.style.width = `${width}px`;
+
+        // Optional debug log
+        requestAnimationFrame(() => {
+          const actual = wrapper.getBoundingClientRect();
+        });
+      }
+
+      /**
+       * Polls the SVG bounding box width periodically until it stabilizes (i.e. remains unchanged
+       * across multiple checks) before invoking the provided callback.
+       * @param {Function} finalCallback - Callback to run once SVG dimensions stabilize.
+       */
+      waitUntilSVGWidthStabilizes(finalCallback) {
+        let lastWidth = null;
+        let stableCount = 0;
+        let tick = 0;
+
+        const check = () => {
+          const svg = this.svgContainer;
+          const width = svg?.getBoundingClientRect().width || 0;
+
+          if (lastWidth !== null && width === lastWidth) {
+            stableCount++;
+          } else {
+            stableCount = 0;
+          }
+
+          if (stableCount >= 3) {
+            finalCallback();
+          } else if (tick < 30) {
+            lastWidth = width;
+            tick++;
+            setTimeout(check, 100);
+          } else {
+            finalCallback();
+          }
+        };
+
+        check();
+      }
+
       // =========================================================================
       // 6. EVENT LISTENERS & DOM EVENT HOOKS
       // =========================================================================
@@ -1054,63 +1125,6 @@ import {
       } // END moveSelectionBy()
 
 
-      windowResized() {
-        setBreakpointClasses(this.root);
-        resizeText(this.root, this.top_text);
-        this.positionGrid();
-        this.syncTopTextWidth();
-      }
-
-      syncTopTextWidth() {
-        const svgEl = this.svgContainer;
-        const wrapper = this.toptext?.get(0);
-
-        if (!svgEl || !wrapper) return;
-
-        const bbox = svgEl.getBoundingClientRect();
-        const containerBox = svgEl.parentNode.getBoundingClientRect();
-
-        const leftOffset = bbox.left - containerBox.left;
-        const width = Math.round(bbox.width);
-
-        wrapper.style.position = 'absolute';
-        wrapper.style.left = `${leftOffset}px`;
-        wrapper.style.width = `${width}px`;
-
-        // Optional debug log
-        requestAnimationFrame(() => {
-          const actual = wrapper.getBoundingClientRect();
-        });
-      }
-
-      waitUntilSVGWidthStabilizes(finalCallback) {
-        let lastWidth = null;
-        let stableCount = 0;
-        let tick = 0;
-
-        const check = () => {
-          const svg = this.svgContainer;
-          const width = svg?.getBoundingClientRect().width || 0;
-
-          if (lastWidth !== null && width === lastWidth) {
-            stableCount++;
-          } else {
-            stableCount = 0;
-          }
-
-          if (stableCount >= 3) {
-            finalCallback();
-          } else if (tick < 30) {
-            lastWidth = width;
-            tick++;
-            setTimeout(check, 100);
-          } else {
-            finalCallback();
-          }
-        };
-
-        check();
-      }
 
       // callback for clicking a clue in the sidebar
       clueClicked(e) {
