@@ -156,8 +156,6 @@ import {
       kelsey: false,
     };
 
-
-
     /*const PUZZLE_STORAGE_VERSION = 'v3';  // bump this anytime you change the structure*/
 
     // messages
@@ -204,7 +202,6 @@ import {
       return isSafari || isFirefox;
     })();
 
-
     /** Template will have to change along with CSS **/
     var template = TEMPLATE;
 
@@ -217,11 +214,6 @@ import {
         'FileReader' in window
       );
     })();
-
-
-
-
-
 
     // Breakpoint widths used by the stylesheet.
     const breakpoints = [420, 600, 650, 850, 1080, 1200];
@@ -239,8 +231,6 @@ import {
         }
       }
     }
-
-
 
     /**
      * Sanitize HTML in the given string, except the simplest no-attribute
@@ -260,8 +250,6 @@ import {
       `</?(i|b|em|strong|span|br|p)>|[&<>"'\`=\\/]`,
       'g'
     );
-
-
 
     var CrosswordNexus = {
       createCrossword: function(parent, user_config) {
@@ -346,7 +334,6 @@ import {
           this.config.allow_timer_toggle = false;
           this.config.confetti_enabled = false;
         }
-
 
         /* Update config values based on `color_word` */
         const COLOR_WORD = this.config.color_word;
@@ -949,9 +936,6 @@ import {
         setActiveCell.call(this, cell);
       }
 
-
-
-
       // Clears canvas and re-renders all cells
       renderCells() {
         renderCells.call(this);
@@ -1138,8 +1122,6 @@ import {
         moveSelectionBy.call(this, delta_x, delta_y, jumping_over_black);
       } // END moveSelectionBy()
 
-
-
       // callback for clicking a clue in the sidebar
       clueClicked(e) {
         clueClicked.call(this, e);
@@ -1253,8 +1235,6 @@ import {
         toggleTimer.call(this);
       }
 
-
-
       // =========================================================================
       // GRID SELECTORS & MUTATORS
       // =========================================================================
@@ -1300,7 +1280,6 @@ import {
         }
       }
     }
-
 
     if (typeof define === 'function' && define.amd) {
       define('CrosswordNexus', [], function() {
