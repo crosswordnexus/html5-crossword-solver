@@ -902,6 +902,22 @@ import {
         addListeners.call(this);
       }
 
+      // =========================================================================
+      // 12. CLUE UI & STYLING
+      // =========================================================================
+
+      renderClues(clues_group, clues_container) {
+        renderClues.call(this, clues_group, clues_container);
+      }
+
+      styleClues() {
+        styleClues.call(this);
+      }
+
+      updateClueAppearance(clue, $el) {
+        updateClueAppearance.call(this, clue, $el);
+      }
+
       // Create a generic modal box with content
       createModalBox(title, content, button_text = 'Close') {
         createModalBox.call(this, title, content, button_text);
@@ -933,9 +949,7 @@ import {
         setActiveCell.call(this, cell);
       }
 
-      renderClues(clues_group, clues_container) {
-        renderClues.call(this, clues_group, clues_container);
-      }
+
 
 
       // Clears canvas and re-renders all cells
@@ -1239,13 +1253,7 @@ import {
         toggleTimer.call(this);
       }
 
-      styleClues() {
-        styleClues.call(this);
-      }
 
-      updateClueAppearance(clue, $el) {
-        updateClueAppearance.call(this, clue, $el);
-      }
 
       // =========================================================================
       // 11. GRID SELECTORS & MUTATORS
