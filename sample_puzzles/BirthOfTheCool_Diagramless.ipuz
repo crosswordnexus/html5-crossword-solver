@@ -1,0 +1,533 @@
+{
+    "_id": "jw2rgev4kkbkxwvoox7c",
+    "title": "Birth of the Cool",
+    "author": "Alex Boisvert",
+    "copyright": "© 2023 Crossword Nexus. CC BY 4.0 License.",
+    "block": "#",
+    "empty": "_",
+    "version": "http://ipuz.org/v2",
+    "kind": [
+        "http://ipuz.org/crossword/diagramless#1"
+    ],
+    "dimensions": {
+        "width": 9,
+        "height": 15
+    },
+    "puzzle": [
+        [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+        ],
+        [
+            10,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ],
+        [
+            11,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ],
+        [
+            12,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ],
+        [
+            13,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ],
+        [
+            14,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ],
+        [
+            15,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ],
+        [
+            16,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ],
+        [
+            17,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ],
+        [
+            18,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ],
+        [
+            19,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ],
+        [
+            20,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ],
+        [
+            21,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ],
+        [
+            22,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ],
+        [
+            23,
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_",
+            "_"
+        ]
+    ],
+    "clues": {
+        "Across": [
+            [
+                1,
+                "Bro's sib"
+            ],
+            [
+                4,
+                "Places in order"
+            ],
+            [
+                6,
+                "Rectangular rhombi"
+            ],
+            [
+                8,
+                "Bob's <i>Breaking Bad</i> role"
+            ],
+            [
+                9,
+                "Notable periods"
+            ],
+            [
+                11,
+                "&quot;Sweet but Psycho&quot; songstress Max"
+            ],
+            [
+                12,
+                "___ Genesis (one of two consoles for which <i>NHLPA '93</i> was released)"
+            ],
+            [
+                13,
+                "Source of concern for a high schooler"
+            ],
+            [
+                15,
+                "One of two consoles for which <i>NHLPA '93</i> was released"
+            ],
+            [
+                16,
+                "Former top dog of Iran"
+            ],
+            [
+                18,
+                "Derriere"
+            ],
+            [
+                19,
+                "<i>___ ___ ___</i> (hit duet for Paul McCartney and Michael Jackson)"
+            ],
+            [
+                21,
+                "Lake superior?"
+            ],
+            [
+                24,
+                "Spots"
+            ],
+            [
+                27,
+                "Moleman who hosts &quot;Moleman in the Morning&quot; on <i>The Simpsons</i>"
+            ],
+            [
+                29,
+                "Self-satisfied"
+            ],
+            [
+                31,
+                "<i>¿Dónde ___ Wally?</i>"
+            ],
+            [
+                32,
+                "<i>Argo</i> org."
+            ],
+            [
+                33,
+                "Doce dividido por dos"
+            ],
+            [
+                34,
+                "Lays some money on the line"
+            ],
+            [
+                35,
+                "Foolish types"
+            ],
+            [
+                37,
+                "Sows the lawn"
+            ],
+            [
+                38,
+                "Not exactly a social butterfly"
+            ]
+        ],
+        "Down": [
+            [
+                1,
+                "Spiritual essence which, growing up, I always pictured looking like a saxophone"
+            ],
+            [
+                2,
+                "George's lyricist brother"
+            ],
+            [
+                3,
+                "Result of watching your team walk the bases loaded with a one-run lead in the bottom of the ninth"
+            ],
+            [
+                4,
+                "Game similar to racquetball but way more fun"
+            ],
+            [
+                5,
+                "Williams with 23 Grand Slam singles titles"
+            ],
+            [
+                6,
+                "Highlights for a goaltender"
+            ],
+            [
+                7,
+                "Wise ones"
+            ],
+            [
+                8,
+                "Took a load off"
+            ],
+            [
+                10,
+                "Back talk"
+            ],
+            [
+                14,
+                "Roles for UCLA grad students"
+            ],
+            [
+                17,
+                "Holds on to"
+            ],
+            [
+                20,
+                "&quot;Owner of a Lonely Heart&quot; band"
+            ],
+            [
+                21,
+                "<i>___ Gone</i> (hit for Hall &amp; Oates)"
+            ],
+            [
+                22,
+                "Lays off the gas a bit"
+            ],
+            [
+                23,
+                "Shenanigans"
+            ],
+            [
+                25,
+                "Hosts, as a rap battle"
+            ],
+            [
+                26,
+                "Hearts, spades, clubs, and diamonds"
+            ],
+            [
+                28,
+                "Garb for beauty pageant contestants"
+            ],
+            [
+                30,
+                "Water vapor, e.g."
+            ],
+            [
+                34,
+                "<i>Jennifer's ___</i> (movie that looks like a dumb teenage horror flick but is actually pretty subversive and funny?)"
+            ],
+            [
+                36,
+                "&quot;Whatevs&quot;"
+            ]
+        ]
+    },
+    "solution": [
+        [
+            "#",
+            "#",
+            "#",
+            "S",
+            "I",
+            "S",
+            "#",
+            "#",
+            "#"
+        ],
+        [
+            "#",
+            "#",
+            "S",
+            "O",
+            "R",
+            "T",
+            "S",
+            "#",
+            "#"
+        ],
+        [
+            "#",
+            "S",
+            "Q",
+            "U",
+            "A",
+            "R",
+            "E",
+            "S",
+            "#"
+        ],
+        [
+            "S",
+            "A",
+            "U",
+            "L",
+            "#",
+            "E",
+            "R",
+            "A",
+            "S"
+        ],
+        [
+            "A",
+            "V",
+            "A",
+            "#",
+            "#",
+            "S",
+            "E",
+            "G",
+            "A"
+        ],
+        [
+            "T",
+            "E",
+            "S",
+            "T",
+            "#",
+            "S",
+            "N",
+            "E",
+            "S"
+        ],
+        [
+            "#",
+            "S",
+            "H",
+            "A",
+            "H",
+            "#",
+            "A",
+            "S",
+            "S"
+        ],
+        [
+            "#",
+            "#",
+            "#",
+            "S",
+            "A",
+            "Y",
+            "#",
+            "#",
+            "#"
+        ],
+        [
+            "S",
+            "E",
+            "A",
+            "#",
+            "S",
+            "E",
+            "E",
+            "S",
+            "#"
+        ],
+        [
+            "H",
+            "A",
+            "N",
+            "S",
+            "#",
+            "S",
+            "M",
+            "U",
+            "G"
+        ],
+        [
+            "E",
+            "S",
+            "T",
+            "A",
+            "#",
+            "#",
+            "C",
+            "I",
+            "A"
+        ],
+        [
+            "S",
+            "E",
+            "I",
+            "S",
+            "#",
+            "B",
+            "E",
+            "T",
+            "S"
+        ],
+        [
+            "#",
+            "S",
+            "C",
+            "H",
+            "M",
+            "O",
+            "E",
+            "S",
+            "#"
+        ],
+        [
+            "#",
+            "#",
+            "S",
+            "E",
+            "E",
+            "D",
+            "S",
+            "#",
+            "#"
+        ],
+        [
+            "#",
+            "#",
+            "#",
+            "S",
+            "H",
+            "Y",
+            "#",
+            "#",
+            "#"
+        ]
+    ],
+    "alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+}

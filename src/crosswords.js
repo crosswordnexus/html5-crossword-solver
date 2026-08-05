@@ -82,6 +82,22 @@ import {
   addListeners
 } from './listeners.js';
 import {
+  updateClueLayout,
+  renderClues,
+  styleClues,
+  updateClueAppearance
+} from './cluesUI.js';
+import {
+  nextDiagramlessCell,
+  setDiagramlessDir,
+  toggleDiagramlessDir,
+  renumberGrid
+} from './diagramless.js';
+import {
+  printPuzzle,
+  saveAsIpuz
+} from './export.js';
+import {
   IS_MOBILE,
   CONFIGURABLE_SETTINGS,
   STORAGE_KEY,
@@ -140,8 +156,6 @@ import {
       kelsey: false,
     };
 
-
-
     /*const PUZZLE_STORAGE_VERSION = 'v3';  // bump this anytime you change the structure*/
 
     // messages
@@ -188,7 +202,6 @@ import {
       return isSafari || isFirefox;
     })();
 
-
     /** Template will have to change along with CSS **/
     var template = TEMPLATE;
 
@@ -201,11 +214,6 @@ import {
         'FileReader' in window
       );
     })();
-
-
-
-
-
 
     // Breakpoint widths used by the stylesheet.
     const breakpoints = [420, 600, 650, 850, 1080, 1200];
@@ -223,8 +231,6 @@ import {
         }
       }
     }
-
-
 
     /**
      * Sanitize HTML in the given string, except the simplest no-attribute
@@ -244,8 +250,6 @@ import {
       `</?(i|b|em|strong|span|br|p)>|[&<>"'\`=\\/]`,
       'g'
     );
-
-
 
     var CrosswordNexus = {
       createCrossword: function(parent, user_config) {
@@ -271,7 +275,7 @@ import {
        */
 
       // =========================================================================
-      // 1. CORE SOLVER LIFECYCLE & CONFIG
+      // CORE SOLVER LIFECYCLE & CONFIG
       // =========================================================================
 
       constructor(parent, user_config) {
@@ -331,7 +335,6 @@ import {
           this.config.confetti_enabled = false;
         }
 
-
         /* Update config values based on `color_word` */
         const COLOR_WORD = this.config.color_word;
         const COLOR_SELECTED = this.config.color_selected;
@@ -377,7 +380,7 @@ import {
       }
 
       // =========================================================================
-      // 2. PUZZLE DATA PARSING & LOADER DELEGATES
+      // PUZZLE DATA PARSING & LOADER DELEGATES
       // =========================================================================
 
       /**
@@ -598,7 +601,7 @@ import {
       }
 
       // =========================================================================
-      // 3. DIAGRAMLESS SOLVE ALGORITHMS
+      // DIAGRAMLESS SOLVE ALGORITHMS
       // =========================================================================
 
       /**
@@ -609,46 +612,19 @@ import {
        * @returns {Object|null}
        */
       nextDiagramlessCell(fromCell, dir = this.diagramless_dir, step = 1) {
-        if (!fromCell) return null;
-        let {
-          x,
-          y
-        } = fromCell;
-
-        if (dir === 'across') {
-          for (let nx = x + step; nx >= 1 && nx <= this.grid_width; nx += step) {
-            const c = this.getCell(nx, y);
-            if (c && c.type !== 'block') return c;
-          }
-        } else {
-          for (let ny = y + step; ny >= 1 && ny <= this.grid_height; ny += step) {
-            const c = this.getCell(x, ny);
-            if (c && c.type !== 'block') return c;
-          }
-        }
-        return null;
+        return nextDiagramlessCell.call(this, fromCell, dir, step);
       }
 
-      /**
-       * Sets the active editing direction for diagramless solves.
-       * @param {string} dir - The target direction ('across' or 'down').
-       */
       setDiagramlessDir(dir) {
-        if (dir !== this.diagramless_dir) {
-          this.diagramless_dir = dir;
-          this.adjustChevron();
-        }
+        setDiagramlessDir.call(this, dir);
       }
 
-      /**
-       * Toggles the diagramless editing direction between 'across' and 'down'.
-       */
       toggleDiagramlessDir() {
-        this.setDiagramlessDir((this.diagramless_dir === 'across') ? 'down' : 'across');
+        toggleDiagramlessDir.call(this);
       }
 
       // =========================================================================
-      // 4. UI INITIALIZATION & ORCHESTRATION
+      // UI INITIALIZATION & ORCHESTRATION
       // =========================================================================
 
       /**
@@ -805,38 +781,89 @@ import {
       } // end completeLoad
 
       // =========================================================================
-      // 5. VIEWPORT LAYOUT & RESIZING
+      // VIEWPORT LAYOUT & RESIZING
       // =========================================================================
 
       /**
        * Adjusts clue sidebar flex properties depending on available column width.
        */
       updateClueLayout() {
-        /** Some JS magic to deal with weird numbers of clue lists **/
-        const holder = this.clues_holder ? this.clues_holder.get(0) : null;
-        if (!holder) return; // nothing to do if it doesn't exist
+        updateClueLayout.call(this);
+      }
 
-        const clues = holder.querySelectorAll('.cw-clues');
-        if (!clues.length) return;
+      /**
+       * Handles global viewport resize events by re-evaluating responsive classes,
+       * resizing current top text, repositioning the SVG grid layout, and synchronizing widths.
+       */
+      windowResized() {
+        setBreakpointClasses(this.root);
+        resizeText(this.root, this.top_text);
+        this.positionGrid();
+        this.syncTopTextWidth();
+      }
 
-        const MIN_AVG_WIDTH = this.config.min_sidebar_clue_width || 220; // tweak this breakpoint
+      /**
+       * Dynamically aligns the width and horizontal position of the top clue text wrapper
+       * with the rendered bounding box of the SVG grid container.
+       */
+      syncTopTextWidth() {
+        const svgEl = this.svgContainer;
+        const wrapper = this.toptext?.get(0);
 
-        // available width per clue list
-        const avgWidth = holder.offsetWidth / clues.length;
-        const useColumn = avgWidth < MIN_AVG_WIDTH;
+        if (!svgEl || !wrapper) return;
 
-        // apply layout
-        holder.style.flexDirection = useColumn ? 'column' : 'row';
-        clues.forEach(clue => {
-          clue.style.width = useColumn ? 'auto' : '';
+        const bbox = svgEl.getBoundingClientRect();
+        const containerBox = svgEl.parentNode.getBoundingClientRect();
+
+        const leftOffset = bbox.left - containerBox.left;
+        const width = Math.round(bbox.width);
+
+        wrapper.style.position = 'absolute';
+        wrapper.style.left = `${leftOffset}px`;
+        wrapper.style.width = `${width}px`;
+
+        // Optional debug log
+        requestAnimationFrame(() => {
+          const actual = wrapper.getBoundingClientRect();
         });
+      }
 
-        // optional debug log
-        // console.log(`→ avgWidth=${avgWidth.toFixed(1)}, layout=${useColumn ? 'column' : 'row'}`);
+      /**
+       * Polls the SVG bounding box width periodically until it stabilizes (i.e. remains unchanged
+       * across multiple checks) before invoking the provided callback.
+       * @param {Function} finalCallback - Callback to run once SVG dimensions stabilize.
+       */
+      waitUntilSVGWidthStabilizes(finalCallback) {
+        let lastWidth = null;
+        let stableCount = 0;
+        let tick = 0;
+
+        const check = () => {
+          const svg = this.svgContainer;
+          const width = svg?.getBoundingClientRect().width || 0;
+
+          if (lastWidth !== null && width === lastWidth) {
+            stableCount++;
+          } else {
+            stableCount = 0;
+          }
+
+          if (stableCount >= 3) {
+            finalCallback();
+          } else if (tick < 30) {
+            lastWidth = width;
+            tick++;
+            setTimeout(check, 100);
+          } else {
+            finalCallback();
+          }
+        };
+
+        check();
       }
 
       // =========================================================================
-      // 6. EVENT LISTENERS & DOM EVENT HOOKS
+      // EVENT LISTENERS & DOM EVENT HOOKS
       // =========================================================================
 
       /**
@@ -860,6 +887,22 @@ import {
 
       addListeners() {
         addListeners.call(this);
+      }
+
+      // =========================================================================
+      // CLUE UI & STYLING
+      // =========================================================================
+
+      renderClues(clues_group, clues_container) {
+        renderClues.call(this, clues_group, clues_container);
+      }
+
+      styleClues() {
+        styleClues.call(this);
+      }
+
+      updateClueAppearance(clue, $el) {
+        updateClueAppearance.call(this, clue, $el);
       }
 
       // Create a generic modal box with content
@@ -892,108 +935,6 @@ import {
       setActiveCell(cell) {
         setActiveCell.call(this, cell);
       }
-
-      renderClues(clues_group, clues_container) {
-        const $container = $(clues_container);
-
-        // Locate title and items within the container
-        const $title = $container.find('div.cw-clues-title').length ?
-          $container.find('div.cw-clues-title') :
-          $container.closest('.cw-clues').find('div.cw-clues-title');
-
-        const $items = $container.find('div.cw-clues-items').length ?
-          $container.find('div.cw-clues-items') :
-          $container;
-
-        const notes = this.notes;
-        $items.find('div.cw-clue').remove();
-
-        // --- render each clue ---
-        for (const clue of clues_group.clues) {
-          const clue_el = $(`
-            <div style="position: relative">
-              <span class="cw-clue-number">${escape(clue.number)}</span>
-              <span class="cw-clue-text">
-                ${escape(clue.text)}
-                <div class="cw-edit-container" style="display: none;">
-                  <input class="cw-input note-style" type="text">
-                </div>
-                <span class="cw-cluenote-button" style="display: none;"></span>
-              </span>
-            </div>
-          `);
-
-          // attach metadata
-          clue_el.data({
-            clue: clue,
-            word: clue.word,
-            number: clue.number,
-            clues: clues_group.id,
-          }).addClass(`cw-clue word-${clue.word} group-${clues_group.id}`);
-
-          // restore any saved note
-          const clueNote = notes.get(clue.word);
-          if (clueNote !== undefined) {
-            clue_el.find('.cw-input').val(clueNote);
-            clue_el.find('.cw-edit-container').show();
-          }
-
-          $items.append(clue_el);
-        }
-
-        // Set the group title
-        if ($title.length) $title.text(escape(clues_group.title));
-        clues_group.clues_container = $items;
-
-        // --- event listeners ---
-        const save = () => this.saveGame();
-
-        $items
-          .on('mouseenter', '.cw-clue', function() {
-            const $el = $(this);
-            if ($el.find('.cw-input').val().trim().length === 0) {
-              $el.find('.cw-cluenote-button').show();
-            }
-          })
-          .on('mouseleave', '.cw-clue', function(event) {
-            const $el = $(this);
-            const relatedTarget = event.relatedTarget;
-            const isInsideNote = $(relatedTarget).closest('.cw-edit-container').length > 0;
-            if (!isInsideNote) $el.find('.cw-cluenote-button').hide();
-          })
-          .on('click', '.cw-cluenote-button', function(event) {
-            event.stopPropagation();
-            const $clue = $(this).closest('.cw-clue');
-            $clue.find('.cw-edit-container').show().find('.cw-input').focus();
-            $(this).hide();
-          })
-          .on('click', '.cw-input', function(event) {
-            event.stopPropagation();
-          })
-          .on('blur', '.cw-input', function() {
-            const $input = $(this);
-            const $clue = $input.closest('.cw-clue');
-            const wordId = $clue.data('word');
-            const newText = $input.val().trim();
-
-            setTimeout(() => {
-              const newlyFocused = document.activeElement;
-              if (newlyFocused?.classList.contains('cw-hidden-input')) return;
-
-              if (newText.length > 0) {
-                notes.set(wordId, newText);
-              } else {
-                $clue.find('.cw-edit-container').hide();
-                notes.delete(wordId);
-              }
-              save();
-            }, 10);
-          })
-          .on('keydown', '.cw-input', function(event) {
-            if (event.key === 'Enter') $(this).blur();
-          });
-      }
-
 
       // Clears canvas and re-renders all cells
       renderCells() {
@@ -1041,7 +982,7 @@ import {
       }
 
       // =========================================================================
-      // 7. GRID CELL STYLING & COLOR CONTRAST (delegates)
+      // GRID CELL STYLING & COLOR CONTRAST (delegates)
       // =========================================================================
 
       cellFillColor(cell) {
@@ -1056,29 +997,11 @@ import {
        * Performs recalculation of grid numbers when blocks are dynamically altered (diagramless mode).
        */
       renumberGrid() {
-        let number = 1;
-        const width = this.grid_width;
-        const height = this.grid_height;
-
-        // Update the grid from the underlying jsxw object
-        this.fillJsXw();
-        console.log(this.jsxw);
-        const grid = this.jsxw.grid();
-        const numbering = grid.gridNumbering();
-
-        // Assign new numbers
-        for (let y = 1; y <= height; y++) {
-          for (let x = 1; x <= width; x++) {
-            const cell = this.getCell(x, y);
-            this.updateCell(cell, {
-              number: numbering[y - 1][x - 1] > 0 ? numbering[y - 1][x - 1] : null
-            });
-          }
-        }
+        renumberGrid.call(this);
       } /* END renumbergrid() */
 
       // =========================================================================
-      // 8. USER INTERACTION EVENT HANDLERS (delegates)
+      // USER INTERACTION EVENT HANDLERS (delegates)
       // =========================================================================
 
       mouseClicked(e) {
@@ -1098,7 +1021,7 @@ import {
       }
 
       // =========================================================================
-      // 9. AUTOFILL & INPUT FIELD SYNCHRONIZATION
+      // AUTOFILL & INPUT FIELD SYNCHRONIZATION
       // =========================================================================
 
       /**
@@ -1199,65 +1122,6 @@ import {
         moveSelectionBy.call(this, delta_x, delta_y, jumping_over_black);
       } // END moveSelectionBy()
 
-
-      windowResized() {
-        setBreakpointClasses(this.root);
-        resizeText(this.root, this.top_text);
-        this.positionGrid();
-        this.syncTopTextWidth();
-      }
-
-      syncTopTextWidth() {
-        const svgEl = this.svgContainer;
-        const wrapper = this.toptext?.get(0);
-
-        if (!svgEl || !wrapper) return;
-
-        const bbox = svgEl.getBoundingClientRect();
-        const containerBox = svgEl.parentNode.getBoundingClientRect();
-
-        const leftOffset = bbox.left - containerBox.left;
-        const width = Math.round(bbox.width);
-
-        wrapper.style.position = 'absolute';
-        wrapper.style.left = `${leftOffset}px`;
-        wrapper.style.width = `${width}px`;
-
-        // Optional debug log
-        requestAnimationFrame(() => {
-          const actual = wrapper.getBoundingClientRect();
-        });
-      }
-
-      waitUntilSVGWidthStabilizes(finalCallback) {
-        let lastWidth = null;
-        let stableCount = 0;
-        let tick = 0;
-
-        const check = () => {
-          const svg = this.svgContainer;
-          const width = svg?.getBoundingClientRect().width || 0;
-
-          if (lastWidth !== null && width === lastWidth) {
-            stableCount++;
-          } else {
-            stableCount = 0;
-          }
-
-          if (stableCount >= 3) {
-            finalCallback();
-          } else if (tick < 30) {
-            lastWidth = width;
-            tick++;
-            setTimeout(check, 100);
-          } else {
-            finalCallback();
-          }
-        };
-
-        check();
-      }
-
       // callback for clicking a clue in the sidebar
       clueClicked(e) {
         clueClicked.call(this, e);
@@ -1289,7 +1153,7 @@ import {
       }
 
       // =========================================================================
-      // 10. FILE EXPORTS, PRINT & SAVES
+      // FILE EXPORTS, PRINT & SAVES
       // =========================================================================
 
       fillJsXw() {
@@ -1352,45 +1216,11 @@ import {
       }
 
       async printPuzzle(e) {
-        // fill JSXW
-        this.fillJsXw();
-        try {
-          let doc = await this.jsxw.toPDF();
-          doc.autoPrint();
-          // open in a new tab and trigger print dialog
-          const blobUrl = doc.output("bloburl");
-          window.open(blobUrl, "_blank");
-        } catch (err) {
-          console.error("PDF generation failed:", err);
-        }
+        return printPuzzle.call(this, e);
       }
 
       saveAsIpuz(e) {
-        console.log(e);
-        const json = window.ipuz; // this should be a JSON *string*
-
-        // Create a Blob from the text
-        const blob = new Blob([json], { type: "application/json" });
-
-        // Create a temporary <a> element
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-
-        a.href = url;
-        // Try to sanitize the title for a filename
-        let filename1 = this.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        if (!filename1) {
-          // if this didn't work, revert to just "puzzle"
-          filename1 = 'puzzle';
-        }
-        const filename = filename1 + '.ipuz';
-        a.download = filename; // filename for the dialog
-
-        // Trigger a click
-        a.click();
-
-        // Cleanup
-        URL.revokeObjectURL(url);
+        saveAsIpuz.call(this, e);
       }
 
       startTimer() {
@@ -1405,52 +1235,8 @@ import {
         toggleTimer.call(this);
       }
 
-      styleClues() {
-       // Update all clues in the sidebar
-        this.clues_holder.find('.cw-clue').each((i, el) => {
-          const $el = $(el);
-          const clue = $el.data('clue');
-          this.updateClueAppearance(clue, $el);
-        });
-      }
-
-      updateClueAppearance(clue, $el) {
-        if (!clue) return;
-
-        // Use provided $el or look it up in the DOM using unique identifying info
-        const clueEl = $el || $(document).find(`.cw-clue.word-${clue.word}[data-number="${clue.number}"]`);
-
-        // We specifically target the clue-text span to avoid graying out the clue number
-        const textEl = clueEl.hasClass('cw-clue-text') ? clueEl : clueEl.find('.cw-clue-text');
-
-        const groupId = clueEl.data('clues');
-        const group = this.clueGroups.find(g => g.id === groupId);
-
-        if (!this.config.gray_completed_clues && (!group || !group.isFake) && !this.fakeclues) {
-          // Reset clue styling if the setting is turned off and this is not a fake clue context
-          textEl.css({
-            "text-decoration": "",
-            "color": ""
-          });
-          return;
-        }
-
-        // Determine if it should be gray based on fakeclues context or word fill state
-        let shouldGray = false;
-        if (this.fakeclues || (group && group.isFake)) {
-          shouldGray = Boolean(clue.fakeClueCompleted);
-        } else if (clue.word && this.words[clue.word]) {
-          shouldGray = this.words[clue.word].isFilled();
-        }
-
-        textEl.css({
-          "text-decoration": "",
-          "color": shouldGray ? "#aaa" : ""
-        });
-      }
-
       // =========================================================================
-      // 11. GRID SELECTORS & MUTATORS
+      // GRID SELECTORS & MUTATORS
       // =========================================================================
 
       updateCell(cell, properties) {
@@ -1494,7 +1280,6 @@ import {
         }
       }
     }
-
 
     if (typeof define === 'function' && define.amd) {
       define('CrosswordNexus', [], function() {
