@@ -53,7 +53,7 @@ export function loadFromFile(file, type, deferred) {
 }
 
 export function make_fake_clues(puzzle, clue_mapping = {}) {
-  let across_group = new CluesGroup(this, {
+  const across_group = new CluesGroup(this, {
     id: "clues_0",
     title: 'Across',
     clues: [],
@@ -61,7 +61,7 @@ export function make_fake_clues(puzzle, clue_mapping = {}) {
     fake: true,
   });
 
-  let down_group = new CluesGroup(this, {
+  const down_group = new CluesGroup(this, {
     id: "clues_1",
     title: 'Down',
     clues: [],
@@ -70,7 +70,7 @@ export function make_fake_clues(puzzle, clue_mapping = {}) {
   });
 
   const clueMapping = {};
-  var clueGroups;
+  let clueGroups;
 
   if (!this.realwords) {
     const entry_mapping = puzzle.get_entry_mapping();
@@ -118,7 +118,7 @@ export function normalizeClueTitle(rawTitle) {
 
 export function parsePuzzle(data) {
   // if it's already a JSCrossword, return it as-is
-  var puzzle;
+  let puzzle;
   if (data instanceof JSCrossword) {
     puzzle = data;
   } else {
@@ -174,9 +174,9 @@ export function parsePuzzle(data) {
   const simpleHash = t => {
     let e = 0;
     for (let r = 0; r < t.length; r++) {
-      e = (e << 5) - e + t.charCodeAt(r), e &= e
+      e = (e << 5) - e + t.charCodeAt(r), e &= e;
     }
-    return new Uint32Array([e])[0].toString(36)
+    return new Uint32Array([e])[0].toString(36);
   };
   const myHash = simpleHash(JSON.stringify(puzzle));
   this.savegame_name = STORAGE_KEY + '_' + myHash;
@@ -186,9 +186,9 @@ export function parsePuzzle(data) {
   const jsxw2_cells = this.loadGame();
   if (jsxw2_cells) {
     console.log('Loading puzzle from localStorage');
-    var noteObj = JSON.parse(localStorage.getItem(this.savegame_name + "_notes"));
+    const noteObj = JSON.parse(localStorage.getItem(this.savegame_name + "_notes"));
     if (noteObj && noteObj.length > 0) {
-      for (var entry of noteObj) {
+      for (const entry of noteObj) {
         this.notes.set(entry.key, entry.value);
       }
     }
@@ -407,8 +407,8 @@ export function parsePuzzle(data) {
   }
 
   // Handle fake clues override
-  var num_words = puzzle.words.length;
-  var num_clues = puzzle.clues.map(x => x.clue).flat().length;
+  const num_words = puzzle.words.length;
+  const num_clues = puzzle.clues.map(x => x.clue).flat().length;
   if (this.fakeclues && num_words != num_clues) {
     // make a copy of the clue groups for display
     this.displayClueGroups = [...this.clueGroups];

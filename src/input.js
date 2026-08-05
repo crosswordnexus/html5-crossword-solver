@@ -20,7 +20,7 @@ export function keyPressed(e) {
   }
 
   // to prevent event propagation for specified keys
-  var prevent = [35, 36, 37, 38, 39, 40, 32, 46, 8, 9, 13].indexOf(e.keyCode) >= 0;
+  let prevent = [35, 36, 37, 38, 39, 40, 32, 46, 8, 9, 13].indexOf(e.keyCode) >= 0;
 
   switch (e.keyCode) {
     case 35: // end
@@ -326,7 +326,7 @@ export function mouseClicked(e) {
   }
 
   // Try to find a matching word in the current group
-  let currentGroup = this.clueGroups[this.activeClueGroupIndex];
+  const currentGroup = this.clueGroups[this.activeClueGroupIndex];
   let matchingWord = currentGroup.getMatchingWord(index_x, index_y, true);
 
   // If not found, try other groups in order
@@ -379,7 +379,7 @@ export function clueClicked(e) {
 
   if (this.fakeclues || (group && group.isFake)) {
     // Toggle "completed" state on the clue itself
-    clue.fakeClueCompleted = !Boolean(clue.fakeClueCompleted);
+    clue.fakeClueCompleted = !clue.fakeClueCompleted;
 
     // Update this specific clue element immediately
     this.updateClueAppearance(clue, target);

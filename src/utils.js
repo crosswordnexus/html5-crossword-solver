@@ -34,7 +34,7 @@ export function resizeText(rootElement, nodeList) {
   const maxSize = maxClueSizes.find(bp => bp[0] > rootWidth)?.[1] ?? 24;
   const unit = 'px';
 
-  for (var j = 0; j < nodeList.length; j++) {
+  for (let j = 0; j < nodeList.length; j++) {
     const el = nodeList[j];
     const parent = el.parentNode;
     let low = minSize;

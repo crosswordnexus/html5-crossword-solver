@@ -61,7 +61,7 @@ export class Word {
 
   // Parses cell ranges and stores cells coordinates as array ['x1-y1', 'x1-y2' ...]
   parseRanges() {
-    var i, k, cell_range;
+    let i, k, cell_range;
     this.cells = [];
     for (i = 0;
       (cell_range = this.cell_ranges[i]); i++) {
@@ -148,7 +148,7 @@ export class Word {
   }
 
   getFirstCell() {
-    var cell = null;
+    let cell = null;
     if (this.cells.length) {
       cell = this.getCellByCoordinates(this.cells[0]);
     }
@@ -156,7 +156,7 @@ export class Word {
   }
 
   getLastCell() {
-    var cell = null;
+    let cell = null;
     if (this.cells.length) {
       cell = this.getCellByCoordinates(this.cells[this.cells.length - 1]);
     }
@@ -164,7 +164,7 @@ export class Word {
   }
 
   getNextCell(x, y) {
-    var index = this.cells.indexOf(`${x}-${y}`),
+    let index = this.cells.indexOf(`${x}-${y}`),
       cell = null;
     if (index < this.cells.length - 1) {
       cell = this.getCellByCoordinates(this.cells[index + 1]);
@@ -173,7 +173,7 @@ export class Word {
   }
 
   getPreviousCell(x, y) {
-    var index = this.cells.indexOf(`${x}-${y}`),
+    let index = this.cells.indexOf(`${x}-${y}`),
       cell = null;
     if (index > 0) {
       cell = this.getCellByCoordinates(this.cells[index - 1]);
@@ -183,7 +183,7 @@ export class Word {
   }
 
   getCellByCoordinates(txt_coordinates) {
-    var split, x, y, cell;
+    let split, x, y, cell;
     split = txt_coordinates.split('-');
     if (split.length === 2) {
       x = split[0];
@@ -197,7 +197,7 @@ export class Word {
   }
 
   solve() {
-    var i, coordinates, cell;
+    let i, coordinates, cell;
     for (i = 0;
       (coordinates = this.cells[i]); i++) {
       cell = this.getCellByCoordinates(coordinates);

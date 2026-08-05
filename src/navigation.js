@@ -16,7 +16,7 @@ export function changeActiveClues(targetIndex = null) {
   const n = groups.length;
   if (n <= 1) return;
 
-  let curIndex = this.activeClueGroupIndex ?? 0;
+  const curIndex = this.activeClueGroupIndex ?? 0;
   let newIndex = curIndex;
 
   if (targetIndex !== null && targetIndex >= 0 && targetIndex < n) {
@@ -115,14 +115,14 @@ export function setActiveCell(cell) {
 
 export function skipToWord(direction) {
   if (this.selected_cell && this.selected_word) {
-    var i,
+    let i,
       cell,
       word,
       word_cell,
       x = this.selected_cell.x,
       y = this.selected_cell.y;
 
-    var cellFound = (cell) => {
+    const cellFound = (cell) => {
       if (cell && !cell.empty) {
         word = this.clueGroups[this.activeClueGroupIndex].getMatchingWord(cell.x, cell.y);
         if (word && word.id !== this.selected_word.id) {
@@ -227,7 +227,7 @@ export function hasUnfilledWords() {
 
 export function moveToFirstCell(to_last) {
   if (this.selected_word) {
-    var cell = to_last ?
+    const cell = to_last ?
       this.selected_word.getLastCell() :
       this.selected_word.getFirstCell();
     if (cell) {
@@ -252,8 +252,8 @@ export function moveSelectionBy(delta_x, delta_y, jumping_over_black) {
   if (!this.selected_cell) return;
 
   // Find the new cell in the specified direction
-  let x = this.selected_cell.x + delta_x;
-  let y = this.selected_cell.y + delta_y;
+  const x = this.selected_cell.x + delta_x;
+  const y = this.selected_cell.y + delta_y;
   let new_cell = this.getCell(x, y);
 
   if (!new_cell) return; // out of bounds
