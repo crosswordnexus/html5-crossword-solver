@@ -101,4 +101,21 @@ To ensure the static stylesheets do not conflict with each other, we prefix layo
 .mobile-layout .cw-main {
     display: block;
 }
-```
+
+---
+
+## 4. Maintenance Warning: Keep Loaders Synchronized
+
+> [!IMPORTANT]
+> The app maintains two separate HTML wrapper entrypoints:
+> 1. [index.html](file:///Users/alexboisvert/GitHub/html5-crossword-solver/index.html) (Standard solver)
+> 2. [tournament/solve.html](file:///Users/alexboisvert/GitHub/html5-crossword-solver/tournament/solve.html) (Tournament mode wrapper)
+> 
+> Because both wrappers share the exact same device detection logic and JS/CSS loading assets, **any future changes to the page layout structure, script loading order, or assets in `index.html` must be duplicated in `tournament/solve.html` (with adjusted relative paths like `../js/...` and tournament parameters).**
+
+---
+
+## 5. TODO: Unify Solver HTML wrappers (DRY)
+
+- [ ] **Consolidate wrappers:** Merge `tournament/solve.html` functionality into `index.html` via query routing (e.g., `index.html?tournament_mode=true`). This will require updating tournament dashboard navigation references.
+
