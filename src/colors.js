@@ -138,8 +138,8 @@ export function cellFontColor(cell) {
 
     // If we fail to meet some threshold, invert
     if (Math.abs(bgBrightness - fgBrightness) < 125) {
-      var thisRGB = Color.hexToRgb(this.config.font_color_fill);
-      var invertedRGB = thisRGB.map(x => 255 - x);
+      const thisRGB = Color.hexToRgb(this.config.font_color_fill);
+      const invertedRGB = thisRGB.map(x => 255 - x);
       return Color.rgbToHex(invertedRGB[0], invertedRGB[1], invertedRGB[2]);
     } else {
       return this.config.font_color_fill;

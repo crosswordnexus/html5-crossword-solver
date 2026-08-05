@@ -31,7 +31,7 @@ export function saveGameImmediate() {
       return {
         key: n[0],
         value: n[1]
-      }
+      };
     })));
     localStorage.setItem(this.savegame_name + "_timer", (this.xw_timer_seconds || 0).toString());
     localStorage.setItem(this.savegame_name + "_lastmodified", Date.now());
@@ -111,6 +111,6 @@ export function cleanupSaves(limit = null) {
 }
 
 export function loadGame() {
-  var jsxw_cells = JSON.parse(localStorage.getItem(this.savegame_name));
+  const jsxw_cells = JSON.parse(localStorage.getItem(this.savegame_name));
   return jsxw_cells;
 }

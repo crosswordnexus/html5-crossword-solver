@@ -20,7 +20,7 @@ export function check_reveal(to_solve, reveal_or_check, e) {
     console.warn('Checks and Reveals are disabled in tournament mode.');
     return;
   }
-  var my_cells = [],
+  let my_cells = [],
     cell;
 
   switch (to_solve) {
@@ -31,7 +31,7 @@ export function check_reveal(to_solve, reveal_or_check, e) {
       break;
     case 'word':
       if (this.selected_word) {
-        for (let coord of this.selected_word.cells) {
+        for (const coord of this.selected_word.cells) {
           const c = this.selected_word.getCellByCoordinates(coord);
           if (c) {
             my_cells.push(c);
@@ -40,8 +40,8 @@ export function check_reveal(to_solve, reveal_or_check, e) {
       }
       break;
     case 'puzzle':
-      for (let x in this.cells) {
-        for (let y in this.cells[x]) {
+      for (const x in this.cells) {
+        for (const y in this.cells[x]) {
           my_cells.push(this.cells[x][y]);
         }
       }
@@ -51,11 +51,11 @@ export function check_reveal(to_solve, reveal_or_check, e) {
   // Expand autofill cells (if needed)
   if (this.is_autofill) {
     const extra_cells = [];
-    for (let c of my_cells) {
+    for (const c of my_cells) {
       const num = c.number;
       if (num != null) {
         const others = this.number_to_cells[num] || [];
-        for (let oc of others) {
+        for (const oc of others) {
           const linkedCell = this.cells[oc.x][oc.y];
           if (linkedCell && !my_cells.includes(linkedCell)) {
             extra_cells.push(linkedCell);
@@ -66,7 +66,7 @@ export function check_reveal(to_solve, reveal_or_check, e) {
     my_cells = my_cells.concat(extra_cells);
   }
 
-  for (let c of my_cells) {
+  for (const c of my_cells) {
     if (reveal_or_check !== 'clear' && !c.solution) {
       continue;
     }
@@ -173,8 +173,8 @@ export function check_reveal(to_solve, reveal_or_check, e) {
 }
 
 export function checkIfSolved(do_reveal = true) {
-  var wasSolved = this.isSolved;
-  var i, j, cell;
+  const wasSolved = this.isSolved;
+  let i, j, cell;
   for (i in this.cells) {
     for (j in this.cells[i]) {
       cell = this.cells[i][j];
@@ -199,11 +199,11 @@ export function checkIfSolved(do_reveal = true) {
     var timerMessage = '';
     if (this.timer_running) {
       // prepare message based on time
-      var display_seconds = getTimerSeconds() % 60;
-      var display_minutes = (getTimerSeconds() - display_seconds) / 60;
-      var minDisplay = display_minutes == 1 ? 'minute' : 'minutes';
-      var secDisplay = display_seconds == 1 ? 'second' : 'seconds';
-      var allMin = display_minutes > 0 ? `${display_minutes} ${minDisplay} ` : '';
+      const display_seconds = getTimerSeconds() % 60;
+      const display_minutes = (getTimerSeconds() - display_seconds) / 60;
+      const minDisplay = display_minutes == 1 ? 'minute' : 'minutes';
+      const secDisplay = display_seconds == 1 ? 'second' : 'seconds';
+      const allMin = display_minutes > 0 ? `${display_minutes} ${minDisplay} ` : '';
       timerMessage = `<br /><br /><center>You finished in ${allMin} ${display_seconds} ${secDisplay}.</center>`;
 
       // stop the timer

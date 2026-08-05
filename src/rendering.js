@@ -25,9 +25,9 @@ export function renderCells() {
    * Note: for fill and bars: we do all the fill first, then all the bars
    * This is so later fill doesn't overwrite later bars
    **/
-  for (let xStr in this.cells) {
+  for (const xStr in this.cells) {
     this.svgElements.cells[xStr] = {};
-    for (let yStr in this.cells[xStr]) {
+    for (const yStr in this.cells[xStr]) {
       this.svgElements.cells[xStr][yStr] = {};
       this.adjustCell(this.cells[xStr][yStr]);
     }

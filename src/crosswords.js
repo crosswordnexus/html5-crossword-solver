@@ -125,7 +125,7 @@ import {
   function(window, registerGlobal) {
     'use strict';
 
-    var default_config = {
+    const default_config = {
       color_selected: '#FF4136',
       color_word: '#FEE300',
       color_none: '#FFFFFF',
@@ -159,30 +159,30 @@ import {
     /*const PUZZLE_STORAGE_VERSION = 'v3';  // bump this anytime you change the structure*/
 
     // messages
-    var MSG_SAVED = 'Crossword saved';
-    var MSG_LOADED = 'Crossword loaded';
+    const MSG_SAVED = 'Crossword saved';
+    const MSG_LOADED = 'Crossword loaded';
 
-    var MAX_CLUES_LENGTH = 2;
+    const MAX_CLUES_LENGTH = 2;
 
-    var TYPE_UNDEFINED = typeof undefined;
-    var XMLDOM_ELEMENT = 1;
-    var XMLDOM_TEXT = 3;
-    var ZIPJS_CONFIG_OPTION = 'zipjs_path';
-    var ZIPJS_PATH = 'lib/zip';
+    const TYPE_UNDEFINED = typeof undefined;
+    const XMLDOM_ELEMENT = 1;
+    const XMLDOM_TEXT = 3;
+    const ZIPJS_CONFIG_OPTION = 'zipjs_path';
+    const ZIPJS_PATH = 'lib/zip';
 
     // errors
-    var ERR_FILE_LOAD = 'Error loading file';
-    var ERR_PARSE_JPZ = 'Error parsing JPZ file... Not JPZ or zipped JPZ file.';
-    var ERR_NOT_CROSSWORD = 'Error opening file. Probably not a crossword.';
-    var ERR_NO_JQUERY = 'jQuery not found';
-    var ERR_CLUES_GROUPS = 'Wrong number of clues in jpz file';
-    var ERR_NO_PUZJS = 'Puz js not found';
-    var ERR_LOAD = 'Error loading savegame - probably corrupted';
-    var ERR_NO_SAVEGAME = 'No saved game found';
+    const ERR_FILE_LOAD = 'Error loading file';
+    const ERR_PARSE_JPZ = 'Error parsing JPZ file... Not JPZ or zipped JPZ file.';
+    const ERR_NOT_CROSSWORD = 'Error opening file. Probably not a crossword.';
+    const ERR_NO_JQUERY = 'jQuery not found';
+    const ERR_CLUES_GROUPS = 'Wrong number of clues in jpz file';
+    const ERR_NO_PUZJS = 'Puz js not found';
+    const ERR_LOAD = 'Error loading savegame - probably corrupted';
+    const ERR_NO_SAVEGAME = 'No saved game found';
 
-    var load_error = false;
+    const load_error = false;
 
-    var CROSSWORD_TYPES = ['crossword', 'coded', 'acrostic'];
+    const CROSSWORD_TYPES = ['crossword', 'coded', 'acrostic'];
     const FILE_ACCEPT_EXTENSIONS = '.puz,.xml,.jpz,.xpz,.ipuz,.cfp';
     const IS_IPAD_SAFARI_OR_FIREFOX = (function() {
       if (typeof navigator === 'undefined') {
@@ -203,11 +203,11 @@ import {
     })();
 
     /** Template will have to change along with CSS **/
-    var template = TEMPLATE;
+    const template = TEMPLATE;
 
     // Check if we can drag and drop files
-    var isAdvancedUpload = (function() {
-      var div = document.createElement('div');
+    const isAdvancedUpload = (function() {
+      const div = document.createElement('div');
       return (
         ('draggable' in div || ('ondragstart' in div && 'ondrop' in div)) &&
         'FormData' in window &&
@@ -251,9 +251,9 @@ import {
       'g'
     );
 
-    var CrosswordNexus = {
+    const CrosswordNexus = {
       createCrossword: function(parent, user_config) {
-        var crossword;
+        let crossword;
         try {
           if (typeof jQuery === TYPE_UNDEFINED) {
             throw new Error(ERR_NO_JQUERY);
@@ -283,7 +283,7 @@ import {
         this.config = {};
         this.saveTimeout = null;
         // Load solver config
-        var saved_settings = {};
+        let saved_settings = {};
         try {
           saved_settings = JSON.parse(
             localStorage.getItem(SETTINGS_STORAGE_KEY)
@@ -291,8 +291,8 @@ import {
         } catch (error) {
           console.log(error);
         }
-        var i;
-        var configurable_settings_set = new Set(CONFIGURABLE_SETTINGS);
+        let i;
+        const configurable_settings_set = new Set(CONFIGURABLE_SETTINGS);
         for (i in default_config) {
           if (default_config.hasOwnProperty(i)) {
             // Check saved settings before "user" settings
@@ -397,8 +397,8 @@ import {
        * Initializes or resets the solver variables, visual grids, and structures.
        */
       init() {
-        var parsePUZZLE_callback = $.proxy(this.parsePuzzle, this);
-        var error_callback = $.proxy(this.error, this);
+        const parsePUZZLE_callback = $.proxy(this.parsePuzzle, this);
+        const error_callback = $.proxy(this.error, this);
 
         if (this.root) {
           this.remove();
@@ -492,7 +492,7 @@ import {
           this.config.puzzle_file.hasOwnProperty('type')
         ) {
           this.root.addClass('loading');
-          var loaded_callback = parsePUZZLE_callback;
+          const loaded_callback = parsePUZZLE_callback;
           loadFileFromServer(
             this.config.puzzle_file.url,
             this.config.puzzle_file.type
@@ -504,7 +504,7 @@ import {
           Promise.resolve(xw).then(parsePUZZLE_callback, error_callback);
         } else {
           // shows open button
-          var i, puzzle_file, el;
+          let i, puzzle_file, el;
 
           this.open_button = this.root.find('.cw-button-open-puzzle');
           this.file_input = this.root.find('input[type="file"]');
@@ -518,7 +518,7 @@ import {
           });
 
           this.file_input.on('change', () => {
-            var files = this.file_input[0].files.length ?
+            const files = this.file_input[0].files.length ?
               this.file_input[0].files :
               null;
             if (files) {
@@ -536,7 +536,7 @@ import {
             const div_overflow = this.root.find('div.cw-overflow');
             div_overflow.addClass('has-advanced-upload');
 
-            var droppedFiles = false;
+            let droppedFiles = false;
 
             div_open_holder
               .on(
@@ -716,7 +716,7 @@ import {
               const clue = clueGroup.clues.find(c => String(c.wordId) === String(wordId));
 
               if (clue) {
-                clue.fakeClueCompleted = !Boolean(clue.fakeClueCompleted);
+                clue.fakeClueCompleted = !clue.fakeClueCompleted;
                 target.toggleClass('completed', clue.fakeClueCompleted);
                 // Also update the hidden clue in the main holder if it exists
                 const mainClue = $(`.cw-clues-holder [data-word="${wordId}"][data-clues="${groupId}"]`);
@@ -1047,7 +1047,7 @@ import {
 
       // Detects user inputs to hidden input element
       hiddenInputChanged(rebus_string) {
-        var next_cell;
+        let next_cell;
         if (this.selected_cell) {
           if (rebus_string && rebus_string.trim()) {
             this.updateCell(this.selected_cell, {
@@ -1090,7 +1090,7 @@ import {
           }
 
           this.setActiveCell(next_cell);
-          this.checkIfSolved()
+          this.checkIfSolved();
         }
         this.hidden_input.val('');
       }
@@ -1179,13 +1179,13 @@ import {
 
       saveSettings() {
         // we only save settings that are configurable
-        var ss1 = {
+        const ss1 = {
           ...this.config
         };
-        var savedSettings = {};
+        const savedSettings = {};
         CONFIGURABLE_SETTINGS.forEach(function(x) {
           savedSettings[x] = ss1[x];
-        })
+        });
         localStorage.setItem(
           SETTINGS_STORAGE_KEY,
           JSON.stringify(savedSettings)

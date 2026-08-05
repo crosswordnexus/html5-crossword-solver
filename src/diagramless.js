@@ -5,7 +5,7 @@
 
 export function nextDiagramlessCell(fromCell, dir = this.diagramless_dir, step = 1) {
   if (!fromCell) return null;
-  let {
+  const {
     x,
     y
   } = fromCell;
@@ -36,7 +36,7 @@ export function toggleDiagramlessDir() {
 }
 
 export function renumberGrid() {
-  let number = 1;
+  const number = 1;
   const width = this.grid_width;
   const height = this.grid_height;
 

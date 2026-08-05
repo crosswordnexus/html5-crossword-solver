@@ -7,7 +7,7 @@ export async function printPuzzle(e) {
   // fill JSXW
   this.fillJsXw();
   try {
-    let doc = await this.jsxw.toPDF();
+    const doc = await this.jsxw.toPDF();
     doc.autoPrint();
     // open in a new tab and trigger print dialog
     const blobUrl = doc.output("bloburl");
