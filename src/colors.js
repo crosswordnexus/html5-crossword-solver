@@ -47,12 +47,12 @@ const Color = {
   },
 
   applyHsvTransform(rgbHex, {dh = 0, ks = 1, kv = 1}) {
-    let rgb = this.hexToRgb(rgbHex);
+    const rgb = this.hexToRgb(rgbHex);
     let [h,s,v] = this.rgbToHsv(rgb);
     h = h + dh;
     s = Math.min(1, Math.max(0, s*ks));
     v = Math.min(1, Math.max(0, v*kv));
-    let outRgb = this.hsvToRgb([h,s,v]);
+    const outRgb = this.hsvToRgb([h,s,v]);
     return this.rgbToHex(outRgb[0], outRgb[1], outRgb[2]);
   },
 
@@ -93,9 +93,9 @@ const Color = {
     if (!c2) {
       return c1;
     }
-    var r1 = this.hexToRgb(c1);
-    var r2 = this.hexToRgb(c2);
-    var newColor = [this.componentAvg(r1[0], r2[0], weight),
+    const r1 = this.hexToRgb(c1);
+    const r2 = this.hexToRgb(c2);
+    const newColor = [this.componentAvg(r1[0], r2[0], weight),
       this.componentAvg(r1[1], r2[1], weight),
       this.componentAvg(r1[2], r2[2], weight)
     ];
