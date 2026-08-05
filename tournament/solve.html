@@ -66,6 +66,12 @@
 
         const mobile = CrosswordShared.isMobileDevice();
 
+        // ✅ Load correct layout CSS synchronously to prevent FOUC (flash of unstyled content)
+        const layoutLink = document.createElement('link');
+        layoutLink.rel = 'stylesheet';
+        layoutLink.href = mobile ? '../css/crossword.mobile.css' : '../css/crosswordnexus.css';
+        document.head.appendChild(layoutLink);
+
         /**
          * Fetches parameters from the URL and applies tournament overrides.
          */
@@ -262,22 +268,16 @@
             };
             check();
         });
-
         // --- Platform-specific Initialization ---
 
         if (mobile) {
           /**
-           * Mobile Init: Loads mobile CSS and bootstrapper.
+           * Mobile Init: Loads core and mobile layout solver.
            */
           const core = document.createElement('script');
           core.src = '../js/crosswords.js';
 
           core.onload = () => {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = '../css/crossword.mobile.css';
-            document.head.appendChild(link);
-
             // Override parameter fetching before mobile JS initializes
             CrosswordShared.getCrosswordParams = getTournamentParams;
 
@@ -292,13 +292,8 @@
 
         } else {
           /**
-           * Desktop Init: Loads desktop CSS and initializes the crossword instance.
+           * Desktop Init: Loads core solver and initializes the crossword instance.
            */
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = '../css/crosswordnexus.css';
-          document.head.appendChild(link);
-
           const script = document.createElement('script');
           script.src = '../js/crosswords.js';
           script.onload = () => {
@@ -320,6 +315,7 @@
             document.body.appendChild(script);
           });
         }
+
       </script>
 </head>
 <body>
