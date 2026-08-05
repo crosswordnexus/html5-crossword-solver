@@ -134,7 +134,7 @@
                             gridString += '.';
                         } else if (!cell.letter) {
                             gridString += '_';
-                        } else if (cell.letter.length > 1 || cell.solution.length > 1) {
+                        } else if (cell.letter.length > 1 || (cell.solution && cell.solution.length > 1)) {
                             gridString += '*';
                         } else {
                             const isIncorrect = cell.solution && cell.letter.toUpperCase() !== cell.solution.toUpperCase();
