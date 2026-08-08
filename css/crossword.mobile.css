@@ -170,7 +170,15 @@ html.mobile-mode {
 
 .crossword.mobile #cw-puzzle-grid {
   display: inline-block;
-  margin-top: 54px;
+  margin-top: 65px;
+}
+
+.crossword.mobile .cw-max-width-1200 #cw-puzzle-grid {
+  margin-top: 55px;
+}
+
+.crossword.mobile .cw-max-width-1080 #cw-puzzle-grid {
+  margin-top: 45px;
 }
 
 .crossword.mobile .cw-buttons-holder {
