@@ -19,7 +19,11 @@ export async function printPuzzle(e) {
 
 export function saveAsIpuz(e) {
   console.log(e);
-  const json = window.ipuz; // this should be a JSON *string*
+  this.fillJsXw();
+  console.log(this.jsxw);
+  const json = this.jsxw.toIpuzString(); // generate ipuz dynamically with current state
+
+  console.log(json);
 
   // Create a Blob from the text
   const blob = new Blob([json], { type: "application/json" });
