@@ -1,7 +1,7 @@
 /**
  * @file constants.js
  * @description Central registry of configuration constants, shared settings, and environment detection.
- * 
+ *
  * What belongs here:
  * - Shared configuration arrays (like CONFIGURABLE_SETTINGS).
  * - Key/Value storage namespaces and localStorage suffixes.
@@ -49,7 +49,7 @@ export const TEMPLATE = `
           Open puzzle file
         </button>
         <div class = "cw-open-puzzle-formats">
-          <b>Accepted formats: </b> PUZ, JPZ, XML, CFP, and iPUZ (partial)
+          <!-- <b>Accepted formats: PUZ, JPZ, XML, CFP, XD, APZ, and iPUZ (partial) -->
         </div>
         <button id="installAppBtn" style="display: none; margin-top: 1.5rem;">
           📥 Install this app for offline solving
