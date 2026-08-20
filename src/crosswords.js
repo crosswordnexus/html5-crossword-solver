@@ -183,7 +183,7 @@ import {
     const load_error = false;
 
     const CROSSWORD_TYPES = ['crossword', 'coded', 'acrostic'];
-    const FILE_ACCEPT_EXTENSIONS = '.puz,.xml,.jpz,.xpz,.ipuz,.cfp';
+    const FILE_ACCEPT_EXTENSIONS = '.puz,.xml,.jpz,.xpz,.ipuz,.cfp,.xd,.apz';
     const IS_IPAD_SAFARI_OR_FIREFOX = (function() {
       if (typeof navigator === 'undefined') {
         return false;
