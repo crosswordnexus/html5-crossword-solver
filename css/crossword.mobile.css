@@ -305,11 +305,15 @@ html.mobile-mode {
   font-size: 0;
 }
 
+.crossword.mobile #cw-puzzle-grid,
 .crossword.mobile #cw-puzzle-grid text {
-  pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+}
+
+.crossword.mobile #cw-puzzle-grid text {
+  pointer-events: none;
 }
 
 .crossword.mobile .custom-key.cw-key-left,
@@ -328,9 +332,12 @@ html.mobile-mode {
   padding: 0;
 }
 
-.cw-key-alt-toggle.active {
+.cw-key-alt-toggle.active,
+.crossword.mobile .custom-key.rebus-key.active,
+.cw-key-rebus.active {
   background-color: var(--button-hover-color);
-  font-weight: bold
+  color: var(--button-hover-text-color);
+  font-weight: bold;
 }
 
 .keyboard-wrapper-placeholder {
@@ -489,4 +496,10 @@ html.mobile-mode {
   justify-content: center;
   font-size: 1em;
   white-space: nowrap;
+}
+
+.crossword.mobile .custom-key.rebus-key {
+  font-size: 0.85em;
+  padding: 0.65em 0.5em;
+  letter-spacing: 0.5px;
 }
