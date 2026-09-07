@@ -130,7 +130,7 @@ export function check_reveal(to_solve, reveal_or_check, e) {
         } else if (c.letter) {
           // User typed something — check the letter
           this.updateCell(c, {
-            checked: !isCorrect(c.letter, c.solution)
+            checked: !isCorrect(c.letter, c.solution, this.strictRebus)
           });
         } else {
           // Empty white square — leave unchecked
@@ -142,7 +142,7 @@ export function check_reveal(to_solve, reveal_or_check, e) {
         // Regular crossword
         if (c.letter) {
           this.updateCell(c, {
-            checked: !isCorrect(c.letter, c.solution)
+            checked: !isCorrect(c.letter, c.solution, this.strictRebus)
           });
         } else {
           this.updateCell(c, {
@@ -180,7 +180,7 @@ export function checkIfSolved(do_reveal = true) {
       cell = this.cells[i][j];
       // if found cell without letter or with incorrect letter - return
       if (
-        (!cell.empty && (!cell.letter || !isCorrect(cell.letter, cell.solution))) ||
+        (!cell.empty && (!cell.letter || !isCorrect(cell.letter, cell.solution, this.strictRebus))) ||
         (this.diagramless_mode && ((cell.type === 'block') !== (cell.solution === '#')))
       ) {
         this.isSolved = false;

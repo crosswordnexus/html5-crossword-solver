@@ -41,7 +41,7 @@ export class Word {
     for (let i = 0; i < this.cells.length; i++) {
       const coords = this.cells[i].split('-');
       const cell = this.crossword.getCell(coords[0], coords[1]);
-      if (!cell || !isCorrect(cell.letter, cell.solution)) {
+      if (!cell || !isCorrect(cell.letter, cell.solution, this.crossword?.strictRebus)) {
         return false;
       }
     }

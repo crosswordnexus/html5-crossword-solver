@@ -20,7 +20,7 @@ The solver dynamically adapts to the user's device.
 
 ### Mobile Mode
 - **Detection:** `index.html` detects mobile devices and loads `js/crossword.mobile.js`.
-- **Custom Keyboard:** To avoid issues with OS-level virtual keyboards obscuring the grid, the solver implements a custom HTML/CSS keyboard (`createCustomKeyboard`) with specialized keys for Rebus entries and navigation.
+- **Custom Keyboard:** To avoid issues with OS-level virtual keyboards obscuring the grid, the solver implements a custom HTML/CSS keyboard (`createCustomKeyboard`) with a dedicated `REBUS`/`DONE` toggle key and word navigation arrows.
 - **Drawer System:** Clues are often placed in a bottom "drawer" that can be swiped or toggled, maximizing grid visibility.
 - **Viewport Management:** Uses `visualViewport` API and a custom `--vh` CSS variable to handle the complex resizing behavior on mobile browsers when address bars or keyboards appear.
 
@@ -33,6 +33,18 @@ Game progress is automatically saved to the browser's `localStorage`.
 - **What's Saved:** The user's filled letters, marks (checks/reveals), notes, and the current timer state.
 
 ## 4. Specialized Puzzle Modes
+
+### In-Place Rebus System
+- **Desktop Interaction:**
+  - Pressing `Esc` or `Insert` on an active cell toggles Rebus mode directly in place (no popup modal).
+  - While active, an overlay frame (`.cw-rebus-frame`) and a blinking caret (`.cw-rebus-cursor`) are rendered on top of the cell.
+  - Typing appends letters (auto-scaled by `src/rendering.js`), and Backspace deletes character-by-character within the cell.
+  - Pressing `Enter` or `Space` commits the entry and advances to the next cell.
+  - Pressing `Esc` commits the current input and exits rebus mode without clearing or advancing.
+- **Mobile Interaction:**
+  - Tapping the **`REBUS`** key on the custom keyboard activates in-place rebus mode. The key dynamically flips to **`DONE`** with an `.active` accent highlight.
+  - Long-pressing any grid cell (450ms) also activates in-place rebus mode directly on that cell without browser prompts; subsequent touch-release `click` events are intercepted in the capture phase to prevent accidental clue direction flips.
+  - Tapping **`DONE`** commits the rebus and advances to the next square.
 
 ### Downs-Only Mode
 - **Trigger:** URL parameter `?downs-only` or `?downsonly`.

@@ -35,7 +35,8 @@ import {
   adjustCellNumber,
   adjustCellTopRightNumber,
   adjustCellSlash,
-  adjustChevron
+  adjustChevron,
+  adjustRebusFrame
 } from './rendering.js';
 import {
   loadFileFromServer,
@@ -370,6 +371,10 @@ import {
 
         this.diagramless_dir = 'across';
 
+        this.rebus_mode = false;
+        this.rebus_cell_previous_letter = '';
+        this.strictRebus = false;
+
         // whether to show the reveal button
         this.has_reveal = true;
 
@@ -410,6 +415,9 @@ import {
         this.selected_cell = null;
         this.isSolved = false;
         this.diagramless_mode = false;
+        this.rebus_mode = false;
+        this.rebus_cell_previous_letter = '';
+        this.strictRebus = false;
         this.savegame_name = null;
         this.timer_running = false;
         this.xw_timer_seconds = 0;
@@ -969,6 +977,10 @@ import {
         adjustChevron.call(this);
       }
 
+      adjustRebusFrame() {
+        adjustRebusFrame.call(this);
+      }
+
       // =========================================================================
       // GRID CELL STYLING & COLOR CONTRAST (delegates)
       // =========================================================================
@@ -1008,6 +1020,93 @@ import {
         backspace.call(this);
       }
 
+      enterRebusMode() {
+        if (!this.selected_cell || this.selected_cell.empty || this.selected_cell.type === 'block') {
+          return;
+        }
+        this.rebus_mode = true;
+        this.rebus_cell_previous_letter = this.selected_cell.letter || '';
+        this.adjustCell(this.selected_cell);
+        this.adjustRebusFrame();
+        this.onRebusModeChange?.(true);
+        this.root?.trigger?.('rebusModeChange', { active: true });
+      }
+
+      exitRebusMode(commit = true, advance = true) {
+        if (!this.rebus_mode) return;
+        this.rebus_mode = false;
+        const cell = this.selected_cell;
+        if (cell) {
+          if (!commit) {
+            this.updateCell(cell, {
+              letter: this.rebus_cell_previous_letter,
+              checked: false
+            });
+          } else {
+            this.updateCell(cell, { checked: false });
+            this.autofill();
+            this.checkIfSolved();
+            this.saveGame();
+          }
+          this.adjustCell(cell);
+        }
+        this.adjustRebusFrame();
+        this.onRebusModeChange?.(false);
+        this.root?.trigger?.('rebusModeChange', { active: false });
+
+        if (commit && advance && cell && (this.selected_word || this.diagramless_mode)) {
+          let next_cell;
+          if (this.diagramless_mode) {
+            next_cell = this.nextDiagramlessCell(cell, this.diagramless_dir, 1);
+          } else if (this.config.skip_filled_letters && !this.selected_word.isFilled()) {
+            next_cell =
+              this.selected_word.getFirstEmptyCell(cell.x, cell.y) ||
+              this.selected_word.getNextCell(cell.x, cell.y);
+          } else if (this.selected_word) {
+            next_cell = this.selected_word.getNextCell(cell.x, cell.y);
+          }
+          if (next_cell) {
+            this.setActiveCell(next_cell);
+          }
+        }
+      }
+
+      toggleRebusMode() {
+        if (this.rebus_mode) {
+          this.exitRebusMode(true, true);
+        } else {
+          this.enterRebusMode();
+        }
+      }
+
+      appendRebusLetter(char) {
+        if (!this.rebus_mode || !this.selected_cell || this.selected_cell.fixed) return;
+        const upperChar = char.toUpperCase();
+        const currentLetter = this.selected_cell.letter || '';
+        if (currentLetter.length >= 10) return;
+        this.updateCell(this.selected_cell, {
+          letter: currentLetter + upperChar,
+          checked: false
+        });
+        this.adjustCell(this.selected_cell);
+        this.adjustRebusFrame();
+        this.autofill();
+      }
+
+      backspaceRebus() {
+        if (!this.rebus_mode || !this.selected_cell || this.selected_cell.fixed) return;
+        const currentLetter = this.selected_cell.letter || '';
+        if (currentLetter.length > 0) {
+          this.updateCell(this.selected_cell, {
+            letter: currentLetter.slice(0, -1),
+            checked: false
+          });
+          this.adjustCell(this.selected_cell);
+          this.adjustRebusFrame();
+          this.autofill();
+        }
+      }
+
       // =========================================================================
       // AUTOFILL & INPUT FIELD SYNCHRONIZATION
       // =========================================================================
@@ -1035,6 +1134,13 @@ import {
 
       // Detects user inputs to hidden input element
       hiddenInputChanged(rebus_string) {
+        if (this.rebus_mode) {
+          if (rebus_string && rebus_string.trim()) {
+            this.appendRebusLetter(rebus_string.trim());
+          }
+          this.hidden_input.val('');
+          return;
+        }
         let next_cell;
         if (this.selected_cell) {
           if (rebus_string && rebus_string.trim()) {
@@ -1238,6 +1344,9 @@ import {
         if (prev_cell === new_cell) {
           return;
         }
+        if (this.rebus_mode) {
+          this.exitRebusMode(true, false);
+        }
         this.selected_cell = new_cell;
         for (const cell of [prev_cell, new_cell]) {
           if (!cell) {
@@ -1250,6 +1359,7 @@ import {
           }
         }
         this.adjustChevron();
+        this.adjustRebusFrame();
       }
 
       setSelectedWord(new_word) {

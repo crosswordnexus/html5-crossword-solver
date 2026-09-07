@@ -30,7 +30,9 @@ Test the following key actions in standard desktop mode:
 
 ## 3. Core Puzzle Features
 
-- [ ] **Rebus Mode**: Verify you can enter multiple letters in a single cell (often triggered by pressing `Esc` or clicking a Rebus button, if supported).
+- [ ] **Rebus Mode**:
+  - [ ] **Desktop:** Press `Esc` or `Insert` to enter in-place rebus mode. Verify the frame overlay and blinking cursor appear. Type letters (verify auto-scaling) and test that `Backspace` erases character-by-character. Verify `Enter` commits and advances, and `Esc` commits without advancing or clearing.
+  - [ ] **Mobile:** Verify tapping the `REBUS` key toggles into rebus mode (button becomes `DONE` with active styling). Verify typing letters appends and `⌫` deletes within the cell. Verify long-pressing (450ms) a grid cell enters rebus mode directly without showing a browser prompt. Tapping `DONE` commits and advances to the next square.
 - [ ] **Check / Reveal Options**:
   - [ ] Click **Check -> Letter / Word / Puzzle** and ensure incorrect letters are marked (usually with a red slash or background color).
   - [ ] Click **Reveal -> Letter / Word / Puzzle** and verify the correct letters are filled.
