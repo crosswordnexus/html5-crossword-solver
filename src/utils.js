@@ -7,9 +7,13 @@
  * - DOM/HTML formatting utilities (like escape, sanitize, etc., if extracted in the future).
  * - Data structure manipulation helpers that do not fit into specific domain models.
  */
-export function isCorrect(entry, solution) {
+export function isCorrect(entry, solution, strictRebus) {
+  // if strictRebus and the string is alpha, the entry and solution must match
+  if (strictRebus && /^[A-Za-z]+$/.test(solution)) {
+    return entry == solution;
+  }
   // if we have a rebus or non-alpha solution or no solution, accept anything
-  if (entry && (!solution || solution.length > 1 || /[^A-Za-z]/.test(solution))) {
+  else if (entry && (!solution || solution.length > 1 || /[^A-Za-z]/.test(solution))) {
     return true;
   }
   // otherwise, only mark as okay if we have an exact match

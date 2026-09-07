@@ -373,6 +373,7 @@ import {
 
         this.rebus_mode = false;
         this.rebus_cell_previous_letter = '';
+        this.strictRebus = false;
 
         // whether to show the reveal button
         this.has_reveal = true;
@@ -416,6 +417,7 @@ import {
         this.diagramless_mode = false;
         this.rebus_mode = false;
         this.rebus_cell_previous_letter = '';
+        this.strictRebus = false;
         this.savegame_name = null;
         this.timer_running = false;
         this.xw_timer_seconds = 0;

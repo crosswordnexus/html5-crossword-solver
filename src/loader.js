@@ -342,6 +342,26 @@ export function parsePuzzle(data) {
     }
   }
 
+  /* determine if we should do strict rebus checking */
+  // flatten the cells
+  const cells1 = Object.values(this.cells).flatMap(row => Object.values(row));
+
+  // get the total number of cells with a solution
+  // and the number that have more than one character
+  const { total, long } = cells1.reduce(
+    (acc, c) => {
+      if (c.solution != null) {
+        acc.total++;
+        if (c.solution.length > 1) acc.long++;
+      }
+      return acc;
+    },
+    { total: 0, long: 0 }
+  );
+
+  // do strict rebus checking if 1/3 or more cells are "long"
+  this.strictRebus = total === 0 ? false : long * 3 >= total;
+
   // If diagramless, renumber
   if (this.diagramless_mode) {
     this.renumberGrid();
