@@ -49,7 +49,7 @@ export class CluesGroup {
 
   // gets word which has cell with specified coordinates
   getMatchingWord(x, y, change_word = false) {
-    var i,
+    let i,
       word_id,
       word,
       words = [];
@@ -69,7 +69,7 @@ export class CluesGroup {
     } else {
       // with more than one word we look for one
       // that's either current or not
-      var finding_word = false;
+      let finding_word = false;
       for (i = 0; i < words.length; i++) {
         word = words[i];
         if (change_word) {
@@ -104,7 +104,7 @@ export class CluesGroup {
     if (this.isFake || this.crossword.diagramless_mode) {
       return;
     }
-    var classname = is_passive ? 'passive' : 'active',
+    const classname = is_passive ? 'passive' : 'active',
       word = this.getMatchingWord(x, y);
     this.clues_container.find('div.cw-clue.active').removeClass('active');
     this.clues_container.find('div.cw-clue.passive').removeClass('passive');
@@ -137,7 +137,7 @@ export class CluesGroup {
 
   // returns word next to given
   getNextWord(word) {
-    var next_word = null,
+    let next_word = null,
       index = this.words_ids.indexOf(word.id);
     if (index < this.words_ids.length - 1) {
       next_word = this.crossword.words[this.words_ids[index + 1]];
@@ -147,7 +147,7 @@ export class CluesGroup {
 
   // returns word previous to given
   getPreviousWord(word) {
-    var prev_word = null,
+    let prev_word = null,
       index = this.words_ids.indexOf(word.id);
     if (index > 0) {
       prev_word = this.crossword.words[this.words_ids[index - 1]];

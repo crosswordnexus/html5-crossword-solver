@@ -53,7 +53,7 @@ export function loadFromFile(file, type, deferred) {
 }
 
 export function make_fake_clues(puzzle, clue_mapping = {}) {
-  let across_group = new CluesGroup(this, {
+  const across_group = new CluesGroup(this, {
     id: "clues_0",
     title: 'Across',
     clues: [],
@@ -61,7 +61,7 @@ export function make_fake_clues(puzzle, clue_mapping = {}) {
     fake: true,
   });
 
-  let down_group = new CluesGroup(this, {
+  const down_group = new CluesGroup(this, {
     id: "clues_1",
     title: 'Down',
     clues: [],
@@ -70,7 +70,7 @@ export function make_fake_clues(puzzle, clue_mapping = {}) {
   });
 
   const clueMapping = {};
-  var clueGroups;
+  let clueGroups;
 
   if (!this.realwords) {
     const entry_mapping = puzzle.get_entry_mapping();
@@ -118,7 +118,7 @@ export function normalizeClueTitle(rawTitle) {
 
 export function parsePuzzle(data) {
   // if it's already a JSCrossword, return it as-is
-  var puzzle;
+  let puzzle;
   if (data instanceof JSCrossword) {
     puzzle = data;
   } else {
@@ -174,9 +174,9 @@ export function parsePuzzle(data) {
   const simpleHash = t => {
     let e = 0;
     for (let r = 0; r < t.length; r++) {
-      e = (e << 5) - e + t.charCodeAt(r), e &= e
+      e = (e << 5) - e + t.charCodeAt(r), e &= e;
     }
-    return new Uint32Array([e])[0].toString(36)
+    return new Uint32Array([e])[0].toString(36);
   };
   const myHash = simpleHash(JSON.stringify(puzzle));
   this.savegame_name = STORAGE_KEY + '_' + myHash;
@@ -186,9 +186,9 @@ export function parsePuzzle(data) {
   const jsxw2_cells = this.loadGame();
   if (jsxw2_cells) {
     console.log('Loading puzzle from localStorage');
-    var noteObj = JSON.parse(localStorage.getItem(this.savegame_name + "_notes"));
+    const noteObj = JSON.parse(localStorage.getItem(this.savegame_name + "_notes"));
     if (noteObj && noteObj.length > 0) {
-      for (var entry of noteObj) {
+      for (const entry of noteObj) {
         this.notes.set(entry.key, entry.value);
       }
     }
@@ -321,7 +321,6 @@ export function parsePuzzle(data) {
       c.type = null;
       c.empty = false;
       c.clue = false;
-      c.color = null;
       c.letter = '';
       c.number = null;
     } else {
@@ -342,6 +341,26 @@ export function parsePuzzle(data) {
       this.number_to_cells[key].push(c);
     }
   }
+
+  /* determine if we should do strict rebus checking */
+  // flatten the cells
+  const cells1 = Object.values(this.cells).flatMap(row => Object.values(row));
+
+  // get the total number of cells with a solution
+  // and the number that have more than one character
+  const { total, long } = cells1.reduce(
+    (acc, c) => {
+      if (c.solution != null) {
+        acc.total++;
+        if (c.solution.length > 1) acc.long++;
+      }
+      return acc;
+    },
+    { total: 0, long: 0 }
+  );
+
+  // do strict rebus checking if 1/3 or more cells are "long"
+  this.strictRebus = total === 0 ? false : long * 3 >= total;
 
   // If diagramless, renumber
   if (this.diagramless_mode) {
@@ -407,8 +426,8 @@ export function parsePuzzle(data) {
   }
 
   // Handle fake clues override
-  var num_words = puzzle.words.length;
-  var num_clues = puzzle.clues.map(x => x.clue).flat().length;
+  const num_words = puzzle.words.length;
+  const num_clues = puzzle.clues.map(x => x.clue).flat().length;
   if (this.fakeclues && num_words != num_clues) {
     // make a copy of the clue groups for display
     this.displayClueGroups = [...this.clueGroups];

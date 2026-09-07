@@ -13,7 +13,7 @@ The Tournament Solver uses **Firebase** for authentication, database (Firestore)
 
 ### 1. Create a Firebase Project
 1.  Go to the [Firebase console](https://console.firebase.google.com/).
-2.  Click "Add project" and follow the prompts. (You can disable Google Analytics; it is not required for this project).
+2.  Click "Create a new Firebase project" and follow the prompts. (You can disable Gemini and Google Analytics; they are not required for this project).
 3.  **Immediately Upgrade:** Once the project is created, click the **"Upgrade"** button in the bottom-left corner and select the **Blaze Plan**.
     *   *Note:* You still get the same "Always Free" quotas. You will not be charged unless you exceed 50,000 reads or 20,000 writes per day.
 
@@ -129,7 +129,7 @@ Access to the Admin Dashboard is restricted to emails found in the `admins` coll
 6.  **Type:** `string`
 7.  **Value (String):** `admin`
 8.  Click **Save**.
-9. **NOTE:** If you want to add other admins, you'll need to repeat this process with their email addresses.
+9. **NOTE:** If you want to add other admins, you'll need to repeat this process -- click "Add document" and use the relevant email address.
 
 ### 6. Register Your Web App & Get Config
 1.  Navigate back to the **Project Overview** (home icon at the top of the left sidebar).
@@ -143,7 +143,7 @@ Access to the Admin Dashboard is restricted to emails found in the `admins` coll
 9.  Paste your config in this file.
 10. Delete the line that reads `import { initializeApp } from "firebase/app";`
 11. Delete the last line (`const app = initializeApp(firebaseConfig);`)
-12. Add this as the last line: ``
+12. Add the following line at the bottom: `firebase.initializeApp(firebaseConfig);`
 
 ### 7. Create Required Firestore Indices
 To enable the live puzzle list and the detailed leaderboard, you must create composite indices in Firestore.
@@ -154,17 +154,6 @@ To enable the live puzzle list and the detailed leaderboard, you must create com
 5.  Wait for the status to become "Enabled" (usually 3-5 minutes).
 6.  **Note:** The red error message in the dashboard will persist until the index is fully built. It is okay to continue setting up other tasks while the index builds in the background.
 7.  You may need to do this twice: once for the **Puzzles** tab and once for the **Leaderboard** tab.
-
----
-
-## Firebase Billing & Plan (Required)
-
-As of **February 2026**, the **Blaze Plan (Pay-as-you-go)** is mandatory for all projects using Firestore or Cloud Storage.
-
-### Why is Blaze required?
-*   **API Requirements:** Google now requires a billing account to provision new database instances and manage Cloud Storage buckets.
-*   **Connection Limit:** The old Free (Spark) plan had a hard limit of 100 simultaneous connections, which is insufficient for most tournaments.
-*   **Cost:** The Blaze plan includes the same generous free tiers as the old Spark plan. That said, you may reach 50,000 reads and have some cost associated to the tournament.
 
 ---
 

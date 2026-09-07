@@ -20,7 +20,7 @@ The solver dynamically adapts to the user's device.
 
 ### Mobile Mode
 - **Detection:** `index.html` detects mobile devices and loads `js/crossword.mobile.js`.
-- **Custom Keyboard:** To avoid issues with OS-level virtual keyboards obscuring the grid, the solver implements a custom HTML/CSS keyboard (`createCustomKeyboard`) with specialized keys for Rebus entries and navigation.
+- **Custom Keyboard:** To avoid issues with OS-level virtual keyboards obscuring the grid, the solver implements a custom HTML/CSS keyboard (`createCustomKeyboard`) with a dedicated `REBUS`/`DONE` toggle key and word navigation arrows.
 - **Drawer System:** Clues are often placed in a bottom "drawer" that can be swiped or toggled, maximizing grid visibility.
 - **Viewport Management:** Uses `visualViewport` API and a custom `--vh` CSS variable to handle the complex resizing behavior on mobile browsers when address bars or keyboards appear.
 
@@ -33,6 +33,18 @@ Game progress is automatically saved to the browser's `localStorage`.
 - **What's Saved:** The user's filled letters, marks (checks/reveals), notes, and the current timer state.
 
 ## 4. Specialized Puzzle Modes
+
+### In-Place Rebus System
+- **Desktop Interaction:**
+  - Pressing `Esc` or `Insert` on an active cell toggles Rebus mode directly in place (no popup modal).
+  - While active, an overlay frame (`.cw-rebus-frame`) and a blinking caret (`.cw-rebus-cursor`) are rendered on top of the cell.
+  - Typing appends letters (auto-scaled by `src/rendering.js`), and Backspace deletes character-by-character within the cell.
+  - Pressing `Enter` or `Space` commits the entry and advances to the next cell.
+  - Pressing `Esc` commits the current input and exits rebus mode without clearing or advancing.
+- **Mobile Interaction:**
+  - Tapping the **`REBUS`** key on the custom keyboard activates in-place rebus mode. The key dynamically flips to **`DONE`** with an `.active` accent highlight.
+  - Long-pressing any grid cell (450ms) also activates in-place rebus mode directly on that cell without browser prompts; subsequent touch-release `click` events are intercepted in the capture phase to prevent accidental clue direction flips.
+  - Tapping **`DONE`** commits the rebus and advances to the next square.
 
 ### Downs-Only Mode
 - **Trigger:** URL parameter `?downs-only` or `?downsonly`.
@@ -67,12 +79,57 @@ The UI relies heavily on a generic modal system for displaying info, settings, a
 - **`createModalBox(title, content, button_text)`:** This method in `src/modal.js` is the standard way to display pop-ups. It injects HTML into the `.cw-modal` container and handles the display toggling.
 - **Adding new Modals:** If you need a new pop-up, follow the pattern of `showInfo()` or `showHelp()`: define the content as an HTML string, escape any dynamic user content (like `this.title`), and call `createModalBox`.
 
+### Build Process
+- The source code resides in the `src/` directory as ES modules (`src/crosswords.js`, `src/rendering.js`, `src/navigation.js`, etc.).
+- Running `npm run build` compiles `src/crosswords.js` and all imported modules into the bundled IIFE script at `js/crosswords.js` using Vite.
+- **Do not edit `js/crosswords.js` directly**—all development and core engine modifications should be made in `src/` and compiled with `npm run build`.
+
 ### Adding New Features
 When extending the solver:
 1.  **Check `js/crossword.shared.js`** for utility functions that should be consistent across platforms.
-2.  **Verify `src/` modules** (e.g. `src/crosswords.js`, `src/navigation.js`, etc.) for core logic changes.
+2.  **Verify `src/` modules** (e.g. `src/crosswords.js`, `src/rendering.js`, `src/navigation.js`, etc.) for core logic changes and recompile with `npm run build`.
 3.  **Test on mobile** to ensure the custom keyboard and drawer system correctly handle any new UI elements.
 
-## 6. Tournament Extension
+## 6. Architecture Map & Key Modules
+
+| File | Purpose |
+|---|---|
+| `src/crosswords.js` | Main orchestrator & entry point; binds lifecycle methods and handles viewport resizing. |
+| `src/rendering.js` | SVG grid layout math (`positionGrid`), cell rendering, bars, circles, letters, and chevrons. |
+| `src/navigation.js` | Keyboard/cell selection handling, word advancement, spacebar/tab navigation, `setActiveWord`. |
+| `src/loader.js` | Puzzle parsing, cell initialization, clue mapping, and `CluesGroup` creation. |
+| `src/cluesUI.js` | Sidebar clue list rendering, styling, and clue-note editing. |
+| `src/modal.js` | Generic modal box system (Info, Settings, Rebus input, Unmatched Clues). |
+| `src/colors.js` | HSV color transforms, theme calculation, and dynamic CSS variable injection. |
+| `src/storage.js` | `localStorage` state serialization and save cleanup routines. |
+| `src/utils.js` | Pure helpers: string escaping, correctness checks, and dynamic clue font binary search (`resizeText`). |
+| `src/constants.js` | Base HTML template strings and default configuration constants. |
+
+### DOM & Layout Hierarchy
+
+```text
+.cw-content (flex container)
+├── .cw-grid (left column)
+│   ├── .cw-buttons-holder (toolbar: File, Check, Reveal, Settings, Timer)
+│   └── .cw-canvas (puzzle area container)
+│       └── .cw-puzzle-container (flex column, width: 100%)
+│           ├── .cw-top-text-wrapper (current clue bar, spans canvas width)
+│           └── <svg id="cw-puzzle-grid"> (SVG crossword grid)
+└── .cw-clues-holder (right column: Across & Down clue lists on desktop)
+```
+
+## 7. Developer & LLM Quick Reference (Gotchas)
+
+1. **Source vs. Standalone Scripts**:
+   - `src/` compiles to `js/crosswords.js` via `npm run build`. Never edit `js/crosswords.js` directly.
+   - `js/crossword.mobile.js` and `js/crossword.shared.js` are **standalone scripts** in `js/` that are loaded directly by `index.html` (not bundled by Vite).
+2. **Container-Based Breakpoints**:
+   - Breakpoints are NOT CSS `@media` queries; they are container classes (`.cw-max-width-1200`, `.cw-max-width-1080`, `.cw-max-width-650`, etc.) added dynamically by `setBreakpointClasses(this.root)` in JS based on the root element's width.
+3. **1-Indexed Grid Coordinates**:
+   - `this.cells[x][y]` uses **1-indexed** coordinates (`1..grid_width`, `1..grid_height`), while raw `JSCrossword` and cell ranges from puzzle formats are 0-indexed.
+
+## 8. Tournament Extension
 
 For technical details regarding the Firebase-backed tournament system (Admin Dashboard, Leaderboards, and Scoring), see [tournament/TECHNICAL_DETAILS.md](tournament/TECHNICAL_DETAILS.md).
+
+
