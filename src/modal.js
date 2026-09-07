@@ -30,12 +30,12 @@ export function createModalBox(title, content, button_text = 'Close') {
   this.root.find('.cw-modal').html(modalContent);
 
   // Show the div
-  var modal = this.root.find('.cw-modal').get(0);
+  const modal = this.root.find('.cw-modal').get(0);
   modal.style.display = 'block';
 
   // Allow user to close the div
   const this_hidden_input = this.hidden_input;
-  var span = this.root.find('.modal-close').get(0);
+  const span = this.root.find('.modal-close').get(0);
   // When the user clicks on <span> (x), close the modal
   span.onclick = function() {
     modal.style.display = 'none';
@@ -53,7 +53,7 @@ export function createModalBox(title, content, button_text = 'Close') {
     }
   };
   // Clicking the button should close the modal
-  var modalButton = document.getElementById('modal-button');
+  const modalButton = document.getElementById('modal-button');
   modalButton.onclick = function() {
     modal.style.display = 'none';
     if (!IS_MOBILE) {
@@ -93,7 +93,7 @@ export function openRebusModal() {
 
 export function openSettings() {
   // Create a modal box
-  var settingsHTML = `
+  const settingsHTML = `
   <div class="settings-wrapper">
     <!-- Skip filled letters -->
     <div class="settings-setting">
@@ -212,8 +212,8 @@ export function openSettings() {
 
   this.createModalBox('Settings', settingsHTML);
   // Show the proper value for each of these fields
-  var classChangers = document.getElementsByClassName('settings-changer');
-  for (var cc of classChangers) {
+  const classChangers = document.getElementsByClassName('settings-changer');
+  for (const cc of classChangers) {
     if (cc.type === 'radio') {
       document.getElementById(cc.id)['checked'] =
         this.config[cc.name] === cc.id;
@@ -284,7 +284,7 @@ export function showHelp() {
         </ul>
         <h3>Rebus Entry</h3>
         <ul style="padding-left: 1.2rem; margin-bottom: 1rem;">
-          <li><b>Enter Multiple Letters:</b> Press the <b>Escape (Esc)</b> or <b>Insert</b> key to pull up the rebus prompt, type your letters, and press <b>Enter</b>.</li>
+          <li><b>Enter Multiple Letters:</b> Press <b>Escape (Esc)</b> or <b>Insert</b> on desktop, or tap <b>REBUS</b> (or long-press a cell) on mobile, to enter rebus mode directly in the active cell. Type your letters, then press <b>Enter</b> (or tap <b>DONE</b>) to commit. Pressing <b>Esc</b> commits without advancing.</li>
         </ul>
         <h3>Settings</h3>
         <p style="padding-left: 1.2rem; margin-bottom: 0;">Customize your experience (including keyboard behavior) by clicking the <b>Settings</b> button.</p>

@@ -67,7 +67,7 @@ The system is split into three primary components:
   - `isCorrect` / `isFullyCorrect`: Boolean (all cells match solution).
   - `score`: Calculated point value.
   - `bonus`: Calculated time bonus.
-  - `submittedGrid`: String (the serialized grid: `_` for blanks, `.` for blocks, `*` for rebuses, uppercase letters).
+  - `submittedGrid`: String (the serialized grid: `_` for blanks, `.` for blocks, `*` for rebuses, uppercase letters for correct answers, and lowercase letters for incorrect ones).
   - `gridWidth`: Integer.
   - `gridHeight`: Integer.
 

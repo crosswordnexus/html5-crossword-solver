@@ -13,7 +13,7 @@ This file tracks planned improvements, refactoring ideas, and future features fo
 - [ ] **Downs-Only Enhancements:**
     - [ ] Add an option to automatically set the starting direction to "Down" when `downs-only` mode is active.
     - [ ] Add a visual indicator or toggle for Downs-Only mode in the UI.
-- [ ] **Improved Rebus Support:** Streamline the Rebus entry process on mobile (e.g., a dedicated Rebus toggle).
+- [x] **Improved Rebus Support:** Streamline the Rebus entry process on mobile (e.g., a dedicated Rebus toggle).
 - [ ] **Multi-Puzzle Support:** Better UI for selecting from a list of puzzles (if `puzzles` param is provided).
 
 ## Refactoring & Maintenance

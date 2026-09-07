@@ -38,18 +38,19 @@
           isMobile: mobile
         });
 
+        // ✅ Load correct layout CSS synchronously to prevent FOUC (flash of unstyled content)
+        const layoutLink = document.createElement('link');
+        layoutLink.rel = 'stylesheet';
+        layoutLink.href = mobile ? './css/crossword.mobile.css' : './css/crosswordnexus.css';
+        document.head.appendChild(layoutLink);
+
         if (mobile) {
           // ✅ Load core engine first (crosswords.js)
           const core = document.createElement('script');
           core.src = './js/crosswords.js';
 
           core.onload = () => {
-            // ✅ Then load mobile layout script and CSS
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = './css/crossword.mobile.css';
-            document.head.appendChild(link);
-
+            // ✅ Then load mobile layout script
             const mobileScript = document.createElement('script');
             mobileScript.src = './js/crossword.mobile.js';
             document.body.appendChild(mobileScript); // ✅ Let it handle its own init
@@ -60,12 +61,6 @@
           });
 
         } else {
-          // ✅ Desktop CSS
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = './css/crosswordnexus.css';
-          document.head.appendChild(link);
-
           // ✅ Desktop JS + Init
           const script = document.createElement('script');
           script.src = './js/crosswords.js';

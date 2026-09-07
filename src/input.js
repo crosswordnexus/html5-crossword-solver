@@ -20,7 +20,7 @@ export function keyPressed(e) {
   }
 
   // to prevent event propagation for specified keys
-  var prevent = [35, 36, 37, 38, 39, 40, 32, 46, 8, 9, 13].indexOf(e.keyCode) >= 0;
+  let prevent = [35, 36, 37, 38, 39, 40, 32, 46, 8, 9, 13].indexOf(e.keyCode) >= 0;
 
   switch (e.keyCode) {
     case 35: // end
@@ -30,6 +30,7 @@ export function keyPressed(e) {
       this.moveToFirstCell(false);
       break;
     case 37: // left
+      if (this.rebus_mode) this.exitRebusMode(true, false);
       if (this.diagramless_mode) this.setDiagramlessDir('across'); // set BEFORE moving
       if (e.shiftKey) {
         this.skipToWord(SKIP_LEFT);
@@ -38,6 +39,7 @@ export function keyPressed(e) {
       }
       break;
     case 38: // up
+      if (this.rebus_mode) this.exitRebusMode(true, false);
       if (this.diagramless_mode) this.setDiagramlessDir('down'); // vertical mode (set BEFORE)
       if (e.shiftKey) {
         this.skipToWord(SKIP_UP);
@@ -46,6 +48,7 @@ export function keyPressed(e) {
       }
       break;
     case 39: // right
+      if (this.rebus_mode) this.exitRebusMode(true, false);
       if (this.diagramless_mode) this.setDiagramlessDir('across'); // set BEFORE moving
       if (e.shiftKey) {
         this.skipToWord(SKIP_RIGHT);
@@ -54,6 +57,7 @@ export function keyPressed(e) {
       }
       break;
     case 40: // down
+      if (this.rebus_mode) this.exitRebusMode(true, false);
       if (this.diagramless_mode) this.setDiagramlessDir('down'); // vertical mode (set BEFORE)
       if (e.shiftKey) {
         this.skipToWord(SKIP_DOWN);
@@ -63,6 +67,11 @@ export function keyPressed(e) {
       break;
 
     case 32: // space
+      if (this.rebus_mode) {
+        this.exitRebusMode(true, true);
+        prevent = true;
+        break;
+      }
 
       if (this.diagramless_mode) {
         // Toggle direction in diagramless on Space
@@ -104,25 +113,32 @@ export function keyPressed(e) {
       this.checkIfSolved(); // update solved status
       break;
 
-    case 27: // escape -- pulls up a rebus entry
+    case 27: // escape -- toggles/commits rebus mode
       if (e.shiftKey) {
         e.preventDefault();
         this.toggleTimer();
       } else {
-        if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
+        if (this.rebus_mode) {
           e.preventDefault();
           e.stopPropagation();
-          this.hidden_input.val('');
-          this.openRebusModal();
+          this.exitRebusMode(true, false);
+        } else if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.enterRebusMode();
         }
         prevent = true;
       }
       break;
-    case 45: // insert -- same as escape
-      if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
+    case 45: // insert -- commits/enters rebus mode
+      if (this.rebus_mode) {
         e.preventDefault();
         e.stopPropagation();
-        this.openRebusModal();
+        this.exitRebusMode(true, true);
+      } else if (this.selected_cell && (this.selected_word || this.diagramless_mode)) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.enterRebusMode();
       }
       prevent = true;
       break;
@@ -134,6 +150,9 @@ export function keyPressed(e) {
         });
         this.autofill();
       }
+      if (this.rebus_mode) {
+        this.adjustRebusFrame();
+      }
       // Update this.isSolved
       this.checkIfSolved();
       break;
@@ -141,7 +160,22 @@ export function keyPressed(e) {
       this.backspace();
       break;
     case 9: // tab
-    case 13: // enter key -- same as tab
+      if (this.rebus_mode) this.exitRebusMode(true, false);
+      var skip_filled_words = this.config.tab_key === 'tab_skip';
+      if (e.shiftKey) {
+        this.moveToNextWord(true, skip_filled_words);
+      } else {
+        this.moveToNextWord(false, skip_filled_words);
+      }
+      break;
+    case 13: // enter key
+      if (this.rebus_mode) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.exitRebusMode(true, true);
+        prevent = true;
+        break;
+      }
       var skip_filled_words = this.config.tab_key === 'tab_skip';
       if (e.shiftKey) {
         this.moveToNextWord(true, skip_filled_words);
@@ -200,6 +234,16 @@ export function keyPressed(e) {
         !e.ctrlKey && !e.metaKey && !e.altKey;
 
       if (this.selected_cell && isPrintableChar && !this.selected_cell.fixed) {
+        if (this.rebus_mode) {
+          const ch = /[a-z]/i.test(e.key) ? e.key.toUpperCase() : e.key;
+          this.appendRebusLetter(ch);
+          if (!IS_MOBILE) {
+            this.hidden_input.focus();
+          }
+          prevent = true;
+          break;
+        }
+
         // Uppercase only letters, leave numbers/punctuation unchanged
         const ch = /[a-z]/i.test(e.key) ? e.key.toUpperCase() : e.key;
         this.updateCell(this.selected_cell, {
@@ -253,6 +297,11 @@ export function keyPressed(e) {
  */
 export function backspace() {
   if (this.selected_cell && !this.selected_cell.fixed) {
+    if (this.rebus_mode) {
+      this.backspaceRebus();
+      return;
+    }
+
     this.updateCell(this.selected_cell, {
       letter: '',
       checked: false
@@ -326,7 +375,7 @@ export function mouseClicked(e) {
   }
 
   // Try to find a matching word in the current group
-  let currentGroup = this.clueGroups[this.activeClueGroupIndex];
+  const currentGroup = this.clueGroups[this.activeClueGroupIndex];
   let matchingWord = currentGroup.getMatchingWord(index_x, index_y, true);
 
   // If not found, try other groups in order
@@ -379,7 +428,7 @@ export function clueClicked(e) {
 
   if (this.fakeclues || (group && group.isFake)) {
     // Toggle "completed" state on the clue itself
-    clue.fakeClueCompleted = !Boolean(clue.fakeClueCompleted);
+    clue.fakeClueCompleted = !clue.fakeClueCompleted;
 
     // Update this specific clue element immediately
     this.updateClueAppearance(clue, target);
