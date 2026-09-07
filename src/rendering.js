@@ -69,6 +69,7 @@ export function positionGrid() {
     }
   }
   this.adjustChevron();
+  this.adjustRebusFrame();
   setTimeout(() => this.syncTopTextWidth(), 0);
 }
 
@@ -275,8 +276,10 @@ export function adjustCellRect(cell) {
 
   const isSelected = !!(this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y);
   const isLinked = !!(this.selected_cell && this.number_to_cells[this.selected_cell.number || this.selected_cell.top_right_number]?.includes(cell));
+  const isRebus = !!(this.rebus_mode && isSelected);
   rect.classList.toggle('selected', isSelected);
   rect.classList.toggle('linked', isLinked); // optional CSS hook
+  rect.classList.toggle('rebus-active', isRebus);
   rect.setAttribute('fill', this.cellFillColor(cell));
   rect.setAttribute('stroke', rectStroke);
 }
@@ -387,5 +390,91 @@ export function adjustChevron() {
         // ▼ chevron (lower-right corner)
     );
     this.svgElements.chevron.setAttribute('d', d);
+  }
+}
+
+export function adjustRebusFrame() {
+  if (!this.svgElements) {
+    return;
+  }
+  const showRebus = Boolean(this.rebus_mode && this.selected_cell);
+
+  // 1. Rebus Frame (big thick border)
+  if (showRebus && !this.svgElements.rebusFrame) {
+    const frame = this.svgElements.rebusFrame = document.createElementNS(this.svgNS, 'rect');
+    frame.setAttribute('fill', 'none');
+    frame.setAttribute('pointer-events', 'none');
+    frame.classList.add('cw-rebus-frame');
+    this.svgContainer.appendChild(frame);
+  } else if (!showRebus && this.svgElements.rebusFrame) {
+    this.svgElements.rebusFrame.parentNode.removeChild(this.svgElements.rebusFrame);
+    delete this.svgElements.rebusFrame;
+  }
+
+  // 2. Blinking Cursor
+  if (showRebus && !this.svgElements.rebusCursor) {
+    const cursor = this.svgElements.rebusCursor = document.createElementNS(this.svgNS, 'line');
+    cursor.setAttribute('pointer-events', 'none');
+    cursor.classList.add('cw-rebus-cursor');
+    this.svgContainer.appendChild(cursor);
+  } else if (!showRebus && this.svgElements.rebusCursor) {
+    this.svgElements.rebusCursor.parentNode.removeChild(this.svgElements.rebusCursor);
+    delete this.svgElements.rebusCursor;
+  }
+
+  if (showRebus && this.selected_cell) {
+    const cell = this.selected_cell;
+    const size = this.cell_size;
+    const strokeWidth = Math.max(2.5, Math.round(size * 0.07));
+    const halfStroke = strokeWidth / 2;
+    const cellX = (cell.x - 1) * size;
+    const cellY = (cell.y - 1) * size;
+
+    if (this.svgElements.rebusFrame) {
+      this.svgElements.rebusFrame.setAttribute('x', cellX + halfStroke);
+      this.svgElements.rebusFrame.setAttribute('y', cellY + halfStroke);
+      this.svgElements.rebusFrame.setAttribute('width', size - strokeWidth);
+      this.svgElements.rebusFrame.setAttribute('height', size - strokeWidth);
+      this.svgElements.rebusFrame.setAttribute('stroke', 'var(--grid-rebus-stroke-color, #000000)');
+      this.svgElements.rebusFrame.setAttribute('stroke-width', strokeWidth);
+    }
+
+    if (this.svgElements.rebusCursor) {
+      let cursorX = cellX + size / 2;
+      const letterLength = (cell.letter || '').length;
+      const letterEl = this.svgElements.cells[cell.x]?.[cell.y]?.letter;
+
+      if (letterLength > 0 && letterEl) {
+        try {
+          const bbox = letterEl.getBBox();
+          if (bbox && bbox.width > 0) {
+            cursorX = bbox.x + bbox.width + 2;
+          } else {
+            const scale = Math.max(0.25, 0.60 - 0.07 * (letterLength - 1));
+            const fontSize = size * scale;
+            cursorX = (cellX + size / 2) + (letterLength * fontSize * 0.28) + 2;
+          }
+        } catch (_) {
+          const scale = Math.max(0.25, 0.60 - 0.07 * (letterLength - 1));
+          const fontSize = size * scale;
+          cursorX = (cellX + size / 2) + (letterLength * fontSize * 0.28) + 2;
+        }
+      }
+
+      // Keep cursor comfortably inside cell bounds
+      cursorX = Math.min(cursorX, cellX + size - strokeWidth - 3);
+
+      const cursorY1 = cellY + size * 0.20;
+      const cursorY2 = cellY + size * 0.78;
+      const cursorWidth = Math.max(2.5, Math.round(size * 0.06));
+
+      this.svgElements.rebusCursor.setAttribute('x1', cursorX);
+      this.svgElements.rebusCursor.setAttribute('y1', cursorY1);
+      this.svgElements.rebusCursor.setAttribute('x2', cursorX);
+      this.svgElements.rebusCursor.setAttribute('y2', cursorY2);
+      this.svgElements.rebusCursor.setAttribute('stroke', 'var(--grid-rebus-cursor-color, #ffffff)');
+      this.svgElements.rebusCursor.setAttribute('stroke-width', cursorWidth);
+      this.svgElements.rebusCursor.setAttribute('stroke-linecap', 'round');
+    }
   }
 }

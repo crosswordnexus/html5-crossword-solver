@@ -148,6 +148,12 @@ export function updateCSS(word, selected) {
     root.style.setProperty(varName, brightness < 128 ? "#ffffff" : "#000000");
   };
 
+  // Rebus highlight colors
+  const rebusStrokeColor = isDark ? '#FFFFFF' : '#000000';
+  const rebusCursorColor = '#FFFFFF';
+  root.style.setProperty('--grid-rebus-stroke-color', rebusStrokeColor);
+  root.style.setProperty('--grid-rebus-cursor-color', rebusCursorColor);
+
   // Buttons
   const buttonBgColor = Color.applyHsvTransform(wordColor, { dh: 0.13, ks: 0.753, kv: 1.004 });
   root.style.setProperty("--button-bg-color", buttonBgColor);
