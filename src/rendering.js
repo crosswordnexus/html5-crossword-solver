@@ -234,10 +234,8 @@ export function adjustCellPosition(cell) {
     }
   }
   if (elements.letter) {
-    const letterLength = cell.letter.length;
-    const maxScale = 0.6;
-    const minScale = 0.25;
-    const scale = Math.max(minScale, maxScale - 0.07 * (letterLength - 1));
+    const letterLength = (cell.letter || '').length;
+    const scale = letterLength > 1 ? Math.max(0.14, 1.25 / letterLength) : 0.6;
     elements.letter.setAttribute('x', cellX + size / 2);
     elements.letter.setAttribute('y', cellY + size * 0.77);
     elements.letter.setAttribute('font-size', `${this.cell_size * scale}px`);
@@ -450,12 +448,12 @@ export function adjustRebusFrame() {
           if (bbox && bbox.width > 0) {
             cursorX = bbox.x + bbox.width + 2;
           } else {
-            const scale = Math.max(0.25, 0.60 - 0.07 * (letterLength - 1));
+            const scale = letterLength > 1 ? Math.max(0.14, 1.25 / letterLength) : 0.6;
             const fontSize = size * scale;
             cursorX = (cellX + size / 2) + (letterLength * fontSize * 0.28) + 2;
           }
         } catch (_) {
-          const scale = Math.max(0.25, 0.60 - 0.07 * (letterLength - 1));
+          const scale = letterLength > 1 ? Math.max(0.14, 1.25 / letterLength) : 0.6;
           const fontSize = size * scale;
           cursorX = (cellX + size / 2) + (letterLength * fontSize * 0.28) + 2;
         }
