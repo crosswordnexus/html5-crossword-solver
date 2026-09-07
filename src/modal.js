@@ -284,7 +284,7 @@ export function showHelp() {
         </ul>
         <h3>Rebus Entry</h3>
         <ul style="padding-left: 1.2rem; margin-bottom: 1rem;">
-          <li><b>Enter Multiple Letters:</b> Press <b>Escape (Esc)</b> or <b>Insert</b> (or tap <b>REBUS</b> on mobile) to enter rebus mode directly in the active cell. Type your letters, then press <b>Enter</b> (or tap <b>DONE</b> on mobile) to commit.</li>
+          <li><b>Enter Multiple Letters:</b> Press <b>Escape (Esc)</b> or <b>Insert</b> on desktop, or tap <b>REBUS</b> (or long-press a cell) on mobile, to enter rebus mode directly in the active cell. Type your letters, then press <b>Enter</b> (or tap <b>DONE</b>) to commit. Pressing <b>Esc</b> commits without advancing.</li>
         </ul>
         <h3>Settings</h3>
         <p style="padding-left: 1.2rem; margin-bottom: 0;">Customize your experience (including keyboard behavior) by clicking the <b>Settings</b> button.</p>
