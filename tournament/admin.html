@@ -25,8 +25,15 @@
 
     <div id="admin-app" style="display:none">
         <header class="admin-header">
-            <h1>Admin</h1>
-            <nav class="admin-nav">
+            <div class="admin-header-brand">
+                <h1>Admin</h1>
+                <button id="adminNavToggle" class="admin-nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="adminNav">
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                </button>
+            </div>
+            <nav class="admin-nav" id="adminNav">
                 <button data-tab="puzzles" class="tab-btn active">Puzzles</button>
                 <button data-tab="leaderboard" class="tab-btn">Leaderboard</button>
                 <button data-tab="participants" class="tab-btn">Participants</button>

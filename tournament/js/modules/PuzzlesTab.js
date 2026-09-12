@@ -51,6 +51,7 @@ export async function renderPuzzlesTab(container, db) {
                             <p>Author: ${puzzle.author} | Status: <strong>${puzzle.status}</strong></p>
                         </div>
                         <div class="list-item-actions">
+                            <button class="secondary-btn btn-sm preview-puzzle-btn" data-id="${puzzle.id}">Preview</button>
                             <button class="secondary-btn btn-sm edit-puzzle-btn" data-id="${puzzle.id}">Edit</button>
                             <button class="secondary-btn btn-sm btn-danger delete-puzzle-btn" data-id="${puzzle.id}">Delete</button>
                         </div>
@@ -61,7 +62,14 @@ export async function renderPuzzlesTab(container, db) {
         listContainer.innerHTML = listHtml + '</div>';
 
         container.querySelector('#addPuzzleBtn').onclick = () => renderPuzzleForm(container, db);
-        
+
+        container.querySelectorAll('.preview-puzzle-btn').forEach(btn => {
+            btn.onclick = () => {
+                const p = puzzles.find(p => p.id === btn.dataset.id);
+                if (p) previewPuzzle(p);
+            };
+        });
+
         container.querySelectorAll('.edit-puzzle-btn').forEach(btn => {
             btn.onclick = () => {
                 const p = puzzles.find(p => p.id === btn.dataset.id);
@@ -82,8 +90,8 @@ export async function renderPuzzlesTab(container, db) {
                 }
             };
         });
-    } catch (e) { 
-        container.innerHTML = `<p class="error">${e.message}</p>`; 
+    } catch (e) {
+        container.innerHTML = `<p class="error">${e.message}</p>`;
     }
 }
 
@@ -130,10 +138,10 @@ async function renderPuzzleForm(container, db, puzzle = null) {
                     </div>
                     <div class="division-mapping">
                         ${divisions.map(div => `
-                            <div class="mapping-row ${div === 'default' ? 'default-row' : ''}">
+                            <div class="mapping-row ${div === 'default' ? 'default-row' : ''}" data-division="${div}">
                                 <label>${div}:</label>
-                                <input type="text" id="input_${div}" name="file_${div}" value="${puzzle?.filesByDivision?.[div] || (div === 'default' ? (puzzle?.filePath || puzzle?.fileName || '') : '')}" placeholder="filename.ipuz">
-                                <button type="button" class="secondary-btn btn-sm check-path-btn" data-input="input_${div}">Check</button>
+                                <input type="text" name="file_${div}" value="${puzzle?.filesByDivision?.[div] || (div === 'default' ? (puzzle?.filePath || puzzle?.fileName || '') : '')}" placeholder="filename.ipuz">
+                                <button type="button" class="secondary-btn btn-sm check-path-btn">Check</button>
                             </div>
                         `).join('')}
                     </div>
@@ -146,9 +154,10 @@ async function renderPuzzleForm(container, db, puzzle = null) {
 
     container.querySelectorAll('.check-path-btn').forEach(btn => {
         btn.onclick = async () => {
-            let filename = container.querySelector('#' + btn.dataset.input).value.trim();
+            const input = btn.closest('.mapping-row')?.querySelector('input');
+            let filename = input ? input.value.trim() : '';
             if (!filename) return;
-            
+
             let path = filename;
             if (!path.startsWith('./') && !path.startsWith('../')) {
                 path = './puzzles/' + filename;
@@ -164,22 +173,27 @@ async function renderPuzzleForm(container, db, puzzle = null) {
     });
 
     container.querySelector('#cancelPuzzleBtn').onclick = () => renderPuzzlesTab(container, db);
-    
+
     container.querySelector('#puzzleForm').onsubmit = async (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
         const files = {};
-        divisions.forEach(d => { const v = fd.get(`file_${d}`); if (v) files[d] = v; });
-        
+        container.querySelectorAll('.division-mapping .mapping-row').forEach(row => {
+            const div = row.dataset.division;
+            const input = row.querySelector('input');
+            const v = input ? input.value.trim() : '';
+            if (div && v) files[div] = v;
+        });
+
         const data = {
-            name: fd.get('name'), 
-            author: fd.get('author'), 
+            name: fd.get('name'),
+            author: fd.get('author'),
             puzzleNumber: parseInt(fd.get('puzzleNumber')),
-            timeLimitSeconds: parseInt(fd.get('timeLimitSeconds')), 
-            status: fd.get('status'), 
+            timeLimitSeconds: parseInt(fd.get('timeLimitSeconds')),
+            status: fd.get('status'),
             isWarmup: fd.get('isWarmup') === 'on',
-            filesByDivision: files, 
-            filePath: files.default || Object.values(files)[0] || '', 
+            filesByDivision: files,
+            filePath: files.default || Object.values(files)[0] || '',
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
@@ -192,4 +206,123 @@ async function renderPuzzleForm(container, db, puzzle = null) {
             if (window.Toast) window.Toast.error('Save failed: ' + err.message);
         }
     };
+}
+
+/**
+ * Opens a puzzle in the vanilla solver (index.html).
+ * @param {object} puzzle - The puzzle document data.
+ */
+function previewPuzzle(puzzle) {
+    const files = getPuzzleFiles(puzzle);
+    if (files.length === 0) {
+        if (window.Toast) window.Toast.error('No puzzle file configured for this puzzle.');
+        else alert('No puzzle file configured for this puzzle.');
+        return;
+    }
+
+    const uniqueFilenames = [...new Set(files.map(f => f.filename))];
+    if (uniqueFilenames.length === 1) {
+        openPuzzlePreview(uniqueFilenames[0]);
+    } else {
+        showDivisionPreviewModal(puzzle, files);
+    }
+}
+
+/**
+ * Extracts all configured files from a puzzle object.
+ * @param {object} puzzle - The puzzle data.
+ * @returns {Array<{division: string, filename: string}>}
+ */
+function getPuzzleFiles(puzzle) {
+    const files = [];
+    if (puzzle.filesByDivision && typeof puzzle.filesByDivision === 'object') {
+        for (const [div, file] of Object.entries(puzzle.filesByDivision)) {
+            if (file && typeof file === 'string' && file.trim()) {
+                files.push({ division: div, filename: file.trim() });
+            }
+        }
+    }
+    const fallback = (puzzle.filePath || puzzle.fileName || puzzle.filename || '').trim();
+    if (files.length === 0 && fallback) {
+        files.push({ division: 'default', filename: fallback });
+    } else if (fallback && !files.some(f => f.filename === fallback)) {
+        if (!files.some(f => f.division === 'default')) {
+            files.unshift({ division: 'default', filename: fallback });
+        }
+    }
+    return files;
+}
+
+/**
+ * Builds the URL and opens the puzzle in the vanilla solver in a new tab.
+ * @param {string} filename - The puzzle filename or path.
+ */
+function openPuzzlePreview(filename) {
+    let puzzleParam;
+    if (filename.startsWith('http://') || filename.startsWith('https://')) {
+        puzzleParam = filename;
+    } else {
+        let clean = filename.replace(/^\.?\/+/, '');
+        if (clean.startsWith('tournament/puzzles/')) {
+            puzzleParam = clean;
+        } else if (clean.startsWith('puzzles/')) {
+            puzzleParam = 'tournament/' + clean;
+        } else {
+            puzzleParam = 'tournament/puzzles/' + clean;
+        }
+    }
+
+    const solverUrl = new URL('../index.html', window.location.href);
+    solverUrl.searchParams.set('puzzle', puzzleParam);
+    window.open(solverUrl.toString(), '_blank');
+}
+
+/**
+ * Shows a modal to select which division puzzle to preview when multiple exist.
+ * @param {object} puzzle - The puzzle data.
+ * @param {Array<{division: string, filename: string}>} files - The list of division files.
+ */
+function showDivisionPreviewModal(puzzle, files) {
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.innerHTML = `
+        <div class="edit-score-modal" style="max-width: 450px;">
+            <h3>Preview: ${puzzle.name || ('Puzzle #' + puzzle.puzzleNumber)}</h3>
+            <!--
+            <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">
+                This puzzle has different files for different divisions. Select which version to preview in the vanilla solver:
+            </p>
+            -->
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                ${files.map(f => `
+                    <button type="button" class="secondary-btn preview-div-choice-btn" data-file="${f.filename}" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; text-align: left;">
+                        <span><strong>${f.division}</strong></span>
+                        <span style="font-size: 0.85em; color: #7f8c8d;">${f.filename}</span>
+                    </button>
+                `).join('')}
+            </div>
+            <div class="modal-footer" style="justify-content: flex-end;">
+                <button type="button" class="secondary-btn close-preview-btn">Cancel</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modalOverlay);
+
+    const close = () => {
+        if (modalOverlay.parentNode) {
+            modalOverlay.parentNode.removeChild(modalOverlay);
+        }
+    };
+
+    modalOverlay.querySelector('.close-preview-btn').onclick = close;
+    modalOverlay.onclick = (e) => {
+        if (e.target === modalOverlay) close();
+    };
+
+    modalOverlay.querySelectorAll('.preview-div-choice-btn').forEach(btn => {
+        btn.onclick = () => {
+            close();
+            openPuzzlePreview(btn.dataset.file);
+        };
+    });
 }

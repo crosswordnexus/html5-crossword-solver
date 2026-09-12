@@ -18,6 +18,15 @@ body, button, input, select, textarea {
     font-size: 1.5rem;
 }
 
+.admin-header-brand {
+    display: flex;
+    align-items: center;
+}
+
+.admin-nav-toggle {
+    display: none;
+}
+
 .admin-nav {
     display: flex;
     gap: 10px;
@@ -303,4 +312,114 @@ body, button, input, select, textarea {
     visibility: visible;
     opacity: 1;
 }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .admin-header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px 20px;
+    }
+
+    .admin-header-brand {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .admin-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .admin-nav-toggle {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 28px;
+        height: 20px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .hamburger-bar {
+        display: block;
+        width: 100%;
+        height: 3px;
+        background-color: white;
+        border-radius: 2px;
+        transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    .admin-nav-toggle.open .hamburger-bar:nth-child(1) {
+        transform: translateY(8.5px) rotate(45deg);
+    }
+
+    .admin-nav-toggle.open .hamburger-bar:nth-child(2) {
+        opacity: 0;
+    }
+
+    .admin-nav-toggle.open .hamburger-bar:nth-child(3) {
+        transform: translateY(-8.5px) rotate(-45deg);
+    }
+
+    .admin-nav {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        gap: 6px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .admin-nav.open {
+        display: flex;
+    }
+
+    .tab-btn {
+        width: 100%;
+        text-align: left;
+        padding: 10px 14px;
+        font-size: 1rem;
+        border-radius: 6px;
+    }
+
+    #adminSignOutBtn {
+        width: 100%;
+        margin-top: 6px;
+        text-align: center;
+        padding: 10px 14px;
+    }
+
+    .admin-main {
+        padding: 15px;
+    }
+
+    .admin-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .list-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .list-item-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+}
+
 
