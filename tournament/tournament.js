@@ -100,24 +100,29 @@ document.addEventListener('DOMContentLoaded', () => {
                                 const solverDoc = await solverRef.get();
                                 const authData = partDoc.data();
 
-                                if (solverDoc.exists && solverDoc.data().name) {
+                                if (solverDoc.exists && solverDoc.data().name && (authData.division || solverDoc.data().division)) {
                                     // Profile complete
                                     const sData = solverDoc.data();
-                                    currentSolver = { uid: user.uid, name: sData.name, displayName: sData.displayName, division: authData.division, email: user.email };
+                                    const currentDiv = authData.division || sData.division;
+                                    currentSolver = { uid: user.uid, name: sData.name, displayName: sData.displayName, division: currentDiv, email: user.email };
                                     
-                                    // Update participants doc with UID if it's missing (link the account)
-                                    if (!authData.uid) {
-                                        await partDoc.ref.update({ uid: user.uid, name: sData.name });
+                                    // Update participants doc with UID and division if missing (link the account)
+                                    const updateData = {};
+                                    if (!authData.uid) updateData.uid = user.uid;
+                                    if (!authData.name) updateData.name = sData.name;
+                                    if (!authData.division && currentDiv) updateData.division = currentDiv;
+                                    if (Object.keys(updateData).length > 0) {
+                                        await partDoc.ref.update(updateData);
                                     }
 
                                     loginDiv.style.display = 'none';
                                     tournamentAppDiv.style.display = 'block';
                                     renderPuzzleList();
                                 } else {
-                                    // Authorized but needs to set a name
+                                    // Authorized but needs to set a name or choose a division
                                     loginDiv.style.display = 'none';
                                     tournamentAppDiv.style.display = 'block';
-                                    renderSetupUI(user, authData);
+                                    renderSetupUI(user, authData, solverDoc.exists ? solverDoc.data() : null);
                                 }
                             } else {
                                 // Not in the authorized list
@@ -167,23 +172,53 @@ document.addEventListener('DOMContentLoaded', () => {
             /**
              * Renders the Participant Registration/Setup UI.
              * This screen allows the user to choose their leaderboard nickname.
-             * Their division is pre-assigned and locked.
+             * If pre-assigned, their division is locked; otherwise, they can self-select.
              * 
              * @async
              * @param {firebase.User} user - The authenticated Firebase user.
              * @param {object} authData - The authorization data retrieved from the 'participants' collection.
+             * @param {object|null} [existingSolver=null] - Existing solver profile data if any.
              * @returns {Promise<void>}
              */
-            async function renderSetupUI(user, authData) {
+            async function renderSetupUI(user, authData, existingSolver = null) {
                 activeView = 'setup';
+                const preassignedDivision = (authData.division && authData.division.trim()) ? authData.division.trim() : null;
+                let selectedDivision = preassignedDivision;
+
+                let availableDivisions = ['Easier', 'Harder', 'Pairs'];
+                if (!preassignedDivision) {
+                    try {
+                        const divDoc = await db.collection(CONFIG_COLLECTION).doc('divisions').get();
+                        if (divDoc.exists && Array.isArray(divDoc.data().list) && divDoc.data().list.length > 0) {
+                            availableDivisions = divDoc.data().list;
+                        }
+                    } catch (e) {
+                        console.error('Error fetching divisions:', e);
+                    }
+                }
+
+                const defaultName = (existingSolver && existingSolver.name) ? existingSolver.name : '';
+
                 tournamentContentDiv.innerHTML = `
                     <div class="setup-container">
                         <h2>Finish Registration</h2>
-                        <p>You are authorized for the <strong>${authData.division}</strong> division.</p>
+                        <p>${preassignedDivision ? `You are authorized for the <strong>${preassignedDivision}</strong> division.` : 'Please select your tournament division and enter your leaderboard nickname.'}</p>
                         <div id="setupError" class="error-message"></div>
+                        ${!preassignedDivision ? `
+                            <div class="form-group">
+                                <label>Select Division:</label>
+                                <div class="division-grid" id="divisionPicker">
+                                    ${availableDivisions.map(d => `
+                                        <div class="division-card" data-division="${d}">
+                                            <h4>${d}</h4>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
                         <div class="form-group">
                             <label for="solverName">Leaderboard Nickname:</label>
-                            <input type="text" id="solverName" placeholder="Enter your display name" maxlength="30">
+                            <input type="text" id="solverName" placeholder="Enter your display name" maxlength="30" value="${defaultName}">
                         </div>
                         <div class="setup-actions">
                             <button id="completeSetupBtn" class="primary-btn">Start Tournament</button>
@@ -191,26 +226,53 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
 
+                if (!preassignedDivision) {
+                    const cards = tournamentContentDiv.querySelectorAll('.division-card');
+                    cards.forEach(card => {
+                        card.onclick = () => {
+                            cards.forEach(c => c.classList.remove('selected'));
+                            card.classList.add('selected');
+                            selectedDivision = card.dataset.division;
+                            const errorDiv = document.getElementById('setupError');
+                            if (errorDiv) errorDiv.style.display = 'none';
+                        };
+                    });
+                }
+
                 document.getElementById('completeSetupBtn').onclick = async () => {
+                    const errorDiv = document.getElementById('setupError');
+                    if (!selectedDivision) {
+                        errorDiv.textContent = 'Please select a division.';
+                        errorDiv.style.display = 'block';
+                        return;
+                    }
+
                     const name = document.getElementById('solverName').value.trim();
-                    if (!name) return;
+                    if (!name) {
+                        errorDiv.textContent = 'Please enter a leaderboard nickname.';
+                        errorDiv.style.display = 'block';
+                        return;
+                    }
 
                     const displayName = `${name} (#${user.uid.substring(0, 4)})`;
                     try {
-                        // Create Solver Profile
+                        // Create or update Solver Profile
                         await db.collection(SOLVERS_COLLECTION).doc(user.uid).set({
                             name, displayName, email: user.email.toLowerCase(),
-                            division: authData.division, uid: user.uid,
+                            division: selectedDivision, uid: user.uid,
                             createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
+                        }, { merge: true });
                         // Link Participant entry
                         await db.collection(PARTICIPANTS_COLLECTION).doc(user.email.toLowerCase()).update({
-                            uid: user.uid, name: name
+                            uid: user.uid, name: name, division: selectedDivision
                         });
 
-                        currentSolver = { uid: user.uid, name, displayName, division: authData.division, email: user.email };
+                        currentSolver = { uid: user.uid, name, displayName, division: selectedDivision, email: user.email };
                         renderPuzzleList();
-                    } catch (e) { Toast.error('Save failed: ' + e.message); }
+                    } catch (e) {
+                        if (window.Toast) Toast.error('Save failed: ' + e.message);
+                        else alert('Save failed: ' + e.message);
+                    }
                 };
             }
 

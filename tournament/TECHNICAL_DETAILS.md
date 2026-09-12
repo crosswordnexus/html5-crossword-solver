@@ -40,7 +40,7 @@ The system is split into three primary components:
 - **Document ID:** Email address (lowercase).
 - **Purpose:** The master whitelist of authorized solvers.
 - **Fields:** `{ email, division, name, uid }`.
-- *Note:* The `uid` is linked only after the participant first signs in.
+- *Note:* `division` is optional upon whitelist creation. If unassigned (`null`), the solver self-selects their division during initial registration. The `uid` and `name` are linked after the participant first signs in and completes setup.
 
 ### `puzzles/` (Collection)
 - **Document ID:** Auto-generated.
@@ -54,7 +54,7 @@ The system is split into three primary components:
 ### `solvers/` (Collection)
 - **Document ID:** Firebase Auth `uid`.
 - **Purpose:** Public profiles for participants.
-- **Fields:** `{ name, displayName }`.
+- **Fields:** `{ name, displayName, division, email, uid }`.
 
 ### `scores/` (Collection)
 - **Document ID:** `${uid}_${puzzleId}`.
@@ -104,6 +104,11 @@ Scoring is calculated client-side in `solve.html` and verified (optionally) by t
 - **Overtime Penalty:** Deductions applied if the solver exceeds the `TargetTime`.
 
 Settings are managed in `tournament_config/scoring`.
+
+### Division Assignment & Self-Selection
+- **Pre-assigned:** If an admin specifies a division when adding or uploading a participant, that division is locked and displayed to the user during registration.
+- **Self-selected:** If the participant's record has no division (`null` or omitted), the registration screen presents interactive division cards populated from `tournament_config/divisions`. The participant must select a division before entering the tournament.
+- **One-time choice:** Division selection is locked after registration. Any subsequent division change must be performed by an admin.
 
 ### Division Migration
 When an admin reassigns a participant to a new division in the Admin Dashboard, the system performs an atomic batch update:

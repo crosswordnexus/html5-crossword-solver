@@ -274,7 +274,7 @@ button:hover {
 
 .division-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     gap: 15px;
     margin-bottom: 25px;
 }
@@ -599,5 +599,20 @@ body.dark-mode .score-card {
     color: #e0e0e0;
     border-color: #3498db;
     box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+body.dark-mode .division-card {
+    border-color: #555;
+    background-color: #333;
+}
+
+body.dark-mode .division-card:hover {
+    border-color: #3498db;
+    background-color: #3a4b58;
+}
+
+body.dark-mode .division-card.selected {
+    border-color: #3498db;
+    background-color: #2c4763;
 }
 
