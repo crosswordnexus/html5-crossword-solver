@@ -62,7 +62,7 @@ export async function renderPuzzlesTab(container, db) {
         listContainer.innerHTML = listHtml + '</div>';
 
         container.querySelector('#addPuzzleBtn').onclick = () => renderPuzzleForm(container, db);
-        
+
         container.querySelectorAll('.preview-puzzle-btn').forEach(btn => {
             btn.onclick = () => {
                 const p = puzzles.find(p => p.id === btn.dataset.id);
@@ -90,8 +90,8 @@ export async function renderPuzzlesTab(container, db) {
                 }
             };
         });
-    } catch (e) { 
-        container.innerHTML = `<p class="error">${e.message}</p>`; 
+    } catch (e) {
+        container.innerHTML = `<p class="error">${e.message}</p>`;
     }
 }
 
@@ -157,7 +157,7 @@ async function renderPuzzleForm(container, db, puzzle = null) {
             const input = btn.closest('.mapping-row')?.querySelector('input');
             let filename = input ? input.value.trim() : '';
             if (!filename) return;
-            
+
             let path = filename;
             if (!path.startsWith('./') && !path.startsWith('../')) {
                 path = './puzzles/' + filename;
@@ -173,7 +173,7 @@ async function renderPuzzleForm(container, db, puzzle = null) {
     });
 
     container.querySelector('#cancelPuzzleBtn').onclick = () => renderPuzzlesTab(container, db);
-    
+
     container.querySelector('#puzzleForm').onsubmit = async (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
@@ -184,16 +184,16 @@ async function renderPuzzleForm(container, db, puzzle = null) {
             const v = input ? input.value.trim() : '';
             if (div && v) files[div] = v;
         });
-        
+
         const data = {
-            name: fd.get('name'), 
-            author: fd.get('author'), 
+            name: fd.get('name'),
+            author: fd.get('author'),
             puzzleNumber: parseInt(fd.get('puzzleNumber')),
-            timeLimitSeconds: parseInt(fd.get('timeLimitSeconds')), 
-            status: fd.get('status'), 
+            timeLimitSeconds: parseInt(fd.get('timeLimitSeconds')),
+            status: fd.get('status'),
             isWarmup: fd.get('isWarmup') === 'on',
-            filesByDivision: files, 
-            filePath: files.default || Object.values(files)[0] || '', 
+            filesByDivision: files,
+            filePath: files.default || Object.values(files)[0] || '',
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
@@ -288,9 +288,11 @@ function showDivisionPreviewModal(puzzle, files) {
     modalOverlay.innerHTML = `
         <div class="edit-score-modal" style="max-width: 450px;">
             <h3>Preview: ${puzzle.name || ('Puzzle #' + puzzle.puzzleNumber)}</h3>
+            <!--
             <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">
                 This puzzle has different files for different divisions. Select which version to preview in the vanilla solver:
             </p>
+            -->
             <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
                 ${files.map(f => `
                     <button type="button" class="secondary-btn preview-div-choice-btn" data-file="${f.filename}" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; text-align: left;">
@@ -324,4 +326,3 @@ function showDivisionPreviewModal(puzzle, files) {
         };
     });
 }
-
