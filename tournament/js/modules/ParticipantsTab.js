@@ -18,7 +18,7 @@ export async function renderParticipantsTab(container, db) {
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                 <div class="admin-card" style="margin-bottom: 0;">
                     <h3>Authorize Participants (CSV)</h3>
-                    <p>Upload a CSV file with columns: <code>email, division</code></p>
+                    <p>Upload a CSV file with columns: <code>email, division</code> (division is optional)</p>
                     <div class="form-group">
                         <input type="file" id="csvFileInput" accept=".csv" style="margin-bottom:10px">
                         <button id="uploadCsvBtn" class="primary-btn">Process CSV & Authorize</button>
@@ -36,6 +36,7 @@ export async function renderParticipantsTab(container, db) {
                     <div class="form-group">
                         <label>Division</label>
                         <select id="manualDivision" style="margin-bottom:10px">
+                            <option value="">-- Let Solver Choose (Unassigned) --</option>
                             ${divisions.map(d => `<option value="${d}">${d}</option>`).join('')}
                         </select>
                     </div>
@@ -61,6 +62,7 @@ export async function renderParticipantsTab(container, db) {
                         <td><strong>${p.email}</strong></td>
                         <td>
                             <select class="change-division-select" data-email="${p.email}">
+                                <option value="" ${!p.division ? 'selected' : ''}>-- Unassigned --</option>
                                 ${divisions.map(d => `<option value="${d}" ${p.division === d ? 'selected' : ''}>${d}</option>`).join('')}
                             </select>
                         </td>
@@ -77,7 +79,7 @@ export async function renderParticipantsTab(container, db) {
         // Manual Add logic
         container.querySelector('#manualAddBtn').onclick = async () => {
             const email = container.querySelector('#manualEmail').value.trim().toLowerCase();
-            const division = container.querySelector('#manualDivision').value;
+            const division = container.querySelector('#manualDivision').value.trim() || null;
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
             if (!email || !emailRegex.test(email)) {
@@ -86,9 +88,12 @@ export async function renderParticipantsTab(container, db) {
             }
             
             try {
-                await db.collection(PARTICIPANTS_COLLECTION).doc(email).set({
-                    email, division, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
+                const participantData = {
+                    email,
+                    division: division || null,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                await db.collection(PARTICIPANTS_COLLECTION).doc(email).set(participantData, { merge: true });
                 if (window.Toast) window.Toast.success('Participant added!');
                 renderParticipantsTab(container, db);
             } catch (e) { 
@@ -124,19 +129,29 @@ export async function renderParticipantsTab(container, db) {
                         continue;
                     }
 
-                    // 2. Validate Division
-                    const officialDiv = divisions.find(d => d.toLowerCase() === (div || '').toLowerCase());
-                    
-                    if (officialDiv) {
+                    // 2. Validate Division (optional)
+                    const rawDiv = (div || '').trim();
+                    if (!rawDiv || rawDiv.toLowerCase() === 'unassigned') {
                         const ref = db.collection(PARTICIPANTS_COLLECTION).doc(email.toLowerCase());
                         batch.set(ref, { 
                             email: email.toLowerCase(), 
-                            division: officialDiv,
+                            division: null,
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         }, { merge: true });
                         count++;
                     } else {
-                        invalidDivisions.push(`Row ${i+1}: "${div}" is not a valid division for ${email}`);
+                        const officialDiv = divisions.find(d => d.toLowerCase() === rawDiv.toLowerCase());
+                        if (officialDiv) {
+                            const ref = db.collection(PARTICIPANTS_COLLECTION).doc(email.toLowerCase());
+                            batch.set(ref, { 
+                                email: email.toLowerCase(), 
+                                division: officialDiv,
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            }, { merge: true });
+                            count++;
+                        } else {
+                            invalidDivisions.push(`Row ${i+1}: "${div}" is not a valid division for ${email}`);
+                        }
                     }
                 }
                 
@@ -171,7 +186,7 @@ export async function renderParticipantsTab(container, db) {
         container.querySelectorAll('.change-division-select').forEach(sel => {
             sel.onchange = async (e) => {
                 const email = e.target.dataset.email;
-                const newDiv = e.target.value;
+                const newDiv = e.target.value.trim() || null;
                 try {
                     // 1. Update the participant's whitelist record
                     await db.collection(PARTICIPANTS_COLLECTION).doc(email).update({ division: newDiv });
@@ -187,8 +202,8 @@ export async function renderParticipantsTab(container, db) {
                             b.update(d.ref, { division: newDiv });
                         });
 
-                        // 3. Migrate all existing scores for this solver
-                        if (uid) {
+                        // 3. Migrate all existing scores for this solver if assigned to a division
+                        if (uid && newDiv) {
                             const scoresSnap = await db.collection(SCORES_COLLECTION).where('uid', '==', uid).get();
                             scoresSnap.forEach(sDoc => {
                                 b.update(sDoc.ref, { division: newDiv });
@@ -196,9 +211,9 @@ export async function renderParticipantsTab(container, db) {
                         }
                         
                         await b.commit();
-                        if (window.Toast) window.Toast.success('Division and previous scores updated!');
+                        if (window.Toast) window.Toast.success(newDiv ? 'Division and previous scores updated!' : 'Participant division cleared.');
                     } else {
-                        if (window.Toast) window.Toast.success('Participant division updated!');
+                        if (window.Toast) window.Toast.success(newDiv ? 'Participant division updated!' : 'Participant division cleared.');
                     }
                 } catch (err) {
                     console.error("Division update failed:", err);
