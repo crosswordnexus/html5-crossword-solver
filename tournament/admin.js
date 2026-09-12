@@ -77,15 +77,34 @@ function initTabs() {
     const newNav = nav.cloneNode(true);
     nav.parentNode.replaceChild(newNav, nav);
 
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    const toggleBtn = document.getElementById('adminNavToggle');
+    const closeMenu = () => {
+        newNav.classList.remove('open');
+        if (toggleBtn) {
+            toggleBtn.classList.remove('open');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+        }
+    };
+
+    if (toggleBtn) {
+        toggleBtn.onclick = (e) => {
+            e.stopPropagation();
+            const isOpen = newNav.classList.toggle('open');
+            toggleBtn.classList.toggle('open', isOpen);
+            toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        };
+    }
+
+    newNav.querySelectorAll('.tab-btn').forEach(btn => {
         if (btn.dataset.tab === currentTab) btn.classList.add('active');
         else btn.classList.remove('active');
 
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            newNav.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentTab = btn.dataset.tab;
             localStorage.setItem('adminCurrentTab', currentTab);
+            closeMenu();
             loadTab(currentTab);
         });
     });
@@ -93,9 +112,18 @@ function initTabs() {
     const signOutBtn = document.getElementById('adminSignOutBtn');
     if (signOutBtn) {
         signOutBtn.onclick = async () => {
+            closeMenu();
             if (confirm('Sign out of admin dashboard?')) await auth.signOut();
         };
     }
+
+    document.addEventListener('click', (e) => {
+        if (newNav.classList.contains('open')) {
+            if (!newNav.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
+                closeMenu();
+            }
+        }
+    });
 }
 
 async function loadTab(tab) {
