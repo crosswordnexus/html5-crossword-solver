@@ -138,10 +138,10 @@ async function renderPuzzleForm(container, db, puzzle = null) {
                     </div>
                     <div class="division-mapping">
                         ${divisions.map(div => `
-                            <div class="mapping-row ${div === 'default' ? 'default-row' : ''}">
+                            <div class="mapping-row ${div === 'default' ? 'default-row' : ''}" data-division="${div}">
                                 <label>${div}:</label>
-                                <input type="text" id="input_${div}" name="file_${div}" value="${puzzle?.filesByDivision?.[div] || (div === 'default' ? (puzzle?.filePath || puzzle?.fileName || '') : '')}" placeholder="filename.ipuz">
-                                <button type="button" class="secondary-btn btn-sm check-path-btn" data-input="input_${div}">Check</button>
+                                <input type="text" name="file_${div}" value="${puzzle?.filesByDivision?.[div] || (div === 'default' ? (puzzle?.filePath || puzzle?.fileName || '') : '')}" placeholder="filename.ipuz">
+                                <button type="button" class="secondary-btn btn-sm check-path-btn">Check</button>
                             </div>
                         `).join('')}
                     </div>
@@ -154,7 +154,8 @@ async function renderPuzzleForm(container, db, puzzle = null) {
 
     container.querySelectorAll('.check-path-btn').forEach(btn => {
         btn.onclick = async () => {
-            let filename = container.querySelector('#' + btn.dataset.input).value.trim();
+            const input = btn.closest('.mapping-row')?.querySelector('input');
+            let filename = input ? input.value.trim() : '';
             if (!filename) return;
             
             let path = filename;
@@ -177,7 +178,12 @@ async function renderPuzzleForm(container, db, puzzle = null) {
         e.preventDefault();
         const fd = new FormData(e.target);
         const files = {};
-        divisions.forEach(d => { const v = fd.get(`file_${d}`); if (v) files[d] = v; });
+        container.querySelectorAll('.division-mapping .mapping-row').forEach(row => {
+            const div = row.dataset.division;
+            const input = row.querySelector('input');
+            const v = input ? input.value.trim() : '';
+            if (div && v) files[div] = v;
+        });
         
         const data = {
             name: fd.get('name'), 
