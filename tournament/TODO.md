@@ -34,6 +34,9 @@
 - **Dark Mode Readability:** Added CSS overrides for `.score-card` under dark mode to fix text visibility on the submission result panel.
 - **Puzzle List Stats:** Added correct/total word counts to the solver's home puzzle list display format.
 
+## ✅ Completed (September 2026)
+- **Division Self-Selection:** Solvers who are whitelisted without a pre-assigned division can now choose their division during initial registration, with full dark mode support and optional division CSV / manual add support in the admin panel.
+
 ## 🚀 Near-Term Tasks
 - **Searchable/Sortable Leaderboards:** Add pure JavaScript client-side search and sorting (by name, total score, total time) to the shared leaderboard without adding external libraries.
 - **Test Submission Functionality** Make sure that when the Firestore rules are updated, a user cannot submit twice.
