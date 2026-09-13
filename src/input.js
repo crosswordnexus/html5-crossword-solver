@@ -91,7 +91,7 @@ export function keyPressed(e) {
           const groups = this.clueGroups || [];
           const n = groups.length;
 
-          if (n > 1) {
+          if (n >= 1) {
             this.changeActiveClues();
             this.setActiveCell(this.selected_cell);
           }
@@ -370,8 +370,13 @@ export function mouseClicked(e) {
     this.selected_cell.y === index_y;
 
   if (sameCellClicked) {
-    // Cycle to the next clue group if clicking same square again
+    // Cycle to the next clue group (or next word in group) if clicking same square again
     this.changeActiveClues();
+    this.setActiveCell(clickedCell);
+    if (!IS_MOBILE) {
+      this.hidden_input.focus();
+    }
+    return;
   }
 
   // Try to find a matching word in the current group

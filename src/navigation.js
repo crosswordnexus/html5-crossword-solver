@@ -11,10 +11,31 @@
 import { IS_MOBILE, SKIP_UP, SKIP_DOWN, SKIP_LEFT, SKIP_RIGHT } from './constants.js';
 import { escape, resizeText } from './utils.js';
 
+/**
+ * Switch active clue group or active word.
+ * - If targetIndex is provided, jump directly to that clue group.
+ * - If there are multiple clue groups, cycle to the next group that contains the selected cell.
+ * - If there is only one clue group (e.g., variety puzzles), cycle to the next word containing the selected cell.
+ * @param {number|null} targetIndex - Explicit group index to switch to, or null to cycle.
+ */
 export function changeActiveClues(targetIndex = null) {
   const groups = this.clueGroups || [];
   const n = groups.length;
-  if (n <= 1) return;
+  if (!n) return;
+
+  if (n === 1) {
+    const activeGroup = groups[0];
+    if (this.selected_cell && activeGroup) {
+      const {
+        x,
+        y
+      } = this.selected_cell;
+      const word = activeGroup.getMatchingWord(x, y, true);
+      if (word) this.setActiveWord(word);
+    }
+    this.refreshSidebarHighlighting?.();
+    return;
+  }
 
   const curIndex = this.activeClueGroupIndex ?? 0;
   let newIndex = curIndex;

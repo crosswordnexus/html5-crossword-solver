@@ -911,9 +911,10 @@ import {
       }
 
       /**
-       * Switch active clue group.
+       * Switch active clue group or active word.
        * - If targetIndex is provided, jump there (always).
-       * - Otherwise, cycle to the next group that contains the selected cell (if any).
+       * - If there are multiple clue groups, cycle to the next group that contains the selected cell (if any).
+       * - If there is only one clue group (e.g., variety puzzles), cycle to the next word containing the selected cell.
        * - If none match, just stay on the next group.
        */
       changeActiveClues(targetIndex = null) {
