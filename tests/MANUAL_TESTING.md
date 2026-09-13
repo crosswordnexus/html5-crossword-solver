@@ -23,6 +23,7 @@ Use this checklist during and after your refactor to verify visual, layout, and 
 Test the following key actions in standard desktop mode:
 - [ ] **Arrow Keys**: Move the cursor around the grid. Verify that it respects the settings (`skip_filled_letters` and `arrow_direction`).
 - [ ] **Spacebar**: Verify spacebar action clears the current cell or toggles the clue direction (Across/Down) depending on the configuration.
+- [ ] **Single Clue List Word Cycling**: In puzzles with only one clue list (e.g., `two_tone.ipuz`), click a cell belonging to multiple words. Double-click the cell or press space (with `space_switch` enabled) to verify it cycles focus through intersecting words containing that cell.
 - [ ] **Tab / Shift+Tab**: Navigation skips to the next/previous clue.
 - [ ] **Backspace**: Deletes the character in the active cell and moves the cursor backward.
 

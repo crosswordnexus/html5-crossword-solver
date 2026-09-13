@@ -196,51 +196,6 @@ export function addListeners() {
   this.notepad_btn.on('click', $.proxy(this.showNotepad, this));
 
   $(document).off('keydown').on('keydown', $.proxy(this.keyPressed, this));
-
-  this.svg.on('click', (e) => {
-    if (e.target.tagName === 'rect') {
-      const x = parseInt(e.target.getAttribute('data-x'));
-      const y = parseInt(e.target.getAttribute('data-y'));
-      const clickedCell = this.getCell(x, y);
-
-      if (this.diagramless_mode) {
-        return; // prevent the normal puzzle branch below
-      }
-
-      if (!clickedCell.empty) {
-        const groups = this.clueGroups || [];
-        const n = groups.length;
-        if (!n) return;
-
-        let newActiveWord = null;
-        let newGroupIndex = this.activeClueGroupIndex;
-
-        // Try current group first
-        const currentGroup = groups[this.activeClueGroupIndex];
-        newActiveWord = currentGroup.getMatchingWord(x, y, true);
-
-        // If not found, cycle through remaining groups (2, 3, ..., N, 0, 1, ...)
-        if (!newActiveWord) {
-          for (let offset = 1; offset < n; offset++) {
-            const i = (this.activeClueGroupIndex + offset) % n;
-            const group = groups[i];
-            const match = group.getMatchingWord(x, y, true);
-            if (match) {
-              newActiveWord = match;
-              newGroupIndex = i;
-              break;
-            }
-          }
-        }
-
-        if (newActiveWord) {
-          this.activeClueGroupIndex = newGroupIndex;
-          this.setActiveWord(newActiveWord);
-          this.setActiveCell(clickedCell);
-        }
-      }
-    }
-  });
 }
 
 export function handleClickWindow(event) {
