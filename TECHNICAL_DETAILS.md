@@ -61,6 +61,11 @@ Game progress is automatically saved to the browser's `localStorage`.
 - Allows clues to be manually "checked off" by clicking them.
 - Used when clues don't have a 1:1 mapping to grid entries.
 
+### Single Clue List / Variety Puzzles
+- Puzzles with only one clue group (such as certain variety crosswords or single-list formats) allow multiple intersecting words within that single group.
+- Double-clicking an already-selected cell or pressing `Space` (when configured to `space_switch`) invokes `changeActiveClues()`.
+- When `clueGroups.length === 1`, `changeActiveClues()` calls `getMatchingWord(x, y, true)` to cycle focus through intersecting words containing the selected cell.
+
 ## 5. Development & Extension
 
 ### CSS & Theming
