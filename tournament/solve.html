@@ -72,11 +72,13 @@
         layoutLink.href = mobile ? '../css/crossword.mobile.css' : '../css/crosswordnexus.css';
         document.head.appendChild(layoutLink);
 
+        const originalGetCrosswordParams = CrosswordShared.getCrosswordParams.bind(CrosswordShared);
+
         /**
          * Fetches parameters from the URL and applies tournament overrides.
          */
         function getTournamentParams() {
-            const params = CrosswordShared.getCrosswordParams();
+            const params = originalGetCrosswordParams();
 
             // Centralized tournament mode - engine handles secondary logic
             if (params.tournament_mode) {
@@ -250,8 +252,8 @@
 
         // Initialize localStorage check after crossword object creation
         $(document).ready(() => {
+            const params = originalGetCrosswordParams();
             const check = () => {
-                const params = CrosswordShared.getCrosswordParams();
                 const xw = window.gCrossword;
                 if (xw && xw.root) {
                     if (params.puzzle_id && localStorage.getItem('tournament_submitted_' + params.puzzle_id)) {
