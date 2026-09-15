@@ -217,6 +217,39 @@ html.mobile-mode {
   margin: 0;
 }
 
+/* Keyboard toggle button in header */
+.crossword.mobile .cw-button-keyboard-toggle {
+  flex: 0 0 auto;
+  font-size: 0.65em;
+  padding: 0.3em 0.7em;
+  min-width: 0;
+  max-width: none;
+  width: auto;
+  height: auto;
+  line-height: normal;
+  align-self: center;
+  margin-left: 0.5em;
+  background-color: var(--button-note-timer-bg-color);
+  color: var(--button-note-timer-text-color);
+  border: 1px solid var(--button-note-timer-border);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: var(--main-shadow);
+  display: inline-flex;
+  align-items: center;
+}
+
+.crossword.mobile .cw-button-keyboard-toggle:hover {
+  background-color: var(--button-note-timer-hover-bg-color);
+  color: var(--button-note-timer-hover-text-color);
+}
+
+@media (max-width: 767px) {
+  .crossword.mobile .cw-button-keyboard-toggle {
+    display: none !important;
+  }
+}
+
 /* Hide buttons before they're moved by the mobile code */
 .crossword.mobile .cw-grid>.cw-buttons-holder {
   display: none;
@@ -371,6 +404,16 @@ html.mobile-mode {
 .crossword.mobile .cw-buttons-drawer.open {
   transform: translateY(-160%);
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+}
+
+/* Hidden virtual keyboard state */
+.crossword.mobile.keyboard-hidden .keyboard-wrapper-placeholder {
+  display: none !important;
+}
+
+.crossword.mobile.keyboard-hidden .cw-buttons-drawer.open {
+  transform: translateY(0);
+  bottom: 24px;
 }
 
 .crossword.mobile .cw-menu {

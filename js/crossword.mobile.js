@@ -447,7 +447,63 @@ $(document).ready(function() {
             clueBar.style.width = '100%';
           }
       }, 50);
+
+      setupKeyboardToggleButton();
+      const headerEl = document.querySelector('.cw-header');
+      if (headerEl) {
+        const headerObserver = new MutationObserver(() => {
+          setupKeyboardToggleButton();
+        });
+        headerObserver.observe(headerEl, { childList: true });
+      }
     };
+
+    function setupKeyboardToggleButton() {
+      const header = document.querySelector('.cw-header');
+      const root = document.querySelector('.crossword');
+      if (!header || !root) return;
+      if (header.querySelector('.cw-button-keyboard-toggle')) return;
+
+      const toggleBtn = document.createElement('button');
+      toggleBtn.className = 'cw-button cw-button-keyboard-toggle';
+
+      const updateToggleBtnText = (isHidden) => {
+        toggleBtn.innerHTML = `<span class="cw-button-icon">⌨️</span> <span class="cw-keyboard-toggle-text">${isHidden ? 'Show Keyboard' : 'Hide Keyboard'}</span>`;
+      };
+
+      const isTablet = window.innerWidth >= 768;
+      let isHidden = isTablet && localStorage.getItem('cw_hide_virtual_keyboard') === '1';
+      if (isHidden) {
+        root.classList.add('keyboard-hidden');
+      }
+      updateToggleBtnText(isHidden);
+
+      toggleBtn.addEventListener('click', () => {
+        isHidden = !root.classList.contains('keyboard-hidden');
+        root.classList.toggle('keyboard-hidden', isHidden);
+        updateToggleBtnText(isHidden);
+        try {
+          localStorage.setItem('cw_hide_virtual_keyboard', isHidden ? '1' : '0');
+        } catch (e) {}
+
+        setTimeout(() => {
+          if (gCrossword?.renderCells) {
+            gCrossword.renderCells();
+          }
+          if (gCrossword?.windowResized) {
+            gCrossword.windowResized();
+          }
+          window.dispatchEvent(new Event('resize'));
+        }, 100);
+      });
+
+      const spacer = header.querySelector('.cw-flex-spacer');
+      if (spacer) {
+        header.insertBefore(toggleBtn, spacer);
+      } else {
+        header.appendChild(toggleBtn);
+      }
+    }
 
     setTimeout(tryWrapLayout, 300);
   }
