@@ -292,12 +292,13 @@ html.mobile-mode {
   user-select: none;
   cursor: pointer;
   transition: background 0.2s ease;
+  max-width: 50px;
 }
 
 .crossword.mobile .wide-key {
   flex: 1;
   /* takes up more space */
-  max-width: none;
+  max-width: 60px;
 }
 
 .crossword.mobile .custom-key:active {
@@ -493,9 +494,14 @@ html.mobile-mode {
   }
 }
 
-@media (min-width: 768px) and (max-width: 1024px) {
+@media (min-width: 768px) {
   .crossword.mobile .custom-key {
     width: 6.5%;
+    max-width: 50px;
+  }
+
+  .crossword.mobile .wide-key {
+    max-width: 60px;
   }
 }
 
@@ -504,6 +510,7 @@ html.mobile-mode {
 .crossword.mobile .custom-key.backspace-key {
   width: auto;
   min-width: .6em;
+  max-width: 75px;
   padding: 0.65em 0.8em;
   display: flex;
   align-items: center;
