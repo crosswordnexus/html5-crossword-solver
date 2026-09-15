@@ -61,7 +61,7 @@ export async function renderParticipantsTab(container, db) {
                     <tr>
                         <td><strong>${p.email}</strong></td>
                         <td>
-                            <select class="change-division-select" data-email="${p.email}">
+                            <select class="change-division-select" data-email="${p.email}" data-uid="${p.uid || ''}">
                                 <option value="" ${!p.division ? 'selected' : ''}>-- Unassigned --</option>
                                 ${divisions.map(d => `<option value="${d}" ${p.division === d ? 'selected' : ''}>${d}</option>`).join('')}
                             </select>
@@ -187,23 +187,27 @@ export async function renderParticipantsTab(container, db) {
             sel.onchange = async (e) => {
                 const email = e.target.dataset.email;
                 const newDiv = e.target.value.trim() || null;
+                let uid = e.target.dataset.uid;
                 try {
                     // 1. Update the participant's whitelist record
                     await db.collection(PARTICIPANTS_COLLECTION).doc(email).update({ division: newDiv });
                     
-                    // 2. Update the solver's profile and scores (if they have logged in)
-                    const solverSnap = await db.collection(SOLVERS_COLLECTION).where('email', '==', email).get();
-                    if (!solverSnap.empty) {
-                        const b = db.batch();
-                        let uid = null;
-                        
-                        solverSnap.forEach(d => {
-                            uid = d.id;
-                            b.update(d.ref, { division: newDiv });
-                        });
+                    // 2. If UID not in dataset, check participant document in case they recently linked
+                    if (!uid) {
+                        const pDoc = await db.collection(PARTICIPANTS_COLLECTION).doc(email).get();
+                        if (pDoc.exists && pDoc.data().uid) {
+                            uid = pDoc.data().uid;
+                            e.target.dataset.uid = uid;
+                        }
+                    }
 
-                        // 3. Migrate all existing scores for this solver if assigned to a division
-                        if (uid && newDiv) {
+                    // 3. Update the solver's profile and scores directly by UID (if they have logged in)
+                    if (uid) {
+                        const b = db.batch();
+                        b.update(db.collection(SOLVERS_COLLECTION).doc(uid), { division: newDiv });
+
+                        // 4. Migrate all existing scores for this solver if assigned to a division
+                        if (newDiv) {
                             const scoresSnap = await db.collection(SCORES_COLLECTION).where('uid', '==', uid).get();
                             scoresSnap.forEach(sDoc => {
                                 b.update(sDoc.ref, { division: newDiv });
