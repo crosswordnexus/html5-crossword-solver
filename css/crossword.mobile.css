@@ -205,8 +205,8 @@ html.mobile-mode {
   gap: 5.5em;
 }
 
-/* Smaller mobile buttons */
-.crossword.mobile .cw-button {
+/* Smaller mobile buttons in buttons holder */
+.crossword.mobile .cw-buttons-holder .cw-button {
   flex: 1;
   font-size: 0.75em;
   padding: 1em 2.5em;
@@ -214,6 +214,20 @@ html.mobile-mode {
   max-width: 10em;
   text-align: center;
   box-shadow: var(--main-shadow);
+}
+
+/* Compact notes button in header */
+.crossword.mobile .cw-button-notepad {
+  flex: 0 0 auto;
+  font-size: 0.65em;
+  padding: 0.3em 0.7em;
+  min-width: 0;
+  max-width: none;
+  width: auto;
+  height: auto;
+  line-height: normal;
+  align-self: center;
+  margin: 0;
 }
 
 /* Hide buttons before they're moved by the mobile code */
@@ -461,11 +475,11 @@ html.mobile-mode {
 
 /* smaller buttons and no icons for phones*/
 @media (max-width: 480px) {
-  .cw-button svg {
+  .cw-buttons-holder .cw-button svg {
     display: none !important;
   }
 
-  .cw-button {
+  .cw-buttons-holder .cw-button {
     font-size: 0.75em !important;
     padding: 0.6em 1.1em !important;
   }

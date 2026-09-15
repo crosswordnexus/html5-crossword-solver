@@ -15,6 +15,9 @@ This file tracks planned improvements, refactoring ideas, and future features fo
     - [ ] Add a visual indicator or toggle for Downs-Only mode in the UI.
 - [x] **Improved Rebus Support:** Streamline the Rebus entry process on mobile (e.g., a dedicated Rebus toggle).
 - [ ] **Multi-Puzzle Support:** Better UI for selecting from a list of puzzles (if `puzzles` param is provided).
+- [ ] **iPad & Tablet Experience:**
+    - [ ] **Physical Keyboard Detection & Toggle:** Detect external hardware keyboards (e.g., via `(any-pointer: fine)` or keystroke listeners) and allow hiding/disabling the virtual keyboard, optionally with a manual toggle.
+    - [ ] **General iPad Prettiness:** Polish layout, typography, and clue/grid proportions for tablet-sized viewports.
 
 ## Refactoring & Maintenance
 - [ ] **Modularize `js/crosswords.js`:** Break down the 4000+ line file into smaller, functional modules (e.g., `Grid.js`, `InputHandler.js`, `Timer.js`).

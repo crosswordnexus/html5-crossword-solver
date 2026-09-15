@@ -608,6 +608,15 @@ div.is-dragover {
     flex: 0 0 auto;
 }
 
+.cw-author {
+    margin-right: 0.5em;
+}
+
+.cw-copyright {
+    color: var(--copyright-text-color);
+    margin-right: 0.5em;
+}
+
 .cw-flex-spacer {
     flex-grow: 1;
 }
