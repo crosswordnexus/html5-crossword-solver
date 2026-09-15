@@ -45,12 +45,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   background-color: var(--clue-scrollbar-color-thumb)
 }
 
-.cw-clue {
-  padding: 2px 0px;
-  line-height: 1.4rem;
-  font-size: 0.7em;
-}
-
 /**
 * Utilities
 **/
@@ -65,7 +59,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 * window.
 **/
 .cw-clues {
-  width: 350px;
+  width: auto;
+  max-width: 100%;
 }
 
 /* MOBILE BASE OVERRIDES */
@@ -140,14 +135,6 @@ html.mobile-mode {
   max-height: 100%;
   overflow-y: auto;
   scroll-snap-type: y proximity;
-  font-size: 1.2em;
-}
-
-.crossword.mobile .cw-clue {
-  padding: 2px 0;
-  margin-bottom: 0;
-  line-height: 1rem;
-  scroll-snap-align: start;
 }
 
 .crossword.mobile .cw-puzzle-container {
@@ -449,7 +436,7 @@ html.mobile-mode {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 2px;
+  padding: 4px;
   box-sizing: border-box;
   background: var(--clues-holder-bg-color);
   box-shadow: var(--mobile-shadow);
@@ -457,10 +444,19 @@ html.mobile-mode {
 }
 
 .crossword.mobile .cw-mobile-clues-side .cw-clues {
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
   flex: 1;
   overflow-y: auto;
   padding: 4px;
-  font-size: 1em;
+  font-size: 0.9em;
+  box-sizing: border-box;
+}
+
+.crossword.mobile .cw-mobile-clues-side .cw-clues-items {
+  width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
 }
 

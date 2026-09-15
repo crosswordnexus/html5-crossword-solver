@@ -656,7 +656,9 @@ div.is-dragover {
 
 .cw-clue-text {
   flex: 1 1 auto;
+  min-width: 0;
   word-wrap: break-word;
+  overflow-wrap: break-word;
   margin-right: 3px;
 }
 
@@ -687,9 +689,12 @@ div.is-dragover {
   min-height: 1px;
   overflow-y: auto;
   overflow-x: hidden;
+  font-size: 1em;
 }
 
 .cw-clue {
+  padding: 6px 0px;
+  margin-right: 3px;
   margin-bottom: 1px;
   cursor: pointer;
   display: flex;
