@@ -616,3 +616,95 @@ body.dark-mode .division-card.selected {
     background-color: #2c4763;
 }
 
+/* --------------------------------------------------------------------------
+   10. Legal & Policy Document Styles
+   -------------------------------------------------------------------------- */
+.doc-container {
+    background: white;
+    padding: 35px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    max-width: 800px;
+    margin: 30px auto;
+    line-height: 1.6;
+    color: #333;
+}
+
+.doc-container h1 {
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+.doc-container h2 {
+    color: #34495e;
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
+.doc-container p, .doc-container li {
+    color: #555;
+}
+
+.doc-container a, .consent-group a {
+    color: #3498db;
+    text-decoration: underline;
+}
+
+.doc-container a:hover, .consent-group a:hover {
+    color: #2980b9;
+}
+
+.consent-group {
+    margin-top: 15px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.consent-group label {
+    font-weight: normal;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #555;
+}
+
+.consent-group input[type="checkbox"] {
+    margin-top: 2px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+body.dark-mode .doc-container {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+
+body.dark-mode .doc-container h1 {
+    color: #ffffff;
+    border-bottom-color: #555;
+}
+
+body.dark-mode .doc-container h2 {
+    color: #ffffff;
+}
+
+body.dark-mode .doc-container p, 
+body.dark-mode .doc-container li {
+    color: #cccccc;
+}
+
+body.dark-mode .consent-group label {
+    color: #ccc;
+}
+
+body.dark-mode .doc-container a,
+body.dark-mode .consent-group a {
+    color: #5dade2;
+}
+
+
