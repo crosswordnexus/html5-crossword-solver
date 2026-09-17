@@ -220,6 +220,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             <label for="solverName">Leaderboard Nickname:</label>
                             <input type="text" id="solverName" placeholder="Enter your display name" maxlength="30" value="${defaultName}">
                         </div>
+                        <div class="form-group consent-group">
+                            <label>
+                                <input type="checkbox" id="agreeTerms" ${existingSolver && existingSolver.agreedToTerms ? 'checked' : ''}>
+                                <span>I agree to the <a href="terms.html" target="_blank" rel="noopener">Tournament Rules &amp; Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>, and consent to having my nickname and scores displayed on the leaderboard.</span>
+                            </label>
+                        </div>
                         <div class="setup-actions">
                             <button id="completeSetupBtn" class="primary-btn">Start Tournament</button>
                         </div>
@@ -254,12 +260,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         return;
                     }
 
+                    const agreeCheckbox = document.getElementById('agreeTerms');
+                    if (!agreeCheckbox || !agreeCheckbox.checked) {
+                        errorDiv.textContent = 'You must agree to the Tournament Rules, Terms, and Privacy Policy to continue.';
+                        errorDiv.style.display = 'block';
+                        return;
+                    }
+
                     const displayName = `${name} (#${user.uid.substring(0, 4)})`;
                     try {
                         // Create or update Solver Profile
                         await db.collection(SOLVERS_COLLECTION).doc(user.uid).set({
                             name, displayName, email: user.email.toLowerCase(),
                             division: selectedDivision, uid: user.uid,
+                            agreedToTerms: true,
+                            agreedToTermsAt: firebase.firestore.FieldValue.serverTimestamp(),
                             createdAt: firebase.firestore.FieldValue.serverTimestamp()
                         }, { merge: true });
                         // Link Participant entry

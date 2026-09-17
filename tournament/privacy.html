@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Privacy Policy</title>
+    <link rel="stylesheet" href="../css/crossword.shared.css">
+    <link rel="stylesheet" href="tournament.css">
+</head>
+<body>
+    <div class="doc-container">
+        <div class="doc-nav">
+            <a href="index.html">&larr; Back to Tournament Dashboard</a>
+        </div>
+
+        <h1>Tournament Privacy Policy</h1>
+        <p><em>Last updated: September 2026</em></p>
+
+        <p>This Privacy Policy explains how the Crossword Tournament platform collects, uses, and safeguards information when you participate in our crossword tournaments.</p>
+
+        <h2>1. Information We Collect</h2>
+        <p>We collect only the minimal data necessary to facilitate competition integrity, scoring, and leaderboard display:</p>
+        <ul>
+            <li><strong>Google Account Information:</strong> When you sign in via Google OAuth 2.0, we receive your email address, default profile name, and a unique Google identifier (UID).</li>
+            <li><strong>Participant Profile:</strong> The tournament nickname you choose during registration and your selected competition division.</li>
+            <li><strong>Competition Activity &amp; Submissions:</strong> For each tournament puzzle, we record your puzzle start and finish timestamps, total elapsed seconds, calculated score breakdown, and submitted letter grid.</li>
+            <li><strong>Local Browser Storage:</strong> We use your browser's <code>localStorage</code> solely for functional purposes:
+                <ul>
+                    <li>Auto-saving your in-progress grid and elapsed timer during active solves to preserve game state across accidental window reloads.</li>
+                    <li>Tracking completed warm-up puzzles locally.</li>
+                    <li>Remembering your solving and display preferences.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2>2. How We Use Your Information</h2>
+        <p>Your information is used strictly to administer the tournament:</p>
+        <ul>
+            <li>Verifying that your email address is on the tournament's authorized participant whitelist.</li>
+            <li>Tracking puzzle progress, calculating scores, and ranking solvers within divisions.</li>
+            <li>Allowing tournament administrators to verify competition integrity, audit submission grids, and resolve scoring disputes.</li>
+        </ul>
+        <p><strong>We do not sell, rent, or trade your personal data. We do not use your information for advertising or commercial marketing.</strong></p>
+
+        <h2>3. Visibility &amp; Information Sharing</h2>
+        <ul>
+            <li><strong>Public / Participant Leaderboard:</strong> Your chosen nickname, division, score, elapsed time, and clean-solve statistics are visible to other authorized participants and organizers on the tournament standings page.</li>
+            <li><strong>Administrative Access:</strong> Only authorized tournament administrators have access to the participant whitelist and administrative management tools.</li>
+        </ul>
+
+        <h2>4. Third-Party Infrastructure</h2>
+        <p>The tournament relies on the following third-party infrastructure providers to operate:</p>
+        <ul>
+            <li><strong>Google Firebase:</strong> Provides secure authentication (Firebase Auth) and database hosting (Cloud Firestore). Data is processed in accordance with Google's Cloud Privacy Notice.</li>
+            <li><strong>Web Hosting Provider:</strong> Static web assets are served via secure static hosting (such as GitHub Pages or secure web servers).</li>
+        </ul>
+
+        <h2>5. Data Retention &amp; Deletion Rights</h2>
+        <p>Competition records and submission logs are retained during the event and for a reasonable dispute-resolution and archiving period following the tournament's conclusion. If you wish to request the deletion or anonymization of your participant profile and score history, please contact your tournament administrator.</p>
+
+        <h2>6. Contact Us</h2>
+        <p>If you have any questions or concerns regarding this Privacy Policy or your data, please contact the tournament organizing committee.</p>
+
+        <div style="margin-top: 35px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+            <a href="index.html">&larr; Return to Tournament Dashboard</a> &bull; <a href="terms.html">Tournament Rules &amp; Terms</a>
+        </div>
+    </div>
+
+    <script>
+        // Apply dark mode if user has it enabled in tournament preferences
+        if (localStorage.getItem('tournamentDarkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+</body>
+</html>

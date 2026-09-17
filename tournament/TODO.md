@@ -39,6 +39,7 @@
 - **Admin Score Override Grid Preview:** When clicking on a score in the live leaderboard, admins can now view the solver's serialized submitted grid rendered in monospace with highlighted wrong letters (bold red uppercase), unfilled blanks (amber), and black blocks, with dynamic font scaling for 21×21 puzzles.
 
 ## 🚀 Near-Term Tasks
+- **Privacy & Security (Solvers Collection):** Remove email addresses from public `solvers/` documents or separate public profiles (`displayName`, `division`) from private contact info to prevent authenticated participants from harvesting email addresses.
 - **Searchable/Sortable Leaderboards:** Add pure JavaScript client-side search and sorting (by name, total score, total time) to the shared leaderboard without adding external libraries.
 - **Test Submission Functionality** Make sure that when the Firestore rules are updated, a user cannot submit twice.
 
