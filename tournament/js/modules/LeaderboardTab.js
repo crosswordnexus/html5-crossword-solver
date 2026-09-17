@@ -135,6 +135,34 @@ async function exportLeaderboardData(db, division, tournamentPuzzles) {
 }
 
 /**
+ * Helper to format the serialized submittedGrid string into monospace HTML.
+ */
+function formatSubmittedGrid(gridStr, width, height) {
+    if (!gridStr || !width || !height) return '';
+    let out = '';
+    for (let r = 0; r < height; r++) {
+        const rowStr = gridStr.slice(r * width, (r + 1) * width);
+        let rowHtml = '';
+        for (let c = 0; c < rowStr.length; c++) {
+            const ch = rowStr[c] || '.';
+            if (ch === '.') {
+                rowHtml += `<span class="g-block">.</span>`;
+            } else if (ch === '_') {
+                rowHtml += `<span class="g-blank">_</span>`;
+            } else if (ch === '*') {
+                rowHtml += `<span class="g-rebus">*</span>`;
+            } else if (ch >= 'a' && ch <= 'z') {
+                rowHtml += `<span class="g-wrong">${ch.toUpperCase()}</span>`;
+            } else {
+                rowHtml += ch;
+            }
+        }
+        out += rowHtml + (r < height - 1 ? '\n' : '');
+    }
+    return out;
+}
+
+/**
  * Opens a modal to override or delete a specific score entry.
  */
 function openScoreEditModal(uid, pid, pData, db) {
@@ -143,38 +171,63 @@ function openScoreEditModal(uid, pid, pData, db) {
     
     const minutes = Math.floor(pData.time / 60);
     const seconds = pData.time % 60;
+    const hasGrid = Boolean(pData.submittedGrid && pData.gridWidth && pData.gridHeight);
+    const preStyle = (pData.gridWidth >= 21)
+        ? 'font-size: 11px; line-height: 1.18; letter-spacing: 1.8px;'
+        : 'font-size: 13.5px; line-height: 1.22; letter-spacing: 2.5px;';
 
     modalOverlay.innerHTML = `
-        <div class="edit-score-modal">
+        <div class="edit-score-modal ${hasGrid ? 'with-grid' : ''}">
             <h3>Override Score</h3>
-            <p style="font-size:0.9em; margin-bottom:20px;">
-                <strong>Puzzle:</strong> ${pData.puzzleName}<br>
-                <strong>Original Correct:</strong> ${pData.correctWords} / ${pData.totalWords}
-            </p>
             
             <form id="scoreEditForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Total Score</label>
-                        <input type="number" id="editTotalScore" value="${pData.score}" required>
-                    </div>
-                </div>
-                <div class="form-row" style="margin-top:10px">
-                    <div class="form-group">
-                        <label>Time (Minutes)</label>
-                        <input type="number" id="editTimeMin" value="${minutes}" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Time (Seconds)</label>
-                        <input type="number" id="editTimeSec" value="${seconds}" min="0" max="59">
-                    </div>
-                </div>
+                <div class="${hasGrid ? 'modal-body-layout' : ''}">
+                    <div class="${hasGrid ? 'modal-form-col' : ''}">
+                        <p style="font-size:0.9em; margin-bottom:18px; line-height:1.5;">
+                            <strong>Puzzle:</strong> ${pData.puzzleName}<br>
+                            ${pData.solverName ? `<strong>Solver:</strong> ${pData.solverName}<br>` : ''}
+                            <strong>Original Correct:</strong> ${pData.correctWords} / ${pData.totalWords}
+                        </p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Total Score</label>
+                                <input type="number" id="editTotalScore" value="${pData.score}" required>
+                            </div>
+                        </div>
+                        <div class="form-row" style="margin-top:10px">
+                            <div class="form-group">
+                                <label>Time (Minutes)</label>
+                                <input type="number" id="editTimeMin" value="${minutes}" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Time (Seconds)</label>
+                                <input type="number" id="editTimeSec" value="${seconds}" min="0" max="59">
+                            </div>
+                        </div>
 
-                <div style="margin-top:20px; padding:10px; background:#fdf2f2; border-radius:6px; border:1px solid #f8d7da;">
-                    <label style="display:flex; align-items:flex-start; gap:10px; font-size:0.85em; cursor:pointer;">
-                        <input type="checkbox" id="confirmOverride" style="margin-top:3px;">
-                        <span>I confirm that I want to manually override this participant's official score.</span>
-                    </label>
+                        <div style="margin-top:20px; padding:10px; background:#fdf2f2; border-radius:6px; border:1px solid #f8d7da;">
+                            <label style="display:flex; align-items:flex-start; gap:10px; font-size:0.85em; cursor:pointer;">
+                                <input type="checkbox" id="confirmOverride" style="margin-top:3px;">
+                                <span>I confirm that I want to manually override this participant's official score.</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    ${hasGrid ? `
+                    <div class="modal-grid-col">
+                        <div class="grid-preview-header">
+                            <span>Submitted Grid</span>
+                            <span class="grid-preview-dims">${pData.gridWidth} × ${pData.gridHeight}</span>
+                        </div>
+                        <pre class="solver-grid-pre" style="${preStyle}">${formatSubmittedGrid(pData.submittedGrid, pData.gridWidth, pData.gridHeight)}</pre>
+                        <div class="grid-legend">
+                            <span class="legend-item"><span class="g-wrong" style="padding:0 3px;">A</span> Incorrect</span>
+                            <span class="legend-item"><span class="g-blank" style="padding:0 3px;">_</span> Blank</span>
+                            <span class="legend-item"><span class="g-block">.</span> Block</span>
+                        </div>
+                    </div>
+                    ` : ''}
                 </div>
 
                 <div class="modal-footer">
