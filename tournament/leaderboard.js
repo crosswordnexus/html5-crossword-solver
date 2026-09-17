@@ -49,7 +49,11 @@ window.TournamentLeaderboard = {
                         time: data.timeTaken,
                         correctWords: data.correctWords,
                         totalWords: data.totalWords,
-                        isFullyCorrect: data.isFullyCorrect !== undefined ? data.isFullyCorrect : (data.correctWords === data.totalWords && data.totalWords > 0)
+                        isFullyCorrect: data.isFullyCorrect !== undefined ? data.isFullyCorrect : (data.correctWords === data.totalWords && data.totalWords > 0),
+                        solverName: data.solverName,
+                        submittedGrid: data.submittedGrid,
+                        gridWidth: data.gridWidth,
+                        gridHeight: data.gridHeight
                     };
                 });
 
