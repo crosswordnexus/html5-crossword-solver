@@ -22,7 +22,7 @@ The system is split into three primary components:
     - `Constants.js`: Centralized Firestore collection names.
     - `PuzzlesTab.js`: Logic for adding/editing puzzle metadata.
     - `ParticipantsTab.js`: CSV processing and participant whitelisting.
-    - `LeaderboardTab.js`: Live standings and manual score overrides.
+    - `LeaderboardTab.js`: Live standings, manual score overrides, and submitted grid inspection modal.
     - `ResultsTab.js`: Exportable history of all submissions.
     - `DivisionsTab.js`: Management of tournament tiers.
     - `SettingsTab.js`: Branding and scoring rule configuration.
@@ -129,6 +129,6 @@ Security is enforced via **Firestore Security Rules**.
 ---
 
 ## 6. Shared Components
-- **`leaderboard.js`:** A reusable class that renders a real-time grid of scores, listening for updates across all participants in a specific division.
+- **`leaderboard.js`:** A reusable class that renders a real-time grid of scores, listening for updates across all participants in a specific division. Emits score and submitted grid metadata to cell click handlers.
 - **`toast.js`:** A simple notification system used across the tournament UI. Bound to `window.Toast` to ensure compatibility inside the ES Module architecture of the Admin Dashboard tabs.
 - **`firebase-config.js`:** (Not tracked) Contains the project's API keys and identifiers.
