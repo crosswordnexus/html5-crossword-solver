@@ -2,6 +2,7 @@
   'use strict';
 
   const fileInput = document.getElementById("fileInput");
+  const fileUploadDetails = document.getElementById("fileUploadDetails");
   const status = document.getElementById("status");
   const customization = document.getElementById("customization");
   const gridCustomization = document.getElementById("gridCustomization");
@@ -476,6 +477,9 @@
       const xw = JSCrossword.fromData(decompressedBytes);
       if (xw && xw.metadata && xw.cells) {
         setupPuzzle(xw);
+        if (fileUploadDetails) {
+          fileUploadDetails.open = false;
+        }
       }
     } catch (err) {
       console.warn("Could not parse fragment as base64'd gzipped ipuz:", err);

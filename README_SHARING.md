@@ -34,7 +34,7 @@ https://YOUR.SITE/html5-crossword-solver/share.html#<base64_gzipped_ipuz>
 1. When `share.html` loads, it inspects `window.location.hash`.
 2. If a fragment exists, it decodes the base64 string and decompresses the gzip stream using the browser's native `DecompressionStream('gzip')` API.
 3. The decompressed JSON is parsed as an iPuz puzzle using `JSCrossword.fromData()`.
-4. If successful, the puzzle is immediately loaded and the customization controls are displayed.
+4. If successful, the puzzle is immediately loaded, the "Choose puzzle file" section is collapsed, and the customization controls are displayed.
 5. If the fragment is missing, corrupted, or not a valid gzipped iPuz puzzle, the page fails silently and remains in the default state prompting the user to upload a file as usual.
 6. The page also listens for `hashchange` events, allowing dynamic updates without reloading.
 
