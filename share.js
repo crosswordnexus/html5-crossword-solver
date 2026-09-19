@@ -2,6 +2,7 @@
   'use strict';
 
   const fileInput = document.getElementById("fileInput");
+  const fileUploadDetails = document.getElementById("fileUploadDetails");
   const status = document.getElementById("status");
   const customization = document.getElementById("customization");
   const gridCustomization = document.getElementById("gridCustomization");
@@ -409,6 +410,21 @@
     }
   }
 
+  function setupPuzzle(xw) {
+    originalPuzzle = xw;
+    cellCustomizations = {};
+    selectedCellKey = null;
+    cellActions.classList.add("hidden");
+    gridCustomization.classList.remove("hidden");
+    results.classList.add("hidden");
+    const title = xw.metadata && xw.metadata.title ? xw.metadata.title : "Untitled";
+    const author = xw.metadata && xw.metadata.author ? ` by ${xw.metadata.author}` : "";
+    status.textContent = `✅ "${title}"${author}`;
+    customization.classList.remove("hidden");
+    submitCustomization.classList.remove("hidden");
+    rebuildWorkingPuzzle();
+  }
+
   async function loadPuzzleFile(file) {
     status.textContent = `Reading ${file.name}...`;
     results.classList.add("hidden");
@@ -417,18 +433,56 @@
     try {
       const buf = await readFileAsArrayBuffer(file);
       const xw = JSCrossword.fromData(new Uint8Array(buf));
-      originalPuzzle = xw;
-      cellCustomizations = {};
-      selectedCellKey = null;
-      cellActions.classList.add("hidden");
-      gridCustomization.classList.remove("hidden");
-      status.textContent = `✅ "${xw.metadata.title}" by ${xw.metadata.author}`;
-      customization.classList.remove("hidden");
-      submitCustomization.classList.remove("hidden");
-      rebuildWorkingPuzzle();
+      setupPuzzle(xw);
     } catch (err) {
       console.error(err);
-      status.textContent = "ƒ?O Could not parse puzzle: " + err.message;
+      status.textContent = "❌ Could not parse puzzle: " + err.message;
+    }
+  }
+
+  function base64ToBytes(b64) {
+    let sanitized = decodeURIComponent(b64).trim().replace(/-/g, "+").replace(/_/g, "/");
+    sanitized = sanitized.replace(/\s+/g, "");
+    while (sanitized.length % 4 !== 0) {
+      sanitized += "=";
+    }
+    const binary = atob(sanitized);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  }
+
+  async function decompressGzip(bytes) {
+    if (typeof DecompressionStream === "undefined") {
+      throw new Error("DecompressionStream is not supported");
+    }
+    const blob = new Blob([bytes]);
+    const stream = blob.stream().pipeThrough(new DecompressionStream("gzip"));
+    const response = new Response(stream);
+    const buffer = await response.arrayBuffer();
+    return new Uint8Array(buffer);
+  }
+
+  async function loadPuzzleFromFragment() {
+    const rawHash = window.location.hash ? window.location.hash.replace(/^#/, "") : "";
+    const hash = rawHash.trim();
+    if (!hash) return;
+    try {
+      const compressedBytes = base64ToBytes(hash);
+      const decompressedBytes = await decompressGzip(compressedBytes);
+      const text = new TextDecoder("utf-8").decode(decompressedBytes);
+      JSON.parse(text);
+      const xw = JSCrossword.fromData(decompressedBytes);
+      if (xw && xw.metadata && xw.cells) {
+        setupPuzzle(xw);
+        if (fileUploadDetails) {
+          fileUploadDetails.open = false;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not parse fragment as base64'd gzipped ipuz:", err);
     }
   }
 
@@ -586,4 +640,6 @@
     colorHistory = [DEFAULT_PREFS.primaryColor, DEFAULT_PREFS.secondaryColor];
   }
   renderColorHistory();
+  loadPuzzleFromFragment();
+  window.addEventListener("hashchange", loadPuzzleFromFragment);
 })();
