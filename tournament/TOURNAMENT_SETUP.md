@@ -143,7 +143,14 @@ Access to the Admin Dashboard is restricted to emails found in the `admins` coll
 9.  Paste your config in this file.
 10. Delete the line that reads `import { initializeApp } from "firebase/app";`
 11. Delete the last line (`const app = initializeApp(firebaseConfig);`)
-12. Add the following line at the bottom: `firebase.initializeApp(firebaseConfig);`
+12. Add the following lines at the bottom to initialize Firebase and prevent connection timeouts:
+    ```javascript
+    firebase.initializeApp(firebaseConfig);
+    firebase.firestore().settings({
+        experimentalForceLongPolling: true
+    });
+    ```
+    *(Note: `experimentalForceLongPolling` avoids the 10-second connection timeout caused by browser socket reuse and proxies buffering long-lived streaming connections).*
 
 ### 7. Create Required Firestore Indices
 To enable the live puzzle list and the detailed leaderboard, you must create composite indices in Firestore.

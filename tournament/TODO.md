@@ -37,6 +37,7 @@
 ## ✅ Completed (September 2026)
 - **Division Self-Selection:** Solvers who are whitelisted without a pre-assigned division can now choose their division during initial registration, with full dark mode support and optional division CSV / manual add support in the admin panel.
 - **Admin Score Override Grid Preview:** When clicking on a score in the live leaderboard, admins can now view the solver's serialized submitted grid rendered in monospace with highlighted wrong letters (bold red uppercase), unfilled blanks (amber), and black blocks, with dynamic font scaling for 21×21 puzzles.
+- **Firebase SDK Upgrade (v10 Compat):** Upgraded from deprecated Firebase v8.10.0 to v10.14.1 (Compat) and added long-polling transport configuration (`experimentalForceLongPolling`) to resolve 10-second connection timeouts caused by stale HTTP/2 streams.
 
 ## 🚀 Near-Term Tasks
 - **Privacy & Security (Solvers Collection):** Remove email addresses from public `solvers/` documents or separate public profiles (`displayName`, `division`) from private contact info to prevent authenticated participants from harvesting email addresses.
@@ -44,5 +45,5 @@
 - **Test Submission Functionality** Make sure that when the Firestore rules are updated, a user cannot submit twice.
 
 ## 🛠 Maintenance
-- **Dependency Audit:** Check if Firebase SDK v9+ (Modular) should be adopted (currently using v8 compatibility mode).
+- **Dependency Audit:** Check if full Firebase SDK v10+ Modular tree-shaking should be adopted if a build tool/bundler is ever introduced (currently using v10 compatibility mode).
 - **Mobile Styling:** Further refine the leaderboard grid for very narrow mobile screens.
