@@ -132,6 +132,22 @@ When extending the solver:
    - Breakpoints are NOT CSS `@media` queries; they are container classes (`.cw-max-width-1200`, `.cw-max-width-1080`, `.cw-max-width-650`, etc.) added dynamically by `setBreakpointClasses(this.root)` in JS based on the root element's width.
 3. **1-Indexed Grid Coordinates**:
    - `this.cells[x][y]` uses **1-indexed** coordinates (`1..grid_width`, `1..grid_height`), while raw `JSCrossword` and cell ranges from puzzle formats are 0-indexed.
+4. **Input Pipelines (Desktop vs. Mobile vs. Rebus)**:
+   - Text entry is processed through three distinct entry points:
+     - **Desktop physical keyboard**: `keyPressed(e)` in `src/input.js`.
+     - **Mobile virtual keyboard & IME**: `hiddenInputChanged()` in `src/crosswords.js` (triggered by input on the hidden `<input>` or key click listeners in `js/crossword.mobile.js`).
+     - **Rebus commit**: `exitRebusMode()` in `src/crosswords.js`.
+   - Post-character entry logic (cursor advancement, word-completion triggers, `autofill()`, `checkIfSolved()`) must stay synchronized across all three entry points.
+5. **Adding Configurable Settings**:
+   - To register and persist a new user setting:
+     1. Add the key name to `CONFIGURABLE_SETTINGS` in `src/constants.js` (enables `localStorage` persistence).
+     2. Add the default value to `default_config` in `src/crosswords.js`.
+     3. Add the control HTML to `openSettings()` in `src/modal.js` using class `settings-changer`.
+     - **Radio groups**: The generic listener assigns `this.config[input.name] = input.id`. Make the radio input `name` the config key, and each radio input `id` the value.
+     - **Checkboxes**: Automatically assign `this.config[input.name] = input.checked` (boolean).
+6. **Word Navigation & Completion Checks**:
+   - `moveToNextWord(to_previous, skip_filled_words)` in `src/navigation.js` is the core routine for word traversal (used by Tab, Shift+Tab, mobile arrows, and word-completion jumps).
+   - Word completion status is checked via `word.isFilled()` (in `src/Word.js`), and puzzle-wide completion state via `this.hasUnfilledWords()`.
 
 ## 8. Tournament Extension
 
