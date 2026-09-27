@@ -17,7 +17,7 @@ import { updateCSS, getShadeHighlightColor, cellFillColor, cellFontColor } from 
 import { isCorrect, escape, resizeText } from './utils.js';
 import { CluesGroup } from './CluesGroup.js';
 import { Word } from './Word.js';
-import { keyPressed, mouseClicked, clueClicked, backspace } from './input.js';
+import { keyPressed, mouseClicked, clueClicked, backspace, enterLetter } from './input.js';
 import {
   saveGame,
   saveGameImmediate,
@@ -73,6 +73,7 @@ import {
   setActiveCell,
   skipToWord,
   moveToNextWord,
+  advanceCursor,
   hasUnfilledWords,
   moveToFirstCell,
   moveSelectionBy
@@ -1022,6 +1023,14 @@ import {
         backspace.call(this);
       }
 
+      enterLetter(text) {
+        enterLetter.call(this, text);
+      }
+
+      advanceCursor() {
+        advanceCursor.call(this);
+      }
+
       enterRebusMode() {
         if (!this.selected_cell || this.selected_cell.empty || this.selected_cell.type === 'block') {
           return;
@@ -1057,24 +1066,7 @@ import {
         this.root?.trigger?.('rebusModeChange', { active: false });
 
         if (commit && advance && cell && (this.selected_word || this.diagramless_mode)) {
-          if (this.selected_word && this.config.after_completing_word === 'jump_to_next_word' && this.selected_word.isFilled()) {
-            const skip_filled_words = this.config.tab_key === 'tab_skip';
-            this.moveToNextWord(false, skip_filled_words);
-            return;
-          }
-          let next_cell;
-          if (this.diagramless_mode) {
-            next_cell = this.nextDiagramlessCell(cell, this.diagramless_dir, 1);
-          } else if (this.config.skip_filled_letters && !this.selected_word.isFilled()) {
-            next_cell =
-              this.selected_word.getFirstEmptyCell(cell.x, cell.y) ||
-              this.selected_word.getNextCell(cell.x, cell.y);
-          } else if (this.selected_word) {
-            next_cell = this.selected_word.getNextCell(cell.x, cell.y);
-          }
-          if (next_cell) {
-            this.setActiveCell(next_cell);
-          }
+          this.advanceCursor();
         }
       }
 
@@ -1139,71 +1131,12 @@ import {
         }
       }
 
-      // Detects user inputs to hidden input element
+      // Detects user inputs to hidden input element or programmatic entry
       hiddenInputChanged(rebus_string) {
-        if (this.rebus_mode) {
-          if (rebus_string && rebus_string.trim()) {
-            this.appendRebusLetter(rebus_string.trim());
-          }
-          this.hidden_input.val('');
-          return;
-        }
-        let next_cell;
-        if (this.selected_cell) {
-          if (rebus_string && rebus_string.trim()) {
-            this.updateCell(this.selected_cell, {
-              letter: rebus_string.toUpperCase() // ✅ Use rebus string if available
-            });
-          } else {
-            const mychar = this.hidden_input.val().slice(0, 1).toUpperCase();
-            if (mychar) {
-              this.updateCell(this.selected_cell, {
-                letter: mychar
-              });
-            }
-          }
-          this.updateCell(this.selected_cell, {
-            checked: false
-          });
-
-          // If this is a coded or acrostic
-          // find all cells with this number
-          // and fill them with the same letter
-          this.autofill();
-
-          // find empty cell, then next cell
-          // Change this depending on config
-          if (this.selected_word) {
-            if (this.config.after_completing_word === 'jump_to_next_word' && this.selected_word.isFilled()) {
-              const skip_filled_words = this.config.tab_key === 'tab_skip';
-              this.moveToNextWord(false, skip_filled_words);
-              this.checkIfSolved();
-              this.hidden_input.val('');
-              return;
-            }
-
-            if (this.config.skip_filled_letters) {
-              next_cell =
-                this.selected_word.getFirstEmptyCell(
-                  this.selected_cell.x,
-                  this.selected_cell.y
-                ) ||
-                this.selected_word.getNextCell(
-                  this.selected_cell.x,
-                  this.selected_cell.y
-                );
-            } else {
-              next_cell = this.selected_word.getNextCell(
-                this.selected_cell.x,
-                this.selected_cell.y
-              );
-            }
-
-            if (next_cell) {
-              this.setActiveCell(next_cell);
-            }
-          }
-          this.checkIfSolved();
+        const val = (rebus_string && rebus_string.trim()) ||
+          this.hidden_input.val().slice(0, 1);
+        if (val) {
+          this.enterLetter(val);
         }
         this.hidden_input.val('');
       }
