@@ -568,7 +568,9 @@ function createCustomKeyboard() {
       key.className = 'custom-key';
       key.textContent = letter;
       key.addEventListener('click', () => {
-        if (gCrossword?.hidden_input) {
+        if (gCrossword?.enterLetter) {
+          gCrossword.enterLetter(letter);
+        } else if (gCrossword?.hidden_input) {
           gCrossword.hiddenInputChanged(letter);
         }
       });
@@ -592,7 +594,9 @@ function createCustomKeyboard() {
       periodKey.className = 'custom-key period-key';
       periodKey.textContent = '.';
       periodKey.addEventListener('click', () => {
-        if (gCrossword?.hidden_input) {
+        if (gCrossword?.enterLetter) {
+          gCrossword.enterLetter('.');
+        } else if (gCrossword?.hidden_input) {
           gCrossword.hiddenInputChanged('.');
         }
       });

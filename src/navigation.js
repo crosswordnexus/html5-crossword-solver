@@ -240,6 +240,52 @@ export function moveToNextWord(to_previous, skip_filled_words = false) {
   }
 }
 
+/**
+ * Advances the active cell selection following a character entry or rebus commit.
+ * Handles diagramless stepping, word completion jumping, and filled letter skipping.
+ */
+export function advanceCursor() {
+  if (!this.selected_cell) return;
+
+  if (this.diagramless_mode) {
+    const next_cell = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, +1);
+    if (next_cell) {
+      this.setActiveCell(next_cell);
+    }
+    return;
+  }
+
+  if (!this.selected_word) return;
+
+  if (this.config.after_completing_word === 'jump_to_next_word' && this.selected_word.isFilled()) {
+    const skip_filled_words = this.config.tab_key === 'tab_skip';
+    this.moveToNextWord(false, skip_filled_words);
+    return;
+  }
+
+  let next_cell = null;
+  if (this.config.skip_filled_letters && !this.selected_word.isFilled()) {
+    next_cell =
+      this.selected_word.getFirstEmptyCell(
+        this.selected_cell.x,
+        this.selected_cell.y
+      ) ||
+      this.selected_word.getNextCell(
+        this.selected_cell.x,
+        this.selected_cell.y
+      );
+  } else {
+    next_cell = this.selected_word.getNextCell(
+      this.selected_cell.x,
+      this.selected_cell.y
+    );
+  }
+
+  if (next_cell) {
+    this.setActiveCell(next_cell);
+  }
+}
+
 export function hasUnfilledWords() {
   return Object.values(this.words || {}).some(
     (word) => word && !word.isFilled()
