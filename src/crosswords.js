@@ -139,6 +139,7 @@ import {
       skip_filled_letters: true,
       arrow_direction: 'arrow_move_filled',
       space_bar: 'space_clear',
+      after_completing_word: 'stay_in_word',
       timer_autostart: false,
       show_timer_option: true,
       allow_timer_toggle: true,
@@ -1056,6 +1057,11 @@ import {
         this.root?.trigger?.('rebusModeChange', { active: false });
 
         if (commit && advance && cell && (this.selected_word || this.diagramless_mode)) {
+          if (this.selected_word && this.config.after_completing_word === 'jump_to_next_word' && this.selected_word.isFilled()) {
+            const skip_filled_words = this.config.tab_key === 'tab_skip';
+            this.moveToNextWord(false, skip_filled_words);
+            return;
+          }
           let next_cell;
           if (this.diagramless_mode) {
             next_cell = this.nextDiagramlessCell(cell, this.diagramless_dir, 1);
@@ -1167,24 +1173,36 @@ import {
 
           // find empty cell, then next cell
           // Change this depending on config
-          if (this.config.skip_filled_letters) {
-            next_cell =
-              this.selected_word.getFirstEmptyCell(
-                this.selected_cell.x,
-                this.selected_cell.y
-              ) ||
-              this.selected_word.getNextCell(
+          if (this.selected_word) {
+            if (this.config.after_completing_word === 'jump_to_next_word' && this.selected_word.isFilled()) {
+              const skip_filled_words = this.config.tab_key === 'tab_skip';
+              this.moveToNextWord(false, skip_filled_words);
+              this.checkIfSolved();
+              this.hidden_input.val('');
+              return;
+            }
+
+            if (this.config.skip_filled_letters) {
+              next_cell =
+                this.selected_word.getFirstEmptyCell(
+                  this.selected_cell.x,
+                  this.selected_cell.y
+                ) ||
+                this.selected_word.getNextCell(
+                  this.selected_cell.x,
+                  this.selected_cell.y
+                );
+            } else {
+              next_cell = this.selected_word.getNextCell(
                 this.selected_cell.x,
                 this.selected_cell.y
               );
-          } else {
-            next_cell = this.selected_word.getNextCell(
-              this.selected_cell.x,
-              this.selected_cell.y
-            );
-          }
+            }
 
-          this.setActiveCell(next_cell);
+            if (next_cell) {
+              this.setActiveCell(next_cell);
+            }
+          }
           this.checkIfSolved();
         }
         this.hidden_input.val('');

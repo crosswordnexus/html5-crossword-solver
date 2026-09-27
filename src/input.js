@@ -263,6 +263,12 @@ export function keyPressed(e) {
           next_cell = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, +1);
         } else if (this.selected_word) {
           // Regular crossword logic
+          if (this.config.after_completing_word === 'jump_to_next_word' && this.selected_word.isFilled()) {
+            const skip_filled_words = this.config.tab_key === 'tab_skip';
+            this.moveToNextWord(false, skip_filled_words);
+            break;
+          }
+
           if (this.config.skip_filled_letters && !this.selected_word.isFilled()) {
             next_cell = this.selected_word.getFirstEmptyCell(
               this.selected_cell.x,
