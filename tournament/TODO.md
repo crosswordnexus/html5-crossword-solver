@@ -44,6 +44,7 @@
 ## 🚀 Near-Term Tasks
 - **Searchable/Sortable Leaderboards:** Add pure JavaScript client-side search and sorting (by name, total score, total time) to the shared leaderboard without adding external libraries.
 - **Test Submission Functionality** Make sure that when the Firestore rules are updated, a user cannot submit twice.
+- **Public-facing leaderboard** Allow just anyone to see the current standings
 
 ## 🛠 Maintenance
 - **Dependency Audit:** Check if full Firebase SDK v10+ Modular tree-shaking should be adopted if a build tool/bundler is ever introduced (currently using v10 compatibility mode).
