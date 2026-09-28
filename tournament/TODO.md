@@ -37,6 +37,7 @@
 ## ✅ Completed (September 2026)
 - **Division Self-Selection:** Solvers who are whitelisted without a pre-assigned division can now choose their division during initial registration, with full dark mode support and optional division CSV / manual add support in the admin panel.
 - **Admin Score Override Grid Preview:** When clicking on a score in the live leaderboard, admins can now view the solver's serialized submitted grid rendered in monospace with highlighted wrong letters (bold red uppercase), unfilled blanks (amber), and black blocks, with dynamic font scaling for 21×21 puzzles.
+- **Leaderboard CSV Export Fix:** Switched from `data:text/csv` URI encoding to a UTF-8 BOM `Blob` with `URL.createObjectURL()`, fixing truncated exports caused by special characters (such as `#` in solver IDs), escaping quotes in nicknames, and sorting by total score and elapsed time.
 
 ## 🚀 Near-Term Tasks
 - **Privacy & Security (Solvers Collection):** Remove email addresses from public `solvers/` documents or separate public profiles (`displayName`, `division`) from private contact info to prevent authenticated participants from harvesting email addresses.
