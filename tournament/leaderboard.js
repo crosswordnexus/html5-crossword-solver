@@ -132,5 +132,64 @@ window.TournamentLeaderboard = {
                 console.error('Leaderboard error:', error);
                 container.innerHTML = `<div class="error-message" style="display:block; text-align:left;">${this.formatError(error)}</div>`;
             });
+    },
+
+    /**
+     * Exports leaderboard data for a division as a CSV download.
+     */
+    async exportCsv(db, division, tournamentPuzzles) {
+        try {
+            const scoresSnap = await db.collection('scores')
+                .where('division', '==', division)
+                .get();
+
+            const solverScores = {};
+            scoresSnap.forEach(doc => {
+                const data = doc.data();
+                if (!solverScores[data.uid]) {
+                    solverScores[data.uid] = { 
+                        name: data.solverName, 
+                        totalScore: 0, 
+                        totalTime: 0, 
+                        puzzles: {} 
+                    };
+                }
+                solverScores[data.uid].totalScore += data.totalScore;
+                solverScores[data.uid].totalTime += data.timeTaken;
+                solverScores[data.uid].puzzles[data.puzzleId] = data.totalScore;
+            });
+
+            const leaderboardData = Object.values(solverScores).sort((a, b) => {
+                if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
+                return a.totalTime - b.totalTime;
+            });
+
+            let csvContent = "Solver Name,Total Score,Total Time (sec)";
+            tournamentPuzzles.forEach(p => csvContent += `,Puzzle ${p.puzzleNumber} Score`);
+            csvContent += "\n";
+
+            leaderboardData.forEach(entry => {
+                const safeName = (entry.name || '').replace(/"/g, '""');
+                csvContent += `"${safeName}",${entry.totalScore},${entry.totalTime}`;
+                tournamentPuzzles.forEach(p => {
+                    csvContent += `,${entry.puzzles[p.id] || 0}`;
+                });
+                csvContent += "\n";
+            });
+
+            const blob = new Blob(["\uFEFF", csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `leaderboard_${division}_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error('Export error:', e);
+            if (window.Toast) window.Toast.error('Export failed: ' + e.message);
+        }
     }
 };
+
