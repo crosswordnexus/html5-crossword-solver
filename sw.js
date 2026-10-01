@@ -1,5 +1,5 @@
 // CRITICAL: You MUST change this string (e.g., v3, v4) every time you deploy a new update!
-const CACHE_NAME = "xw-solver-v20260919182247";
+const CACHE_NAME = "xw-solver-v20261001200932";
 
 const ASSETS = [
     "./",
