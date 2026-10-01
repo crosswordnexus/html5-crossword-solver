@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     try {
                         // Create or update Solver Profile
                         await db.collection(SOLVERS_COLLECTION).doc(user.uid).set({
-                            name, displayName, email: user.email.toLowerCase(),
+                            name, displayName,
                             division: selectedDivision, uid: user.uid,
                             agreedToTerms: true,
                             agreedToTermsAt: firebase.firestore.FieldValue.serverTimestamp(),

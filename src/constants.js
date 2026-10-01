@@ -14,6 +14,7 @@ export const IS_MOBILE = CrosswordShared.isMobileDevice();
 // Settings
 export const CONFIGURABLE_SETTINGS = [
   "skip_filled_letters", "arrow_direction", "space_bar", "tab_key",
+  "after_completing_word",
   "timer_autostart", "dark_mode_enabled", "gray_completed_clues",
   "confetti_enabled", "notepad_name",
 ];

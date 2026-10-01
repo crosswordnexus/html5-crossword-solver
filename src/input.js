@@ -226,53 +226,9 @@ export function keyPressed(e) {
 
       if (this.selected_cell && isPrintableChar && !this.selected_cell.fixed) {
         if (this.rebus_mode) {
-          const ch = /[a-z]/i.test(e.key) ? e.key.toUpperCase() : e.key;
-          this.appendRebusLetter(ch);
-          if (!IS_MOBILE) {
-            this.hidden_input.focus();
-          }
           prevent = true;
-          break;
         }
-
-        // Uppercase only letters, leave numbers/punctuation unchanged
-        const ch = /[a-z]/i.test(e.key) ? e.key.toUpperCase() : e.key;
-        this.updateCell(this.selected_cell, {
-          letter: ch,
-          checked: false
-        });
-        this.autofill();
-        this.checkIfSolved();
-        if (!IS_MOBILE) {
-          this.hidden_input.focus();
-        }
-
-        let next_cell = null;
-
-        if (this.diagramless_mode) {
-          // Move in the current diagramless direction (across or down)
-          next_cell = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, +1);
-        } else if (this.selected_word) {
-          // Regular crossword logic
-          if (this.config.skip_filled_letters && !this.selected_word.isFilled()) {
-            next_cell = this.selected_word.getFirstEmptyCell(
-              this.selected_cell.x,
-              this.selected_cell.y
-            ) || this.selected_word.getNextCell(
-              this.selected_cell.x,
-              this.selected_cell.y
-            );
-          } else {
-            next_cell = this.selected_word.getNextCell(
-              this.selected_cell.x,
-              this.selected_cell.y
-            );
-          }
-        }
-
-        if (next_cell) {
-          this.setActiveCell(next_cell);
-        }
+        this.enterLetter(e.key);
       }
       break;
     }
@@ -445,5 +401,39 @@ export function clueClicked(e) {
 
   this.setActiveWord(word);
   this.setActiveCell(cell);
+}
+
+/**
+ * Enters a letter or character string into the currently selected cell.
+ * Handles rebus mode appending, cell updates, autofill, solve checks, and cursor advance.
+ * @param {string} text - The character or string to enter.
+ */
+export function enterLetter(text) {
+  if (!this.selected_cell || this.selected_cell.fixed) return;
+
+  const str = (text || '').trim();
+  if (!str) return;
+
+  if (this.rebus_mode) {
+    const ch = /[a-z]/i.test(str) ? str.toUpperCase() : str;
+    this.appendRebusLetter(ch);
+    if (!IS_MOBILE) {
+      this.hidden_input.focus();
+    }
+    return;
+  }
+
+  const val = /[a-z]/i.test(str) ? str.toUpperCase() : str;
+  this.updateCell(this.selected_cell, {
+    letter: val,
+    checked: false
+  });
+  this.autofill();
+  this.checkIfSolved();
+  if (!IS_MOBILE) {
+    this.hidden_input.focus();
+  }
+
+  this.advanceCursor();
 }
 

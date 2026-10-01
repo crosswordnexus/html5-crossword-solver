@@ -132,6 +132,20 @@ When extending the solver:
    - Breakpoints are NOT CSS `@media` queries; they are container classes (`.cw-max-width-1200`, `.cw-max-width-1080`, `.cw-max-width-650`, etc.) added dynamically by `setBreakpointClasses(this.root)` in JS based on the root element's width.
 3. **1-Indexed Grid Coordinates**:
    - `this.cells[x][y]` uses **1-indexed** coordinates (`1..grid_width`, `1..grid_height`), while raw `JSCrossword` and cell ranges from puzzle formats are 0-indexed.
+4. **Unified Input Pipeline (`enterLetter` & `advanceCursor`)**:
+   - Letter entry and cursor traversal are unified across platforms:
+     - `enterLetter(text)` in `src/input.js`: Single entry point for letter input (used by desktop `keyPressed`, mobile keyboard taps, and `hiddenInputChanged`). Handles `cell.fixed` protection, rebus appending, cell mutation, `autofill()`, `checkIfSolved()`, and delegates to `advanceCursor()`.
+     - `advanceCursor()` in `src/navigation.js`: Single source of truth for moving the active square after character entry or rebus commit (`exitRebusMode()`). Handles diagramless stepping, word completion jumping (`after_completing_word`), and `skip_filled_letters`.
+5. **Adding Configurable Settings**:
+   - To register and persist a new user setting:
+     1. Add the key name to `CONFIGURABLE_SETTINGS` in `src/constants.js` (enables `localStorage` persistence).
+     2. Add the default value to `default_config` in `src/crosswords.js`.
+     3. Add the control HTML to `openSettings()` in `src/modal.js` using class `settings-changer`.
+     - **Radio groups**: The generic listener assigns `this.config[input.name] = input.id`. Make the radio input `name` the config key, and each radio input `id` the value.
+     - **Checkboxes**: Automatically assign `this.config[input.name] = input.checked` (boolean).
+6. **Word Navigation & Completion Checks**:
+   - `moveToNextWord(to_previous, skip_filled_words)` in `src/navigation.js` is the core routine for word traversal (used by Tab, Shift+Tab, mobile arrows, and word-completion jumps).
+   - Word completion status is checked via `word.isFilled()` (in `src/Word.js`), and puzzle-wide completion state via `this.hasUnfilledWords()`.
 
 ## 8. Tournament Extension
 

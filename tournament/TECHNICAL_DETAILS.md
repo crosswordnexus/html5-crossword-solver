@@ -54,7 +54,7 @@ The system is split into three primary components:
 ### `solvers/` (Collection)
 - **Document ID:** Firebase Auth `uid`.
 - **Purpose:** Public profiles for participants.
-- **Fields:** `{ name, displayName, division, email, uid }`.
+- **Fields:** `{ name, displayName, division, uid, agreedToTerms, agreedToTermsAt, createdAt }`.
 
 ### `scores/` (Collection)
 - **Document ID:** `${uid}_${puzzleId}`.

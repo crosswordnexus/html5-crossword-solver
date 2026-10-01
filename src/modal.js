@@ -116,6 +116,25 @@ export function openSettings() {
       </div>
     </div>
 
+    <!-- After completing a word -->
+    <div class="settings-setting">
+      <div class="settings-description">
+        After completing a word
+      </div>
+      <div class="settings-option">
+        <label class="settings-label">
+          <input id="stay_in_word" checked="" type="radio" name="after_completing_word" class="settings-changer">
+            Stay in current word
+          </input>
+        </label>
+        <label class="settings-label">
+          <input id="jump_to_next_word" checked="" type="radio" name="after_completing_word" class="settings-changer">
+            Jump to next word
+          </input>
+        </label>
+      </div>
+    </div>
+
     <!-- When changing direction with arrow keys -->
     <div class="settings-setting">
       <div class="settings-description">

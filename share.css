@@ -73,9 +73,9 @@ button:hover {
   background: #ffe94f;
 }
 
-/* DETAILS: "Learn more" section styling */
+/* DETAILS styling */
 details {
-  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 0.4rem;
