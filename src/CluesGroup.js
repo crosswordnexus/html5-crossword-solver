@@ -15,7 +15,6 @@ export class CluesGroup {
     this.clues_container = null;
     this.words_ids = [];
     this.crossword = crossword;
-    this.isFake = data.fake || this.crossword.fakeclues || false;
     if (data) {
       if (
         data.hasOwnProperty('id') &&
@@ -29,6 +28,7 @@ export class CluesGroup {
         this.words_ids = data.words_ids;
       }
     }
+    this.isFake = Boolean(data?.fake) || (this.clues.length > 0 && this.words_ids.length === 0);
   }
 
   getFirstWord() {
@@ -99,7 +99,7 @@ export class CluesGroup {
   }
 
   // in clues list, marks clue for word that has cell with given coordinates
-  markActive(x, y, is_passive, fakeclues = false) {
+  markActive(x, y, is_passive) {
     // don't mark anything as active if fake clues
     if (this.isFake || this.crossword.diagramless_mode) {
       return;

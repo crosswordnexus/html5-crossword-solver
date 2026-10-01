@@ -27,7 +27,7 @@ export function saveGameImmediate() {
   const jsxw_str = JSON.stringify(this.jsxw.cells);
   try {
     localStorage.setItem(this.savegame_name, jsxw_str);
-    localStorage.setItem(this.savegame_name + "_notes", JSON.stringify(Array.from(this.notes.entries()).map(n => {
+    localStorage.setItem(this.savegame_name + "_notes", JSON.stringify(Array.from(this.notes.entries()).filter(n => n[0] != null && n[0] !== 'null').map(n => {
       return {
         key: n[0],
         value: n[1]

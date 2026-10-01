@@ -63,8 +63,8 @@ Game progress is automatically saved to the browser's `localStorage`.
 
 ### Single Clue List / Variety Puzzles
 - Puzzles with only one clue group (such as certain variety crosswords or single-list formats) allow multiple intersecting words within that single group.
-- Double-clicking an already-selected cell or pressing `Space` (when configured to `space_switch`) invokes `changeActiveClues()`.
-- When `clueGroups.length === 1`, `changeActiveClues()` calls `getMatchingWord(x, y, true)` to cycle focus through intersecting words containing the selected cell.
+- Double-clicking an already-selected cell or pressing `Space` (when configured to `space_switch`) invokes `cycleWordsAtCell()`.
+- `cycleWordsAtCell()` cycles focus through all intersecting words in `words_list` containing the selected cell (`changeActiveClues()` is retained as a backwards-compatible alias).
 
 ## 5. Development & Extension
 

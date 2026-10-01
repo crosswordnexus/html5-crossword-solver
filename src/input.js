@@ -84,17 +84,8 @@ export function keyPressed(e) {
       if (this.selected_cell && this.selected_word) {
         // check config
         if (this.config.space_bar === 'space_switch') {
-          const {
-            x,
-            y
-          } = this.selected_cell;
-          const groups = this.clueGroups || [];
-          const n = groups.length;
-
-          if (n >= 1) {
-            this.changeActiveClues();
-            this.setActiveCell(this.selected_cell);
-          }
+          this.cycleWordsAtCell();
+          this.setActiveCell(this.selected_cell);
         } else {
           // --- normal space behavior: clear and move to next cell
           this.updateCell(this.selected_cell, {
@@ -326,8 +317,8 @@ export function mouseClicked(e) {
     this.selected_cell.y === index_y;
 
   if (sameCellClicked) {
-    // Cycle to the next clue group (or next word in group) if clicking same square again
-    this.changeActiveClues();
+    // Cycle to the next word in words_list containing this square
+    this.cycleWordsAtCell();
     this.setActiveCell(clickedCell);
     if (!IS_MOBILE) {
       this.hidden_input.focus();
@@ -335,21 +326,23 @@ export function mouseClicked(e) {
     return;
   }
 
-  // Try to find a matching word in the current group
-  const currentGroup = this.clueGroups[this.activeClueGroupIndex];
-  let matchingWord = currentGroup.getMatchingWord(index_x, index_y, true);
+  // Find matching words in words_list at this cell
+  const matchingWords = (this.words_list || []).filter(w => w.hasCell(index_x, index_y));
+  let matchingWord = null;
 
-  // If not found, try other groups in order
-  if (!matchingWord) {
-    for (let i = 0; i < this.clueGroups.length; i++) {
-      if (i === this.activeClueGroupIndex) continue;
-      const testGroup = this.clueGroups[i];
-      const testWord = testGroup.getMatchingWord(index_x, index_y, true);
-      if (testWord) {
-        matchingWord = testWord;
-        this.activeClueGroupIndex = i; // switch to that group
-        break;
-      }
+  if (matchingWords.length > 0) {
+    // 1. Prefer word with the same direction as current selection
+    if (this.selected_word && this.selected_word.dir) {
+      matchingWord = matchingWords.find(w => w.dir === this.selected_word.dir);
+    }
+    // 2. Otherwise prefer word matching the active clue group
+    if (!matchingWord && this.clueGroups && this.clueGroups[this.activeClueGroupIndex]) {
+      const currentGroup = this.clueGroups[this.activeClueGroupIndex];
+      matchingWord = matchingWords.find(w => (currentGroup.words_ids || []).includes(w.id));
+    }
+    // 3. Fallback to first matching word at cell
+    if (!matchingWord) {
+      matchingWord = matchingWords[0];
     }
   }
 
@@ -357,11 +350,8 @@ export function mouseClicked(e) {
   if (matchingWord) {
     this.setActiveWord(matchingWord);
   } else {
-    // If no matching word found and current group is fake, clear top text
-    const currentGroup = this.clueGroups[this.activeClueGroupIndex];
-    if (this.fakeclues || (currentGroup && currentGroup.isFake)) {
-      this.top_text.html('');
-    }
+    // If clicked cell is not part of any word, clear top text
+    this.top_text.html('');
   }
 
   // Update cell selection and redraw
@@ -380,14 +370,17 @@ export function clueClicked(e) {
   const target = $(e.currentTarget);
   const clue = target.data('clue');
   const wordId = target.data('word');
-  const word = this.words[wordId];
+  const word = wordId && this.words ? this.words[wordId] : null;
 
   // Find which clue group this clue belongs to
   const clickedGroupId = target.data('clues');
   const groupIndex = this.clueGroups.findIndex(g => g.id === clickedGroupId);
   const group = this.clueGroups[groupIndex];
 
-  if (this.fakeclues || (group && group.isFake)) {
+  // A clue is fake if it is not associated with a word in the grid.
+  const isFake = !word;
+
+  if (isFake) {
     // Toggle "completed" state on the clue itself
     clue.fakeClueCompleted = !clue.fakeClueCompleted;
 
@@ -396,8 +389,6 @@ export function clueClicked(e) {
     return;
   }
 
-  if (!word) return;
-
   if (this.diagramless_mode) return;
 
   const cell = word.getFirstEmptyCell() || word.getFirstCell();
@@ -405,7 +396,7 @@ export function clueClicked(e) {
 
   // Switch directly to that group if needed
   if (groupIndex !== -1 && groupIndex !== this.activeClueGroupIndex) {
-    this.changeActiveClues(groupIndex);
+    this.cycleWordsAtCell(groupIndex);
   }
 
   this.setActiveWord(word);

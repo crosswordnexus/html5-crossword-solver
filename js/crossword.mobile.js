@@ -206,7 +206,7 @@ $(document).ready(function() {
         const wordId = target.data('word');
         const word = gCrossword.words[wordId];
 
-        if (gCrossword.fakeclues) {
+        if (!word) {
           if (clue) {
             clue.fakeClueCompleted = !Boolean(clue.fakeClueCompleted);
             gCrossword.updateClueAppearance(clue, target);
@@ -214,25 +214,15 @@ $(document).ready(function() {
           return;
         }
 
-        if (!word) return;
-
         const cell = word.getFirstEmptyCell() || word.getFirstCell();
         if (cell) {
           gCrossword.setActiveWord(word);
-          if (gCrossword.clueGroups[gCrossword.activeClueGroupIndex].id !== target.data('clues')) {
-            gCrossword.changeActiveClues();
+          const clickedGroupId = target.data('clues');
+          const groupIdx = (gCrossword.clueGroups || []).findIndex(g => g.id === clickedGroupId);
+          if (groupIdx !== -1 && groupIdx !== gCrossword.activeClueGroupIndex) {
+            gCrossword.cycleWordsAtCell(groupIdx);
           }
           gCrossword.setActiveCell(cell);
-
-          // ✅ Manually trigger clue highlighting
-          gCrossword.clueGroups.forEach(group => {
-            // The first param (`isInactive`) is true for all groups except the active one
-            const isInactive = group !== this.clueGroups[this.activeClueGroupIndex];
-            if (typeof group.markActive === 'function') {
-              group.markActive(cell.x, cell.y, isInactive, gCrossword.fakeclues);
-            }
-          });
-
           gCrossword.renderCells();
         }
       });
