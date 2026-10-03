@@ -122,7 +122,7 @@ $(document).ready(function() {
         const check = allButtons.find(btn => btn.textContent.includes('Check'));
         const reveal = allButtons.find(btn => btn.textContent.includes('Reveal'));
         const settings = allButtons.find(btn => btn.textContent.includes('Settings'));
-        const done = allButtons.find(btn => btn.textContent.includes("I'm done!"));
+        const done = allButtons.find(btn => btn.classList.contains('cw-tournament-submit'));
         const timer = allButtons.find(btn => btn.textContent.match(/[\d:]+/)); // crude match for timer
 
         // Only reflow if all buttons were found (except File/Reveal/Check which might be hidden)
