@@ -92,6 +92,9 @@ To prevent solvers from closing the solver window to reset their elapsed time, t
 #### Warm-up Puzzle Lifecycle:
 Because warm-up puzzles are client-side only and not submitted to Firestore, completed warm-ups are tracked via `localStorage` (saved in the `completed_warmups` list). Completed warm-up puzzles will show a **"Review Warm-up"** button on the dashboard allowing participants to reopen and review their finished grid.
 
+#### Submitted Puzzle Review (Tournament):
+For completed tournament puzzles, participants can review their finalized attempts via a **"Review Grid"** button (or by clicking the submitted puzzle card) on the dashboard. This displays a modal rendering the solver's score, word accuracy, time, and full serialized grid snapshot in monospace with color-coded errors (red) and unfilled blanks (amber).
+
 ---
 
 ## 5. Scoring & Migration Logic

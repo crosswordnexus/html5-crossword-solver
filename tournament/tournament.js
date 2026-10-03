@@ -503,6 +503,123 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             /**
+             * Formats serialized submittedGrid string into monospace HTML.
+             * @param {string} gridStr - Flat string of grid cells.
+             * @param {number} width - Grid width.
+             * @param {number} height - Grid height.
+             * @returns {string} Formatted HTML.
+             */
+            function formatSubmittedGrid(gridStr, width, height) {
+                if (!gridStr || !width || !height) return '';
+                let out = '';
+                for (let r = 0; r < height; r++) {
+                    const rowStr = gridStr.slice(r * width, (r + 1) * width);
+                    let rowHtml = '';
+                    for (let c = 0; c < rowStr.length; c++) {
+                        const ch = rowStr[c] || '.';
+                        if (ch === '.') {
+                            rowHtml += `<span class="g-block">.</span>`;
+                        } else if (ch === '_') {
+                            rowHtml += `<span class="g-blank">_</span>`;
+                        } else if (ch === '*') {
+                            rowHtml += `<span class="g-rebus">*</span>`;
+                        } else if (ch >= 'a' && ch <= 'z') {
+                            rowHtml += `<span class="g-wrong">${ch.toUpperCase()}</span>`;
+                        } else {
+                            rowHtml += ch;
+                        }
+                    }
+                    out += rowHtml + (r < height - 1 ? '\n' : '');
+                }
+                return out;
+            }
+
+            /**
+             * Opens a modal showing the participant's submitted grid snapshot.
+             * @param {object} puzzle - The tournament puzzle.
+             * @param {object} scoreData - The solver's submission record.
+             */
+            function showSubmittedGridModal(puzzle, scoreData) {
+                const modalOverlay = document.createElement('div');
+                modalOverlay.className = 'modal-overlay';
+
+                const minutes = Math.floor(scoreData.timeTaken / 60);
+                const seconds = scoreData.timeTaken % 60;
+                const hasGrid = Boolean(scoreData.submittedGrid && scoreData.gridWidth && scoreData.gridHeight);
+                const preStyle = (scoreData.gridWidth >= 21)
+                    ? 'font-size: 11px; line-height: 1.18; letter-spacing: 1.8px;'
+                    : 'font-size: 13.5px; line-height: 1.22; letter-spacing: 2.5px;';
+
+                const gridContent = hasGrid
+                    ? formatSubmittedGrid(scoreData.submittedGrid, scoreData.gridWidth, scoreData.gridHeight)
+                    : '';
+
+                modalOverlay.innerHTML = `
+                    <div class="review-grid-modal">
+                        <h3>
+                            <span>#${puzzle.puzzleNumber}: ${puzzle.name}</span>
+                        </h3>
+                        <div class="review-grid-stats">
+                            <div class="review-stat-box">
+                                <div class="review-stat-label">Total Score</div>
+                                <div class="review-stat-val">${scoreData.totalScore}</div>
+                            </div>
+                            <div class="review-stat-box">
+                                <div class="review-stat-label">Accuracy</div>
+                                <div class="review-stat-val">${scoreData.correctWords ?? 0}/${scoreData.totalWords ?? 0}</div>
+                            </div>
+                            <div class="review-stat-box">
+                                <div class="review-stat-label">Time</div>
+                                <div class="review-stat-val">${minutes}m ${seconds}s</div>
+                            </div>
+                        </div>
+
+                        ${hasGrid ? `
+                        <div class="solver-grid-container">
+                            <div class="grid-preview-header">
+                                <span>Your Submitted Grid</span>
+                                <span class="grid-preview-dims">${scoreData.gridWidth} × ${scoreData.gridHeight}</span>
+                            </div>
+                            <pre class="solver-grid-pre" style="${preStyle}">${gridContent}</pre>
+                            <div class="grid-legend">
+                                <span class="legend-item"><span class="g-wrong" style="padding:0 3px;">A</span> Incorrect</span>
+                                <span class="legend-item"><span class="g-blank" style="padding:0 3px;">_</span> Blank</span>
+                                <span class="legend-item"><span class="g-block">.</span> Block</span>
+                            </div>
+                        </div>
+                        ` : `
+                        <div style="text-align: center; color: #64748b; padding: 20px; font-style: italic;">
+                            No grid snapshot was recorded for this submission.
+                        </div>
+                        `}
+
+                        <div class="modal-footer">
+                            <button type="button" class="primary-btn close-modal-btn">Close</button>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modalOverlay);
+
+                const close = () => {
+                    if (modalOverlay.parentNode) {
+                        modalOverlay.parentNode.removeChild(modalOverlay);
+                    }
+                    document.removeEventListener('keydown', handleEsc);
+                };
+
+                const handleEsc = (e) => {
+                    if (e.key === 'Escape') close();
+                };
+
+                modalOverlay.querySelector('.close-modal-btn').onclick = close;
+                modalOverlay.onclick = (e) => {
+                    if (e.target === modalOverlay) close();
+                };
+                document.addEventListener('keydown', handleEsc);
+            }
+
+            /**
              * Renders the tournament main page listing available puzzles.
              * Sets up a real-time listener on active/completed puzzles, cross-referencing
              * them against existing submissions to toggle Locked/Started/Submitted statuses.
@@ -581,6 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="submission-stats">
                                         <span class="status-tag">Submitted</span>
                                         <div class="score-summary">${statsText}</div>
+                                        <button type="button" data-id="${p.id}" class="review-grid-btn secondary-btn btn-sm" style="margin-top: 5px;">Review Grid</button>
                                     </div>
                                 `;
                             } else if (isL) {
@@ -590,6 +708,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
 
                             li.innerHTML = `<div class="puzzle-info"><span class="puz-num">#${p.puzzleNumber}</span><span class="puz-name">${p.name}</span><span class="puz-author">by ${p.author}</span><span class="puz-time">(${p.timeLimitSeconds/60}m)</span></div><div class="puzzle-status">${statusHtml}</div>`;
+
+                            if (isS) {
+                                li.style.cursor = 'pointer';
+                                li.onclick = (e) => {
+                                    if (e.target.tagName === 'BUTTON') return;
+                                    showSubmittedGridModal(p, scoreData);
+                                };
+                            }
+
                             ul.appendChild(li);
                         });
                     } else tS.innerHTML = `<h3>Tournament Puzzles</h3><p>No puzzles yet.</p>`;
@@ -598,6 +725,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         btn.onclick = async () => {
                             const pDoc = await db.collection(PUZZLES_COLLECTION).doc(btn.dataset.id).get();
                             if (pDoc.exists) loadPuzzle({ id: pDoc.id, ...pDoc.data() });
+                        };
+                    });
+
+                    document.querySelectorAll('.review-grid-btn').forEach(btn => {
+                        btn.onclick = (e) => {
+                            e.stopPropagation();
+                            const pid = btn.dataset.id;
+                            const p = ts.find(item => item.id === pid);
+                            const scoreData = subs.get(pid);
+                            if (p && scoreData) {
+                                showSubmittedGridModal(p, scoreData);
+                            }
                         };
                     });
                 });
