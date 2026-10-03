@@ -12,7 +12,7 @@ The Tournament Solver is a client-side web application that uses **Firebase** fo
 The system is split into three primary components:
 1.  **Admin Dashboard (`admin.html`/`admin.js`):** A modular SPA (Single Page Application) where each tab is an isolated ES module located in `js/modules/`.
 2.  **Participant Dashboard (`index.html`/`tournament.js`):** Puzzle list, profile setup, and division-specific standings.
-3.  **Solver Bridge (`solve.html`):** A specialized wrapper for the core solver (`js/crosswords.js`) that handles tournament-specific timing and submission.
+3.  **Solver Bridge (`solve.html`):** A specialized wrapper for the core solver (`js/crosswords.js`) that connects directly to Firebase to record score submissions to Firestore independently of window/tab lifecycle events, while providing a best-effort `postMessage` back to the dashboard if still connected.
 
 ---
 
@@ -94,6 +94,13 @@ Because warm-up puzzles are client-side only and not submitted to Firestore, com
 
 #### Submitted Puzzle Review (Tournament):
 For completed tournament puzzles, participants can review their finalized attempts via a **"Review Grid"** button (or by clicking the submitted puzzle card) on the dashboard. This displays a modal rendering the solver's score, word accuracy, time, and full serialized grid snapshot in monospace with color-coded errors (red) and unfilled blanks (amber).
+
+#### Resilient Score Submission Flow:
+To prevent lost scores caused by mobile background tab suspensions, browser tab reloads, or cross-tab reference detachment (`window.opener = null`):
+- `solve.html` connects directly to Firebase Auth and Firestore.
+- When the participant submits a puzzle, `solve.html` calculates the score breakdown, freezes the board, serializes the grid snapshot, and commits the document directly to `scores/${uid}_${puzzleId}` in Firestore (or `localStorage` for warm-ups).
+- It dispatches a best-effort `postMessage` (`CROSSWORD_SOLVED` with `scoreSubmitted: true`) to `window.opener` if the dashboard tab is still open, triggering the dashboard's completion result card without initiating duplicate Firestore writes (which would be blocked by `create`-only security rules).
+- The participant dashboard (`tournament.js`) listens for browser `visibilitychange` events; when a solver returns to the dashboard tab from `solve.html`, it automatically refreshes the puzzle list to show the submitted status and "Review Grid" button without requiring a manual page refresh.
 
 ---
 
