@@ -544,7 +544,7 @@ html.mobile-mode {
     margin: 0;
     width: 100%;
     box-sizing: border-box;
-    background: var(--main-bg-color);
+    background: transparent;
   }
 
   .crossword.mobile .cw-buttons-holder .cw-button {
@@ -607,7 +607,7 @@ html.mobile-mode {
   margin: 0;
   width: 100%;
   box-sizing: border-box;
-  background: var(--main-bg-color);
+  background: transparent;
 }
 
 .crossword.mobile.tablet .cw-buttons-holder .cw-button {
