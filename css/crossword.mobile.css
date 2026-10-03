@@ -568,6 +568,10 @@ html.mobile-mode {
     max-width: 120px;
   }
 
+  .crossword.mobile .cw-buttons-holder .cw-flex-spacer {
+    display: none !important;
+  }
+
   /* Reset menu dropdown so it opens downwards on tablet */
   .crossword.mobile .cw-menu {
     position: absolute;
@@ -629,6 +633,10 @@ html.mobile-mode {
 .crossword.mobile.tablet .cw-buttons-holder .cw-tournament-submit {
   min-width: 90px;
   max-width: 120px;
+}
+
+.crossword.mobile.tablet .cw-buttons-holder .cw-flex-spacer {
+  display: none !important;
 }
 
 .crossword.mobile.tablet .cw-menu {
