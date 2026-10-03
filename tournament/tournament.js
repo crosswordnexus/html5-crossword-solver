@@ -517,23 +517,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
             /**
              * Post-message communication channel receiver.
-             * Receives solution events dispatched from the solver iframe (`solve.html`).
+             * Receives solution events dispatched from the solver tab (`solve.html`).
              */
             window.addEventListener('message', async (event) => {
                 if (event.data && event.data.type === 'CROSSWORD_SOLVED') {
-                    const { puzzleId, timeTakenSeconds, correctWords, totalWords, submittedGrid, gridWidth, gridHeight } = event.data;
+                    const { puzzleId, timeTakenSeconds, correctWords, totalWords, submittedGrid, gridWidth, gridHeight, scoreInfo: incomingScoreInfo, scoreSubmitted } = event.data;
                     try {
                         const pDoc = await db.collection(PUZZLES_COLLECTION).doc(puzzleId).get();
                         if (pDoc.exists) {
-                            const scoreInfo = calculateScore({ words: Array(parseInt(correctWords)).fill({ isCorrect:()=>true }).concat(Array(Math.max(0, parseInt(totalWords)-parseInt(correctWords))).fill({ isCorrect:()=>false })) }, pDoc.data(), parseInt(timeTakenSeconds));
+                            const pData = { id: pDoc.id, ...pDoc.data() };
+                            const scoreInfo = incomingScoreInfo || calculateScore({ words: Array(parseInt(correctWords)).fill({ isCorrect:()=>true }).concat(Array(Math.max(0, parseInt(totalWords)-parseInt(correctWords))).fill({ isCorrect:()=>false })) }, pData, parseInt(timeTakenSeconds));
                             if (submittedGrid) {
                                 scoreInfo.submittedGrid = submittedGrid;
                                 scoreInfo.gridWidth = gridWidth;
                                 scoreInfo.gridHeight = gridHeight;
                             }
-                            await submitPuzzle({ id: pDoc.id, ...pDoc.data() }, scoreInfo);
+
+                            if (scoreSubmitted) {
+                                // Already saved to Firestore / localStorage directly by solve.html
+                                showSubmissionResult(scoreInfo, pData.isWarmup);
+                            } else {
+                                // Fallback submission if solve.html was unable to write directly
+                                await submitPuzzle(pData, scoreInfo);
+                            }
                         }
-                    } catch (e) {}
+                    } catch (e) {
+                        console.error('Error handling crossword submission message:', e);
+                    }
                 }
             });
 
@@ -563,6 +573,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const config = { 
                     tournament_mode: true, 
                     puzzle_id: puzzleData.id, 
+                    puzzle_name: puzzleData.name || '',
+                    puzzle_number: puzzleData.puzzleNumber ?? null,
+                    solver_name: (currentSolver && (currentSolver.displayName || currentSolver.name)) || '',
+                    division: (currentSolver && currentSolver.division) || '',
                     time_limit: puzzleData.timeLimitSeconds, 
                     is_warmup: !!puzzleData.isWarmup,
                     color_selected: branding.color_selected,
@@ -570,7 +584,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     scoring: scoringRules
                 };
 
-                url.searchParams.set('config', btoa(JSON.stringify(config)));
+                // Safe base64 encoding (escapes unicode to \uXXXX to prevent btoa character errors)
+                const jsonStr = JSON.stringify(config).replace(/[\u007f-\uffff]/g, c => '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4));
+                url.searchParams.set('config', btoa(jsonStr));
                 window.open(url.toString(), '_blank');
             }
 
@@ -815,6 +831,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             initSolver();
+
+            // Refresh puzzle list automatically when returning to the dashboard tab
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible' && activeView === 'puzzles' && currentSolver) {
+                    renderPuzzleList();
+                }
+            });
         } catch (e) { console.error(e); }
     }
 });
