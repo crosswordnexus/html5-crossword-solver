@@ -88,9 +88,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (e) {}
 
+                // Check if user is completing an Email Magic Link sign-in
+                if (auth.isSignInWithEmailLink(window.location.href)) {
+                    let email = window.localStorage.getItem('emailForSignIn');
+                    if (!email) {
+                        email = window.prompt('Please confirm your email address to complete sign-in:');
+                    }
+                    if (email) {
+                        try {
+                            await auth.signInWithEmailLink(email.trim().toLowerCase(), window.location.href);
+                            window.localStorage.removeItem('emailForSignIn');
+                            window.history.replaceState({}, document.title, window.location.pathname);
+                        } catch (err) {
+                            console.error('Magic link sign-in error:', err);
+                            showLoginError('Error signing in with email link: ' + err.message);
+                        }
+                    }
+                }
+
                 auth.onAuthStateChanged(async (user) => {
                     if (user && !user.isAnonymous) {
-                        // Check if this Google user is authorized in the 'participants' collection
+                        // Check if this user is authorized in the 'participants' collection
                         try {
                             const partDoc = await db.collection(PARTICIPANTS_COLLECTION).doc(user.email.toLowerCase()).get();
                             
@@ -149,14 +167,68 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             /**
-             * Initializes the Google Sign-In button event listeners.
+             * Initializes the Google Sign-In and Email Magic Link button event listeners.
              */
             function initLoginForm() {
-                const btn = document.getElementById('googleSignInBtn');
-                btn.onclick = async () => {
-                    const provider = new firebase.auth.GoogleAuthProvider();
-                    try { await auth.signInWithPopup(provider); } catch (e) { showLoginError(e.message); }
-                };
+                const googleBtn = document.getElementById('googleSignInBtn');
+                if (googleBtn) {
+                    googleBtn.onclick = async () => {
+                        const provider = new firebase.auth.GoogleAuthProvider();
+                        try { await auth.signInWithPopup(provider); } catch (e) { showLoginError(e.message); }
+                    };
+                }
+
+                const sendMagicBtn = document.getElementById('sendMagicLinkBtn');
+                const magicEmailInput = document.getElementById('magicLinkEmail');
+
+                if (sendMagicBtn && magicEmailInput) {
+                    sendMagicBtn.onclick = async () => {
+                        const email = magicEmailInput.value.trim().toLowerCase();
+                        if (!email || !email.includes('@') || !email.includes('.')) {
+                            showMagicLinkStatus('Please enter a valid email address.', 'error');
+                            return;
+                        }
+
+                        sendMagicBtn.disabled = true;
+                        sendMagicBtn.textContent = 'Sending...';
+
+                        const actionCodeSettings = {
+                            url: window.location.href.split('?')[0].split('#')[0],
+                            handleCodeInApp: true
+                        };
+
+                        try {
+                            await auth.sendSignInLinkToEmail(email, actionCodeSettings);
+                            window.localStorage.setItem('emailForSignIn', email);
+                            showMagicLinkStatus(`Sign-in link sent to <strong>${email}</strong>! Check your inbox (and spam folder) to sign in.`, 'success');
+                            magicEmailInput.value = '';
+                        } catch (err) {
+                            console.error('Send magic link error:', err);
+                            showMagicLinkStatus('Failed to send sign-in link: ' + err.message, 'error');
+                        } finally {
+                            sendMagicBtn.disabled = false;
+                            sendMagicBtn.textContent = 'Send Sign-in Link';
+                        }
+                    };
+
+                    magicEmailInput.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            sendMagicBtn.click();
+                        }
+                    });
+                }
+            }
+
+            /**
+             * Displays feedback status for the Email Magic Link request.
+             */
+            function showMagicLinkStatus(msg, type = 'success') {
+                const statusDiv = document.getElementById('magicLinkStatus');
+                if (!statusDiv) return;
+                statusDiv.innerHTML = msg;
+                statusDiv.className = 'magic-link-status ' + type;
+                statusDiv.style.display = 'block';
             }
 
             /**

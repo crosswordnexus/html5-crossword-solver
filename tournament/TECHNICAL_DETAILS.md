@@ -4,7 +4,7 @@ This document outlines the architecture and implementation details of the Tourna
 
 ## 1. Architecture Overview
 The Tournament Solver is a client-side web application that uses **Firebase** for all backend services. 
-- **Authentication:** Google OAuth 2.0.
+- **Authentication:** Google OAuth 2.0 & Passwordless Email Link (both resolve to standard Firebase `uid` and verified lowercase email).
 - **Database:** Firestore (NoSQL).
 - **Hosting:** Static file hosting (GitHub Pages, S3, etc.).
 - **Modularity:** The Admin Dashboard uses **Native ES Modules**.

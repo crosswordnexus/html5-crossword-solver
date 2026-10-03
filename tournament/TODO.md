@@ -45,13 +45,13 @@
 - **Mobile Settings:** Replaced fragile text-matching with robust class-based selectors (`.cw-settings-button`, `.cw-button-timer`, etc.) and double-wrap protection in `crossword.mobile.js`.
 - **Puzzle Edit Form Quoting:** Form fields in `PuzzlesTab.js` are now populated via DOM element properties (`form.elements[...]`) rather than HTML string interpolation, preventing titles or authors containing quotes from disappearing or truncating.
 - **Submitted Puzzle Grid Review:** Completed tournament puzzles now show a "Review Grid" button (and clickable card) on the dashboard that opens a modal displaying the solver's score, word accuracy, time, and full serialized grid snapshot in monospace with color-coded errors and blanks.
+- **Passwordless Email Magic Link Auth:** Added side-by-side Email Link authentication on the participant login screen for solvers without Google accounts, matching the existing `participants/{email}` whitelist with zero schema or security rule changes.
 
 ## 🚀 Near-Term Tasks
 - **Searchable/Sortable Leaderboards:** Add pure JavaScript client-side search and sorting (by name, total score, total time) to the shared leaderboard without adding external libraries.
 - **Test Submission Functionality** Make sure that when the Firestore rules are updated, a user cannot submit twice.
 - **Public-facing leaderboard** Allow just anyone to see the current standings
 - **iPad buttons** Don't use a drawer for iPad buttons
-- **Alternate Login Methods** Look into phone or email authentication
 - **Access Settings outside of an active puzzle**
 
 ## 🛠 Maintenance

@@ -257,7 +257,8 @@ button:hover {
     color: #34495e;
 }
 
-.form-group input[type="text"] {
+.form-group input[type="text"],
+.form-group input[type="email"] {
     width: 100%;
     padding: 12px;
     border: 2px solid #ddd;
@@ -267,9 +268,57 @@ button:hover {
     box-sizing: border-box;
 }
 
-.form-group input[type="text"]:focus {
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus {
     border-color: #3498db;
     outline: none;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 22px 0 16px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.auth-divider span {
+    padding: 0 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+}
+
+.magic-link-section {
+    text-align: center;
+}
+
+.magic-link-status {
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-top: 10px;
+    text-align: left;
+}
+
+.magic-link-status.success {
+    background-color: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.magic-link-status.error {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
 }
 
 .division-grid {
@@ -579,10 +628,36 @@ body.dark-mode .form-group label {
     color: #e0e0e0;
 }
 
-body.dark-mode .form-group input[type="text"] {
+body.dark-mode .form-group input[type="text"],
+body.dark-mode .form-group input[type="email"] {
     background-color: #3d3d3d;
     border-color: #555;
     color: #ffffff;
+}
+
+body.dark-mode .auth-divider::before,
+body.dark-mode .auth-divider::after {
+    border-bottom-color: #444;
+}
+
+body.dark-mode .auth-divider span {
+    color: #777;
+}
+
+body.dark-mode .magic-link-section p {
+    color: #aaa !important;
+}
+
+body.dark-mode .magic-link-status.success {
+    background-color: #064e3b;
+    color: #6ee7b7;
+    border-color: #047857;
+}
+
+body.dark-mode .magic-link-status.error {
+    background-color: #7f1d1d;
+    color: #fca5a5;
+    border-color: #991b1b;
 }
 
 body.dark-mode .tournament-footer {
