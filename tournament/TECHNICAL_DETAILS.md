@@ -4,7 +4,7 @@ This document outlines the architecture and implementation details of the Tourna
 
 ## 1. Architecture Overview
 The Tournament Solver is a client-side web application that uses **Firebase** for all backend services. 
-- **Authentication:** Google OAuth 2.0.
+- **Authentication:** Google OAuth 2.0 & Passwordless Email Link (both resolve to standard Firebase `uid` and verified lowercase email).
 - **Database:** Firestore (NoSQL).
 - **Hosting:** Static file hosting (GitHub Pages, S3, etc.).
 - **Modularity:** The Admin Dashboard uses **Native ES Modules**.
@@ -20,7 +20,7 @@ The system is split into three primary components:
 - `admin.js`: The main entry point and router for the Admin Dashboard.
 - `js/modules/`:
     - `Constants.js`: Centralized Firestore collection names.
-    - `PuzzlesTab.js`: Logic for adding/editing puzzle metadata.
+    - `PuzzlesTab.js`: Logic for adding/editing puzzle metadata (populates form fields via DOM properties to preserve special characters and quotes).
     - `ParticipantsTab.js`: CSV processing and participant whitelisting.
     - `LeaderboardTab.js`: Live standings, manual score overrides, and submitted grid inspection modal.
     - `ResultsTab.js`: Exportable history of all submissions.
@@ -29,7 +29,7 @@ The system is split into three primary components:
 
 ---
 
-## 2. Data Model (Firestore)
+## 3. Data Model (Firestore)
 
 ### `admins/` (Collection)
 - **Document ID:** Email address (lowercase).
@@ -73,7 +73,7 @@ The system is split into three primary components:
 
 ---
 
-## 3. The Puzzle Lifecycle
+## 4. The Puzzle Lifecycle
 Puzzles follow a specific state machine controlled by the `status` field in the `puzzles` collection:
 
 1.  **Hidden (0):** Puzzle is not visible to participants.
@@ -92,9 +92,12 @@ To prevent solvers from closing the solver window to reset their elapsed time, t
 #### Warm-up Puzzle Lifecycle:
 Because warm-up puzzles are client-side only and not submitted to Firestore, completed warm-ups are tracked via `localStorage` (saved in the `completed_warmups` list). Completed warm-up puzzles will show a **"Review Warm-up"** button on the dashboard allowing participants to reopen and review their finished grid.
 
+#### Submitted Puzzle Review (Tournament):
+For completed tournament puzzles, participants can review their finalized attempts via a **"Review Grid"** button (or by clicking the submitted puzzle card) on the dashboard. This displays a modal rendering the solver's score, word accuracy, time, and full serialized grid snapshot in monospace with color-coded errors (red) and unfilled blanks (amber).
+
 ---
 
-## 4. Scoring & Migration Logic
+## 5. Scoring & Migration Logic
 Scoring is calculated client-side in `solve.html` and verified (optionally) by the admin. The default rules are:
 
 - **Base Points:** 10 points per correct word (Across + Down).
@@ -118,7 +121,7 @@ When an admin reassigns a participant to a new division in the Admin Dashboard, 
 
 ---
 
-## 5. Security & Authorization
+## 6. Security & Authorization
 Security is enforced via **Firestore Security Rules**.
 - **Admins:** Have read/write access to all collections.
 - **Participants:**
@@ -128,7 +131,7 @@ Security is enforced via **Firestore Security Rules**.
 
 ---
 
-## 6. Shared Components
+## 7. Shared Components
 - **`leaderboard.js`:** A reusable class that renders a real-time grid of scores, listening for updates across all participants in a specific division. Emits score and submitted grid metadata to cell click handlers.
 - **`toast.js`:** A simple notification system used across the tournament UI. Bound to `window.Toast` to ensure compatibility inside the ES Module architecture of the Admin Dashboard tabs.
 - **`firebase-config.js`:** (Not tracked) Contains the project's API keys and identifiers.

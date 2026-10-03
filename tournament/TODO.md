@@ -41,10 +41,18 @@
 - **Admin Score Override Grid Preview:** When clicking on a score in the live leaderboard, admins can now view the solver's serialized submitted grid rendered in monospace with highlighted wrong letters (bold red uppercase), unfilled blanks (amber), and black blocks, with dynamic font scaling for 21×21 puzzles.
 - **Firebase SDK Upgrade (v10 Compat):** Upgraded from deprecated Firebase v8.10.0 to v10.14.1 (Compat) and added long-polling transport configuration (`experimentalForceLongPolling`) to resolve 10-second connection timeouts caused by stale HTTP/2 streams.
 
+## ✅ Completed (October 2026)
+- **Mobile Settings:** Replaced fragile text-matching with robust class-based selectors (`.cw-settings-button`, `.cw-button-timer`, etc.) and double-wrap protection in `crossword.mobile.js`.
+- **Puzzle Edit Form Quoting:** Form fields in `PuzzlesTab.js` are now populated via DOM element properties (`form.elements[...]`) rather than HTML string interpolation, preventing titles or authors containing quotes from disappearing or truncating.
+- **Submitted Puzzle Grid Review:** Completed tournament puzzles now show a "Review Grid" button (and clickable card) on the dashboard that opens a modal displaying the solver's score, word accuracy, time, and full serialized grid snapshot in monospace with color-coded errors and blanks.
+- **Passwordless Email Magic Link Auth:** Added side-by-side Email Link authentication on the participant login screen for solvers without Google accounts, matching the existing `participants/{email}` whitelist with zero schema or security rule changes.
+
 ## 🚀 Near-Term Tasks
 - **Searchable/Sortable Leaderboards:** Add pure JavaScript client-side search and sorting (by name, total score, total time) to the shared leaderboard without adding external libraries.
 - **Test Submission Functionality** Make sure that when the Firestore rules are updated, a user cannot submit twice.
 - **Public-facing leaderboard** Allow just anyone to see the current standings
+- **iPad buttons** Don't use a drawer for iPad buttons
+- **Access Settings outside of an active puzzle**
 
 ## 🛠 Maintenance
 - **Dependency Audit:** Check if full Firebase SDK v10+ Modular tree-shaking should be adopted if a build tool/bundler is ever introduced (currently using v10 compatibility mode).

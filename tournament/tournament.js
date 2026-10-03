@@ -88,9 +88,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (e) {}
 
+                // Check if user is completing an Email Magic Link sign-in
+                if (auth.isSignInWithEmailLink(window.location.href)) {
+                    let email = window.localStorage.getItem('emailForSignIn');
+                    if (!email) {
+                        email = window.prompt('Please confirm your email address to complete sign-in:');
+                    }
+                    if (email) {
+                        try {
+                            await auth.signInWithEmailLink(email.trim().toLowerCase(), window.location.href);
+                            window.localStorage.removeItem('emailForSignIn');
+                            window.history.replaceState({}, document.title, window.location.pathname);
+                        } catch (err) {
+                            console.error('Magic link sign-in error:', err);
+                            showLoginError('Error signing in with email link: ' + err.message);
+                        }
+                    }
+                }
+
                 auth.onAuthStateChanged(async (user) => {
                     if (user && !user.isAnonymous) {
-                        // Check if this Google user is authorized in the 'participants' collection
+                        // Check if this user is authorized in the 'participants' collection
                         try {
                             const partDoc = await db.collection(PARTICIPANTS_COLLECTION).doc(user.email.toLowerCase()).get();
                             
@@ -149,14 +167,68 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             /**
-             * Initializes the Google Sign-In button event listeners.
+             * Initializes the Google Sign-In and Email Magic Link button event listeners.
              */
             function initLoginForm() {
-                const btn = document.getElementById('googleSignInBtn');
-                btn.onclick = async () => {
-                    const provider = new firebase.auth.GoogleAuthProvider();
-                    try { await auth.signInWithPopup(provider); } catch (e) { showLoginError(e.message); }
-                };
+                const googleBtn = document.getElementById('googleSignInBtn');
+                if (googleBtn) {
+                    googleBtn.onclick = async () => {
+                        const provider = new firebase.auth.GoogleAuthProvider();
+                        try { await auth.signInWithPopup(provider); } catch (e) { showLoginError(e.message); }
+                    };
+                }
+
+                const sendMagicBtn = document.getElementById('sendMagicLinkBtn');
+                const magicEmailInput = document.getElementById('magicLinkEmail');
+
+                if (sendMagicBtn && magicEmailInput) {
+                    sendMagicBtn.onclick = async () => {
+                        const email = magicEmailInput.value.trim().toLowerCase();
+                        if (!email || !email.includes('@') || !email.includes('.')) {
+                            showMagicLinkStatus('Please enter a valid email address.', 'error');
+                            return;
+                        }
+
+                        sendMagicBtn.disabled = true;
+                        sendMagicBtn.textContent = 'Sending...';
+
+                        const actionCodeSettings = {
+                            url: window.location.href.split('?')[0].split('#')[0],
+                            handleCodeInApp: true
+                        };
+
+                        try {
+                            await auth.sendSignInLinkToEmail(email, actionCodeSettings);
+                            window.localStorage.setItem('emailForSignIn', email);
+                            showMagicLinkStatus(`Sign-in link sent to <strong>${email}</strong>! Check your inbox (and spam folder) to sign in.`, 'success');
+                            magicEmailInput.value = '';
+                        } catch (err) {
+                            console.error('Send magic link error:', err);
+                            showMagicLinkStatus('Failed to send sign-in link: ' + err.message, 'error');
+                        } finally {
+                            sendMagicBtn.disabled = false;
+                            sendMagicBtn.textContent = 'Send Sign-in Link';
+                        }
+                    };
+
+                    magicEmailInput.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            sendMagicBtn.click();
+                        }
+                    });
+                }
+            }
+
+            /**
+             * Displays feedback status for the Email Magic Link request.
+             */
+            function showMagicLinkStatus(msg, type = 'success') {
+                const statusDiv = document.getElementById('magicLinkStatus');
+                if (!statusDiv) return;
+                statusDiv.innerHTML = msg;
+                statusDiv.className = 'magic-link-status ' + type;
+                statusDiv.style.display = 'block';
             }
 
             /**
@@ -503,6 +575,123 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             /**
+             * Formats serialized submittedGrid string into monospace HTML.
+             * @param {string} gridStr - Flat string of grid cells.
+             * @param {number} width - Grid width.
+             * @param {number} height - Grid height.
+             * @returns {string} Formatted HTML.
+             */
+            function formatSubmittedGrid(gridStr, width, height) {
+                if (!gridStr || !width || !height) return '';
+                let out = '';
+                for (let r = 0; r < height; r++) {
+                    const rowStr = gridStr.slice(r * width, (r + 1) * width);
+                    let rowHtml = '';
+                    for (let c = 0; c < rowStr.length; c++) {
+                        const ch = rowStr[c] || '.';
+                        if (ch === '.') {
+                            rowHtml += `<span class="g-block">.</span>`;
+                        } else if (ch === '_') {
+                            rowHtml += `<span class="g-blank">_</span>`;
+                        } else if (ch === '*') {
+                            rowHtml += `<span class="g-rebus">*</span>`;
+                        } else if (ch >= 'a' && ch <= 'z') {
+                            rowHtml += `<span class="g-wrong">${ch.toUpperCase()}</span>`;
+                        } else {
+                            rowHtml += ch;
+                        }
+                    }
+                    out += rowHtml + (r < height - 1 ? '\n' : '');
+                }
+                return out;
+            }
+
+            /**
+             * Opens a modal showing the participant's submitted grid snapshot.
+             * @param {object} puzzle - The tournament puzzle.
+             * @param {object} scoreData - The solver's submission record.
+             */
+            function showSubmittedGridModal(puzzle, scoreData) {
+                const modalOverlay = document.createElement('div');
+                modalOverlay.className = 'modal-overlay';
+
+                const minutes = Math.floor(scoreData.timeTaken / 60);
+                const seconds = scoreData.timeTaken % 60;
+                const hasGrid = Boolean(scoreData.submittedGrid && scoreData.gridWidth && scoreData.gridHeight);
+                const preStyle = (scoreData.gridWidth >= 21)
+                    ? 'font-size: 11px; line-height: 1.18; letter-spacing: 1.8px;'
+                    : 'font-size: 13.5px; line-height: 1.22; letter-spacing: 2.5px;';
+
+                const gridContent = hasGrid
+                    ? formatSubmittedGrid(scoreData.submittedGrid, scoreData.gridWidth, scoreData.gridHeight)
+                    : '';
+
+                modalOverlay.innerHTML = `
+                    <div class="review-grid-modal">
+                        <h3>
+                            <span>#${puzzle.puzzleNumber}: ${puzzle.name}</span>
+                        </h3>
+                        <div class="review-grid-stats">
+                            <div class="review-stat-box">
+                                <div class="review-stat-label">Total Score</div>
+                                <div class="review-stat-val">${scoreData.totalScore}</div>
+                            </div>
+                            <div class="review-stat-box">
+                                <div class="review-stat-label">Accuracy</div>
+                                <div class="review-stat-val">${scoreData.correctWords ?? 0}/${scoreData.totalWords ?? 0}</div>
+                            </div>
+                            <div class="review-stat-box">
+                                <div class="review-stat-label">Time</div>
+                                <div class="review-stat-val">${minutes}m ${seconds}s</div>
+                            </div>
+                        </div>
+
+                        ${hasGrid ? `
+                        <div class="solver-grid-container">
+                            <div class="grid-preview-header">
+                                <span>Your Submitted Grid</span>
+                                <span class="grid-preview-dims">${scoreData.gridWidth} × ${scoreData.gridHeight}</span>
+                            </div>
+                            <pre class="solver-grid-pre" style="${preStyle}">${gridContent}</pre>
+                            <div class="grid-legend">
+                                <span class="legend-item"><span class="g-wrong" style="padding:0 3px;">A</span> Incorrect</span>
+                                <span class="legend-item"><span class="g-blank" style="padding:0 3px;">_</span> Blank</span>
+                                <span class="legend-item"><span class="g-block">.</span> Block</span>
+                            </div>
+                        </div>
+                        ` : `
+                        <div style="text-align: center; color: #64748b; padding: 20px; font-style: italic;">
+                            No grid snapshot was recorded for this submission.
+                        </div>
+                        `}
+
+                        <div class="modal-footer">
+                            <button type="button" class="primary-btn close-modal-btn">Close</button>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modalOverlay);
+
+                const close = () => {
+                    if (modalOverlay.parentNode) {
+                        modalOverlay.parentNode.removeChild(modalOverlay);
+                    }
+                    document.removeEventListener('keydown', handleEsc);
+                };
+
+                const handleEsc = (e) => {
+                    if (e.key === 'Escape') close();
+                };
+
+                modalOverlay.querySelector('.close-modal-btn').onclick = close;
+                modalOverlay.onclick = (e) => {
+                    if (e.target === modalOverlay) close();
+                };
+                document.addEventListener('keydown', handleEsc);
+            }
+
+            /**
              * Renders the tournament main page listing available puzzles.
              * Sets up a real-time listener on active/completed puzzles, cross-referencing
              * them against existing submissions to toggle Locked/Started/Submitted statuses.
@@ -581,6 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="submission-stats">
                                         <span class="status-tag">Submitted</span>
                                         <div class="score-summary">${statsText}</div>
+                                        <button type="button" data-id="${p.id}" class="review-grid-btn secondary-btn btn-sm" style="margin-top: 5px;">Review Grid</button>
                                     </div>
                                 `;
                             } else if (isL) {
@@ -590,6 +780,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
 
                             li.innerHTML = `<div class="puzzle-info"><span class="puz-num">#${p.puzzleNumber}</span><span class="puz-name">${p.name}</span><span class="puz-author">by ${p.author}</span><span class="puz-time">(${p.timeLimitSeconds/60}m)</span></div><div class="puzzle-status">${statusHtml}</div>`;
+
+                            if (isS) {
+                                li.style.cursor = 'pointer';
+                                li.onclick = (e) => {
+                                    if (e.target.tagName === 'BUTTON') return;
+                                    showSubmittedGridModal(p, scoreData);
+                                };
+                            }
+
                             ul.appendChild(li);
                         });
                     } else tS.innerHTML = `<h3>Tournament Puzzles</h3><p>No puzzles yet.</p>`;
@@ -598,6 +797,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         btn.onclick = async () => {
                             const pDoc = await db.collection(PUZZLES_COLLECTION).doc(btn.dataset.id).get();
                             if (pDoc.exists) loadPuzzle({ id: pDoc.id, ...pDoc.data() });
+                        };
+                    });
+
+                    document.querySelectorAll('.review-grid-btn').forEach(btn => {
+                        btn.onclick = (e) => {
+                            e.stopPropagation();
+                            const pid = btn.dataset.id;
+                            const p = ts.find(item => item.id === pid);
+                            const scoreData = subs.get(pid);
+                            if (p && scoreData) {
+                                showSubmittedGridModal(p, scoreData);
+                            }
                         };
                     });
                 });
