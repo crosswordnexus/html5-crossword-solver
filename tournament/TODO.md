@@ -41,14 +41,18 @@
 - **Admin Score Override Grid Preview:** When clicking on a score in the live leaderboard, admins can now view the solver's serialized submitted grid rendered in monospace with highlighted wrong letters (bold red uppercase), unfilled blanks (amber), and black blocks, with dynamic font scaling for 21×21 puzzles.
 - **Firebase SDK Upgrade (v10 Compat):** Upgraded from deprecated Firebase v8.10.0 to v10.14.1 (Compat) and added long-polling transport configuration (`experimentalForceLongPolling`) to resolve 10-second connection timeouts caused by stale HTTP/2 streams.
 
+## ✅ Completed (October 2026)
+- **Mobile Settings:** Replaced fragile text-matching with robust class-based selectors (`.cw-settings-button`, `.cw-button-timer`, etc.) and double-wrap protection in `crossword.mobile.js`.
+
 ## 🚀 Near-Term Tasks
 - **Searchable/Sortable Leaderboards:** Add pure JavaScript client-side search and sorting (by name, total score, total time) to the shared leaderboard without adding external libraries.
 - **Test Submission Functionality** Make sure that when the Firestore rules are updated, a user cannot submit twice.
 - **Public-facing leaderboard** Allow just anyone to see the current standings
-- **Mobile Settings** Less fragile mobile settings in crossword.mobile.js on line 120-130
 - **Title in Puzzles** When you edit a puzzle in the "puzzles" admin tab, if it has quotes in the name, the name disappears
 - **iPad buttons** Don't use a drawer for iPad buttons
 - **Alternate Login Methods** Look into phone or email authentication
+- **Click on finished puzzles to reopen them** Just show the user their grid in a modal or something
+- **Access Settings outside of an active puzzle**
 
 ## 🛠 Maintenance
 - **Dependency Audit:** Check if full Firebase SDK v10+ Modular tree-shaking should be adopted if a build tool/bundler is ever introduced (currently using v10 compatibility mode).

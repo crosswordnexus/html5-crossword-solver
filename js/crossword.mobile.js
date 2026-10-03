@@ -114,20 +114,16 @@ $(document).ready(function() {
     const tryWrapLayout = () => {
       const canvas = document.querySelector('.cw-canvas');
       const buttons = document.querySelector('.cw-buttons-holder');
-      if (buttons && buttons.children.length) {
-        const allButtons = Array.from(buttons.children);
-
-        // Match by text content – you can refine this to use classes if needed
-        const file = allButtons.find(btn => btn.textContent.includes('File'));
-        const check = allButtons.find(btn => btn.textContent.includes('Check'));
-        const reveal = allButtons.find(btn => btn.textContent.includes('Reveal'));
-        const settings = allButtons.find(btn => btn.textContent.includes('Settings'));
-        const done = allButtons.find(btn => btn.classList.contains('cw-tournament-submit'));
-        const timer = allButtons.find(btn => btn.textContent.match(/[\d:]+/)); // crude match for timer
+      if (buttons && buttons.children.length && !buttons.querySelector('.cw-buttons-row')) {
+        const file = buttons.querySelector('.cw-file-menu');
+        const check = buttons.querySelector('.cw-check');
+        const reveal = buttons.querySelector('.cw-reveal');
+        const settings = buttons.querySelector('.cw-settings-button');
+        const done = buttons.querySelector('.cw-tournament-submit');
+        const timer = buttons.querySelector('.cw-button-timer');
 
         // Only reflow if all buttons were found (except File/Reveal/Check which might be hidden)
         if (settings && timer) {
-
           const row1 = document.createElement('div');
           row1.className = 'cw-buttons-row';
 
@@ -138,7 +134,7 @@ $(document).ready(function() {
           const row2 = document.createElement('div');
           row2.className = 'cw-buttons-row';
           row2.append(settings, timer);
-          if (done) row2.append(done);          // Clear and re-append
+          if (done) row2.append(done);
           buttons.innerHTML = '';
           buttons.append(row1, row2);
         }

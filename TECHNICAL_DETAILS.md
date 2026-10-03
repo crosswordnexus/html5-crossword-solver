@@ -22,6 +22,7 @@ The solver dynamically adapts to the user's device.
 - **Detection:** `index.html` detects mobile devices and loads `js/crossword.mobile.js`.
 - **Custom Keyboard:** To avoid issues with OS-level virtual keyboards obscuring the grid, the solver implements a custom HTML/CSS keyboard (`createCustomKeyboard`) with a dedicated `REBUS`/`DONE` toggle key and word navigation arrows.
 - **Drawer System:** Clues are often placed in a bottom "drawer" that can be swiped or toggled, maximizing grid visibility.
+- **Toolbar Reflow:** The top action buttons (`.cw-buttons-holder`) are restructured into two compact rows (`.cw-buttons-row`) targeting elements by class: row 1 (`.cw-file-menu`, `.cw-check`, `.cw-reveal`) and row 2 (`.cw-settings-button`, `.cw-button-timer`, `.cw-tournament-submit`).
 - **Viewport Management:** Uses `visualViewport` API and a custom `--vh` CSS variable to handle the complex resizing behavior on mobile browsers when address bars or keyboards appear.
 
 ## 3. Persistent State (Save/Load)
