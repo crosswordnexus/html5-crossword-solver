@@ -35,11 +35,16 @@ $(document).ready(function() {
   });
 
   const isMobile = CrosswordShared.isMobileDevice();
+  const isTablet = (CrosswordShared.isTabletDevice ? CrosswordShared.isTabletDevice() : false) || window.innerWidth >= 768;
   const crosswordRoot = document.querySelector('.crossword');
 
   if (isMobile && crosswordRoot) {
     crosswordRoot.classList.add('mobile');
     document.body.classList.add('mobile-mode');
+    if (isTablet) {
+      crosswordRoot.classList.add('tablet');
+      document.body.classList.add('tablet-mode');
+    }
 
     // Viewport handlers
     window.visualViewport?.addEventListener('resize', detectKeyboardAndResize);
@@ -112,9 +117,10 @@ $(document).ready(function() {
   }
   if (isMobile && crosswordRoot) {
     const tryWrapLayout = () => {
+      const isTabletLayout = (CrosswordShared.isTabletDevice ? CrosswordShared.isTabletDevice() : false) || window.innerWidth >= 768;
       const canvas = document.querySelector('.cw-canvas');
       const buttons = document.querySelector('.cw-buttons-holder');
-      if (buttons && buttons.children.length && !buttons.querySelector('.cw-buttons-row')) {
+      if (!isTabletLayout && buttons && buttons.children.length && !buttons.querySelector('.cw-buttons-row')) {
         const file = buttons.querySelector('.cw-file-menu');
         const check = buttons.querySelector('.cw-check');
         const reveal = buttons.querySelector('.cw-reveal');
@@ -159,6 +165,11 @@ $(document).ready(function() {
       // Build wrapper
       const wrapper = document.createElement('div');
       wrapper.className = 'cw-grid-wrapper';
+
+      // On tablet/iPad: keep buttons in top toolbar (not in drawer)
+      if (isTabletLayout) {
+        wrapper.appendChild(buttons);
+      }
 
       // Append the canvas (grid)
       wrapper.appendChild(canvas);
@@ -223,23 +234,28 @@ $(document).ready(function() {
         }
       });
 
-      // Create drawer container
-      const buttonWrapper = document.createElement('div');
-      buttonWrapper.className = 'cw-buttons-drawer';
+      let handle = null;
+      let buttonWrapper = null;
 
-      // Add drawer to layout before inserting buttons
-      wrapper.appendChild(buttonWrapper);
+      if (!isTabletLayout) {
+        // Create drawer container
+        buttonWrapper = document.createElement('div');
+        buttonWrapper.className = 'cw-buttons-drawer';
 
-      // THEN move buttons inside the drawer
-      buttonWrapper.appendChild(buttons);
+        // Add drawer to layout before inserting buttons
+        wrapper.appendChild(buttonWrapper);
 
-      // Create the handle and append
-      const handle = document.createElement('div');
-      handle.className = 'cw-buttons-handle';
+        // THEN move buttons inside the drawer
+        buttonWrapper.appendChild(buttons);
 
-      // Add drawer to wrapper
-      wrapper.appendChild(handle);
-      wrapper.appendChild(buttonWrapper);
+        // Create the handle and append
+        handle = document.createElement('div');
+        handle.className = 'cw-buttons-handle';
+
+        // Add drawer to wrapper
+        wrapper.appendChild(handle);
+        wrapper.appendChild(buttonWrapper);
+      }
 
       // Create keyboard wrapper and append
       const keyboardWrapper = document.createElement('div');
@@ -392,37 +408,39 @@ $(document).ready(function() {
       })();
 
 
-      // Drawer toggle logic
-      drawer = buttonWrapper;
-      drawerOpen = false; // starts visible
-      drawer.classList.remove('open'); // make sure it's closed on load
-      // Immediately hide the drawer (force rendering to catch transform)
-      requestAnimationFrame(() => {
-        drawer.classList.remove('open');
-      });
-
-      // Click to toggle
-      handle.addEventListener('click', () => {
-        drawerOpen = !drawerOpen;
-        drawer.classList.toggle('open', drawerOpen);
-      });
-
-      // Swipe gesture
-      touchStartY = null;
-      handle.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-      });
-      handle.addEventListener('touchend', (e) => {
-        if (touchStartY === null) return;
-        const deltaY = touchStartY - e.changedTouches[0].clientY;
-        if (deltaY > 30) {
-          drawerOpen = true;
-        } else if (deltaY < -30) {
+      if (!isTabletLayout && handle && buttonWrapper) {
+        // Drawer toggle logic
+        drawer = buttonWrapper;
+        drawerOpen = false; // starts visible
+        drawer.classList.remove('open'); // make sure it's closed on load
+        // Immediately hide the drawer (force rendering to catch transform)
+        requestAnimationFrame(() => {
           drawer.classList.remove('open');
-          drawerOpen = false;
-        }
+        });
+
+        // Click to toggle
+        handle.addEventListener('click', () => {
+          drawerOpen = !drawerOpen;
+          drawer.classList.toggle('open', drawerOpen);
+        });
+
+        // Swipe gesture
         touchStartY = null;
-      });
+        handle.addEventListener('touchstart', (e) => {
+          touchStartY = e.touches[0].clientY;
+        });
+        handle.addEventListener('touchend', (e) => {
+          if (touchStartY === null) return;
+          const deltaY = touchStartY - e.changedTouches[0].clientY;
+          if (deltaY > 30) {
+            drawerOpen = true;
+          } else if (deltaY < -30) {
+            drawer.classList.remove('open');
+            drawerOpen = false;
+          }
+          touchStartY = null;
+        });
+      }
       setTimeout(() => {
         const firstWord = gCrossword.clueGroups[gCrossword.activeClueGroupIndex].getFirstWord();
         gCrossword.setActiveWord(firstWord);
@@ -457,7 +475,7 @@ $(document).ready(function() {
         toggleBtn.innerHTML = `<span class="cw-button-icon">⌨️</span> <span class="cw-keyboard-toggle-text">${isHidden ? 'Show Keyboard' : 'Hide Keyboard'}</span>`;
       };
 
-      const isTablet = window.innerWidth >= 768;
+      const isTablet = (CrosswordShared.isTabletDevice ? CrosswordShared.isTabletDevice() : false) || window.innerWidth >= 768;
       let isHidden = isTablet && localStorage.getItem('cw_hide_virtual_keyboard') === '1';
       if (isHidden) {
         root.classList.add('keyboard-hidden');
