@@ -45,6 +45,10 @@
 - **Searchable/Sortable Leaderboards:** Add pure JavaScript client-side search and sorting (by name, total score, total time) to the shared leaderboard without adding external libraries.
 - **Test Submission Functionality** Make sure that when the Firestore rules are updated, a user cannot submit twice.
 - **Public-facing leaderboard** Allow just anyone to see the current standings
+- **Mobile Settings** Less fragile mobile settings in crossword.mobile.js on line 120-130
+- **Title in Puzzles** When you edit a puzzle in the "puzzles" admin tab, if it has quotes in the name, the name disappears
+- **iPad buttons** Don't use a drawer for iPad buttons
+- **Alternate Login Methods** Look into phone or email authentication
 
 ## 🛠 Maintenance
 - **Dependency Audit:** Check if full Firebase SDK v10+ Modular tree-shaking should be adopted if a build tool/bundler is ever introduced (currently using v10 compatibility mode).
