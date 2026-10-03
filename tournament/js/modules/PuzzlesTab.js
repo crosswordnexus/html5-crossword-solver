@@ -108,24 +108,24 @@ async function renderPuzzleForm(container, db, puzzle = null) {
             <h3>${isEdit ? 'Edit' : 'Add'} Puzzle</h3>
             <form id="puzzleForm">
                 <div class="form-row">
-                    <div class="form-group"><label>Puzzle Name</label><input type="text" name="name" value="${puzzle?.name || ''}" required></div>
-                    <div class="form-group"><label>Author</label><input type="text" name="author" value="${puzzle?.author || ''}" required></div>
+                    <div class="form-group"><label>Puzzle Name</label><input type="text" name="name" required></div>
+                    <div class="form-group"><label>Author</label><input type="text" name="author" required></div>
                 </div>
                 <div class="form-row" style="margin-top:15px">
-                    <div class="form-group"><label>Puzzle Number</label><input type="number" name="puzzleNumber" value="${puzzle?.puzzleNumber || 0}" required></div>
-                    <div class="form-group"><label>Time Limit (s)</label><input type="number" name="timeLimitSeconds" value="${puzzle?.timeLimitSeconds || 900}" required></div>
+                    <div class="form-group"><label>Puzzle Number</label><input type="number" name="puzzleNumber" value="0" required></div>
+                    <div class="form-group"><label>Time Limit (s)</label><input type="number" name="timeLimitSeconds" value="900" required></div>
                 </div>
                 <div class="form-row" style="margin-top:15px">
                     <div class="form-group">
                         <label>Status</label>
                         <select name="status">
-                            <option value="available" ${puzzle?.status === 'available' ? 'selected' : ''}>Available</option>
-                            <option value="locked" ${puzzle?.status === 'locked' ? 'selected' : ''}>Locked</option>
-                            <option value="hidden" ${puzzle?.status === 'hidden' ? 'selected' : ''}>Hidden</option>
+                            <option value="available">Available</option>
+                            <option value="locked">Locked</option>
+                            <option value="hidden">Hidden</option>
                         </select>
                     </div>
                     <div class="form-group" style="display:flex; align-items:center; padding-top:20px; gap:10px;">
-                        <input type="checkbox" name="isWarmup" id="isWarmup" ${puzzle?.isWarmup ? 'checked' : ''}>
+                        <input type="checkbox" name="isWarmup" id="isWarmup">
                         <label for="isWarmup">Warm-up</label>
                     </div>
                 </div>
@@ -140,7 +140,7 @@ async function renderPuzzleForm(container, db, puzzle = null) {
                         ${divisions.map(div => `
                             <div class="mapping-row ${div === 'default' ? 'default-row' : ''}" data-division="${div}">
                                 <label>${div}:</label>
-                                <input type="text" name="file_${div}" value="${puzzle?.filesByDivision?.[div] || (div === 'default' ? (puzzle?.filePath || puzzle?.fileName || '') : '')}" placeholder="filename.ipuz">
+                                <input type="text" name="file_${div}" placeholder="filename.ipuz">
                                 <button type="button" class="secondary-btn btn-sm check-path-btn">Check</button>
                             </div>
                         `).join('')}
@@ -151,6 +151,24 @@ async function renderPuzzleForm(container, db, puzzle = null) {
         </div>
     `;
     container.innerHTML = html;
+
+    const form = container.querySelector('#puzzleForm');
+    if (puzzle) {
+        form.elements['name'].value = puzzle.name || '';
+        form.elements['author'].value = puzzle.author || '';
+        form.elements['puzzleNumber'].value = puzzle.puzzleNumber ?? 0;
+        form.elements['timeLimitSeconds'].value = puzzle.timeLimitSeconds ?? 900;
+        if (puzzle.status) form.elements['status'].value = puzzle.status;
+        form.elements['isWarmup'].checked = !!puzzle.isWarmup;
+
+        divisions.forEach(div => {
+            const input = form.elements[`file_${div}`];
+            if (input) {
+                input.value = puzzle.filesByDivision?.[div] ||
+                    (div === 'default' ? (puzzle.filePath || puzzle.fileName || '') : '');
+            }
+        });
+    }
 
     container.querySelectorAll('.check-path-btn').forEach(btn => {
         btn.onclick = async () => {

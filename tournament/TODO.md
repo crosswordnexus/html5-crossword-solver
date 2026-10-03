@@ -43,12 +43,12 @@
 
 ## ✅ Completed (October 2026)
 - **Mobile Settings:** Replaced fragile text-matching with robust class-based selectors (`.cw-settings-button`, `.cw-button-timer`, etc.) and double-wrap protection in `crossword.mobile.js`.
+- **Puzzle Edit Form Quoting:** Form fields in `PuzzlesTab.js` are now populated via DOM element properties (`form.elements[...]`) rather than HTML string interpolation, preventing titles or authors containing quotes from disappearing or truncating.
 
 ## 🚀 Near-Term Tasks
 - **Searchable/Sortable Leaderboards:** Add pure JavaScript client-side search and sorting (by name, total score, total time) to the shared leaderboard without adding external libraries.
 - **Test Submission Functionality** Make sure that when the Firestore rules are updated, a user cannot submit twice.
 - **Public-facing leaderboard** Allow just anyone to see the current standings
-- **Title in Puzzles** When you edit a puzzle in the "puzzles" admin tab, if it has quotes in the name, the name disappears
 - **iPad buttons** Don't use a drawer for iPad buttons
 - **Alternate Login Methods** Look into phone or email authentication
 - **Click on finished puzzles to reopen them** Just show the user their grid in a modal or something
