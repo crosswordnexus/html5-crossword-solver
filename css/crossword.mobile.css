@@ -534,6 +534,63 @@ html.mobile-mode {
 }
 
 @media (min-width: 768px) {
+  .crossword.mobile .cw-buttons-holder {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 6px 4px 6px;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    background: transparent;
+  }
+
+  .crossword.mobile .cw-buttons-holder .cw-button {
+    flex: 0 1 auto;
+    font-size: 0.85em;
+    padding: 0.4em 0.8em;
+    min-width: 70px;
+    max-width: 120px;
+    height: auto;
+    box-shadow: var(--main-shadow);
+  }
+
+  .crossword.mobile .cw-buttons-holder .cw-button-timer {
+    min-width: 75px;
+    max-width: 100px;
+    border-radius: 999px;
+  }
+
+  .crossword.mobile .cw-buttons-holder .cw-tournament-submit {
+    min-width: 90px;
+    max-width: 120px;
+  }
+
+  .crossword.mobile .cw-buttons-holder .cw-flex-spacer {
+    display: none !important;
+  }
+
+  /* Reset menu dropdown so it opens downwards on tablet */
+  .crossword.mobile .cw-menu {
+    position: absolute;
+    top: 100%;
+    bottom: auto;
+    z-index: 999;
+  }
+
+  /* No drawer handle on tablet */
+  .crossword.mobile .cw-buttons-handle {
+    display: none !important;
+  }
+
+  .crossword.mobile .cw-grid-clue-wrapper {
+    margin-bottom: 5px;
+    height: auto;
+    min-height: 0;
+  }
+
   .crossword.mobile .custom-key {
     width: 6.5%;
     max-width: 50px;
@@ -542,6 +599,61 @@ html.mobile-mode {
   .crossword.mobile .wide-key {
     max-width: 60px;
   }
+}
+
+.crossword.mobile.tablet .cw-buttons-holder {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 4px 6px;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+.crossword.mobile.tablet .cw-buttons-holder .cw-button {
+  flex: 0 1 auto;
+  font-size: 0.85em;
+  padding: 0.4em 0.8em;
+  min-width: 70px;
+  max-width: 120px;
+  height: auto;
+  box-shadow: var(--main-shadow);
+}
+
+.crossword.mobile.tablet .cw-buttons-holder .cw-button-timer {
+  min-width: 75px;
+  max-width: 100px;
+  border-radius: 999px;
+}
+
+.crossword.mobile.tablet .cw-buttons-holder .cw-tournament-submit {
+  min-width: 90px;
+  max-width: 120px;
+}
+
+.crossword.mobile.tablet .cw-buttons-holder .cw-flex-spacer {
+  display: none !important;
+}
+
+.crossword.mobile.tablet .cw-menu {
+  position: absolute;
+  top: 100%;
+  bottom: auto;
+  z-index: 999;
+}
+
+.crossword.mobile.tablet .cw-buttons-handle {
+  display: none !important;
+}
+
+.crossword.mobile.tablet .cw-grid-clue-wrapper {
+  margin-bottom: 5px;
+  height: auto;
+  min-height: 0;
 }
 
 .crossword.mobile .custom-key.cw-key-alt-toggle,
