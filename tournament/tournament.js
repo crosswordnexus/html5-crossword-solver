@@ -490,8 +490,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('backPuz').onclick = renderPuzzleList;
                 
                 try {
-                    const puzzlesSnapshot = await db.collection(PUZZLES_COLLECTION).where('isWarmup', '==', false).orderBy('puzzleNumber', 'asc').get();
-                    const tPuzzles = []; puzzlesSnapshot.forEach(doc => tPuzzles.push({ id: doc.id, ...doc.data() }));
+                    const puzzlesSnapshot = await db.collection(PUZZLES_COLLECTION)
+                        .where('status', 'in', ['available', 'locked'])
+                        .orderBy('puzzleNumber', 'asc')
+                        .get();
+                    const tPuzzles = [];
+                    puzzlesSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (!data.isWarmup) tPuzzles.push({ id: doc.id, ...data });
+                    });
                     const divDoc = await db.collection(CONFIG_COLLECTION).doc('divisions').get();
                     const avDivs = (divDoc.exists && divDoc.data().list) ? divDoc.data().list : ['Easier', 'Harder', 'Pairs'];
                     const filter = document.getElementById('divFilter');
@@ -812,7 +819,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.querySelectorAll('.start-puzzle-btn').forEach(btn => {
                         btn.onclick = async () => {
                             const pDoc = await db.collection(PUZZLES_COLLECTION).doc(btn.dataset.id).get();
-                            if (pDoc.exists) loadPuzzle({ id: pDoc.id, ...pDoc.data() });
+                            if (pDoc.exists) {
+                                const pData = { id: pDoc.id, ...pDoc.data() };
+                                if (!pData.filesByDivision && !pData.filePath) {
+                                    try {
+                                        const secDoc = await db.collection(PUZZLES_COLLECTION).doc(btn.dataset.id).collection('secret').doc('files').get();
+                                        if (secDoc.exists) {
+                                            Object.assign(pData, secDoc.data());
+                                        }
+                                    } catch (err) {
+                                        console.error('Could not fetch secret puzzle files:', err);
+                                        if (window.Toast) Toast.error('Could not access puzzle file. Please verify puzzle is open.');
+                                        return;
+                                    }
+                                }
+                                loadPuzzle(pData);
+                            }
                         };
                     });
 

@@ -64,16 +64,22 @@ export async function renderPuzzlesTab(container, db) {
         container.querySelector('#addPuzzleBtn').onclick = () => renderPuzzleForm(container, db);
 
         container.querySelectorAll('.preview-puzzle-btn').forEach(btn => {
-            btn.onclick = () => {
+            btn.onclick = async () => {
                 const p = puzzles.find(p => p.id === btn.dataset.id);
-                if (p) previewPuzzle(p);
+                if (p) {
+                    await loadSecretFiles(p, db);
+                    previewPuzzle(p);
+                }
             };
         });
 
         container.querySelectorAll('.edit-puzzle-btn').forEach(btn => {
-            btn.onclick = () => {
+            btn.onclick = async () => {
                 const p = puzzles.find(p => p.id === btn.dataset.id);
-                renderPuzzleForm(container, db, p);
+                if (p) {
+                    await loadSecretFiles(p, db);
+                    renderPuzzleForm(container, db, p);
+                }
             };
         });
 
@@ -81,7 +87,9 @@ export async function renderPuzzlesTab(container, db) {
             btn.onclick = async () => {
                 if (confirm('Delete this puzzle?')) {
                     try {
-                        await db.collection(PUZZLES_COLLECTION).doc(btn.dataset.id).delete();
+                        const puzzleRef = db.collection(PUZZLES_COLLECTION).doc(btn.dataset.id);
+                        await puzzleRef.collection('secret').doc('files').delete().catch(() => {});
+                        await puzzleRef.delete();
                         if (window.Toast) window.Toast.success('Puzzle deleted!');
                         renderPuzzlesTab(container, db);
                     } catch (err) {
@@ -203,27 +211,68 @@ async function renderPuzzleForm(container, db, puzzle = null) {
             if (div && v) files[div] = v;
         });
 
-        const data = {
+        const status = fd.get('status');
+        const filePath = files.default || Object.values(files)[0] || '';
+
+        const publicData = {
             name: fd.get('name'),
             author: fd.get('author'),
             puzzleNumber: parseInt(fd.get('puzzleNumber')),
             timeLimitSeconds: parseInt(fd.get('timeLimitSeconds')),
-            status: fd.get('status'),
+            status: status,
             isWarmup: fd.get('isWarmup') === 'on',
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        const secretData = {
+            status: status,
             filesByDivision: files,
-            filePath: files.default || Object.values(files)[0] || '',
+            filePath: filePath,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
         try {
-            if (isEdit) await db.collection(PUZZLES_COLLECTION).doc(puzzle.id).update(data);
-            else await db.collection(PUZZLES_COLLECTION).add({ ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            if (isEdit) {
+                const batch = db.batch();
+                const puzzleRef = db.collection(PUZZLES_COLLECTION).doc(puzzle.id);
+                const secretRef = puzzleRef.collection('secret').doc('files');
+                batch.update(puzzleRef, publicData);
+                batch.set(secretRef, secretData, { merge: true });
+                await batch.commit();
+            } else {
+                const puzzleRef = await db.collection(PUZZLES_COLLECTION).add({
+                    ...publicData,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                await puzzleRef.collection('secret').doc('files').set({
+                    ...secretData,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
             if (window.Toast) window.Toast.success(isEdit ? 'Puzzle updated!' : 'Puzzle created!');
             renderPuzzlesTab(container, db);
         } catch (err) {
             if (window.Toast) window.Toast.error('Save failed: ' + err.message);
         }
     };
+}
+
+/**
+ * Loads secret file mappings for a puzzle from its protected subcollection if not present.
+ */
+async function loadSecretFiles(puzzle, db) {
+    if (!puzzle.filesByDivision) {
+        try {
+            const secDoc = await db.collection(PUZZLES_COLLECTION).doc(puzzle.id).collection('secret').doc('files').get();
+            if (secDoc.exists) {
+                const sec = secDoc.data();
+                puzzle.filesByDivision = sec.filesByDivision || {};
+                puzzle.filePath = sec.filePath || '';
+            }
+        } catch (e) {
+            console.warn('Could not load puzzle secret files:', e);
+        }
+    }
 }
 
 /**
