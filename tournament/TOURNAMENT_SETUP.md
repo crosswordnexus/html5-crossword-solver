@@ -44,10 +44,16 @@ service cloud.firestore {
              exists(/databases/$(database)/documents/admins/$(request.auth.token.email.lower()));
     }
 
-    // Puzzles & Config: Publicly readable by auth users, only Admin can modify
-    match /puzzles/{puzzle} {
-      allow read: if request.auth != null;
+    // Puzzles: Public metadata readable when available or locked; Admin can modify
+    match /puzzles/{puzzleId} {
+      allow read: if isAdmin() || (request.auth != null && resource.data.status in ['available', 'locked']);
       allow write: if isAdmin();
+
+      // Protected puzzle files: only accessible if admin OR (authenticated user AND status is 'available')
+      match /secret/{secretDoc} {
+        allow read: if isAdmin() || (request.auth != null && resource.data.status == 'available');
+        allow write: if isAdmin();
+      }
     }
 
     match /tournament_config/{config} {

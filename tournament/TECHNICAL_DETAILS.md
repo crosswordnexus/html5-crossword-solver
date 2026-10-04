@@ -44,12 +44,21 @@ The system is split into three primary components:
 
 ### `puzzles/` (Collection)
 - **Document ID:** Auto-generated.
-- **Purpose:** Metadata for tournament puzzles.
+- **Purpose:** Public metadata for tournament puzzles (schedule, titles, time limits).
 - **Fields:**
   - `puzzleNumber`: Used for sorting in the UI.
-  - `filename`: The path to the file in `tournament/puzzles/`.
-  - `status`: `0` (Hidden), `1` (Locked), `2` (Open), `3` (Closed).
+  - `name`: Title of the puzzle.
+  - `author`: Puzzle author.
+  - `timeLimitSeconds`: Limit in seconds.
+  - `status`: `'hidden'`, `'locked'`, `'available'`.
   - `isWarmup`: Boolean. Warmup puzzles don't count toward the total score.
+
+#### `puzzles/{puzzleId}/secret/files` (Subcollection Document)
+- **Purpose:** Protected storage of puzzle filenames and division mappings. Shielded by Firestore rules so solvers can only read file paths when the puzzle status is `'available'`.
+- **Fields:**
+  - `status`: Mirrors puzzle status (`'available'`, `'locked'`, `'hidden'`).
+  - `filesByDivision`: Object mapping division names to filenames.
+  - `filePath`: Default puzzle filename.
 
 ### `solvers/` (Collection)
 - **Document ID:** Firebase Auth `uid`.
@@ -130,9 +139,10 @@ When an admin reassigns a participant to a new division in the Admin Dashboard, 
 
 ## 6. Security & Authorization
 Security is enforced via **Firestore Security Rules**.
-- **Admins:** Have read/write access to all collections.
+- **Admins:** Have read/write access to all collections and subcollections.
 - **Participants:**
-  - Can only read puzzles where `status > 0`.
+  - Can only read puzzles where `status` is `'available'` or `'locked'`.
+  - Can only read puzzle file paths (`/secret/files`) when `status` is `'available'`.
   - Can only write to their own `scores` and `solvers` documents.
   - Authorization is checked by comparing the Google Auth email against the `participants` whitelist collection.
 
