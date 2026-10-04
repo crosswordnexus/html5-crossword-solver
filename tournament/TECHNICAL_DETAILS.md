@@ -22,7 +22,7 @@ The system is split into three primary components:
     - `Constants.js`: Centralized Firestore collection names.
     - `PuzzlesTab.js`: Logic for adding/editing puzzle metadata (populates form fields via DOM properties to preserve special characters and quotes).
     - `ParticipantsTab.js`: CSV processing and participant whitelisting.
-    - `LeaderboardTab.js`: Live standings, manual score overrides, and submitted grid inspection modal.
+    - `LeaderboardTab.js`: Live standings, manual score overrides/entries, and submitted grid inspection modal.
     - `ResultsTab.js`: Exportable history of all submissions.
     - `DivisionsTab.js`: Management of tournament tiers.
     - `SettingsTab.js`: Branding and scoring rule configuration.

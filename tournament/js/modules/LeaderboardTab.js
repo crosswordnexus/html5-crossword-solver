@@ -65,7 +65,7 @@ export async function renderLeaderboardTab(container, db, selectedDivision = nul
                 selectedDivision, 
                 tournamentPuzzles,
                 null, // No "You" highlighting in admin view
-                (uid, pid, pData) => openScoreEditModal(uid, pid, pData, db) // Handle cell clicks
+                (uid, pid, pData) => openScoreEditModal(uid, pid, pData, db, selectedDivision) // Handle cell clicks
             );
         } else {
             leaderboardContainer.innerHTML = '<p class="error">Leaderboard component not loaded.</p>';
@@ -167,14 +167,15 @@ function formatSubmittedGrid(gridStr, width, height) {
 }
 
 /**
- * Opens a modal to override or delete a specific score entry.
+ * Opens a modal to enter, override, or delete a score entry.
  */
-function openScoreEditModal(uid, pid, pData, db) {
+function openScoreEditModal(uid, pid, pData, db, selectedDivision = null) {
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'modal-overlay';
     
-    const minutes = Math.floor(pData.time / 60);
-    const seconds = pData.time % 60;
+    const isNew = Boolean(pData.isNew);
+    const minutes = Math.floor((pData.time || 0) / 60);
+    const seconds = (pData.time || 0) % 60;
     const hasGrid = Boolean(pData.submittedGrid && pData.gridWidth && pData.gridHeight);
     const preStyle = (pData.gridWidth >= 21)
         ? 'font-size: 11px; line-height: 1.18; letter-spacing: 1.8px;'
@@ -182,21 +183,23 @@ function openScoreEditModal(uid, pid, pData, db) {
 
     modalOverlay.innerHTML = `
         <div class="edit-score-modal ${hasGrid ? 'with-grid' : ''}">
-            <h3>Override Score</h3>
+            <h3>${isNew ? 'Enter Score' : 'Override Score'}</h3>
             
             <form id="scoreEditForm">
                 <div class="${hasGrid ? 'modal-body-layout' : ''}">
                     <div class="${hasGrid ? 'modal-form-col' : ''}">
                         <p style="font-size:0.9em; margin-bottom:18px; line-height:1.5;">
-                            <strong>Puzzle:</strong> ${pData.puzzleName}<br>
+                            <strong>Puzzle:</strong> ${pData.puzzleName || ('Puzzle ' + (pData.puzzleNumber || pid))}<br>
                             ${pData.solverName ? `<strong>Solver:</strong> ${pData.solverName}<br>` : ''}
-                            <strong>Original Correct:</strong> ${pData.correctWords} / ${pData.totalWords}
+                            ${isNew 
+                                ? '<span style="display:inline-block; margin-top:4px; padding:2px 8px; border-radius:4px; font-size:0.85em; background:#fef3c7; color:#92400e; font-weight:600;">No submission recorded</span>' 
+                                : `<strong>Original Correct:</strong> ${pData.correctWords} / ${pData.totalWords}`}
                         </p>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Total Score</label>
-                                <input type="number" id="editTotalScore" value="${pData.score}" required>
+                                <input type="number" id="editTotalScore" value="${isNew ? '' : pData.score}" placeholder="e.g. 100" required>
                             </div>
                         </div>
                         <div class="form-row" style="margin-top:10px">
@@ -213,7 +216,7 @@ function openScoreEditModal(uid, pid, pData, db) {
                         <div style="margin-top:20px; padding:10px; background:#fdf2f2; border-radius:6px; border:1px solid #f8d7da;">
                             <label style="display:flex; align-items:flex-start; gap:10px; font-size:0.85em; cursor:pointer;">
                                 <input type="checkbox" id="confirmOverride" style="margin-top:3px;">
-                                <span>I confirm that I want to manually override this participant's official score.</span>
+                                <span>I confirm that I want to manually ${isNew ? 'enter' : 'override'} this participant's official score.</span>
                             </label>
                         </div>
                     </div>
@@ -235,9 +238,9 @@ function openScoreEditModal(uid, pid, pData, db) {
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" id="deleteScoreBtn" class="secondary-btn btn-danger" style="margin-right:auto">Delete Entry</button>
-                    <button type="button" id="cancelEditBtn" class="secondary-btn">Cancel</button>
-                    <button type="submit" class="primary-btn">Save Changes</button>
+                    ${!isNew ? '<button type="button" id="deleteScoreBtn" class="secondary-btn btn-danger" style="margin-right:auto">Delete Entry</button>' : ''}
+                    <button type="button" id="cancelEditBtn" class="secondary-btn" style="${isNew ? 'margin-left:auto' : ''}">Cancel</button>
+                    <button type="submit" class="primary-btn">${isNew ? 'Save Score' : 'Save Changes'}</button>
                 </div>
             </form>
         </div>
@@ -248,18 +251,21 @@ function openScoreEditModal(uid, pid, pData, db) {
     const close = () => document.body.removeChild(modalOverlay);
     modalOverlay.querySelector('#cancelEditBtn').onclick = close;
 
-    // Handle Deletion
-    modalOverlay.querySelector('#deleteScoreBtn').onclick = async () => {
-        if (confirm('Permanently delete this score entry? This cannot be undone.')) {
-            try {
-                await db.collection(SCORES_COLLECTION).doc(`${uid}_${pid}`).delete();
-                if (window.Toast) window.Toast.success('Score deleted.');
-                close();
-            } catch (e) { 
-                if (window.Toast) window.Toast.error('Delete failed: ' + e.message); 
+    // Handle Deletion (only for existing scores)
+    const deleteBtn = modalOverlay.querySelector('#deleteScoreBtn');
+    if (deleteBtn) {
+        deleteBtn.onclick = async () => {
+            if (confirm('Permanently delete this score entry? This cannot be undone.')) {
+                try {
+                    await db.collection(SCORES_COLLECTION).doc(`${uid}_${pid}`).delete();
+                    if (window.Toast) window.Toast.success('Score deleted.');
+                    close();
+                } catch (e) { 
+                    if (window.Toast) window.Toast.error('Delete failed: ' + e.message); 
+                }
             }
-        }
-    };
+        };
+    }
 
     // Handle Save
     modalOverlay.querySelector('#scoreEditForm').onsubmit = async (e) => {
@@ -280,16 +286,35 @@ function openScoreEditModal(uid, pid, pData, db) {
             const FieldValue = (window.firebase && window.firebase.firestore) ? 
                                 window.firebase.firestore.FieldValue : null;
 
-            await db.collection(SCORES_COLLECTION).doc(`${uid}_${pid}`).update({
-                totalScore: newScore,
-                timeTaken: newTotalSeconds,
-                isManuallyOverridden: true,
-                overriddenAt: FieldValue ? FieldValue.serverTimestamp() : new Date()
-            });
-            if (window.Toast) window.Toast.success('Score updated!');
+            if (isNew) {
+                const docData = {
+                    uid: uid,
+                    solverName: pData.solverName || 'Solver',
+                    division: pData.division || selectedDivision || '',
+                    puzzleId: pid,
+                    puzzleName: pData.puzzleName || '',
+                    puzzleNumber: pData.puzzleNumber ?? null,
+                    totalScore: newScore,
+                    timeTaken: newTotalSeconds,
+                    isManuallyEntered: true,
+                    isManuallyOverridden: true,
+                    submittedAt: FieldValue ? FieldValue.serverTimestamp() : new Date(),
+                    overriddenAt: FieldValue ? FieldValue.serverTimestamp() : new Date()
+                };
+                await db.collection(SCORES_COLLECTION).doc(`${uid}_${pid}`).set(docData);
+                if (window.Toast) window.Toast.success('Score entered successfully!');
+            } else {
+                await db.collection(SCORES_COLLECTION).doc(`${uid}_${pid}`).update({
+                    totalScore: newScore,
+                    timeTaken: newTotalSeconds,
+                    isManuallyOverridden: true,
+                    overriddenAt: FieldValue ? FieldValue.serverTimestamp() : new Date()
+                });
+                if (window.Toast) window.Toast.success('Score updated!');
+            }
             close();
         } catch (err) {
-            if (window.Toast) window.Toast.error('Update failed: ' + err.message);
+            if (window.Toast) window.Toast.error((isNew ? 'Save failed: ' : 'Update failed: ') + err.message);
         }
     };
 }
