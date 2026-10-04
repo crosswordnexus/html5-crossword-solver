@@ -9,10 +9,11 @@ The Tournament Solver is a client-side web application that uses **Firebase** fo
 - **Hosting:** Static file hosting (GitHub Pages, S3, etc.).
 - **Modularity:** The Admin Dashboard uses **Native ES Modules**.
 
-The system is split into three primary components:
+The system is split into four primary components:
 1.  **Admin Dashboard (`admin.html`/`admin.js`):** A modular SPA (Single Page Application) where each tab is an isolated ES module located in `js/modules/`.
 2.  **Participant Dashboard (`index.html`/`tournament.js`):** Puzzle list, profile setup, and division-specific standings.
 3.  **Solver Bridge (`solve.html`):** A specialized wrapper for the core solver (`js/crosswords.js`) that connects directly to Firebase to record score submissions to Firestore independently of window/tab lifecycle events, while providing a best-effort `postMessage` back to the dashboard if still connected.
+4.  **Public Spectator Leaderboard (`leaderboard.html`):** Standalone, real-time read-only scoreboard for spectators or venue TV displays.
 
 ---
 
