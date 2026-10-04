@@ -19,6 +19,14 @@
     <link rel="stylesheet" href="toast.css">
     <script src="toast.js"></script>
 
+    <!-- Firebase SDKs (v10 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Config (user provided) -->
+    <script src="firebase-config.js"></script>
+
     <style>
       /* Full-screen layout for the solver */
       body {
@@ -75,6 +83,25 @@
         const originalGetCrosswordParams = CrosswordShared.getCrosswordParams.bind(CrosswordShared);
 
         /**
+         * Resolves the current authenticated Firebase user, waiting for auth initialization if necessary.
+         */
+        function getAuthenticatedUser() {
+            return new Promise((resolve) => {
+                if (typeof firebase === 'undefined' || !firebase.auth) {
+                    return resolve(null);
+                }
+                const auth = firebase.auth();
+                if (auth.currentUser) {
+                    return resolve(auth.currentUser);
+                }
+                const unsubscribe = auth.onAuthStateChanged((user) => {
+                    unsubscribe();
+                    resolve(user);
+                });
+            });
+        }
+
+        /**
          * Fetches parameters from the URL and applies tournament overrides.
          */
         function getTournamentParams() {
@@ -83,10 +110,6 @@
             // Centralized tournament mode - engine handles secondary logic
             if (params.tournament_mode) {
                 params.tournament_mode = true;
-
-                if (!window.opener) {
-                    console.warn('WARNING: Dashboard connection lost. Score reporting will fail.');
-                }
             }
 
             /**
@@ -100,7 +123,7 @@
             /**
              * The onSubmitted callback is triggered when the user clicks the manual submit button.
              */
-            params.onSubmitted = (xw) => {
+            params.onSubmitted = async (xw) => {
                 // 1. Check for blank squares
                 let blanks = 0;
                 for (let x in xw.cells) {
@@ -155,25 +178,8 @@
                     }
                 }
 
-                if (!window.opener) {
-                    Toast.error('Tournament window not found. Score could not be reported automatically.');
-                    return;
-                }
-
-                // Report back to the dashboard (tournament.html)
-                window.opener.postMessage({
-                    type: 'CROSSWORD_SOLVED',
-                    puzzleId: params.puzzle_id,
-                    timeTakenSeconds: finalTime,
-                    correctWords: correctWords,
-                    totalWords: totalWords,
-                    submittedGrid: gridString,
-                    gridWidth: width,
-                    gridHeight: height
-                }, '*');
-
                 // Calculate score for display (logic matches tournament.js)
-                const scoring = params.scoring || {};
+                const scoring = params.scoring || { pointsPerWord: 10, timeBonusPerSecond: 1, completionBonus: 180, overtimePenaltyPer4Seconds: 1, minCorrectPercentageForTimeBonus: 0.5 };
                 const isFull = correctWords === totalWords && totalWords > 0;
                 const limit = params.time_limit || 0;
                 let score = correctWords * (scoring.pointsPerWord || 10);
@@ -181,12 +187,26 @@
 
                 let bonus = 0, penalty = 0;
                 if (finalTime <= limit) {
-                    if ((correctWords/totalWords) >= (scoring.minCorrectPercentageForTimeBonus || 0.5))
+                    if (totalWords > 0 && (correctWords/totalWords) >= (scoring.minCorrectPercentageForTimeBonus || 0.5))
                         bonus = (limit - finalTime) * (scoring.timeBonusPerSecond || 1);
                 } else {
                     penalty = Math.floor((finalTime - limit) / 4) * (scoring.overtimePenaltyPer4Seconds || 1);
                 }
                 const totalScore = Math.max(0, score + bonus - penalty);
+
+                const scoreInfo = {
+                    totalScore,
+                    correctWords,
+                    totalWords,
+                    timeTaken: finalTime,
+                    timeLimit: limit,
+                    timeBonus: bonus,
+                    overtimePenalty: penalty,
+                    isFullyCorrect: isFull,
+                    submittedGrid: gridString,
+                    gridWidth: width,
+                    gridHeight: height
+                };
 
                 // Save submission state to localStorage to prevent post-reload edits
                 if (params.puzzle_id) {
@@ -197,11 +217,115 @@
                     }
                 }
 
+                let savedDirectly = false;
+                let saveErrorMessage = null;
+
+                if (params.is_warmup) {
+                    try {
+                        const completed = JSON.parse(localStorage.getItem('completed_warmups') || '[]');
+                        if (!completed.includes(params.puzzle_id)) {
+                            completed.push(params.puzzle_id);
+                            localStorage.setItem('completed_warmups', JSON.stringify(completed));
+                        }
+                        savedDirectly = true;
+                    } catch (e) {
+                        console.error('Failed to save warmup completion to localStorage', e);
+                    }
+                } else {
+                    // Tournament puzzle: submit directly to Firestore
+                    try {
+                        if (typeof firebase !== 'undefined' && firebase.firestore) {
+                            const db = firebase.firestore();
+                            const user = await getAuthenticatedUser();
+                            if (user) {
+                                let solverName = params.solver_name || '';
+                                let division = params.division || '';
+                                let puzzleName = params.puzzle_name || xw.metadata?.title || '';
+                                let puzzleNumber = params.puzzle_number ?? null;
+
+                                // Fallback: lookup solver profile if needed
+                                if (!solverName || !division) {
+                                    try {
+                                        const sDoc = await db.collection('solvers').doc(user.uid).get();
+                                        if (sDoc.exists) {
+                                            const sData = sDoc.data();
+                                            if (!solverName) solverName = sData.displayName || sData.name || '';
+                                            if (!division) division = sData.division || '';
+                                        }
+                                    } catch (e) {
+                                        console.warn('Could not fetch solver profile:', e);
+                                    }
+                                }
+
+                                // Fallback: lookup puzzle metadata if needed
+                                if ((!puzzleName || puzzleNumber === null) && params.puzzle_id) {
+                                    try {
+                                        const pDoc = await db.collection('puzzles').doc(params.puzzle_id).get();
+                                        if (pDoc.exists) {
+                                            const pData = pDoc.data();
+                                            if (!puzzleName) puzzleName = pData.name || '';
+                                            if (puzzleNumber === null) puzzleNumber = pData.puzzleNumber ?? null;
+                                        }
+                                    } catch (e) {
+                                        console.warn('Could not fetch puzzle metadata:', e);
+                                    }
+                                }
+
+                                const docId = `${user.uid}_${params.puzzle_id}`;
+                                await db.collection('scores').doc(docId).set({
+                                    uid: user.uid,
+                                    solverName: solverName || user.displayName || 'Solver',
+                                    division: division || 'Default',
+                                    puzzleId: params.puzzle_id,
+                                    puzzleName: puzzleName,
+                                    puzzleNumber: puzzleNumber,
+                                    ...scoreInfo,
+                                    submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+                                });
+                                savedDirectly = true;
+                            } else {
+                                saveErrorMessage = 'User not authenticated.';
+                            }
+                        } else {
+                            saveErrorMessage = 'Firebase not initialized on this page.';
+                        }
+                    } catch (err) {
+                        console.error('Direct Firestore submission error:', err);
+                        saveErrorMessage = err.message;
+                    }
+                }
+
+                // Best-effort notification to dashboard tab if open
+                if (window.opener && !window.opener.closed) {
+                    try {
+                        window.opener.postMessage({
+                            type: 'CROSSWORD_SOLVED',
+                            puzzleId: params.puzzle_id,
+                            timeTakenSeconds: finalTime,
+                            correctWords: correctWords,
+                            totalWords: totalWords,
+                            submittedGrid: gridString,
+                            gridWidth: width,
+                            gridHeight: height,
+                            scoreInfo: scoreInfo,
+                            scoreSubmitted: savedDirectly
+                        }, '*');
+                    } catch (e) {
+                        console.warn('Could not postMessage to opener:', e);
+                    }
+                }
+
+                // If direct submission failed and opener is not present
+                if (!savedDirectly && !params.is_warmup && (!window.opener || window.opener.closed)) {
+                    Toast.error('Score could not be submitted automatically: ' + (saveErrorMessage || 'Connection lost') + '. Please keep this tab open.');
+                    return;
+                }
+
                 // Custom success message for tournament players
                 setTimeout(() => {
                     const msg = `
                         <div style="text-align:center; padding: 10px;">
-                            <div style="font-size: 1.5em; font-weight: bold; color: #27ae60; margin-bottom: 10px;">Puzzle Submitted!</div>
+                            <div style="font-size: 1.5em; font-weight: bold; color: #27ae60; margin-bottom: 10px;">${params.is_warmup ? 'Warm-up Complete!' : 'Puzzle Submitted!'}</div>
                             <div style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #eee;">
                                 <div style="font-size: 0.9em; color: #666; margin-bottom: 5px;">TOTAL SCORE</div>
                                 <div style="font-size: 2.5em; font-weight: bold; color: #2c3e50;">${totalScore}</div>

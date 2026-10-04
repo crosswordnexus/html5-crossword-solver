@@ -35,11 +35,16 @@ $(document).ready(function() {
   });
 
   const isMobile = CrosswordShared.isMobileDevice();
+  const isTablet = (CrosswordShared.isTabletDevice ? CrosswordShared.isTabletDevice() : false) || window.innerWidth >= 768;
   const crosswordRoot = document.querySelector('.crossword');
 
   if (isMobile && crosswordRoot) {
     crosswordRoot.classList.add('mobile');
     document.body.classList.add('mobile-mode');
+    if (isTablet) {
+      crosswordRoot.classList.add('tablet');
+      document.body.classList.add('tablet-mode');
+    }
 
     // Viewport handlers
     window.visualViewport?.addEventListener('resize', detectKeyboardAndResize);
@@ -112,22 +117,19 @@ $(document).ready(function() {
   }
   if (isMobile && crosswordRoot) {
     const tryWrapLayout = () => {
+      const isTabletLayout = (CrosswordShared.isTabletDevice ? CrosswordShared.isTabletDevice() : false) || window.innerWidth >= 768;
       const canvas = document.querySelector('.cw-canvas');
       const buttons = document.querySelector('.cw-buttons-holder');
-      if (buttons && buttons.children.length) {
-        const allButtons = Array.from(buttons.children);
-
-        // Match by text content – you can refine this to use classes if needed
-        const file = allButtons.find(btn => btn.textContent.includes('File'));
-        const check = allButtons.find(btn => btn.textContent.includes('Check'));
-        const reveal = allButtons.find(btn => btn.textContent.includes('Reveal'));
-        const settings = allButtons.find(btn => btn.textContent.includes('Settings'));
-        const done = allButtons.find(btn => btn.classList.contains('cw-tournament-submit'));
-        const timer = allButtons.find(btn => btn.textContent.match(/[\d:]+/)); // crude match for timer
+      if (!isTabletLayout && buttons && buttons.children.length && !buttons.querySelector('.cw-buttons-row')) {
+        const file = buttons.querySelector('.cw-file-menu');
+        const check = buttons.querySelector('.cw-check');
+        const reveal = buttons.querySelector('.cw-reveal');
+        const settings = buttons.querySelector('.cw-settings-button');
+        const done = buttons.querySelector('.cw-tournament-submit');
+        const timer = buttons.querySelector('.cw-button-timer');
 
         // Only reflow if all buttons were found (except File/Reveal/Check which might be hidden)
         if (settings && timer) {
-
           const row1 = document.createElement('div');
           row1.className = 'cw-buttons-row';
 
@@ -138,7 +140,7 @@ $(document).ready(function() {
           const row2 = document.createElement('div');
           row2.className = 'cw-buttons-row';
           row2.append(settings, timer);
-          if (done) row2.append(done);          // Clear and re-append
+          if (done) row2.append(done);
           buttons.innerHTML = '';
           buttons.append(row1, row2);
         }
@@ -163,6 +165,11 @@ $(document).ready(function() {
       // Build wrapper
       const wrapper = document.createElement('div');
       wrapper.className = 'cw-grid-wrapper';
+
+      // On tablet/iPad: keep buttons in top toolbar (not in drawer)
+      if (isTabletLayout) {
+        wrapper.appendChild(buttons);
+      }
 
       // Append the canvas (grid)
       wrapper.appendChild(canvas);
@@ -206,7 +213,7 @@ $(document).ready(function() {
         const wordId = target.data('word');
         const word = gCrossword.words[wordId];
 
-        if (gCrossword.fakeclues) {
+        if (!word) {
           if (clue) {
             clue.fakeClueCompleted = !Boolean(clue.fakeClueCompleted);
             gCrossword.updateClueAppearance(clue, target);
@@ -214,46 +221,41 @@ $(document).ready(function() {
           return;
         }
 
-        if (!word) return;
-
         const cell = word.getFirstEmptyCell() || word.getFirstCell();
         if (cell) {
           gCrossword.setActiveWord(word);
-          if (gCrossword.clueGroups[gCrossword.activeClueGroupIndex].id !== target.data('clues')) {
-            gCrossword.changeActiveClues();
+          const clickedGroupId = target.data('clues');
+          const groupIdx = (gCrossword.clueGroups || []).findIndex(g => g.id === clickedGroupId);
+          if (groupIdx !== -1 && groupIdx !== gCrossword.activeClueGroupIndex) {
+            gCrossword.cycleWordsAtCell(groupIdx);
           }
           gCrossword.setActiveCell(cell);
-
-          // ✅ Manually trigger clue highlighting
-          gCrossword.clueGroups.forEach(group => {
-            // The first param (`isInactive`) is true for all groups except the active one
-            const isInactive = group !== this.clueGroups[this.activeClueGroupIndex];
-            if (typeof group.markActive === 'function') {
-              group.markActive(cell.x, cell.y, isInactive, gCrossword.fakeclues);
-            }
-          });
-
           gCrossword.renderCells();
         }
       });
 
-      // Create drawer container
-      const buttonWrapper = document.createElement('div');
-      buttonWrapper.className = 'cw-buttons-drawer';
+      let handle = null;
+      let buttonWrapper = null;
 
-      // Add drawer to layout before inserting buttons
-      wrapper.appendChild(buttonWrapper);
+      if (!isTabletLayout) {
+        // Create drawer container
+        buttonWrapper = document.createElement('div');
+        buttonWrapper.className = 'cw-buttons-drawer';
 
-      // THEN move buttons inside the drawer
-      buttonWrapper.appendChild(buttons);
+        // Add drawer to layout before inserting buttons
+        wrapper.appendChild(buttonWrapper);
 
-      // Create the handle and append
-      const handle = document.createElement('div');
-      handle.className = 'cw-buttons-handle';
+        // THEN move buttons inside the drawer
+        buttonWrapper.appendChild(buttons);
 
-      // Add drawer to wrapper
-      wrapper.appendChild(handle);
-      wrapper.appendChild(buttonWrapper);
+        // Create the handle and append
+        handle = document.createElement('div');
+        handle.className = 'cw-buttons-handle';
+
+        // Add drawer to wrapper
+        wrapper.appendChild(handle);
+        wrapper.appendChild(buttonWrapper);
+      }
 
       // Create keyboard wrapper and append
       const keyboardWrapper = document.createElement('div');
@@ -406,37 +408,39 @@ $(document).ready(function() {
       })();
 
 
-      // Drawer toggle logic
-      drawer = buttonWrapper;
-      drawerOpen = false; // starts visible
-      drawer.classList.remove('open'); // make sure it's closed on load
-      // Immediately hide the drawer (force rendering to catch transform)
-      requestAnimationFrame(() => {
-        drawer.classList.remove('open');
-      });
-
-      // Click to toggle
-      handle.addEventListener('click', () => {
-        drawerOpen = !drawerOpen;
-        drawer.classList.toggle('open', drawerOpen);
-      });
-
-      // Swipe gesture
-      touchStartY = null;
-      handle.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-      });
-      handle.addEventListener('touchend', (e) => {
-        if (touchStartY === null) return;
-        const deltaY = touchStartY - e.changedTouches[0].clientY;
-        if (deltaY > 30) {
-          drawerOpen = true;
-        } else if (deltaY < -30) {
+      if (!isTabletLayout && handle && buttonWrapper) {
+        // Drawer toggle logic
+        drawer = buttonWrapper;
+        drawerOpen = false; // starts visible
+        drawer.classList.remove('open'); // make sure it's closed on load
+        // Immediately hide the drawer (force rendering to catch transform)
+        requestAnimationFrame(() => {
           drawer.classList.remove('open');
-          drawerOpen = false;
-        }
+        });
+
+        // Click to toggle
+        handle.addEventListener('click', () => {
+          drawerOpen = !drawerOpen;
+          drawer.classList.toggle('open', drawerOpen);
+        });
+
+        // Swipe gesture
         touchStartY = null;
-      });
+        handle.addEventListener('touchstart', (e) => {
+          touchStartY = e.touches[0].clientY;
+        });
+        handle.addEventListener('touchend', (e) => {
+          if (touchStartY === null) return;
+          const deltaY = touchStartY - e.changedTouches[0].clientY;
+          if (deltaY > 30) {
+            drawerOpen = true;
+          } else if (deltaY < -30) {
+            drawer.classList.remove('open');
+            drawerOpen = false;
+          }
+          touchStartY = null;
+        });
+      }
       setTimeout(() => {
         const firstWord = gCrossword.clueGroups[gCrossword.activeClueGroupIndex].getFirstWord();
         gCrossword.setActiveWord(firstWord);
@@ -471,7 +475,7 @@ $(document).ready(function() {
         toggleBtn.innerHTML = `<span class="cw-button-icon">⌨️</span> <span class="cw-keyboard-toggle-text">${isHidden ? 'Show Keyboard' : 'Hide Keyboard'}</span>`;
       };
 
-      const isTablet = window.innerWidth >= 768;
+      const isTablet = (CrosswordShared.isTabletDevice ? CrosswordShared.isTabletDevice() : false) || window.innerWidth >= 768;
       let isHidden = isTablet && localStorage.getItem('cw_hide_virtual_keyboard') === '1';
       if (isHidden) {
         root.classList.add('keyboard-hidden');
@@ -568,7 +572,9 @@ function createCustomKeyboard() {
       key.className = 'custom-key';
       key.textContent = letter;
       key.addEventListener('click', () => {
-        if (gCrossword?.hidden_input) {
+        if (gCrossword?.enterLetter) {
+          gCrossword.enterLetter(letter);
+        } else if (gCrossword?.hidden_input) {
           gCrossword.hiddenInputChanged(letter);
         }
       });
@@ -592,7 +598,9 @@ function createCustomKeyboard() {
       periodKey.className = 'custom-key period-key';
       periodKey.textContent = '.';
       periodKey.addEventListener('click', () => {
-        if (gCrossword?.hidden_input) {
+        if (gCrossword?.enterLetter) {
+          gCrossword.enterLetter('.');
+        } else if (gCrossword?.hidden_input) {
           gCrossword.hiddenInputChanged('.');
         }
       });

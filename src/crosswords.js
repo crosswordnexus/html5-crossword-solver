@@ -17,7 +17,7 @@ import { updateCSS, getShadeHighlightColor, cellFillColor, cellFontColor } from 
 import { isCorrect, escape, resizeText } from './utils.js';
 import { CluesGroup } from './CluesGroup.js';
 import { Word } from './Word.js';
-import { keyPressed, mouseClicked, clueClicked, backspace } from './input.js';
+import { keyPressed, mouseClicked, clueClicked, backspace, enterLetter } from './input.js';
 import {
   saveGame,
   saveGameImmediate,
@@ -41,7 +41,6 @@ import {
 import {
   loadFileFromServer,
   loadFromFile,
-  make_fake_clues,
   normalizeClueTitle,
   parsePuzzle
 } from './loader.js';
@@ -67,12 +66,15 @@ import {
   checkIfSolved
 } from './validation.js';
 import {
+  cycleWordsAtCell,
   changeActiveClues,
   getCell,
   setActiveWord,
   setActiveCell,
+  refreshSidebarHighlighting,
   skipToWord,
   moveToNextWord,
+  advanceCursor,
   hasUnfilledWords,
   moveToFirstCell,
   moveSelectionBy
@@ -139,6 +141,7 @@ import {
       skip_filled_letters: true,
       arrow_direction: 'arrow_move_filled',
       space_bar: 'space_clear',
+      after_completing_word: 'stay_in_word',
       timer_autostart: false,
       show_timer_option: true,
       allow_timer_toggle: true,
@@ -358,9 +361,9 @@ import {
         this.grid_height = 0;
         this.cells = {};
         this.words = {};
+        this.words_list = [];
 
         this.clueGroups = []; // array of clue groups
-        this.displayClueGroups = null; // for "fakeclues" puzzles
         this.activeClueGroupIndex = 0;
 
         this.selected_word = null;
@@ -388,15 +391,6 @@ import {
       // PUZZLE DATA PARSING & LOADER DELEGATES
       // =========================================================================
 
-      /**
-       * Generates alternative clue lists when clues are stored in non-standard mappings.
-       * @param {Object} puzzle - The raw puzzle JSON structure.
-       * @param {Object} [clue_mapping] - Configured clue mapping properties.
-       * @returns {Array} List of processed clue groups.
-       */
-      make_fake_clues(puzzle, clue_mapping = {}) {
-        return make_fake_clues.call(this, puzzle, clue_mapping);
-      }
 
       /**
        * Initializes or resets the solver variables, visual grids, and structures.
@@ -425,8 +419,8 @@ import {
 
         this.cells = {};
         this.words = {};
+        this.words_list = [];
         this.clueGroups = [];
-        this.displayClueGroups = null;
 
         this.has_reveal = this.config.has_reveal;
         this.has_check = this.config.has_check;
@@ -656,15 +650,14 @@ import {
 
         this.notepad_icon = this.root.find('.cw-button-notepad');
 
-        // === Initial cell selection (diagramless or fakeclues) ===
-        if (this.diagramless_mode || this.fakeclues) {
+        // === Initial cell selection (diagramless mode) ===
+        if (this.diagramless_mode) {
           const firstCell = this.getCell(1, 1);
           if (firstCell) {
             this.setSelectedCell(firstCell);
             this.setSelectedWord(null);
             this.top_text.html(''); // Clear top clue text
-            const initMessage = (this.diagramless_mode ? '[Diagramless Init]' : '[Fakeclues Init]');
-            console.log(initMessage, {
+            console.log('[Diagramless Init]', {
               selected_cell: this.selected_cell,
               selected_word: this.selected_word,
               top_text: this.top_text.html()
@@ -673,12 +666,11 @@ import {
         }
 
         //this.changeActiveClues();
-        (this.displayClueGroups || this.clueGroups || []).forEach(group => {
+        (this.clueGroups || []).forEach(group => {
           // Find the container that matches this group’s ID
           const container = document.querySelector(`.cw-clues[data-group-id="${group.id}"] .cw-clues-items`);
           if (container) {
-            const displayGroup = group; // preserve old logic
-            this.renderClues(displayGroup, container);
+            this.renderClues(group, container);
           }
         });
         this.addListeners();
@@ -694,8 +686,7 @@ import {
 
           extraCluesBtn.onclick = () => {
             let cluesHtml = '<div class="unmatched-clues-modal-wrapper">';
-            // Use displayClueGroups if available, otherwise fallback to clueGroups
-            const groupsToShow = (this.displayClueGroups || this.clueGroups).filter(g => g.isFake);
+            const groupsToShow = (this.clueGroups || []).filter(g => g.isFake);
             groupsToShow.forEach(group => {
               cluesHtml += `<div class="unmatched-clue-group-title">${group.title}</div><div class="unmatched-clues-list">`;
               group.clues.forEach(clue => {
@@ -717,8 +708,7 @@ import {
               const groupId = target.attr('data-clues');
               const wordId = target.attr('data-word');
 
-              // Find group in either collection
-              const clueGroup = (this.displayClueGroups || this.clueGroups).find(g => g.id === groupId);
+              const clueGroup = (this.clueGroups || []).find(g => g.id === groupId);
               if (!clueGroup) return;
 
               const clue = clueGroup.clues.find(c => String(c.wordId) === String(wordId));
@@ -761,7 +751,7 @@ import {
             this.top_text.html('');
           }
         } else {
-          const first_word = this.clueGroups[this.activeClueGroupIndex].getFirstWord?.();
+          const first_word = this.words_list[0];
           if (first_word) {
             this.setActiveWord(first_word);
             const firstCell = first_word.getFirstCell?.();
@@ -917,6 +907,11 @@ import {
        * - If there is only one clue group (e.g., variety puzzles), cycle to the next word containing the selected cell.
        * - If none match, just stay on the next group.
        */
+      cycleWordsAtCell(targetIndex = null) {
+        cycleWordsAtCell.call(this, targetIndex);
+      }
+
+      // Backwards-compatible alias
       changeActiveClues(targetIndex = null) {
         changeActiveClues.call(this, targetIndex);
       }
@@ -931,6 +926,10 @@ import {
 
       setActiveCell(cell) {
         setActiveCell.call(this, cell);
+      }
+
+      refreshSidebarHighlighting() {
+        refreshSidebarHighlighting.call(this);
       }
 
       // Clears canvas and re-renders all cells
@@ -1021,6 +1020,14 @@ import {
         backspace.call(this);
       }
 
+      enterLetter(text) {
+        enterLetter.call(this, text);
+      }
+
+      advanceCursor() {
+        advanceCursor.call(this);
+      }
+
       enterRebusMode() {
         if (!this.selected_cell || this.selected_cell.empty || this.selected_cell.type === 'block') {
           return;
@@ -1056,19 +1063,7 @@ import {
         this.root?.trigger?.('rebusModeChange', { active: false });
 
         if (commit && advance && cell && (this.selected_word || this.diagramless_mode)) {
-          let next_cell;
-          if (this.diagramless_mode) {
-            next_cell = this.nextDiagramlessCell(cell, this.diagramless_dir, 1);
-          } else if (this.config.skip_filled_letters && !this.selected_word.isFilled()) {
-            next_cell =
-              this.selected_word.getFirstEmptyCell(cell.x, cell.y) ||
-              this.selected_word.getNextCell(cell.x, cell.y);
-          } else if (this.selected_word) {
-            next_cell = this.selected_word.getNextCell(cell.x, cell.y);
-          }
-          if (next_cell) {
-            this.setActiveCell(next_cell);
-          }
+          this.advanceCursor();
         }
       }
 
@@ -1133,59 +1128,12 @@ import {
         }
       }
 
-      // Detects user inputs to hidden input element
+      // Detects user inputs to hidden input element or programmatic entry
       hiddenInputChanged(rebus_string) {
-        if (this.rebus_mode) {
-          if (rebus_string && rebus_string.trim()) {
-            this.appendRebusLetter(rebus_string.trim());
-          }
-          this.hidden_input.val('');
-          return;
-        }
-        let next_cell;
-        if (this.selected_cell) {
-          if (rebus_string && rebus_string.trim()) {
-            this.updateCell(this.selected_cell, {
-              letter: rebus_string.toUpperCase() // ✅ Use rebus string if available
-            });
-          } else {
-            const mychar = this.hidden_input.val().slice(0, 1).toUpperCase();
-            if (mychar) {
-              this.updateCell(this.selected_cell, {
-                letter: mychar
-              });
-            }
-          }
-          this.updateCell(this.selected_cell, {
-            checked: false
-          });
-
-          // If this is a coded or acrostic
-          // find all cells with this number
-          // and fill them with the same letter
-          this.autofill();
-
-          // find empty cell, then next cell
-          // Change this depending on config
-          if (this.config.skip_filled_letters) {
-            next_cell =
-              this.selected_word.getFirstEmptyCell(
-                this.selected_cell.x,
-                this.selected_cell.y
-              ) ||
-              this.selected_word.getNextCell(
-                this.selected_cell.x,
-                this.selected_cell.y
-              );
-          } else {
-            next_cell = this.selected_word.getNextCell(
-              this.selected_cell.x,
-              this.selected_cell.y
-            );
-          }
-
-          this.setActiveCell(next_cell);
-          this.checkIfSolved();
+        const val = (rebus_string && rebus_string.trim()) ||
+          this.hidden_input.val().slice(0, 1);
+        if (val) {
+          this.enterLetter(val);
         }
         this.hidden_input.val('');
       }

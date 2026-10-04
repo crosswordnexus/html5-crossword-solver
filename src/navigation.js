@@ -12,71 +12,53 @@ import { IS_MOBILE, SKIP_UP, SKIP_DOWN, SKIP_LEFT, SKIP_RIGHT } from './constant
 import { escape, resizeText } from './utils.js';
 
 /**
- * Switch active clue group or active word.
- * - If targetIndex is provided, jump directly to that clue group.
- * - If there are multiple clue groups, cycle to the next group that contains the selected cell.
- * - If there is only one clue group (e.g., variety puzzles), cycle to the next word containing the selected cell.
- * @param {number|null} targetIndex - Explicit group index to switch to, or null to cycle.
+ * Cycle to the next word in words_list containing the selected cell.
+ * If targetIndex is provided, switches to that clue group instead.
+ * @param {number|null} targetIndex - Explicit clue group index to jump to, or null to cycle words at cell.
  */
-export function changeActiveClues(targetIndex = null) {
+export function cycleWordsAtCell(targetIndex = null) {
   const groups = this.clueGroups || [];
   const n = groups.length;
-  if (!n) return;
 
-  if (n === 1) {
-    const activeGroup = groups[0];
+  if (targetIndex !== null && targetIndex >= 0 && targetIndex < n) {
+    // Explicit jump to a specific clue group (e.g. from clue click in sidebar)
+    this.activeClueGroupIndex = targetIndex;
+    const activeGroup = groups[targetIndex];
     if (this.selected_cell && activeGroup) {
-      const {
-        x,
-        y
-      } = this.selected_cell;
+      const { x, y } = this.selected_cell;
       const word = activeGroup.getMatchingWord(x, y, true);
       if (word) this.setActiveWord(word);
     }
-    this.refreshSidebarHighlighting?.();
+    this.refreshSidebarHighlighting();
     return;
   }
 
-  const curIndex = this.activeClueGroupIndex ?? 0;
-  let newIndex = curIndex;
+  // Double-click / space switch: always move to the next word in words_list containing this square
+  if (this.selected_cell && this.words_list?.length) {
+    const { x, y } = this.selected_cell;
+    const matchingWords = this.words_list.filter(w => w.hasCell(x, y));
 
-  if (targetIndex !== null && targetIndex >= 0 && targetIndex < n) {
-    // Explicit jump — always allow
-    newIndex = targetIndex;
-  } else {
-    // Cycle forward until we find a group that matches the selected cell
-    for (let i = 1; i <= n; i++) {
-      const idx = (curIndex + i) % n;
-      if (!this.selected_cell) {
-        newIndex = idx;
-        break;
+    if (matchingWords.length > 0) {
+      let nextWord = matchingWords[0];
+      if (this.selected_word) {
+        const curIdx = matchingWords.findIndex(w => w.id === this.selected_word.id);
+        if (curIdx !== -1) {
+          nextWord = matchingWords[(curIdx + 1) % matchingWords.length];
+        }
       }
-      const g = groups[idx];
-      if (g?.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true)) {
-        newIndex = idx;
-        break;
-      }
-      // If we went through all and none matched, default to next anyway
-      if (i === n) newIndex = (curIndex + 1) % n;
+      this.setActiveWord(nextWord);
     }
   }
 
-  // --- Apply the new index ---
-  this.activeClueGroupIndex = newIndex;
-  const activeGroup = groups[newIndex];
+  this.refreshSidebarHighlighting();
+}
 
-  // --- Update selected word if we have a cell ---
-  if (this.selected_cell && activeGroup) {
-    const {
-      x,
-      y
-    } = this.selected_cell;
-    const word = activeGroup.getMatchingWord(x, y, true);
-    if (word) this.setActiveWord(word);
-  }
-
-  // --- Refresh sidebar highlighting (optional but recommended) ---
-  this.refreshSidebarHighlighting?.();
+/**
+ * Backwards-compatible alias for cycleWordsAtCell.
+ * @param {number|null} targetIndex
+ */
+export function changeActiveClues(targetIndex = null) {
+  return cycleWordsAtCell.call(this, targetIndex);
 }
 
 export function getCell(x, y) {
@@ -86,21 +68,56 @@ export function getCell(x, y) {
 export function setActiveWord(word) {
   if (word) {
     this.setSelectedWord(word);
-    const group = this.clueGroups[this.activeClueGroupIndex];
-    if (this.fakeclues || (group && group.isFake)) {
-      this.top_text.html('');
-      return;
+
+    // Keep activeClueGroupIndex in sync:
+    // 1. Check if word ID is listed in group's words_ids
+    let groupIdx = this.clueGroups?.findIndex(g =>
+      (g.words_ids || []).includes(word.id)
+    );
+    // 2. Fallback: match word direction to group title (e.g. unplaced "Down" clue group in BB8)
+    if (groupIdx === -1 || groupIdx === undefined) {
+      if (word.dir) {
+        groupIdx = this.clueGroups?.findIndex(g =>
+          g.title?.trim().toLowerCase() === word.dir.trim().toLowerCase()
+        );
+      }
     }
-    this.top_text.html(`
-      <span class="cw-clue-number">
-        ${escape(word.clue.number)}
-      </span>
-      <span class="cw-clue-text">
-        ${escape(word.clue.text)}
-      </span>
-    `);
-    resizeText(this.root, this.top_text);
+    if (groupIdx !== -1 && groupIdx !== undefined) {
+      this.activeClueGroupIndex = groupIdx;
+    }
+
+    // If the entry has no associated clue (e.g. unclued words or variety puzzles), keep top bar blank
+    if (!word.clue || (!word.clue.number && !word.clue.text)) {
+      this.top_text.html('');
+    } else {
+      this.top_text.html(`
+        <span class="cw-clue-number">
+          ${escape(word.clue.number)}
+        </span>
+        <span class="cw-clue-text">
+          ${escape(word.clue.text)}
+        </span>
+      `);
+      resizeText(this.root, this.top_text);
+    }
+
+    this.refreshSidebarHighlighting?.();
   }
+}
+
+export function refreshSidebarHighlighting() {
+  if (!this.selected_cell) return;
+  const { x, y } = this.selected_cell;
+  const groups = this.clueGroups || [];
+
+  groups.forEach(group => {
+    if (typeof group.markActive === 'function') {
+      const matchingWord = group.getMatchingWord?.(x, y);
+      // The clue is passive if the group's matching word is NOT the currently selected word
+      const isPassive = !matchingWord || !this.selected_word || (matchingWord.id !== this.selected_word.id);
+      group.markActive(x, y, isPassive);
+    }
+  });
 }
 
 export function setActiveCell(cell) {
@@ -108,16 +125,8 @@ export function setActiveCell(cell) {
 
   this.setSelectedCell(cell);
 
-  // Mark active/inactive state for all clue groups
-  const groups = this.clueGroups || [];
-
-  groups.forEach(group => {
-    // The first param (`isInactive`) is true for all groups except the active one
-    const isInactive = group !== this.clueGroups[this.activeClueGroupIndex];
-    if (typeof group.markActive === 'function') {
-      group.markActive(cell.x, cell.y, isInactive, this.fakeclues);
-    }
-  });
+  // Mark active/passive state for all clue groups
+  this.refreshSidebarHighlighting();
 
   // --- Move and focus hidden input ---
   const offset = this.svg.offset();
@@ -135,7 +144,7 @@ export function setActiveCell(cell) {
 }
 
 export function skipToWord(direction) {
-  if (this.selected_cell && this.selected_word) {
+  if (!this.diagramless_mode && this.selected_cell && this.selected_word) {
     let i,
       cell,
       word,
@@ -143,9 +152,14 @@ export function skipToWord(direction) {
       x = this.selected_cell.x,
       y = this.selected_cell.y;
 
+    const targetDir = this.selected_word.dir;
+
     const cellFound = (cell) => {
       if (cell && !cell.empty) {
-        word = this.clueGroups[this.activeClueGroupIndex].getMatchingWord(cell.x, cell.y);
+        const wordsAtCell = (this.words_list || []).filter(w => w.hasCell(cell.x, cell.y));
+        word = targetDir
+          ? wordsAtCell.find(w => w.dir === targetDir)
+          : wordsAtCell.find(w => w.id !== this.selected_word.id);
         if (word && word.id !== this.selected_word.id) {
           word_cell = word.getFirstEmptyCell() || word.getFirstCell();
           this.setActiveWord(word);
@@ -195,48 +209,84 @@ export function skipToWord(direction) {
 }
 
 export function moveToNextWord(to_previous, skip_filled_words = false) {
-  if (!this.selected_word || !this.clueGroups?.length) return;
+  if (this.diagramless_mode || !this.words_list?.length) return;
 
-  let next_word = null;
-  let this_word = this.selected_word;
-  let groupIndex = this.activeClueGroupIndex ?? 0;
-  const totalGroups = this.clueGroups.length;
-  let safetyCounter = 0; // counts how many times we've wrapped between groups
-  const shouldSkipFilledWords =
-    skip_filled_words && this.hasUnfilledWords();
+  const wordsList = this.words_list;
+  const total = wordsList.length;
+  const shouldSkipFilledWords = skip_filled_words && this.hasUnfilledWords();
+  const step = to_previous ? -1 : 1;
 
-  while (safetyCounter < totalGroups * 2) {
-    const currentGroup = this.clueGroups[groupIndex];
-
-    // Try to get next/prev word within the current group
-    next_word = to_previous ?
-      currentGroup.getPreviousWord(this_word) :
-      currentGroup.getNextWord(this_word);
-
-    if (!next_word) {
-      // Reached end/start of group — wrap to next/previous group
-      groupIndex = (groupIndex + 1) % totalGroups;
-      this.activeClueGroupIndex = groupIndex;
-      safetyCounter++; // only increment when we move between groups
-
-      const nextGroup = this.clueGroups[groupIndex];
-      next_word = to_previous ?
-        nextGroup.getLastWord() :
-        nextGroup.getFirstWord();
-    }
-
-    // Stop if this word is acceptable (either not filled or skipping disabled)
-    if (!shouldSkipFilledWords || !next_word.isFilled()) break;
-
-    // Otherwise, continue searching
-    this_word = next_word;
+  // Find the index of the currently selected word in canonical words_list order
+  let curIdx = -1;
+  if (this.selected_word) {
+    curIdx = wordsList.findIndex(w => w.id === this.selected_word.id);
+  }
+  if (curIdx === -1) {
+    curIdx = to_previous ? 0 : total - 1;
   }
 
-  // Activate new word if found
+  // Iterate forward or backward through words_list in order
+  let next_word = null;
+  for (let i = 1; i <= total; i++) {
+    // Add + total to handle negative indices when traversing backward (Shift+Tab)
+    const idx = (curIdx + i * step + total) % total;
+    const candidate = wordsList[idx];
+    if (!shouldSkipFilledWords || !candidate.isFilled()) {
+      next_word = candidate;
+      break;
+    }
+  }
+
   if (next_word) {
-    const cell = next_word.getFirstEmptyCell() || next_word.getFirstCell();
     this.setActiveWord(next_word);
+    const cell = next_word.getFirstEmptyCell() || next_word.getFirstCell();
     this.setActiveCell(cell);
+  }
+}
+
+/**
+ * Advances the active cell selection following a character entry or rebus commit.
+ * Handles diagramless stepping, word completion jumping, and filled letter skipping.
+ */
+export function advanceCursor() {
+  if (!this.selected_cell) return;
+
+  if (this.diagramless_mode) {
+    const next_cell = this.nextDiagramlessCell(this.selected_cell, this.diagramless_dir, +1);
+    if (next_cell) {
+      this.setActiveCell(next_cell);
+    }
+    return;
+  }
+
+  if (!this.selected_word) return;
+
+  if (this.config.after_completing_word === 'jump_to_next_word' && this.selected_word.isFilled()) {
+    const skip_filled_words = this.config.tab_key === 'tab_skip';
+    this.moveToNextWord(false, skip_filled_words);
+    return;
+  }
+
+  let next_cell = null;
+  if (this.config.skip_filled_letters && !this.selected_word.isFilled()) {
+    next_cell =
+      this.selected_word.getFirstEmptyCell(
+        this.selected_cell.x,
+        this.selected_cell.y
+      ) ||
+      this.selected_word.getNextCell(
+        this.selected_cell.x,
+        this.selected_cell.y
+      );
+  } else {
+    next_cell = this.selected_word.getNextCell(
+      this.selected_cell.x,
+      this.selected_cell.y
+    );
+  }
+
+  if (next_cell) {
+    this.setActiveCell(next_cell);
   }
 }
 
@@ -289,39 +339,15 @@ export function moveSelectionBy(delta_x, delta_y, jumping_over_black) {
     return;
   }
 
-  // All clue groups
-  const groups = this.clueGroups || [];
-  const n = groups.length;
-  if (!n) return;
-
-  // Active clue group
-  let activeGroup = groups[this.activeClueGroupIndex];
-
   // If new cell is outside current word
-  if (!this.selected_word.hasCell(x, y)) {
-    let selectedCellAltWord = null;
-    let newCellAltWord = null;
-    let altGroupIndex = this.activeClueGroupIndex;
+  if (this.selected_word && !this.selected_word.hasCell(x, y)) {
+    // Try to find an alternate word in words_list that includes both current cell and next cell
+    const altWord = (this.words_list || []).find(w =>
+      w.hasCell(this.selected_cell.x, this.selected_cell.y) && w.hasCell(new_cell.x, new_cell.y)
+    );
 
-    // Try to find an alternate word (perhaps in an inactive clue list) that includes current + next cell
-    for (let offset = 1; offset < n; offset++) {
-      const i = (this.activeClueGroupIndex + offset) % n;
-      const group = groups[i];
-      const match1 = group.getMatchingWord(this.selected_cell.x, this.selected_cell.y, true);
-      const match2 = group.getMatchingWord(new_cell.x, new_cell.y, true);
-      if (match1 && match2 && match1.id === match2.id) {
-        selectedCellAltWord = match1;
-        newCellAltWord = match2;
-        altGroupIndex = i;
-        break;
-      }
-    }
-
-    // Case 1: Found a matching word in another group (switch direction)
-    if (selectedCellAltWord && newCellAltWord) {
-      this.activeClueGroupIndex = altGroupIndex;
-      this.changeActiveClues(altGroupIndex);
-      activeGroup = groups[altGroupIndex];
+    if (altWord) {
+      this.setActiveWord(altWord);
 
       // arrow-stay / arrow-move_filled config logic
       if (
@@ -330,27 +356,13 @@ export function moveSelectionBy(delta_x, delta_y, jumping_over_black) {
       ) {
         new_cell = this.selected_cell;
       }
-    }
-
-    // Case 2: If the new cell has no word in the current group, switch groups
-    let newCellActiveWord = activeGroup.getMatchingWord(new_cell.x, new_cell.y, true);
-    if (!newCellActiveWord) {
-      // find the first group that *does* have a word here
-      for (let offset = 1; offset < n; offset++) {
-        const i = (this.activeClueGroupIndex + offset) % n;
-        const group = groups[i];
-        const candidate = group.getMatchingWord(x, y, true);
-        if (candidate) {
-          newCellActiveWord = candidate;
-          this.activeClueGroupIndex = i;
-          break;
-        }
+    } else {
+      // Find a word at new_cell (prefer matching current direction)
+      const wordsAtNewCell = (this.words_list || []).filter(w => w.hasCell(new_cell.x, new_cell.y));
+      let newWord = wordsAtNewCell.find(w => w.dir === this.selected_word.dir) || wordsAtNewCell[0];
+      if (newWord) {
+        this.setActiveWord(newWord);
       }
-    }
-
-    // Always update active word
-    if (newCellActiveWord) {
-      this.setActiveWord(newCellActiveWord);
     }
   }
 

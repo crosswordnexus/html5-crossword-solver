@@ -3,7 +3,7 @@
 This guide outlines the steps required to set up your Firebase project for the Crossword Tournament Solver using Google Authentication and centralized participant management.
 
 ## Overview
-The Tournament Solver uses **Firebase** for authentication, database (Firestore), and tournament configuration. Both Admins and Participants must sign in with a **Google Account**. Access is strictly controlled via whitelists in Firestore.
+The Tournament Solver uses **Firebase** for authentication, database (Firestore), and tournament configuration. Admins and Participants can sign in with a **Google Account** or via a **Passwordless Email Link** (for participants using non-Google providers like Yahoo, Outlook, iCloud, etc.). Access is strictly controlled via email whitelists in Firestore.
 
 ---
 
@@ -94,15 +94,23 @@ service cloud.firestore {
 ```
 3.  Click **"Publish"**.
 
-### 4. Enable Google Authentication
-1.  In the left-hand sidebar, click on **"Security"** to expand the menu.
+### 4. Enable Authentication (Google & Email Link)
+1.  In the left-hand sidebar, click on **"Security"** (or Build) to expand the menu.
 2.  Select **"Authentication"**.
 3.  Click **"Get started"** and go to the **"Sign-in method"** tab.
-4.  Enable the **Google** provider.
+4.  **Enable Google Provider:**
+    *   Click **Google**.
+    *   Toggle **Enable**.
     *   **Public-facing name:** Enter your tournament name (e.g., "My Crossword Tournament").
     *   **Support email:** Select your Google email from the dropdown.
     *   Click **Save**.
-5.  **Authorize Your Domain:**
+5.  **Enable Email Link (Passwordless) Provider:**
+    *   Still in the **Sign-in method** tab, click **Email/Password**.
+    *   Toggle **Enable** for Email/Password. *(Note: Firebase nests the passwordless feature inside the general "Email/Password" provider, which is why this main toggle must be turned on. However, the tournament application never uses or requests passwords; solvers experience this purely as a passwordless magic link).*
+    *   Check the box for **Email link (passwordless sign-in)**.
+    *   *Note:* The Firebase console may show a prompt stating *"Passwordless authentication with email link requires additional configuration steps. Follow the steps for your platform."* You can **safely ignore** this warning—the required client-side JavaScript handling is already built into the tournament solver code.
+    *   Click **Save**.
+6.  **Authorize Your Domain:**
     *   Still in the **Authentication** section, click the **"Settings"** tab (at the top of the page, next to *Users* and *Sign-in method*).
     *   In the left-side menu of the Settings page, select **"Authorized domains"**.
     *   Click **"Add domain"**.
@@ -131,7 +139,7 @@ Access to the Admin Dashboard is restricted to emails found in the `admins` coll
 8.  Click **Save**.
 9. **NOTE:** If you want to add other admins, you'll need to repeat this process -- click "Add document" and use the relevant email address.
 
-### 6. Register Your Web App & Get Config
+### 7. Register Your Web App & Get Config
 1.  Navigate back to the **Project Overview** (home icon at the top of the left sidebar).
 2.  Click the **"+ Add app"** button.
 3.  Click the **Web icon (</>)** to register a new web app.
@@ -143,7 +151,14 @@ Access to the Admin Dashboard is restricted to emails found in the `admins` coll
 9.  Paste your config in this file.
 10. Delete the line that reads `import { initializeApp } from "firebase/app";`
 11. Delete the last line (`const app = initializeApp(firebaseConfig);`)
-12. Add the following line at the bottom: `firebase.initializeApp(firebaseConfig);`
+12. Add the following lines at the bottom to initialize Firebase and prevent connection timeouts:
+    ```javascript
+    firebase.initializeApp(firebaseConfig);
+    firebase.firestore().settings({
+        experimentalForceLongPolling: true
+    });
+    ```
+    *(Note: `experimentalForceLongPolling` avoids the 10-second connection timeout caused by browser socket reuse and proxies buffering long-lived streaming connections).*
 
 ### 7. Create Required Firestore Indices
 To enable the live puzzle list and the detailed leaderboard, you must create composite indices in Firestore.

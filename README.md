@@ -72,6 +72,7 @@ You can customize the solver's behavior by passing a parameters object. Here are
 | `skip_filled_letters` | `boolean` | `true` | If true, the cursor skips over already-filled cells. |
 | `arrow_direction`| `string` | `'arrow_move_filled'` | Controls how arrow keys behave (e.g., `'arrow_move_filled'` skips filled cells, `'arrow_always_move'` does not). |
 | `space_bar` | `string` | `'space_clear'` | Defines the action of the spacebar (e.g., `'space_clear'` clears a cell, `'space_toggles_direction'` switches between Across/Down). |
+| `after_completing_word` | `string` | `'stay_in_word'` | Defines behavior after completely filling a word (`'stay_in_word'` or `'jump_to_next_word'`). |
 | `tab_key` | `string` | `'tab_noskip'` | Defines the behavior of the Tab key for navigating clues. |
 | `gray_completed_clues` | `boolean`| `false` | If true, clues are automatically grayed out when the corresponding word is filled. |
 | `timer_autostart`| `boolean`| `false` | If true, the puzzle timer starts automatically on load. |
@@ -82,14 +83,13 @@ You can customize the solver's behavior by passing a parameters object. Here are
 | `save_game_limit` | `number`| `10` | Maximum number of saved games to keep in local storage. |
 
 
-### "Fake Clues" Feature
-The solver supports "fake clues," where clues can be manually grayed out by clicking on them. This is useful for puzzles where not all clues correspond to entries in the grid.
+### "Fake / Unplaced Clues" Feature
+The solver natively supports unplaced or "fake" clues (e.g., clue banks, alphabetized clues, or variety puzzles where clues do not correspond directly to specific numbered grid entries).
 
-This mode can be enabled in two ways:
-1.  **Globally:** Set `fakeclues: true` in the puzzle file's metadata. This makes *all* clues in the puzzle "fake."
-2.  **Per Group:** In the puzzle data, mark a specific clue group with `fake: true`. This enables the manual graying behavior only for that group.
-
-When this mode is active for a clue, the top clue bar will be blank when that clue's word is selected.
+In the data model:
+- Any clue whose `word` property is `null` (or unmapped to an entry in the grid) is treated as an unplaced clue.
+- Clicking an unplaced clue in the sidebar toggles its manual completion state (striking it out / graying it).
+- Unplaced clues never appear in the top clue bar when navigating the grid.
 
 ### Print Functionality
 The solver includes a "Print" option in the File menu, which utilizes `jsPDF` (bundled within `jscrossword_combined.js`) to generate a printable PDF version of the crossword. This feature allows users to print the current state of the puzzle directly from their browser.
@@ -105,6 +105,35 @@ The following parameters allow you to change the solver's color scheme.
 | `background_color_clue` | `string`| `'#666666'` | Background color for block cells containing text. |
 | `font_color_fill`| `string` | `'#000000'` | Font color for filled letters. |
 | `bar_linewidth` | `number`| `3.2` | Line width for cell borders (bars). |
+
+## Development & Building
+
+### Prerequisites
+- Node.js (v18+)
+- npm
+
+### Installation
+Install project dependencies:
+```bash
+npm install
+```
+
+### Building the Bundle
+To compile the JavaScript bundle (`src/` -> `js/crosswords.js`):
+```bash
+npm run build
+```
+This builds the minified IIFE library into `js/crosswords.js` and automatically updates the cache version in `sw.js`.
+
+### Running Tests
+To run the automated Playwright test suite:
+```bash
+npm test
+```
+Or to run with the interactive UI:
+```bash
+npm run test:ui
+```
 
 ## Deployment Note
 **Note:** When building the project, Vite's custom bundler plugin automatically updates the `CACHE_NAME` constant in `sw.js` with a new unique timestamp version (e.g. `const CACHE_NAME = "xw-solver-v20260802133000";`). This automates browser cache invalidation for client updates.

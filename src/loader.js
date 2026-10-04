@@ -52,59 +52,6 @@ export function loadFromFile(file, type, deferred) {
   return deferred;
 }
 
-export function make_fake_clues(puzzle, clue_mapping = {}) {
-  const across_group = new CluesGroup(this, {
-    id: "clues_0",
-    title: 'Across',
-    clues: [],
-    words_ids: [],
-    fake: true,
-  });
-
-  const down_group = new CluesGroup(this, {
-    id: "clues_1",
-    title: 'Down',
-    clues: [],
-    words_ids: [],
-    fake: true,
-  });
-
-  const clueMapping = {};
-  let clueGroups;
-
-  if (!this.realwords) {
-    const entry_mapping = puzzle.get_entry_mapping();
-    const thisGrid = JSCrossword.xwGrid(puzzle.cells);
-    const acrossSet = new Set(
-      Object.values(thisGrid.acrossEntries()).map(entry => entry.word)
-    );
-
-    Object.keys(entry_mapping).forEach((id) => {
-      const entry = entry_mapping[id];
-      const clue = {
-        word: id,
-        number: id,
-        text: '--'
-      };
-      clueMapping[id] = clue;
-      if (acrossSet.has(entry)) {
-        across_group.clues.push(clue);
-        across_group.words_ids.push(id);
-      } else {
-        down_group.clues.push(clue);
-        down_group.words_ids.push(id);
-      }
-    });
-    clueGroups = [across_group, down_group];
-  } else {
-    clueGroups = this.clueGroups;
-  }
-
-  return {
-    clueGroups: clueGroups,
-    clue_mapping: clueMapping
-  };
-}
 
 export function normalizeClueTitle(rawTitle) {
   if (!rawTitle) return '';
@@ -185,22 +132,33 @@ export function parsePuzzle(data) {
 
   const jsxw2_cells = this.loadGame();
   if (jsxw2_cells) {
-    console.log('Loading puzzle from localStorage');
-    const noteObj = JSON.parse(localStorage.getItem(this.savegame_name + "_notes"));
-    if (noteObj && noteObj.length > 0) {
-      for (const entry of noteObj) {
-        this.notes.set(entry.key, entry.value);
+    console.log('Loading puzzle cells from localStorage');
+    puzzle.cells = jsxw2_cells;
+  }
+
+  // Restore notes independently
+  try {
+    const notesStr = localStorage.getItem(this.savegame_name + "_notes");
+    if (notesStr) {
+      const noteObj = JSON.parse(notesStr);
+      if (noteObj && noteObj.length > 0) {
+        for (const entry of noteObj) {
+          if (entry.key != null && entry.key !== 'null') {
+            this.notes.set(entry.key.toString(), entry.value);
+          }
+        }
+        console.log('Restored notes from localStorage:', Array.from(this.notes.entries()));
       }
     }
+  } catch (e) {
+    console.error('Error restoring notes from localStorage:', e);
+  }
 
-    // Restore timer
-    const savedTimer = localStorage.getItem(this.savegame_name + "_timer");
-    if (savedTimer !== null) {
-      this.xw_timer_seconds = parseInt(savedTimer, 10) || 0;
-      console.log('Restored timer from localStorage:', this.xw_timer_seconds);
-    }
-
-    puzzle.cells = jsxw2_cells;
+  // Restore timer independently
+  const savedTimer = localStorage.getItem(this.savegame_name + "_timer");
+  if (savedTimer !== null) {
+    this.xw_timer_seconds = parseInt(savedTimer, 10) || 0;
+    console.log('Restored timer from localStorage:', this.xw_timer_seconds);
   }
 
   const loadedFromStorage = Boolean(jsxw2_cells);
@@ -216,8 +174,6 @@ export function parsePuzzle(data) {
   this.author = puzzle.metadata.author || '';
   this.copyright = puzzle.metadata.copyright || '';
   this.crossword_type = puzzle.metadata.crossword_type;
-  this.fakeclues = puzzle.metadata.fakeclues || false;
-  this.realwords = puzzle.metadata.realwords || false;
   this.is_autofill = puzzle.metadata.autofill || false;
   this.notepad = puzzle.metadata.description || '';
   this.grid_width = puzzle.metadata.width;
@@ -232,9 +188,9 @@ export function parsePuzzle(data) {
     this.is_autofill = true;
   }
 
-  const allGroupsFake = this.fakeclues || (puzzle.clues || []).every(g => g.fake);
-  if (allGroupsFake || this.crossword_type === 'diagramless' || this.crossword_type === 'coded') {
-    // top-text is meaningless if all groups are fake, or for diagramless/coded puzzles
+  const hasAnyCluedWords = (puzzle.clues || []).some(g => (g.clue || []).some(c => c.word));
+  if (!hasAnyCluedWords || this.crossword_type === 'diagramless' || this.crossword_type === 'coded') {
+    // top-text is meaningless if there are no clued words, or for diagramless/coded puzzles
     $('div.cw-top-text-wrapper').css({
       display: 'none'
     });
@@ -371,9 +327,7 @@ export function parsePuzzle(data) {
   let clueMapping = {};
 
   if (this.crossword_type === 'coded') {
-    var fake_clue_obj = this.make_fake_clues(puzzle);
-    this.clueGroups = fake_clue_obj.clueGroups;
-    clueMapping = fake_clue_obj.clue_mapping;
+    this.clueGroups = [];
 
     $('div.cw-clues-holder').css({
       display: 'none'
@@ -392,6 +346,8 @@ export function parsePuzzle(data) {
     // Defensive: if no clues array exists
     const clueSets = puzzle.clues || [];
 
+    let clueIdCounter = 1;
+
     // Create one CluesGroup per clue set
     clueSets.forEach((clueSet, index) => {
       // Normalize title and word IDs
@@ -400,10 +356,14 @@ export function parsePuzzle(data) {
 
       // Populate global mapping for quick lookup
       clues.forEach(clue => {
-        if (clue.word) clueMapping[clue.word] = clue;
+        clue.id = (clueIdCounter++).toString();
+        if (clue.word) {
+          clue.groupTitle = title;
+          clueMapping[clue.word] = clue;
+        }
       });
 
-      const words_ids = clues.map(c => c.word);
+      const words_ids = clues.map(c => c.word).filter(Boolean);
 
       // Create and store CluesGroup instance
       const group = new CluesGroup(this, {
@@ -425,46 +385,57 @@ export function parsePuzzle(data) {
     });
   }
 
-  // Handle fake clues override
-  const num_words = puzzle.words.length;
-  const num_clues = puzzle.clues.map(x => x.clue).flat().length;
-  if (this.fakeclues && num_words != num_clues) {
-    // make a copy of the clue groups for display
-    this.displayClueGroups = [...this.clueGroups];
-    var fake_clue_obj = this.make_fake_clues(puzzle);
-    this.clueGroups = fake_clue_obj.clueGroups;
-    clueMapping = fake_clue_obj.clue_mapping;
-  }
-
   // Update DOM with clue info
   const holder = document.querySelector('.cw-clues-holder');
-  if (!holder) return;
+  if (holder) {
+    holder.innerHTML = ''; // clear old ones
 
-  holder.innerHTML = ''; // clear old ones
+    this.clueGroups.forEach((group, index) => {
+      const div = document.createElement('div');
+      div.classList.add('cw-clues');
+      if (this.config.downsOnly && index === 0) {
+        div.style.display = 'none';
+      }
+      div.dataset.groupId = group.id;
 
-  (this.displayClueGroups || this.clueGroups).forEach((group, index) => {
-    const div = document.createElement('div');
-    div.classList.add('cw-clues');
-    if (this.config.downsOnly && index === 0) {
-      div.style.display = 'none';
-    }
-    div.dataset.groupId = group.id;
+      div.innerHTML = `
+        <div class="cw-clues-title">${group.title}</div>
+        <div class="cw-clues-items"></div>
+      `;
 
-    div.innerHTML = `
-      <div class="cw-clues-title">${group.title}</div>
-      <div class="cw-clues-items"></div>
-    `;
-
-    holder.appendChild(div);
-  });
+      holder.appendChild(div);
+    });
+  }
 
   // === Build words ===
   this.words = {};
+  this.words_list = [];
   for (var i = 0; i < puzzle.words.length; i++) {
     const word = puzzle.words[i];
-    this.words[word.id] = new Word(this, {
+    const associatedClue = clueMapping[word.id];
+
+    // Determine direction:
+    // 1. Explicitly on word if provided
+    let dir = word.dir;
+    // 2. From associated clue's group title if available
+    if (!dir && associatedClue?.groupTitle) {
+      const gTitle = associatedClue.groupTitle.toLowerCase();
+      if (gTitle.includes('across')) dir = 'across';
+      else if (gTitle.includes('down')) dir = 'down';
+      else dir = gTitle;
+    }
+    // 3. Fallback from cell coordinates (horizontal -> across, vertical -> down)
+    if (!dir && word.cells && word.cells.length > 1) {
+      if (word.cells[0][1] === word.cells[1][1]) {
+        dir = 'across';
+      } else if (word.cells[0][0] === word.cells[1][0]) {
+        dir = 'down';
+      }
+    }
+
+    const wordObj = new Word(this, {
       id: word.id,
-      dir: word.dir,
+      dir: dir,
       refs_raw: null,
       cell_ranges: word.cells.map(function(c) {
         return {
@@ -472,8 +443,10 @@ export function parsePuzzle(data) {
           y: (c[1] + 1).toString()
         };
       }),
-      clue: clueMapping[word.id]
+      clue: associatedClue
     });
+    this.words[word.id] = wordObj;
+    this.words_list.push(wordObj);
   }
 
   this.completeLoad();

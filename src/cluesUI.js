@@ -64,13 +64,14 @@ export function renderClues(clues_group, clues_container) {
     // attach metadata
     clue_el.data({
       clue: clue,
+      clueId: clue.id,
       word: clue.word,
       number: clue.number,
       clues: clues_group.id,
-    }).addClass(`cw-clue word-${clue.word} group-${clues_group.id}`);
+    }).addClass(`cw-clue ${clue.id ? `clue-${clue.id}` : ''} ${clue.word ? `word-${clue.word}` : ''} group-${clues_group.id}`);
 
     // restore any saved note
-    const clueNote = notes.get(clue.word);
+    const clueNote = clue.id ? notes.get(clue.id) : undefined;
     if (clueNote !== undefined) {
       clue_el.find('.cw-input').val(clueNote);
       clue_el.find('.cw-edit-container').show();
@@ -111,18 +112,20 @@ export function renderClues(clues_group, clues_container) {
     .on('blur', '.cw-input', function() {
       const $input = $(this);
       const $clue = $input.closest('.cw-clue');
-      const wordId = $clue.data('word');
+      const clueId = $clue.data('clueId');
       const newText = $input.val().trim();
 
       setTimeout(() => {
         const newlyFocused = document.activeElement;
         if (newlyFocused?.classList.contains('cw-hidden-input')) return;
 
+        if (!clueId) return;
+
         if (newText.length > 0) {
-          notes.set(wordId, newText);
+          notes.set(clueId, newText);
         } else {
           $clue.find('.cw-edit-container').hide();
-          notes.delete(wordId);
+          notes.delete(clueId);
         }
         save();
       }, 10);
@@ -145,29 +148,28 @@ export function updateClueAppearance(clue, $el) {
   if (!clue) return;
 
   // Use provided $el or look it up in the DOM using unique identifying info
-  const clueEl = $el || $(document).find(`.cw-clue.word-${clue.word}[data-number="${clue.number}"]`);
+  const clueEl = $el || (clue.word ? $(document).find(`.cw-clue.word-${clue.word}[data-number="${clue.number}"]`) : null);
+  if (!clueEl || !clueEl.length) return;
 
   // We specifically target the clue-text span to avoid graying out the clue number
   const textEl = clueEl.hasClass('cw-clue-text') ? clueEl : clueEl.find('.cw-clue-text');
 
-  const groupId = clueEl.data('clues');
-  const group = this.clueGroups.find(g => g.id === groupId);
+  const word = clue.word && this.words ? this.words[clue.word] : null;
 
-  if (!this.config.gray_completed_clues && (!group || !group.isFake) && !this.fakeclues) {
-    // Reset clue styling if the setting is turned off and this is not a fake clue context
-    textEl.css({
-      "text-decoration": "",
-      "color": ""
-    });
-    return;
-  }
-
-  // Determine if it should be gray based on fakeclues context or word fill state
   let shouldGray = false;
-  if (this.fakeclues || (group && group.isFake)) {
+  if (!word) {
+    // Fake / unplaced clue: manual completion state determines graying
     shouldGray = Boolean(clue.fakeClueCompleted);
-  } else if (clue.word && this.words[clue.word]) {
-    shouldGray = this.words[clue.word].isFilled();
+  } else {
+    // Real clue: automatic graying when word is filled, if config option is enabled
+    if (!this.config.gray_completed_clues) {
+      textEl.css({
+        "text-decoration": "",
+        "color": ""
+      });
+      return;
+    }
+    shouldGray = word.isFilled();
   }
 
   textEl.css({

@@ -257,7 +257,8 @@ button:hover {
     color: #34495e;
 }
 
-.form-group input[type="text"] {
+.form-group input[type="text"],
+.form-group input[type="email"] {
     width: 100%;
     padding: 12px;
     border: 2px solid #ddd;
@@ -267,9 +268,57 @@ button:hover {
     box-sizing: border-box;
 }
 
-.form-group input[type="text"]:focus {
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus {
     border-color: #3498db;
     outline: none;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 22px 0 16px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.auth-divider span {
+    padding: 0 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+}
+
+.magic-link-section {
+    text-align: center;
+}
+
+.magic-link-status {
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-top: 10px;
+    text-align: left;
+}
+
+.magic-link-status.success {
+    background-color: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.magic-link-status.error {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
 }
 
 .division-grid {
@@ -579,10 +628,36 @@ body.dark-mode .form-group label {
     color: #e0e0e0;
 }
 
-body.dark-mode .form-group input[type="text"] {
+body.dark-mode .form-group input[type="text"],
+body.dark-mode .form-group input[type="email"] {
     background-color: #3d3d3d;
     border-color: #555;
     color: #ffffff;
+}
+
+body.dark-mode .auth-divider::before,
+body.dark-mode .auth-divider::after {
+    border-bottom-color: #444;
+}
+
+body.dark-mode .auth-divider span {
+    color: #777;
+}
+
+body.dark-mode .magic-link-section p {
+    color: #aaa !important;
+}
+
+body.dark-mode .magic-link-status.success {
+    background-color: #064e3b;
+    color: #6ee7b7;
+    border-color: #047857;
+}
+
+body.dark-mode .magic-link-status.error {
+    background-color: #7f1d1d;
+    color: #fca5a5;
+    border-color: #991b1b;
 }
 
 body.dark-mode .tournament-footer {
@@ -706,5 +781,223 @@ body.dark-mode .doc-container a,
 body.dark-mode .consent-group a {
     color: #5dade2;
 }
+
+/* --------------------------------------------------------------------------
+   11. Review Grid Modal (Participant Dashboard)
+   -------------------------------------------------------------------------- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.review-grid-modal {
+    background: white;
+    padding: 24px 28px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    box-sizing: border-box;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.review-grid-modal h3 {
+    margin-top: 0;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.review-grid-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+.review-stat-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.review-stat-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.review-stat-val {
+    font-size: 1.15rem;
+    font-weight: bold;
+    color: #1e293b;
+}
+
+.solver-grid-container {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.grid-preview-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.grid-preview-dims {
+    font-size: 0.8rem;
+    font-weight: normal;
+    color: #94a3b8;
+}
+
+.solver-grid-pre {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    margin: 0;
+    padding: 8px 10px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    color: #1e293b;
+    white-space: pre;
+    overflow-x: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    user-select: all;
+}
+
+.g-block {
+    color: #000000;
+    font-weight: bold;
+}
+
+.g-wrong {
+    color: #dc2626;
+    font-weight: bold;
+    background-color: #fee2e2;
+    border-radius: 2px;
+}
+
+.g-blank {
+    color: #d97706;
+    font-weight: bold;
+    background-color: #fef3c7;
+    border-radius: 2px;
+}
+
+.g-rebus {
+    color: #7c3aed;
+    font-weight: bold;
+}
+
+.grid-legend {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    font-size: 0.78rem;
+    color: #64748b;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.modal-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 0.85em;
+}
+
+/* Dark mode overrides for Review Grid Modal */
+body.dark-mode .review-grid-modal {
+    background: #1e293b;
+    color: #e2e8f0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+body.dark-mode .review-grid-modal h3 {
+    border-bottom-color: #334155;
+    color: #f8fafc;
+}
+
+body.dark-mode .review-stat-box {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+body.dark-mode .review-stat-label {
+    color: #94a3b8;
+}
+
+body.dark-mode .review-stat-val {
+    color: #f8fafc;
+}
+
+body.dark-mode .solver-grid-container {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+body.dark-mode .grid-preview-header {
+    color: #94a3b8;
+}
+
+body.dark-mode .solver-grid-pre {
+    background: #0f172a;
+    border-color: #475569;
+    color: #f8fafc;
+}
+
+body.dark-mode .g-block {
+    color: #64748b;
+}
+
+body.dark-mode .g-wrong {
+    color: #f87171;
+    background-color: #450a0a;
+}
+
+body.dark-mode .g-blank {
+    color: #fbbf24;
+    background-color: #451a03;
+}
+
+body.dark-mode .grid-legend {
+    color: #94a3b8;
+}
+
 
 

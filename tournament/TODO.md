@@ -36,14 +36,23 @@
 
 ## ✅ Completed (September 2026)
 - **Division Self-Selection:** Solvers who are whitelisted without a pre-assigned division can now choose their division during initial registration, with full dark mode support and optional division CSV / manual add support in the admin panel.
+- **Terms & Privacy Consent:** Added dedicated `terms.html` and `privacy.html` pages along with a mandatory consent checkbox and timestamp logging during participant registration.
+- **Privacy & Security (Solvers Collection):** Removed email addresses from public `solvers/` documents, updated admin division migration to look up solvers directly by `uid`, preventing email harvesting across participants.
 - **Admin Score Override Grid Preview:** When clicking on a score in the live leaderboard, admins can now view the solver's serialized submitted grid rendered in monospace with highlighted wrong letters (bold red uppercase), unfilled blanks (amber), and black blocks, with dynamic font scaling for 21×21 puzzles.
-- **Leaderboard CSV Export Fix:** Switched from `data:text/csv` URI encoding to a UTF-8 BOM `Blob` with `URL.createObjectURL()`, fixing truncated exports caused by special characters (such as `#` in solver IDs), escaping quotes in nicknames, and sorting by total score and elapsed time.
+- **Firebase SDK Upgrade (v10 Compat):** Upgraded from deprecated Firebase v8.10.0 to v10.14.1 (Compat) and added long-polling transport configuration (`experimentalForceLongPolling`) to resolve 10-second connection timeouts caused by stale HTTP/2 streams.
+
+## ✅ Completed (October 2026)
+- **Mobile Settings:** Replaced fragile text-matching with robust class-based selectors (`.cw-settings-button`, `.cw-button-timer`, etc.) and double-wrap protection in `crossword.mobile.js`.
+- **Puzzle Edit Form Quoting:** Form fields in `PuzzlesTab.js` are now populated via DOM element properties (`form.elements[...]`) rather than HTML string interpolation, preventing titles or authors containing quotes from disappearing or truncating.
+- **Submitted Puzzle Grid Review:** Completed tournament puzzles now show a "Review Grid" button (and clickable card) on the dashboard that opens a modal displaying the solver's score, word accuracy, time, and full serialized grid snapshot in monospace with color-coded errors and blanks.
+- **Passwordless Email Magic Link Auth:** Added side-by-side Email Link authentication on the participant login screen for solvers without Google accounts, matching the existing `participants/{email}` whitelist with zero schema or security rule changes.
 
 ## 🚀 Near-Term Tasks
-- **Privacy & Security (Solvers Collection):** Remove email addresses from public `solvers/` documents or separate public profiles (`displayName`, `division`) from private contact info to prevent authenticated participants from harvesting email addresses.
 - **Searchable/Sortable Leaderboards:** Add pure JavaScript client-side search and sorting (by name, total score, total time) to the shared leaderboard without adding external libraries.
 - **Test Submission Functionality** Make sure that when the Firestore rules are updated, a user cannot submit twice.
+- **Public-facing leaderboard** Allow just anyone to see the current standings
+- **Access Settings outside of an active puzzle**
 
 ## 🛠 Maintenance
-- **Dependency Audit:** Check if Firebase SDK v9+ (Modular) should be adopted (currently using v8 compatibility mode).
+- **Dependency Audit:** Check if full Firebase SDK v10+ Modular tree-shaking should be adopted if a build tool/bundler is ever introduced (currently using v10 compatibility mode).
 - **Mobile Styling:** Further refine the leaderboard grid for very narrow mobile screens.

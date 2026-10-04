@@ -42,12 +42,26 @@ window.CrosswordShared = {
     return params;
   },
 
+  isiPad() {
+    const ua = navigator.userAgent || '';
+    return ua.includes("iPad") || (ua.includes("Mac") && navigator.maxTouchPoints > 1);
+  },
+
   isMobileDevice() {
     const ua = navigator.userAgent || '';
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 1;
-    const isiPad = ua.includes("iPad") || (ua.includes("Mac") && navigator.maxTouchPoints > 1);
+    const isiPad = this.isiPad();
     const isMobileUA = /android|iphone|ipod|mobile/i.test(ua);
     return isTouch && (isMobileUA || isiPad);
+  },
+
+  isTabletDevice() {
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 1;
+    if (!isTouch) return false;
+    if (this.isiPad()) return true;
+    const minDim = Math.min(window.innerWidth, window.innerHeight);
+    const maxDim = Math.max(window.innerWidth, window.innerHeight);
+    return minDim >= 600 && maxDim >= 768;
   },
 
   setupPWAInstallButton(btn) {

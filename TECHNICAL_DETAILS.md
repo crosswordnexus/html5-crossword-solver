@@ -19,9 +19,15 @@ The solver dynamically adapts to the user's device.
 - **Input:** Relies on physical keyboard events captured on the document level.
 
 ### Mobile Mode
-- **Detection:** `index.html` detects mobile devices and loads `js/crossword.mobile.js`.
+- **Detection:** `index.html` calls `CrosswordShared.isMobileDevice()` (which checks touch capability + mobile UA or iPad detection: `ua.includes("iPad") || (ua.includes("Mac") && navigator.maxTouchPoints > 1)`). If true, it dynamically loads `css/crossword.mobile.css` and `js/crossword.mobile.js` instead of the desktop stylesheet and scripts.
+- **DOM Re-wrapping (`tryWrapLayout`):** Mobile mode does not use the default static layout from `TEMPLATE`. Instead, `js/crossword.mobile.js` waits for elements to render, dismantles `.cw-grid`, and reassembles the DOM into `.cw-grid-wrapper`:
+  - A side-by-side flex container (`.cw-grid-clue-wrapper`) holds `.cw-canvas` and `.cw-mobile-clues-side` (clues are displayed side-by-side on screens >= 768px, but hidden on phones < 768px in favor of the single current clue bar).
+  - An optional keyboard toggle button (`.cw-button-keyboard-toggle`) is injected into `.cw-header` for tablet screens (`window.innerWidth >= 768`) to collapse the virtual keyboard when using an external hardware keyboard (persisted in `localStorage` under `cw_hide_virtual_keyboard`).
+- **Toolbar & Drawer System:**
+  - **iPad & Tablets:** On tablets and iPads (`CrosswordShared.isTabletDevice()`, `min-width: 768px`), buttons are **not** hidden in a drawer. The `.cw-buttons-holder` remains statically anchored as a top toolbar across the puzzle area above the side-by-side grid and clues. No drawer or pull handle is rendered. Dropdown menus (`.cw-menu`) open downward (`top: 100%; bottom: auto; position: absolute;`), and `.cw-flex-spacer` is hidden within the toolbar so the timer and submit buttons sit consecutively next to the other controls rather than being right-aligned.
+  - **Phones (< 768px):** On phone screens, to conserve vertical space for the grid and virtual keyboard, the toolbar buttons (`.cw-buttons-holder`) are restructured into two compact rows (`.cw-buttons-row`) inside `.cw-buttons-drawer` with a 24px pull handle (`.cw-buttons-handle`) anchored above the keyboard. The drawer is closed by default (`transform: translateY(100%)`) and opens upward (`.open`, `transform: translateY(-160%)` or `translateY(0)` when keyboard is hidden) via tap or swipe gestures on the handle. Dropdown menus pop upward (`bottom: 100%`).
+- **Toolbar Reflow:** On phones, buttons are restructured into row 1 (`.cw-file-menu`, `.cw-check`, `.cw-reveal`) and row 2 (`.cw-settings-button`, `.cw-button-timer`, `.cw-tournament-submit`). On tablets, buttons retain their standard flex-row layout.
 - **Custom Keyboard:** To avoid issues with OS-level virtual keyboards obscuring the grid, the solver implements a custom HTML/CSS keyboard (`createCustomKeyboard`) with a dedicated `REBUS`/`DONE` toggle key and word navigation arrows.
-- **Drawer System:** Clues are often placed in a bottom "drawer" that can be swiped or toggled, maximizing grid visibility.
 - **Viewport Management:** Uses `visualViewport` API and a custom `--vh` CSS variable to handle the complex resizing behavior on mobile browsers when address bars or keyboards appear.
 
 ## 3. Persistent State (Save/Load)
@@ -63,8 +69,8 @@ Game progress is automatically saved to the browser's `localStorage`.
 
 ### Single Clue List / Variety Puzzles
 - Puzzles with only one clue group (such as certain variety crosswords or single-list formats) allow multiple intersecting words within that single group.
-- Double-clicking an already-selected cell or pressing `Space` (when configured to `space_switch`) invokes `changeActiveClues()`.
-- When `clueGroups.length === 1`, `changeActiveClues()` calls `getMatchingWord(x, y, true)` to cycle focus through intersecting words containing the selected cell.
+- Double-clicking an already-selected cell or pressing `Space` (when configured to `space_switch`) invokes `cycleWordsAtCell()`.
+- `cycleWordsAtCell()` cycles focus through all intersecting words in `words_list` containing the selected cell (`changeActiveClues()` is retained as a backwards-compatible alias).
 
 ## 5. Development & Extension
 
@@ -132,6 +138,23 @@ When extending the solver:
    - Breakpoints are NOT CSS `@media` queries; they are container classes (`.cw-max-width-1200`, `.cw-max-width-1080`, `.cw-max-width-650`, etc.) added dynamically by `setBreakpointClasses(this.root)` in JS based on the root element's width.
 3. **1-Indexed Grid Coordinates**:
    - `this.cells[x][y]` uses **1-indexed** coordinates (`1..grid_width`, `1..grid_height`), while raw `JSCrossword` and cell ranges from puzzle formats are 0-indexed.
+4. **Unified Input Pipeline (`enterLetter` & `advanceCursor`)**:
+   - Letter entry and cursor traversal are unified across platforms:
+     - `enterLetter(text)` in `src/input.js`: Single entry point for letter input (used by desktop `keyPressed`, mobile keyboard taps, and `hiddenInputChanged`). Handles `cell.fixed` protection, rebus appending, cell mutation, `autofill()`, `checkIfSolved()`, and delegates to `advanceCursor()`.
+     - `advanceCursor()` in `src/navigation.js`: Single source of truth for moving the active square after character entry or rebus commit (`exitRebusMode()`). Handles diagramless stepping, word completion jumping (`after_completing_word`), and `skip_filled_letters`.
+5. **Adding Configurable Settings**:
+   - To register and persist a new user setting:
+     1. Add the key name to `CONFIGURABLE_SETTINGS` in `src/constants.js` (enables `localStorage` persistence).
+     2. Add the default value to `default_config` in `src/crosswords.js`.
+     3. Add the control HTML to `openSettings()` in `src/modal.js` using class `settings-changer`.
+     - **Radio groups**: The generic listener assigns `this.config[input.name] = input.id`. Make the radio input `name` the config key, and each radio input `id` the value.
+     - **Checkboxes**: Automatically assign `this.config[input.name] = input.checked` (boolean).
+6. **Word Navigation & Completion Checks**:
+   - `moveToNextWord(to_previous, skip_filled_words)` in `src/navigation.js` is the core routine for word traversal (used by Tab, Shift+Tab, mobile arrows, and word-completion jumps).
+   - Word completion status is checked via `word.isFilled()` (in `src/Word.js`), and puzzle-wide completion state via `this.hasUnfilledWords()`.
+7. **Mobile Drawer vs. Top Toolbar & Menu Direction (`.cw-menu`)**:
+   - In `css/crossword.mobile.css`, `.cw-menu` dropdowns (File, Check, Reveal) are hardcoded with `position: fixed; bottom: 100%; top: auto;` so they open **upward** above the mobile bottom drawer. Repositioning the toolbar back to the top (e.g. on tablets/iPads) requires overriding this to `position: absolute; top: 100%; bottom: auto;`, otherwise dropdown menus will clip or render off the top of the screen.
+   - `crossword.mobile.js` tears down `.cw-grid` during its dynamic DOM rewrapping (`tryWrapLayout`) and inserts `.cw-buttons-holder` into `.cw-buttons-drawer`. `css/crossword.mobile.css` also includes `.cw-grid > .cw-buttons-holder { display: none; }` to hide the buttons before the mobile layout script moves them.
 
 ## 8. Tournament Extension
 
