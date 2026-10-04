@@ -105,7 +105,9 @@ window.TournamentLeaderboard = {
                                                 ${wordRatio}
                                             </td>`;
                                 } else {
-                                    return `<td style="color: #ccc;">—</td>`;
+                                    const clickableClass = onCellClick ? 'score-cell-clickable cursor-pointer score-cell-empty' : '';
+                                    const titleAttr = onCellClick ? ' title="Click to enter score"' : '';
+                                    return `<td class="${clickableClass}" data-uid="${entry.uid}" data-pid="${p.id}"${titleAttr} style="color: #bbb; text-align: center;">—</td>`;
                                 }
                             }).join('')}
                             <td style="white-space: nowrap;">${Math.floor(entry.totalTime / 60)}m ${entry.totalTime % 60}s</td>
@@ -122,7 +124,17 @@ window.TournamentLeaderboard = {
                             const uid = cell.dataset.uid;
                             const pid = cell.dataset.pid;
                             const entry = solverScores[uid];
-                            const pData = entry.puzzles[pid];
+                            const pMatch = tournamentPuzzles.find(p => p.id === pid);
+                            const pData = (entry && entry.puzzles[pid]) ? entry.puzzles[pid] : {
+                                isNew: true,
+                                puzzleId: pid,
+                                puzzleName: pMatch ? (pMatch.name || `Puzzle ${pMatch.puzzleNumber}`) : '',
+                                puzzleNumber: pMatch ? (pMatch.puzzleNumber ?? null) : null,
+                                solverName: entry ? entry.name : '',
+                                division: division,
+                                score: '',
+                                time: 0
+                            };
                             onCellClick(uid, pid, pData);
                         };
                     });
