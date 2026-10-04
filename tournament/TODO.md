@@ -52,7 +52,6 @@
 - **Searchable/Sortable Leaderboards:** Add pure JavaScript client-side search and sorting (by name, total score, total time) to the shared leaderboard without adding external libraries.
 - **Test Submission Functionality** Make sure that when the Firestore rules are updated, a user cannot submit twice.
 - **Public-facing leaderboard** Allow just anyone to see the current standings
-- **iPad buttons** Don't use a drawer for iPad buttons
 - **Access Settings outside of an active puzzle**
 
 ## 🛠 Maintenance
