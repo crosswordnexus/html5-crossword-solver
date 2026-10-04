@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Standings</title>
+    <link rel="stylesheet" href="../css/crossword.shared.css">
+    <link rel="stylesheet" href="tournament.css">
+    <style>
+        .public-leaderboard-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px 40px;
+        }
+        .public-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+        }
+        .public-header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #2c3e50;
+        }
+        body.dark-mode .public-header h1 {
+            color: #ecf0f1;
+        }
+        .public-header .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e8f8f0;
+            color: #27ae60;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        body.dark-mode .public-header .live-badge {
+            background: #1b382b;
+            color: #2ecc71;
+        }
+        .public-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .public-controls-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .public-controls-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        body.dark-mode .public-controls-right {
+            color: #aaa;
+        }
+        .public-controls select {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 0.95rem;
+            background-color: #fff;
+            color: #333;
+        }
+        body.dark-mode .public-controls select {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            border-color: #4b6584;
+        }
+        .public-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        body.dark-mode .public-footer {
+            border-top-color: #34495e;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="public-leaderboard-container">
+        <header class="public-header">
+            <div>
+                <h1 id="tournamentTitle">Crossword Tournament</h1>
+                <div style="font-size: 0.95rem; color: #7f8c8d; margin-top: 4px;">Live Spectator Standings</div>
+            </div>
+            <div class="live-badge">
+                <span class="status-dot"></span> Live Updates
+            </div>
+        </header>
+
+        <div class="public-controls">
+            <div class="public-controls-left">
+                <label for="divFilter" style="font-weight: 600;">Division:</label>
+                <select id="divFilter"></select>
+            </div>
+            <div class="public-controls-right">
+                <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <input type="checkbox" id="autoCycleToggle"> Auto-Cycle (20s)
+                </label>
+                <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <input type="checkbox" id="darkModeToggle"> Dark Mode
+                </label>
+            </div>
+        </div>
+
+        <main id="leaderboard-content" style="overflow-x: auto; min-height: 250px;">
+            <p>Loading standings...</p>
+        </main>
+
+        <footer class="public-footer">
+            <p>Standings update automatically in real-time as scores are submitted.</p>
+            <p style="margin-top: 5px;">Crossword Tournament interface by <a href="https://crosswordnexus.com" target="_blank" style="color: inherit;">Crossword Nexus</a></p>
+        </footer>
+    </div>
+
+    <!-- Firebase SDKs (v10 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+
+    <!-- Shared Leaderboard Logic -->
+    <script src="leaderboard.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Dark Mode
+            const dmToggle = document.getElementById('darkModeToggle');
+            if (dmToggle) {
+                const savedDM = localStorage.getItem('tournamentDarkMode') === 'true';
+                dmToggle.checked = savedDM;
+                if (savedDM) document.body.classList.add('dark-mode');
+                dmToggle.onchange = (e) => {
+                    const isDark = e.target.checked;
+                    localStorage.setItem('tournamentDarkMode', isDark);
+                    if (isDark) document.body.classList.add('dark-mode');
+                    else document.body.classList.remove('dark-mode');
+                };
+            }
+
+            // 2. Initialize Firestore
+            if (typeof firebase === 'undefined' || !firebase.firestore) {
+                document.getElementById('leaderboard-content').innerHTML =
+                    '<p class="error">Firebase configuration missing or not loaded.</p>';
+                return;
+            }
+
+            const db = firebase.firestore();
+            const container = document.getElementById('leaderboard-content');
+            const divFilter = document.getElementById('divFilter');
+            const titleEl = document.getElementById('tournamentTitle');
+
+            // 3. Load Tournament Metadata
+            try {
+                const metaDoc = await db.collection('tournament_config').doc('metadata').get();
+                if (metaDoc.exists && metaDoc.data().tournamentName) {
+                    const name = metaDoc.data().tournamentName;
+                    titleEl.textContent = name;
+                    document.title = name + ' | Live Standings';
+                }
+            } catch (e) {
+                console.warn('Could not load tournament metadata:', e);
+            }
+
+            // 4. Load Divisions
+            let divisions = ['Easier', 'Harder', 'Pairs'];
+            try {
+                const divDoc = await db.collection('tournament_config').doc('divisions').get();
+                if (divDoc.exists && Array.isArray(divDoc.data().list) && divDoc.data().list.length > 0) {
+                    divisions = divDoc.data().list;
+                }
+            } catch (e) {
+                console.warn('Could not load divisions:', e);
+            }
+
+            // URL param support (e.g. ?division=Harder)
+            const urlParams = new URLSearchParams(window.location.search);
+            let currentDivision = urlParams.get('division') || divisions[0];
+            if (!divisions.includes(currentDivision)) currentDivision = divisions[0];
+
+            divisions.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d;
+                opt.textContent = d + ' Division';
+                opt.selected = (d === currentDivision);
+                divFilter.appendChild(opt);
+            });
+
+            // 5. Active Leaderboard Subscription
+            let leaderboardUnsubscribe = null;
+
+            async function displayStandings(division) {
+                if (leaderboardUnsubscribe) {
+                    leaderboardUnsubscribe();
+                    leaderboardUnsubscribe = null;
+                }
+                currentDivision = division;
+                divFilter.value = division;
+
+                // Update URL parameter without reload
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('division', division);
+                window.history.replaceState({}, '', newUrl);
+
+                if (window.TournamentLeaderboard) {
+                    try {
+                        leaderboardUnsubscribe = await window.TournamentLeaderboard.render(
+                            container,
+                            db,
+                            division,
+                            null, // null tells it to dynamically discover puzzle columns from submitted scores!
+                            null, // No "You" highlight
+                            null  // Read-only: no admin cell click
+                        );
+                    } catch (err) {
+                        container.innerHTML = `<div class="error-message" style="display:block;">${window.TournamentLeaderboard.formatError(err)}</div>`;
+                    }
+                } else {
+                    container.innerHTML = '<p class="error">Leaderboard engine not loaded.</p>';
+                }
+            }
+
+            divFilter.onchange = (e) => displayStandings(e.target.value);
+
+            // Initial render
+            await displayStandings(currentDivision);
+
+            // 6. Optional Auto-Cycle (20 seconds) for TVs / Displays
+            const autoCycleToggle = document.getElementById('autoCycleToggle');
+            let cycleInterval = null;
+
+            function updateAutoCycle() {
+                if (cycleInterval) {
+                    clearInterval(cycleInterval);
+                    cycleInterval = null;
+                }
+                if (autoCycleToggle.checked && divisions.length > 1) {
+                    cycleInterval = setInterval(() => {
+                        const idx = divisions.indexOf(currentDivision);
+                        const nextIdx = (idx + 1) % divisions.length;
+                        displayStandings(divisions[nextIdx]);
+                    }, 20000);
+                }
+            }
+
+            autoCycleToggle.onchange = updateAutoCycle;
+        });
+    </script>
+</body>
+</html>

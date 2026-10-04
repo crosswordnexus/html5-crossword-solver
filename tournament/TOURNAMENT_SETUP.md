@@ -56,8 +56,10 @@ service cloud.firestore {
       }
     }
 
+    // Config: Publicly readable for tournament title and divisions
+    // (NOTE: If you want a private leaderboard, change to 'allow read: if request.auth != null;')
     match /tournament_config/{config} {
-      allow read: if request.auth != null;
+      allow read: if true;
       allow write: if isAdmin();
     }
 
@@ -89,9 +91,10 @@ service cloud.firestore {
       allow write: if isAdmin() || (request.auth != null && request.auth.uid == uid);
     }
 
-    // Scores: Publicly readable, Users create their own, Admins can manage all
+    // Scores: Publicly readable for live spectator standings, Users create their own, Admins can manage all
+    // (NOTE: If you want a private leaderboard, change to 'allow read: if request.auth != null;')
     match /scores/{scoreId} {
-      allow read: if request.auth != null;
+      allow read: if true;
       allow write: if isAdmin();
       allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
     }

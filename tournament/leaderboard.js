@@ -21,7 +21,7 @@ window.TournamentLeaderboard = {
      * Renders a live leaderboard into the specified container.
      * @param onCellClick Callback function(uid, puzzleId, currentData)
      */
-    async render(container, db, division, tournamentPuzzles, isMeCallback, onCellClick = null) {
+    async render(container, db, division, tournamentPuzzles = null, isMeCallback = null, onCellClick = null) {
         container.innerHTML = `<p>Loading standings for <strong>${division}</strong>...</p>`;
 
         // LIVE LISTENER: Aggregate scores into a grid
@@ -29,8 +29,16 @@ window.TournamentLeaderboard = {
             .where('division', '==', division)
             .onSnapshot((scoresSnapshot) => {
                 const solverScores = {};
+                const discoveredPuzzles = {};
                 scoresSnapshot.forEach(doc => {
                     const data = doc.data();
+                    if (data.puzzleId && !discoveredPuzzles[data.puzzleId]) {
+                        discoveredPuzzles[data.puzzleId] = {
+                            id: data.puzzleId,
+                            puzzleNumber: data.puzzleNumber ?? 1,
+                            name: data.puzzleName || `Puzzle ${data.puzzleNumber || ''}`
+                        };
+                    }
                     if (!solverScores[data.uid]) {
                         solverScores[data.uid] = {
                             uid: data.uid,
@@ -57,6 +65,10 @@ window.TournamentLeaderboard = {
                     };
                 });
 
+                const activePuzzles = (Array.isArray(tournamentPuzzles) && tournamentPuzzles.length > 0)
+                    ? tournamentPuzzles
+                    : Object.values(discoveredPuzzles).sort((a, b) => (a.puzzleNumber ?? 0) - (b.puzzleNumber ?? 0));
+
                 const leaderboardData = Object.values(solverScores).sort((a, b) => {
                     if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
                     return a.totalTime - b.totalTime;
@@ -75,7 +87,7 @@ window.TournamentLeaderboard = {
                                 <th class="rank">Rank</th>
                                 <th>Solver</th>
                                 <th>Total Score</th>
-                                ${tournamentPuzzles.map(p => `<th>P${p.puzzleNumber}</th>`).join('')}
+                                ${activePuzzles.map(p => `<th>P${p.puzzleNumber}</th>`).join('')}
                                 <th>Total Time</th>
                             </tr>
                         </thead>
@@ -91,7 +103,7 @@ window.TournamentLeaderboard = {
                                 ${isMe ? `<strong>${entry.name} (You)</strong>` : entry.name}
                             </td>
                             <td class="score-cell">${entry.totalScore}</td>
-                            ${tournamentPuzzles.map(p => {
+                            ${activePuzzles.map(p => {
                                 const pResult = entry.puzzles[p.id];
                                 if (pResult) {
                                     const clickableClass = onCellClick ? 'score-cell-clickable cursor-pointer' : '';
@@ -124,7 +136,7 @@ window.TournamentLeaderboard = {
                             const uid = cell.dataset.uid;
                             const pid = cell.dataset.pid;
                             const entry = solverScores[uid];
-                            const pMatch = tournamentPuzzles.find(p => p.id === pid);
+                            const pMatch = activePuzzles.find(p => p.id === pid);
                             const pData = (entry && entry.puzzles[pid]) ? entry.puzzles[pid] : {
                                 isNew: true,
                                 puzzleId: pid,
@@ -149,15 +161,23 @@ window.TournamentLeaderboard = {
     /**
      * Exports leaderboard data for a division as a CSV download.
      */
-    async exportCsv(db, division, tournamentPuzzles) {
+    async exportCsv(db, division, tournamentPuzzles = null) {
         try {
             const scoresSnap = await db.collection('scores')
                 .where('division', '==', division)
                 .get();
 
             const solverScores = {};
+            const discoveredPuzzles = {};
             scoresSnap.forEach(doc => {
                 const data = doc.data();
+                if (data.puzzleId && !discoveredPuzzles[data.puzzleId]) {
+                    discoveredPuzzles[data.puzzleId] = {
+                        id: data.puzzleId,
+                        puzzleNumber: data.puzzleNumber ?? 1,
+                        name: data.puzzleName || `Puzzle ${data.puzzleNumber || ''}`
+                    };
+                }
                 if (!solverScores[data.uid]) {
                     solverScores[data.uid] = { 
                         name: data.solverName, 
@@ -171,19 +191,23 @@ window.TournamentLeaderboard = {
                 solverScores[data.uid].puzzles[data.puzzleId] = data.totalScore;
             });
 
+            const activePuzzles = (Array.isArray(tournamentPuzzles) && tournamentPuzzles.length > 0)
+                ? tournamentPuzzles
+                : Object.values(discoveredPuzzles).sort((a, b) => (a.puzzleNumber ?? 0) - (b.puzzleNumber ?? 0));
+
             const leaderboardData = Object.values(solverScores).sort((a, b) => {
                 if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
                 return a.totalTime - b.totalTime;
             });
 
             let csvContent = "Solver Name,Total Score,Total Time (sec)";
-            tournamentPuzzles.forEach(p => csvContent += `,Puzzle ${p.puzzleNumber} Score`);
+            activePuzzles.forEach(p => csvContent += `,Puzzle ${p.puzzleNumber} Score`);
             csvContent += "\n";
 
             leaderboardData.forEach(entry => {
                 const safeName = (entry.name || '').replace(/"/g, '""');
                 csvContent += `"${safeName}",${entry.totalScore},${entry.totalTime}`;
-                tournamentPuzzles.forEach(p => {
+                activePuzzles.forEach(p => {
                     csvContent += `,${entry.puzzles[p.id] || 0}`;
                 });
                 csvContent += "\n";
