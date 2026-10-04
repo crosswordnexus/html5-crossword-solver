@@ -53,12 +53,6 @@ export async function renderLeaderboardTab(container, db, selectedDivision = nul
 
         // CSV Export functionality
         container.querySelector('#exportCsvBtn').onclick = () => {
-            if (!window.TournamentLeaderboard || !window.TournamentLeaderboard.getCurrentData) {
-                // Since Leaderboard.js doesn't expose data, we'll need to refactor it or re-fetch here.
-                // For simplicity now, let's just trigger a re-fetch of the data for export.
-                exportLeaderboardData(db, selectedDivision, tournamentPuzzles);
-                return;
-            }
             exportLeaderboardData(db, selectedDivision, tournamentPuzzles);
         };
 
@@ -86,7 +80,11 @@ export async function renderLeaderboardTab(container, db, selectedDivision = nul
     }
 }
 
-async function exportLeaderboardData(db, division, tournamentPuzzles) {
+export async function exportLeaderboardData(db, division, tournamentPuzzles) {
+    if (window.TournamentLeaderboard && window.TournamentLeaderboard.exportCsv) {
+        return window.TournamentLeaderboard.exportCsv(db, division, tournamentPuzzles);
+    }
+
     try {
         const scoresSnap = await db.collection(SCORES_COLLECTION)
             .where('division', '==', division)
@@ -108,27 +106,33 @@ async function exportLeaderboardData(db, division, tournamentPuzzles) {
             solverScores[data.uid].puzzles[data.puzzleId] = data.totalScore;
         });
 
-        const leaderboardData = Object.values(solverScores).sort((a, b) => b.totalScore - a.totalScore);
+        const leaderboardData = Object.values(solverScores).sort((a, b) => {
+            if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
+            return a.totalTime - b.totalTime;
+        });
 
-        let csvContent = "data:text/csv;charset=utf-8,Solver Name,Total Score,Total Time (sec)";
+        let csvContent = "Solver Name,Total Score,Total Time (sec)";
         tournamentPuzzles.forEach(p => csvContent += `,Puzzle ${p.puzzleNumber} Score`);
         csvContent += "\n";
 
         leaderboardData.forEach(entry => {
-            csvContent += `"${entry.name}",${entry.totalScore},${entry.totalTime}`;
+            const safeName = (entry.name || '').replace(/"/g, '""');
+            csvContent += `"${safeName}",${entry.totalScore},${entry.totalTime}`;
             tournamentPuzzles.forEach(p => {
                 csvContent += `,${entry.puzzles[p.id] || 0}`;
             });
             csvContent += "\n";
         });
 
-        const encodedUri = encodeURI(csvContent);
+        const blob = new Blob(["\uFEFF", csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
+        link.setAttribute("href", url);
         link.setAttribute("download", `leaderboard_${division}_${new Date().toISOString().slice(0,10)}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     } catch (e) {
         if (window.Toast) window.Toast.error('Export failed: ' + e.message);
     }
