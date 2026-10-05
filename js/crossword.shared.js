@@ -25,6 +25,63 @@ window.CrosswordShared = {
         console.log("[startup] Found lzpuz param — decompressing...");
         const xw = JSCrossword.deserialize(lzpuz);
         console.log("[startup] Loaded LZ puzzle:", xw.metadata.title, "by", xw.metadata.author);
+
+        // Historical compatibility patch:
+        // Puzzles serialized from .puz files before a jscrossword fix had words ordered
+        // numerically (interleaved Across & Down) instead of all Across then Down.
+        // If detected (directions are Across & Down, and word[1] intersects word[0]),
+        // rebuild the word entries and clue associations using xwGrid().
+        const isAcrossDown = xw.clues?.length === 2 &&
+          xw.clues.some(g => /across/i.test(g.title)) &&
+          xw.clues.some(g => /down/i.test(g.title));
+
+        if (isAcrossDown && xw.words?.length >= 2) {
+          const w0 = xw.words[0]?.cells || [];
+          const w1 = xw.words[1]?.cells || [];
+          const intersects = w0.some(([x0, y0]) =>
+            w1.some(([x1, y1]) => x0 === x1 && y0 === y1)
+          );
+
+          if (intersects) {
+            console.log("[startup] Detected out-of-order words from historical puz lz-string; rebuilding with xwGrid()");
+            const grid = typeof xw.grid === 'function' ? xw.grid() : JSCrossword.xwGrid(xw.cells);
+            const acrossMap = grid.acrossEntries();
+            const downMap = grid.downEntries();
+
+            const acrossClues = xw.clues.find(g => /across/i.test(g.title));
+            const downClues = xw.clues.find(g => /down/i.test(g.title));
+
+            const acrossNums = Object.keys(acrossMap).map(Number).sort((a, b) => a - b);
+            const downNums = Object.keys(downMap).map(Number).sort((a, b) => a - b);
+
+            const newWords = [];
+            let wordId = 1;
+
+            for (const num of acrossNums) {
+              const id = String(wordId++);
+              newWords.push({
+                id,
+                cells: acrossMap[num].cells
+              });
+              const clue = acrossClues?.clue?.find(c => Number(c.number) === num);
+              if (clue) clue.word = id;
+            }
+
+            for (const num of downNums) {
+              const id = String(wordId++);
+              newWords.push({
+                id,
+                cells: downMap[num].cells
+              });
+              const clue = downClues?.clue?.find(c => Number(c.number) === num);
+              if (clue) clue.word = id;
+            }
+
+            xw.words = newWords;
+            xw.clues = [acrossClues, downClues];
+          }
+        }
+
         params.puzzle_object = xw;
       } catch (err) {
         console.error("[startup] Failed to load lzpuz:", err);
@@ -95,4 +152,3 @@ window.CrosswordShared = {
     });
   }
 };
-
