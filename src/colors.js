@@ -114,9 +114,10 @@ export function getShadeHighlightColor(cellColor, colorWord, colorNone) {
   if (cellColor && cellColor !== colorNone) {
     return Color.averageColors(colorWord, Color.adjustColor(cellColor, -50));
   } else {
-    return colorWord;
+    return null;
   }
 }
+
 
 export function updateCSS(word, selected) {
   const root = document.documentElement;
@@ -133,7 +134,9 @@ export function updateCSS(word, selected) {
 
   root.style.setProperty("--grid-selected-square-color", selectedColor);
   root.style.setProperty("--grid-selected-word-color", wordColor);
-  root.style.setProperty("--grid-hilite-color", Color.applyHsvTransform(wordColor, { dh: -2.64, ks: 0.536, kv: 0.976 }));
+  //root.style.setProperty("--grid-hilite-color", Color.applyHsvTransform(wordColor, { dh: 0.0, ks: 0.45, kv: 1.0 }));
+  const hiliteColor = Color.averageColors(wordColor, isDark ? '#333333' : '#DFDFDF', 0.4);
+  root.style.setProperty("--grid-hilite-color", hiliteColor);
 
   // For grid lines inside selected areas in dark mode
   if (isDark) {
@@ -203,23 +206,39 @@ export function updateCSS(word, selected) {
 }
 
 /**
- * Determines the fill color for a grid cell based on its state (selection, shading, blocks).
+ * Determines the fill color for a grid cell based on its state and precedence rules:
+ * 1. Block cell: Custom cell color (if any) or default black/dark stroke (--grid-block-color).
+ * 2. Active cell (cursor): The currently selected square (--grid-selected-square-color).
+ * 3. Active word: Other cells in the selected word. Uses shade_highlight_color (a blend of
+ *    word color and cell background) if the cell is shaded; otherwise falls back to
+ *    --grid-selected-word-color.
+ * 4. Partner cells: In autofill, acrostic, or coded puzzles, cells sharing the same clue
+ *    number or label (top_right_number) as the active cell. Uses shade_highlight_color if
+ *    shaded; otherwise falls back to --grid-hilite-color (a distinct tint from word selection).
+ * 5. Static shaded cell: An unselected cell with an explicit background color.
+ * 6. Default cell: An unselected, unshaded cell (--grid-none-color).
+ *
  * @param {Object} cell - The cell model to color.
  * @returns {string} Color hex or CSS variable representation.
  */
 export function cellFillColor(cell) {
   if (cell.type === 'block') {
+    // 1. Block cells
     return cell.color || 'var(--grid-block-color)';
   } else if (this.selected_cell && cell.x === this.selected_cell.x && cell.y === this.selected_cell.y) {
+    // 2. Currently selected cell (cursor focus)
     return 'var(--grid-selected-square-color)';
   } else if (this.selected_word && this.selected_word.hasCell(cell.x, cell.y)) {
+    // 3. Cells in the currently selected word
     return cell.shade_highlight_color || 'var(--grid-selected-word-color)';
   } else if (this.selected_cell && this.number_to_cells[this.selected_cell.number || this.selected_cell.top_right_number]?.includes(cell)) {
-    // highlight partners
-    return cell.shade_highlight_color || 'var(--grid-selected-word-color)';
+    // 4. Partner cells sharing the same number/label (e.g. in autofill/acrostics)
+    return cell.shade_highlight_color || 'var(--grid-hilite-color)';
   } else if (cell.color) {
+    // 5. Unselected shaded cells
     return cell.color;
   } else {
+    // 6. Default unselected, unshaded cells
     return 'var(--grid-none-color)';
   }
 }
