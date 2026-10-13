@@ -192,10 +192,12 @@ export function updateCSS(word, selected) {
   setContrastText("--clue-active-text-color", clueActiveColor);
 
   // Passive clues (gray)
+  /**
   const isWordColorDark = Color.getBrightness(wordColor) < 128;
   const cluePassiveColor = Color.applyHsvTransform(wordColor, { ks: 0, kv: isWordColorDark ? 1.05 : 0.8 });
   root.style.setProperty("--clue-passive-color", cluePassiveColor);
   setContrastText("--clue-passive-text-color", cluePassiveColor);
+  **/
 
   const topTextBgColor = Color.applyHsvTransform(wordColor, { dh: -8.62, ks: 0.157, kv: 1.004 });
   root.style.setProperty("--top-text-wrapper-bg-color", topTextBgColor);

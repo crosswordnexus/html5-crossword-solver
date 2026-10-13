@@ -27,7 +27,7 @@ This file contains shared styles always loaded (mobile or desktop)
     --clues-holder-bg-color: #EDE7DF;
     --clue-active-color: #ffeb3f;
     --clue-active-text-color: #000000;
-    --clue-passive-color: #c3c3c3;
+    --clue-passive-color: #dedede;
     --clue-passive-text-color: #000000;
     --clue-hover-color: #c3c3c3;
     --cluenote-text-color: #000000;
@@ -84,19 +84,19 @@ body.dark-mode {
     --content-bg-color: #1e1e1e;
     --main-text-color: #e0e0e0;
     --copyright-text-color: #aaaaaa;
-    
+
     --button-menu-bg-color: #2c2c2c;
     --button-menu-text-color: #e0e0e0;
 
     --top-text-wrapper-bg-color: #2c2c2c;
     --top-text-wrapper-text-color: #e0e0e0;
-    
+
     --clues-holder-bg-color: #181818;
     --clue-passive-color: #333333;
     --clue-passive-text-color: #dddddd;
     --clue-hover-color: #2a2a2a;
     --cluenote-text-color: #cccccc;
-    
+
     --grid-block-color: #000000;
     --grid-none-color: #1e1e1e;
     --grid-none-text-color: #e0e0e0;
