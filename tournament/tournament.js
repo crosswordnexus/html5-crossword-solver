@@ -570,14 +570,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Automatically prepend directory if not already present
                 let path = filename;
-                if (!path.startsWith('./') && !path.startsWith('../')) {
+                if (!path.startsWith('./') && !path.startsWith('../') && !path.startsWith('http://') && !path.startsWith('https://')) {
                     path = './puzzles/' + filename;
                 }
 
                 const url = new URL('solve.html', window.location.href);
-                url.searchParams.set('puzzle', path);
 
                 const config = { 
+                    puzzle_file: {
+                        url: path,
+                        type: path.slice(path.lastIndexOf('.') + 1)
+                    },
                     tournament_mode: true, 
                     puzzle_id: puzzleData.id, 
                     puzzle_name: puzzleData.name || '',
@@ -657,9 +660,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const solverUrl = new URL('../index.html', window.location.href);
-                solverUrl.searchParams.set('puzzle', puzzleParam);
 
                 const config = {
+                    puzzle_file: {
+                        url: puzzleParam,
+                        type: puzzleParam.slice(puzzleParam.lastIndexOf('.') + 1)
+                    },
                     has_reveal: false,
                     has_check: false
                 };
