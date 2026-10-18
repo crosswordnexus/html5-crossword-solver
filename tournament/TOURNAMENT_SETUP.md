@@ -164,7 +164,7 @@ Access to the Admin Dashboard is restricted to emails found in the `admins` coll
     ```javascript
     firebase.initializeApp(firebaseConfig);
     firebase.firestore().settings({
-        experimentalForceLongPolling: true
+        merge: true
     });
     ```
     *(Note: `experimentalForceLongPolling` avoids the 10-second connection timeout caused by browser socket reuse and proxies buffering long-lived streaming connections).*
