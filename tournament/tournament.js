@@ -570,14 +570,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Automatically prepend directory if not already present
                 let path = filename;
-                if (!path.startsWith('./') && !path.startsWith('../')) {
+                if (!path.startsWith('./') && !path.startsWith('../') && !path.startsWith('http://') && !path.startsWith('https://')) {
                     path = './puzzles/' + filename;
                 }
 
                 const url = new URL('solve.html', window.location.href);
-                url.searchParams.set('puzzle', path);
 
                 const config = { 
+                    puzzle_file: {
+                        url: path,
+                        type: path.slice(path.lastIndexOf('.') + 1)
+                    },
                     tournament_mode: true, 
                     puzzle_id: puzzleData.id, 
                     puzzle_name: puzzleData.name || '',
@@ -595,6 +598,83 @@ document.addEventListener('DOMContentLoaded', () => {
                 const jsonStr = JSON.stringify(config).replace(/[\u007f-\uffff]/g, c => '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4));
                 url.searchParams.set('config', btoa(jsonStr));
                 window.open(url.toString(), '_blank');
+            }
+
+            /**
+             * Resolves full puzzle document data including secret files if needed.
+             * @async
+             * @param {string} puzzleId - The puzzle ID.
+             * @returns {Promise<object|null>}
+             */
+            async function getFullPuzzleData(puzzleId) {
+                const pDoc = await db.collection(PUZZLES_COLLECTION).doc(puzzleId).get();
+                if (!pDoc.exists) {
+                    if (window.Toast) Toast.error('Puzzle not found.');
+                    return null;
+                }
+                const pData = { id: pDoc.id, ...pDoc.data() };
+                if (!pData.filesByDivision && !pData.filePath) {
+                    try {
+                        const secDoc = await db.collection(PUZZLES_COLLECTION).doc(puzzleId).collection('secret').doc('files').get();
+                        if (secDoc.exists) {
+                            Object.assign(pData, secDoc.data());
+                        }
+                    } catch (err) {
+                        console.error('Could not fetch secret puzzle files:', err);
+                        if (window.Toast) Toast.error('Could not access puzzle file. Please verify puzzle is open.');
+                        return null;
+                    }
+                }
+                return pData;
+            }
+
+            /**
+             * Configures parameters and redirects user to index.html in review mode
+             * with check and reveal buttons disabled.
+             * 
+             * @param {object} puzzleData - Identity and settings metadata for the puzzle.
+             */
+            function reviewPuzzle(puzzleData) {
+                let filename = null;
+                if (puzzleData.filesByDivision && currentSolver && currentSolver.division) {
+                    filename = puzzleData.filesByDivision[currentSolver.division] || puzzleData.filesByDivision.default;
+                }
+                if (!filename) filename = puzzleData.filePath || puzzleData.fileName;
+                if (!filename) {
+                    if (window.Toast) Toast.error('Puzzle file not found.');
+                    return;
+                }
+
+                let puzzleParam;
+                if (filename.startsWith('http://') || filename.startsWith('https://')) {
+                    puzzleParam = filename;
+                } else {
+                    let clean = filename.replace(/^\.?\/+/, '');
+                    if (clean.startsWith('tournament/puzzles/')) {
+                        puzzleParam = clean;
+                    } else if (clean.startsWith('puzzles/')) {
+                        puzzleParam = 'tournament/' + clean;
+                    } else {
+                        puzzleParam = 'tournament/puzzles/' + clean;
+                    }
+                }
+
+                const solverUrl = new URL('../index.html', window.location.href);
+
+                const config = {
+                    puzzle_file: {
+                        url: puzzleParam,
+                        type: puzzleParam.slice(puzzleParam.lastIndexOf('.') + 1)
+                    },
+                    color_selected: branding.color_selected,
+                    color_word: branding.color_word,
+                    has_reveal: false,
+                    has_check: false
+                };
+
+                const jsonStr = JSON.stringify(config).replace(/[\u007f-\uffff]/g, c => '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4));
+                solverUrl.searchParams.set('config', btoa(jsonStr));
+                window.open(solverUrl.toString(), '_blank');
             }
 
             /**
@@ -688,7 +768,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         `}
 
-                        <div class="modal-footer">
+                        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px;">
+                            <button type="button" class="secondary-btn review-modal-btn">Review in Solver</button>
                             <button type="button" class="primary-btn close-modal-btn">Close</button>
                         </div>
                     </div>
@@ -706,6 +787,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const handleEsc = (e) => {
                     if (e.key === 'Escape') close();
                 };
+
+                const reviewBtn = modalOverlay.querySelector('.review-modal-btn');
+                if (reviewBtn) {
+                    reviewBtn.onclick = async () => {
+                        const pData = await getFullPuzzleData(puzzle.id);
+                        if (pData) {
+                            reviewPuzzle(pData);
+                        }
+                    };
+                }
 
                 modalOverlay.querySelector('.close-modal-btn').onclick = close;
                 modalOverlay.onclick = (e) => {
@@ -771,7 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const isS = subs.has(p.id) || completedWarmups.includes(p.id);
                             const isL = p.status === 'locked', li = document.createElement('li');
                             li.className = `${isS?'submitted':''} ${isL?'locked':''}`;
-                            li.innerHTML = `<div class="puzzle-info"><span class="puz-name">${p.name}</span><span class="puz-author">by ${p.author}</span><span class="puz-time">(${p.timeLimitSeconds/60}m)</span></div><div class="puzzle-status">${isS?'<button data-id="'+p.id+'" class="start-puzzle-btn resume-btn">Review Warm-up</button>':isL?'<span class="status-tag locked">Locked</span>':'<button data-id="'+p.id+'" class="start-puzzle-btn">Start Warm-up</button>'}</div>`;
+                            li.innerHTML = `<div class="puzzle-info"><span class="puz-name">${p.name}</span><span class="puz-author">by ${p.author}</span><span class="puz-time">(${p.timeLimitSeconds/60}m)</span></div><div class="puzzle-status">${isS?'<button data-id="'+p.id+'" class="review-puzzle-btn secondary-btn resume-btn">Review Warm-up</button>':isL?'<span class="status-tag locked">Locked</span>':'<button data-id="'+p.id+'" class="start-puzzle-btn">Start Warm-up</button>'}</div>`;
                             ul.appendChild(li);
                         });
                     } else wS.innerHTML = '';
@@ -793,7 +884,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="submission-stats">
                                         <span class="status-tag">Submitted</span>
                                         <div class="score-summary">${statsText}</div>
-                                        <button type="button" data-id="${p.id}" class="review-grid-btn secondary-btn btn-sm" style="margin-top: 5px;">Review Grid</button>
+                                        <button type="button" data-id="${p.id}" class="review-puzzle-btn secondary-btn btn-sm" style="margin-top: 5px;">Review Puzzle</button>
                                     </div>
                                 `;
                             } else if (isL) {
@@ -818,34 +909,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     document.querySelectorAll('.start-puzzle-btn').forEach(btn => {
                         btn.onclick = async () => {
-                            const pDoc = await db.collection(PUZZLES_COLLECTION).doc(btn.dataset.id).get();
-                            if (pDoc.exists) {
-                                const pData = { id: pDoc.id, ...pDoc.data() };
-                                if (!pData.filesByDivision && !pData.filePath) {
-                                    try {
-                                        const secDoc = await db.collection(PUZZLES_COLLECTION).doc(btn.dataset.id).collection('secret').doc('files').get();
-                                        if (secDoc.exists) {
-                                            Object.assign(pData, secDoc.data());
-                                        }
-                                    } catch (err) {
-                                        console.error('Could not fetch secret puzzle files:', err);
-                                        if (window.Toast) Toast.error('Could not access puzzle file. Please verify puzzle is open.');
-                                        return;
-                                    }
-                                }
+                            const pData = await getFullPuzzleData(btn.dataset.id);
+                            if (pData) {
                                 loadPuzzle(pData);
                             }
                         };
                     });
 
-                    document.querySelectorAll('.review-grid-btn').forEach(btn => {
-                        btn.onclick = (e) => {
+                    document.querySelectorAll('.review-puzzle-btn').forEach(btn => {
+                        btn.onclick = async (e) => {
                             e.stopPropagation();
-                            const pid = btn.dataset.id;
-                            const p = ts.find(item => item.id === pid);
-                            const scoreData = subs.get(pid);
-                            if (p && scoreData) {
-                                showSubmittedGridModal(p, scoreData);
+                            const pData = await getFullPuzzleData(btn.dataset.id);
+                            if (pData) {
+                                reviewPuzzle(pData);
                             }
                         };
                     });

@@ -100,17 +100,17 @@ The core engine provides two methods for external control of the clock:
 To prevent solvers from closing the solver window to reset their elapsed time, the timer tick loop in `startTimer()` automatically calls `this.saveGameImmediate()` every **5 seconds** when `tournament_mode` is enabled. This saves both the current grid layout and the elapsed timer value to `localStorage`. When the page is re-opened, the engine restores the timer to the exact elapsed second.
 
 #### Warm-up Puzzle Lifecycle:
-Because warm-up puzzles are client-side only and not submitted to Firestore, completed warm-ups are tracked via `localStorage` (saved in the `completed_warmups` list). Completed warm-up puzzles will show a **"Review Warm-up"** button on the dashboard allowing participants to reopen and review their finished grid.
+Because warm-up puzzles are client-side only and not submitted to Firestore, completed warm-ups are tracked via `localStorage` (saved in the `completed_warmups` list). Completed warm-up puzzles will show a **"Review Warm-up"** button on the dashboard allowing participants to reopen and review their finished grid in the solver with their saved letters pre-loaded.
 
 #### Submitted Puzzle Review (Tournament):
-For completed tournament puzzles, participants can review their finalized attempts via a **"Review Grid"** button (or by clicking the submitted puzzle card) on the dashboard. This displays a modal rendering the solver's score, word accuracy, time, and full serialized grid snapshot in monospace with color-coded errors (red) and unfilled blanks (amber).
+For completed tournament puzzles, participants can review their puzzle in the solver via a **"Review Puzzle"** button on the dashboard. This opens the puzzle in `index.html` with their saved answers pre-loaded from `localStorage` and with check/reveal disabled via base64 config (`has_reveal: false, has_check: false`). Clicking anywhere else on the submitted puzzle card displays a modal showing the solver's score breakdown, accuracy, time, monospace grid snapshot with color-coded errors, and a "Review in Solver" button.
 
 #### Resilient Score Submission Flow:
 To prevent lost scores caused by mobile background tab suspensions, browser tab reloads, or cross-tab reference detachment (`window.opener = null`):
 - `solve.html` connects directly to Firebase Auth and Firestore.
 - When the participant submits a puzzle, `solve.html` calculates the score breakdown, freezes the board, serializes the grid snapshot, and commits the document directly to `scores/${uid}_${puzzleId}` in Firestore (or `localStorage` for warm-ups).
 - It dispatches a best-effort `postMessage` (`CROSSWORD_SOLVED` with `scoreSubmitted: true`) to `window.opener` if the dashboard tab is still open, triggering the dashboard's completion result card without initiating duplicate Firestore writes (which would be blocked by `create`-only security rules).
-- The participant dashboard (`tournament.js`) listens for browser `visibilitychange` events; when a solver returns to the dashboard tab from `solve.html`, it automatically refreshes the puzzle list to show the submitted status and "Review Grid" button without requiring a manual page refresh.
+- The participant dashboard (`tournament.js`) listens for browser `visibilitychange` events; when a solver returns to the dashboard tab from `solve.html`, it automatically refreshes the puzzle list to show the submitted status and "Review Puzzle" button without requiring a manual page refresh.
 
 ---
 
