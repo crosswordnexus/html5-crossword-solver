@@ -13,9 +13,6 @@
 
 // Initialize Firebase (uncomment these lines and the firebaseConfig object when you have your config)
 // firebase.initializeApp(firebaseConfig);
-
-// Enable long-polling transport to prevent 10-second connection timeouts caused by
-// browser HTTP/2 socket pooling and proxy/firewall stream buffering.
 // firebase.firestore().settings({
-//   experimentalForceLongPolling: true
+//   merge: true
 // });
