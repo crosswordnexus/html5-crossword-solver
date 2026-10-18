@@ -666,6 +666,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         url: puzzleParam,
                         type: puzzleParam.slice(puzzleParam.lastIndexOf('.') + 1)
                     },
+                    color_selected: branding.color_selected,
+                    color_word: branding.color_word,
                     has_reveal: false,
                     has_check: false
                 };
