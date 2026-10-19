@@ -237,7 +237,7 @@ async function renderPuzzleForm(container, db, puzzle = null) {
                 const puzzleRef = db.collection(PUZZLES_COLLECTION).doc(puzzle.id);
                 const secretRef = puzzleRef.collection('secret').doc('files');
                 batch.update(puzzleRef, publicData);
-                batch.set(secretRef, secretData, { merge: true });
+                batch.set(secretRef, secretData);
                 await batch.commit();
             } else {
                 const puzzleRef = await db.collection(PUZZLES_COLLECTION).add({
@@ -258,20 +258,18 @@ async function renderPuzzleForm(container, db, puzzle = null) {
 }
 
 /**
- * Loads secret file mappings for a puzzle from its protected subcollection if not present.
+ * Loads secret file mappings for a puzzle from its protected subcollection.
  */
 async function loadSecretFiles(puzzle, db) {
-    if (!puzzle.filesByDivision) {
-        try {
-            const secDoc = await db.collection(PUZZLES_COLLECTION).doc(puzzle.id).collection('secret').doc('files').get();
-            if (secDoc.exists) {
-                const sec = secDoc.data();
-                puzzle.filesByDivision = sec.filesByDivision || {};
-                puzzle.filePath = sec.filePath || '';
-            }
-        } catch (e) {
-            console.warn('Could not load puzzle secret files:', e);
+    try {
+        const secDoc = await db.collection(PUZZLES_COLLECTION).doc(puzzle.id).collection('secret').doc('files').get();
+        if (secDoc.exists) {
+            const sec = secDoc.data();
+            puzzle.filesByDivision = sec.filesByDivision || {};
+            puzzle.filePath = sec.filePath || '';
         }
+    } catch (e) {
+        console.warn('Could not load puzzle secret files:', e);
     }
 }
 
