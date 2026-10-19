@@ -236,13 +236,7 @@ async function renderPuzzleForm(container, db, puzzle = null) {
                 const batch = db.batch();
                 const puzzleRef = db.collection(PUZZLES_COLLECTION).doc(puzzle.id);
                 const secretRef = puzzleRef.collection('secret').doc('files');
-                batch.update(puzzleRef, {
-                    ...publicData,
-                    filePath: firebase.firestore.FieldValue.delete(),
-                    fileName: firebase.firestore.FieldValue.delete(),
-                    filename: firebase.firestore.FieldValue.delete(),
-                    filesByDivision: firebase.firestore.FieldValue.delete()
-                });
+                batch.update(puzzleRef, publicData);
                 batch.set(secretRef, secretData);
                 await batch.commit();
             } else {
@@ -264,7 +258,7 @@ async function renderPuzzleForm(container, db, puzzle = null) {
 }
 
 /**
- * Loads secret file mappings for a puzzle from its protected subcollection if not present.
+ * Loads secret file mappings for a puzzle from its protected subcollection.
  */
 async function loadSecretFiles(puzzle, db) {
     try {
@@ -273,12 +267,6 @@ async function loadSecretFiles(puzzle, db) {
             const sec = secDoc.data();
             puzzle.filesByDivision = sec.filesByDivision || {};
             puzzle.filePath = sec.filePath || '';
-        } else {
-            if (!puzzle.filesByDivision && (puzzle.filePath || puzzle.fileName || puzzle.filename)) {
-                const fb = (puzzle.filePath || puzzle.fileName || puzzle.filename || '').trim();
-                puzzle.filesByDivision = fb ? { default: fb } : {};
-                puzzle.filePath = fb;
-            }
         }
     } catch (e) {
         console.warn('Could not load puzzle secret files:', e);
