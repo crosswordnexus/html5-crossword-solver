@@ -348,6 +348,17 @@ export function parsePuzzle(data) {
 
     let clueIdCounter = 1;
 
+    let savedFakeClues = [];
+    try {
+      const savedFakeStr = localStorage.getItem(this.savegame_name + "_fakeClueCompleted");
+      if (savedFakeStr) {
+        savedFakeClues = JSON.parse(savedFakeStr) || [];
+      }
+    } catch (e) {
+      console.error('Error restoring fake clue completion from localStorage:', e);
+    }
+    const savedFakeCluesSet = new Set(savedFakeClues.map(String));
+
     // Create one CluesGroup per clue set
     clueSets.forEach((clueSet, index) => {
       // Normalize title and word IDs
@@ -357,6 +368,9 @@ export function parsePuzzle(data) {
       // Populate global mapping for quick lookup
       clues.forEach(clue => {
         clue.id = (clueIdCounter++).toString();
+        if (savedFakeCluesSet.has(clue.id)) {
+          clue.fakeClueCompleted = true;
+        }
         if (clue.word) {
           clue.groupTitle = title;
           clueMapping[clue.word] = clue;
