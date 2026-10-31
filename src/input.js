@@ -386,6 +386,7 @@ export function clueClicked(e) {
 
     // Update this specific clue element immediately
     this.updateClueAppearance(clue, target);
+    this.saveGame();
     return;
   }
 

@@ -25,6 +25,18 @@ export function saveGameImmediate() {
   this.fillJsXw();
   // stringify
   const jsxw_str = JSON.stringify(this.jsxw.cells);
+
+  const completedFakeClues = [];
+  if (this.clueGroups) {
+    this.clueGroups.forEach(group => {
+      (group.clues || []).forEach(clue => {
+        if (clue.fakeClueCompleted && clue.id != null) {
+          completedFakeClues.push(clue.id.toString());
+        }
+      });
+    });
+  }
+
   try {
     localStorage.setItem(this.savegame_name, jsxw_str);
     localStorage.setItem(this.savegame_name + "_notes", JSON.stringify(Array.from(this.notes.entries()).filter(n => n[0] != null && n[0] !== 'null').map(n => {
@@ -35,6 +47,11 @@ export function saveGameImmediate() {
     })));
     localStorage.setItem(this.savegame_name + "_timer", (this.xw_timer_seconds || 0).toString());
     localStorage.setItem(this.savegame_name + "_lastmodified", Date.now());
+    if (completedFakeClues.length > 0) {
+      localStorage.setItem(this.savegame_name + "_fakeClueCompleted", JSON.stringify(completedFakeClues));
+    } else {
+      localStorage.removeItem(this.savegame_name + "_fakeClueCompleted");
+    }
   } catch (e) {
     console.error('[Crossword] localStorage save failed. Attempting cleanup...', e);
     const currentLimit = this.config.save_game_limit || 10;
@@ -44,6 +61,11 @@ export function saveGameImmediate() {
       localStorage.setItem(this.savegame_name, jsxw_str);
       localStorage.setItem(this.savegame_name + "_timer", (this.xw_timer_seconds || 0).toString());
       localStorage.setItem(this.savegame_name + "_lastmodified", Date.now());
+      if (completedFakeClues.length > 0) {
+        localStorage.setItem(this.savegame_name + "_fakeClueCompleted", JSON.stringify(completedFakeClues));
+      } else {
+        localStorage.removeItem(this.savegame_name + "_fakeClueCompleted");
+      }
     } catch (e2) {
       console.error('[Crossword] localStorage save failed even after cleanup.', e2);
     }
@@ -68,7 +90,8 @@ export function cleanupSaves(limit = null) {
       !key.endsWith('_notes') &&
       !key.endsWith('_version') &&
       !key.endsWith('_timer') &&
-      !key.endsWith('_lastmodified')) {
+      !key.endsWith('_lastmodified') &&
+      !key.endsWith('_fakeClueCompleted')) {
 
       const lastModifiedStr = localStorage.getItem(key + '_lastmodified');
 
@@ -91,6 +114,7 @@ export function cleanupSaves(limit = null) {
     localStorage.removeItem(key + '_version');
     localStorage.removeItem(key + '_timer');
     localStorage.removeItem(key + '_lastmodified');
+    localStorage.removeItem(key + '_fakeClueCompleted');
   });
 
   // 2. enforce limit on remaining timestamped saves
@@ -107,6 +131,7 @@ export function cleanupSaves(limit = null) {
     localStorage.removeItem(keyToDelete + '_version');
     localStorage.removeItem(keyToDelete + '_timer');
     localStorage.removeItem(keyToDelete + '_lastmodified');
+    localStorage.removeItem(keyToDelete + '_fakeClueCompleted');
   }
 }
 

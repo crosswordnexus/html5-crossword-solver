@@ -721,6 +721,7 @@ import {
                 if (mainClue.length) {
                   mainClue.toggleClass('completed', clue.fakeClueCompleted);
                 }
+                this.saveGame();
               }
             });
           };
